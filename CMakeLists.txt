@@ -38,10 +38,11 @@ find_package(GLEW REQUIRED)
 find_package(assimp REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(Freetype REQUIRED)
 
-include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS})
+include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS})
 
-target_link_libraries(engine assimp glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${SOIL_LIBRARIES})
+target_link_libraries(engine assimp glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${SOIL_LIBRARIES} ${FREETYPE_LIBRARIES})
 endif()
 
 if(WIN32)

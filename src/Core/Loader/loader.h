@@ -11,10 +11,14 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <map>
+
 
 class Loader
 {
 public:
+	static std::map<std::string, GLuint> Shaders;
+
 	Loader();
 	~Loader();
 

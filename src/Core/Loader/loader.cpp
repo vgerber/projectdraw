@@ -1,6 +1,11 @@
 #include "loader.h"
-
+#ifdef _WIN32
 const std::string Loader::ROOT_DIR = "C:/Users/Vincent/Documents/Projects/C++/ProjectDraw/src";
+#endif
+
+#ifdef linux
+const std::string Loader::ROOT_DIR = "/home/vincent/Development/Cpp/opengl/projectdraw/src";
+#endif
 
 Loader::Loader()
 {
@@ -229,7 +234,7 @@ GLuint Loader::LoadGeometryShader(const char * vertex_file_path, const char * fr
 	glDeleteShader(GeometryShaderID);
 	glDeleteShader(FragmentShaderID);
 	
-
+	
 	return ProgramID;
 }
 

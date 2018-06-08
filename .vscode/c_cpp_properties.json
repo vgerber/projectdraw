@@ -8,7 +8,8 @@
                     "/home/vincent/Development/Lib/Cpp/SOIL/src/",
                     "/home/vincent/Development/Lib/Cpp/glm-0.9.9.0/",
                     "/home/vincent/Development/Lib/Cpp/glfw-3.2.1/include/",
-                    "/home/vincent/Development/Lib/Cpp/assimp-master/include/"
+                    "/home/vincent/Development/Lib/Cpp/assimp-master/include/",
+                    "/home/vincent/Development/Lib/Cpp/freetype-2.9/include/"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             },
@@ -17,7 +18,8 @@
                 "/home/vincent/Development/Lib/Cpp/SOIL/src/",
                 "/home/vincent/Development/Lib/Cpp/glm-0.9.9.0/",
                 "/home/vincent/Development/Lib/Cpp/glfw-3.2.1/include/",
-                "/home/vincent/Development/Lib/Cpp/assimp-master/include/"
+                "/home/vincent/Development/Lib/Cpp/assimp-master/include/",
+                "/home/vincent/Development/Lib/Cpp/freetype-2.9/include/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

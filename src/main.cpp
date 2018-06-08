@@ -180,7 +180,7 @@ int main() {
     //Rectangle test_rect = Rectangle(-0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f);
 	
 
-    Drawable test_obj = Drawable("C:/Users/Vincent/Documents/Projects/Blender/TriFace/basic_mountain.obj");
+    Drawable test_obj = Drawable("/home/vincent/Development/Cpp/opengl/basic_mountain.obj");
 	Cube ground = Cube(-100.0f, -0.1f, -100.0f, 200.0f, 0.098f, 200.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f));
 
 	Cube cube = Cube(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, glm::vec4(0.2f, 0.3f, 0.8f, 1.0f));
