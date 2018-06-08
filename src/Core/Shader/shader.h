@@ -1,22 +1,31 @@
 #pragma once
 
 #include <string>
-#include "../Loader/loader.h"
+#include <vector>
+#include "../Resource/loader.h"
+
+enum ShaderType {
+	VERTEX,
+	FRAGMENT,
+	GEOMETRY
+};
+
+struct ShaderLayer {
+	std::string path;
+	ShaderType type;
+};
 
 class Shader
 {
-public:
-	Shader();
-	Shader(std::string id);
-	~Shader();
+public:	
+	std::vector<ShaderLayer> layers;
 
-	void Load(const char* vertex, const char* fragment);
-	void Load(const char* vertex, const char* fragment, const char * geometry);
-	std::string GetId();
-	GLuint GetProgrammId();
+	Shader();
+
+	GLuint GetId();
+	void Load();
 	void Use();
 
 private:
-	std::string id;
-	GLuint programId;
+	GLuint programm_id;
 };

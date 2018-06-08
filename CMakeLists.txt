@@ -53,13 +53,15 @@ include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glm)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/src)
+include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/include)
 
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glew-2.0.0/lib/Release/Win32)
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glfw-3.2.1/lib-vc2015)
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/)
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-3.1.1/build/code/Debug)
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Debug)
+link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/objs/Win32/Debug)
 
-target_link_libraries(engine assimp-vc140-mt glfw3 glew32s SOIL OpenGL32)
+target_link_libraries(engine assimp-vc140-mt glfw3 glew32s SOIL OpenGL32 freetype)
 endif()
 

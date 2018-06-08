@@ -37,7 +37,7 @@ void BasicMesh::Draw(Shader shader)
 		else if (name == "texture_specular")
 			number = std::to_string(specularNr++); // Transfer GLuint to stream
 		// Now set the sampler to the correct texture unit
-		glUniform1i(glGetUniformLocation(shader.GetProgrammId(), (name + number).c_str()), i);
+		glUniform1i(glGetUniformLocation(shader.GetId(), (name + number).c_str()), i);
 		// And finally bind the texture
 		glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
 	}

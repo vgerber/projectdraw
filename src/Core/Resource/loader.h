@@ -16,6 +16,14 @@
 
 #include <map>
 
+const std::string SHADER_FONT = "font";
+const std::string SHADER_BASIC = "basic";
+const std::string SHADER_SKYBOX = "skybox";
+const std::string SHADER_DEPTH = "depth";
+const std::string SHADER_DEPTH_CUBE = "depth_cube";
+const std::string SHADER_DEFERRED = "deferred";
+const std::string SHADER_GEOMETRY = "geometry";
+
 class Loader
 {
 public:
@@ -25,10 +33,6 @@ public:
 	~Loader();
 
 	static std::string GetPath(const GLchar* path);
-
-	static GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_path);
-
-	static GLuint LoadGeometryShader(const char * vertex_file_path, const char * fragment_file_path, const char * geometry_file_path);
 
 	static GLuint LoadCubemap(std::vector<std::string> faces);
 
