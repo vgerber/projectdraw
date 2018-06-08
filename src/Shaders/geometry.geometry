@@ -1,0 +1,42 @@
+#version 330 core
+layout (points) in;
+layout (triangle_strip, max_vertices = 5) out;
+
+
+in VS_OUT {
+	vec3 color;
+} gs_in[];
+
+out vec3 fColor;
+
+void build_house(vec4 position);
+void line_test(vec4 position);
+
+void main() {	
+	fColor = gs_in[0].color;
+	build_house(gl_in[0].gl_Position);	
+}
+
+void build_house(vec4 position) {
+	gl_Position = position + vec4(-0.07, -0.07, 0.0, 0.0);
+	EmitVertex();
+	gl_Position = position + vec4(0.07, -0.07, 0.0, 0.0);
+	EmitVertex();
+	gl_Position = position + vec4(-0.07, 0.07, 0.0, 0.0);
+	EmitVertex();
+	gl_Position = position + vec4(0.07, 0.07, 0.0, 0.0);
+	EmitVertex();
+
+	EndPrimitive();
+}
+
+void line_test(vec4 position) {
+	gl_Position = position + vec4(-0.1, 0.0, 0.0, 0.0);
+	EmitVertex();
+
+	gl_Position = position + vec4(0.1, 0.0, 0.0, 0.0);
+	EmitVertex();
+
+	EndPrimitive();
+}
+

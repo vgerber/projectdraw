@@ -1,0 +1,30 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/src",
+                    "/home/vincent/Development/Lib/Cpp/SOIL/src/",
+                    "/home/vincent/Development/Lib/Cpp/glm-0.9.9.0/",
+                    "/home/vincent/Development/Lib/Cpp/glfw-3.2.1/include/",
+                    "/home/vincent/Development/Lib/Cpp/assimp-master/include/"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "${workspaceFolder}/src/",
+                "/home/vincent/Development/Lib/Cpp/SOIL/src/",
+                "/home/vincent/Development/Lib/Cpp/glm-0.9.9.0/",
+                "/home/vincent/Development/Lib/Cpp/glfw-3.2.1/include/",
+                "/home/vincent/Development/Lib/Cpp/assimp-master/include/"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}
