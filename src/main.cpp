@@ -13,7 +13,7 @@
 #include "Core/Scene/Primitive/3D/cube.h"
 #include "Core/Scene/Light/dlight.h"
 #include "Core/Scene/Light/plight.h"
-#include "Core/Text/font.h"
+#include "Core/Scene/Text/text.h"
 
 GLfloat deltaTime = 0.0f, mouseX = 0, mouseY = 0, mousePitch = 0, mouseYaw = 0, mouseRoll = 0;
 GLfloat WIDTH = 800.0f, HEIGHT = 600.0f;
@@ -734,7 +734,7 @@ int main() {
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 		shader_font.Use();
-		fontVera.RenderText(shader_font, std::to_string((int)round(1 / deltaTime)), 1.0f, 580.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		//fontVera.RenderText(shader_font, std::to_string((int)round(1 / deltaTime)), 1.0f, 580.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 
 		glfwSwapBuffers(window);
