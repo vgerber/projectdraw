@@ -40,7 +40,7 @@ void Shader::Load()
 		}
 
 		// Compile Vertex Shader
-		printf("Compiling shader : %s\n", layer.path);
+		printf("Compiling shader : %s\n", layer.path.c_str());
 		char const * code_ptr = code.c_str();
 		glShaderSource(shader_id, 1, &code_ptr, NULL);
 		glCompileShader(shader_id);

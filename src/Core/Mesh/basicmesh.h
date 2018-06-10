@@ -10,7 +10,6 @@
 #include <assimp/Importer.hpp>
 
 #include "../Shader/shader.h"
-#include "../Mesh/basicmesh.h"
 
 #include <vector>
 

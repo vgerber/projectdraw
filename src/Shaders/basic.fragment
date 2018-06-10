@@ -3,6 +3,7 @@
 layout (location = 0) out vec4 Position;
 layout (location = 1) out vec4 Normal;
 layout (location = 2) out vec4 Albedo;
+layout (location = 3) out vec4 UseLight;
 
 in VS_OUT {
 	vec2 TexCoords;
@@ -113,6 +114,7 @@ void main() {
 	Albedo = fs_in.Color;
 	Position = vec4(fs_in.FragPos, 1.0);
 	Normal = vec4(normal, 1.0);
+	UseLight = vec4(1.0);
 
 }
 

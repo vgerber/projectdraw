@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build engine",
+            "label": "build and run engine",
             "type": "shell",
-            "command": "cd build/ && make",
+            "command": "cd build/ && make && ./engine",
             "group": {
                 "kind": "build",
                 "isDefault": true

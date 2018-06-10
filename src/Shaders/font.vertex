@@ -1,6 +1,5 @@
 #version 330 core
 layout (location = 0) in vec4 vertex; //2x pos + 2x tex
-out vec2 TexCoords;
 
 layout (std140) uniform Matrices {
 	uniform mat4 view;
@@ -9,7 +8,15 @@ layout (std140) uniform Matrices {
 
 uniform mat4 model;
 
+out VS_OUT {
+	vec2 TexCoords;
+	vec3 Normal;
+	vec3 FragPos;
+} vs_out;
+
 void main() {
-	gl_Position = projection * view * model * vec4(vertex.xy, 0.0, 1.0);
-	TexCoords = vertex.zw;
+	gl_Position = projection * view *  model * vec4(vertex.xy, 0.0, 1.0);
+	vs_out.TexCoords = vertex.zw;
+	vs_out.FragPos = vec3(vertex.xy, 1.0);
+	vs_out.Normal = vec3(0.0, 0.0, 1.0);
 }

@@ -3,7 +3,7 @@
 Text::Text(std::string font_path, GLuint size)
 {
 	font = Font(font_path.c_str(), size);
-	shader = Loader::Shaders[SHADER_FONT];
+	shader = Shaders[SHADER_FONT];
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -18,6 +18,7 @@ Text::Text(std::string font_path, GLuint size)
 
 void Text::Draw()
 {
+	glDisable(GL_CULL_FACE);
 	shader.Use();
 	glUniformMatrix4fv(glGetUniformLocation(shader.GetId(), "model"), 1, GL_FALSE, glm::value_ptr(model));
 	glUniform3f(glGetUniformLocation(shader.GetId(), "textColor"), color.x, color.y, color.z);
@@ -58,6 +59,7 @@ void Text::Draw()
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glEnable(GL_CULL_FACE);
 }
 
 void Text::setColor(glm::vec4 color)
