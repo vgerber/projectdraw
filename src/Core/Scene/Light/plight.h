@@ -7,6 +7,7 @@ public:
 	GLfloat linear = 0.0f;
 	GLfloat quadratic = 0.0f;
 
+	PointLight();
 	void apply(Shader shader, std::string target);
 	void begin_shadow_mapping();
 	void end_shadow_mapping();

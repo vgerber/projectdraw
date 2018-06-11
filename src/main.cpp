@@ -440,6 +440,7 @@ int main() {
 	dLight.change_direction(glm::vec3(-2.0f, -10.0f, 0.0f));
 
 	scene_main.add_plight(pLight);
+	pLight.SetPosition(glm::vec3(-5.0f, 2.0f, 0.0f));
 
 	scene_main.add_object(ground);
 	scene_main.add_object(cube);

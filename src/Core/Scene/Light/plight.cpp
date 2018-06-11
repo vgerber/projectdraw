@@ -1,5 +1,9 @@
 #include "plight.h"
 
+PointLight::PointLight() {
+	setup();
+}
+
 void PointLight::apply(Shader shader, std::string target)
 {
 	Light::apply(shader, target);
