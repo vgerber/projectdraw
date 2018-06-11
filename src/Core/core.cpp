@@ -70,7 +70,7 @@ void init_core() {
 	Shader shader_deferred;
 	shader_deferred.layers = {
 		{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX },
-		{ Loader::GetPath("/Shaders/texture.fragment").c_str(), ShaderType::FRAGMENT }
+		{ Loader::GetPath("/Shaders/deferred.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shader_deferred.load();
 	Shaders[SHADER_DEFERRED] = shader_deferred;

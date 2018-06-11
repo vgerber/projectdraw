@@ -1,12 +1,9 @@
 #include "scene.h"
 
-
-
 Scene::Scene()
 {
 	setup(800, 600);
 }
-
 
 Scene::~Scene()
 {
@@ -17,7 +14,7 @@ void Scene::add_object(Drawable &drawable)
 	objects.push_back(&drawable);
 }
 
-void Scene::add_plight(PointLight & plight)
+void Scene::add_plight(PointLight &plight)
 {
 	point_lights.push_back(&plight);
 }
@@ -27,7 +24,7 @@ void Scene::set_camera(Camera &camera)
 	this->camera = &camera;
 }
 
-void Scene::set_dlight(DirectionalLight & dlight)
+void Scene::set_dlight(DirectionalLight &dlight)
 {
 	directional_light = &dlight;
 }
@@ -36,11 +33,13 @@ void Scene::draw(GLfloat delta)
 {
 	Shader shader_basic = Shaders[SHADER_BASIC];
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	if (directional_light) {
+	if (directional_light)
+	{
 		Shader shader_depth = Shaders[SHADER_DEPTH];
 
-		directional_light->begin_shadow_mapping();	
-		for (auto drawable : objects) {
+		directional_light->begin_shadow_mapping();
+		for (auto drawable : objects)
+		{
 
 			glUniformMatrix4fv(glGetUniformLocation(shader_depth.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->GetModelMatrix()));
 
@@ -49,10 +48,25 @@ void Scene::draw(GLfloat delta)
 		directional_light->end_shadow_mapping();
 	}
 
+	if (point_lights.size() > 0)
+	{
+		Shader shader_depth_cube = Shaders[SHADER_DEPTH_CUBE];
+		for (auto plight : point_lights)
+		{
+			plight->begin_shadow_mapping();
+			for (auto drawable : objects)
+			{
+				glUniformMatrix4fv(glGetUniformLocation(shader_depth_cube.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->GetModelMatrix()));
+				drawable->Draw(shader_depth_cube);
+			}
+			plight->end_shadow_mapping();
+		}
+	}
+
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
 	glViewport(0, 0, width, height);
 	glClearColor(0.4f, 0.4f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shader_basic.use();
 
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
@@ -60,12 +74,11 @@ void Scene::draw(GLfloat delta)
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera->GetCameraMatrix(width, height)));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	for (auto drawable : objects) {
+	for (auto drawable : objects)
+	{
 		glUniformMatrix4fv(glGetUniformLocation(shader_basic.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->GetModelMatrix()));
 		drawable->Draw(shader_basic);
 	}
-
-
 
 	//render to window frame
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -73,38 +86,63 @@ void Scene::draw(GLfloat delta)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Shader shader_deferred = Shaders[SHADER_DEFERRED];
 	shader_deferred.use();
-	
+
 	glUniform3f(glGetUniformLocation(shader_deferred.get_id(), "viewPos"), camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z);
 
-	/*glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gPosition"), 0);
-	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gNormal"),   1);
-	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gAlbedo"),   2);
-	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gUseLight"), 3);*/
-	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "screenTexture"), 0);
+	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gPosition"), 0);
+	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gNormal"), 1);
+	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gAlbedo"), 2);
+	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gUseLight"), 3);
 
-	/*glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, gBufferPosition);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, gBufferNormal);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, gBufferUseLight);*/
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, directional_light->get_shadow_map());
+	glBindTexture(GL_TEXTURE_2D, gBufferUseLight);
 
-	if (directional_light) {
+	if (directional_light)
+	{
 		directional_light->apply(shader_deferred, "dirLight");
 		glUniform1i(glGetUniformLocation(shader_deferred.get_id(), "dirLight.shadowMap"), 4);
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_2D, directional_light->get_shadow_map());
 	}
+	GLint plight_count = 0;
+	glUniform1i(glGetUniformLocation(shader_deferred.get_id(), "pointLights"), point_lights.size());
+	for (auto plight : point_lights)
+	{
+		plight->apply(shader_deferred, "pointLight");
+		glUniform1i(glGetUniformLocation(shader_deferred.get_id(), "pointLight.shadowCubeMap"), 5);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
+		plight_count++;
+	}
+	
 
 	GLfloat vertices_rect[] = {
-		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		-1.0f,
+		1.0f,
+		0.0f,
+		0.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
+		0.0f,
+		0.0f,
+		0.0f,
+		1.0f,
+		1.0f,
+		0.0f,
+		1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		0.0f,
+		1.0f,
+		0.0f,
 	};
 
 	GLuint screenRectVBO;
@@ -119,9 +157,9 @@ void Scene::draw(GLfloat delta)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_rect), &vertices_rect, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
 	glBindVertexArray(0);
 
 	glBindVertexArray(screenRectVAO);
@@ -171,7 +209,7 @@ void Scene::setup(int width, int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gBufferUseLight, 0);
 
-	GLuint gAttachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 , GL_COLOR_ATTACHMENT3 };
+	GLuint gAttachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
 	glDrawBuffers(4, gAttachments);
 
 	GLuint rboGDepth;
@@ -184,7 +222,6 @@ void Scene::setup(int width, int height)
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer not complete!" << std::endl;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 
 	glGenBuffers(1, &uboMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);

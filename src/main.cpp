@@ -103,10 +103,10 @@ int main() {
 	//
 	// Light
 	//
-	DirectionalLight dLight;
-	dLight.direction = glm::vec3(-2.0f, -2.0f, -2.0f);
+	DirectionalLight dLight = DirectionalLight();
+	//dLight.direction = glm::vec3(-2.0f, -2.0f, -2.0f);
 	dLight.ambient = glm::vec3(0.001f, 0.001f, 0.001f);
-	dLight.diffuse = glm::vec3(0.9f, 0.9f, 0.9f);
+	dLight.diffuse = glm::vec3(0.1f, 0.1f, 0.1f);
 	dLight.specular = glm::vec3(0.03f, 0.03f, 0.03f);
 
 	PointLight pLight;
@@ -291,7 +291,7 @@ int main() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	GLfloat near_plane = 0.1f, far_plane = 100.0f;
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-	glm::mat4 lightView = glm::lookAt(-dLight.direction, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightView = glm::lookAt(-dLight.get_direction(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
 
@@ -437,9 +437,13 @@ int main() {
 	scene_main.set_camera(mainCamera);
 
 	scene_main.set_dlight(dLight);
+	dLight.change_direction(glm::vec3(-2.0f, -10.0f, 0.0f));
+
+	scene_main.add_plight(pLight);
 
 	scene_main.add_object(ground);
 	scene_main.add_object(cube);
+	scene_main.add_object(test_obj);
 
 
 	//depth
@@ -669,15 +673,16 @@ int main() {
 		//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
 
+
+		//fontVera.RenderText(shader_font, ), 1.0f, 580.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+		scene_main.draw(deltaTime);
 		glDisable(GL_DEPTH_TEST);
 		Shaders[SHADER_GEOMETRY].use();
 		glBindVertexArray(geoPointVAO);
 		glDrawArrays(GL_POINTS, 0, 4);
 		glBindVertexArray(0);
 		glEnable(GL_DEPTH_TEST);
-		//fontVera.RenderText(shader_font, ), 1.0f, 580.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-
-		scene_main.draw(deltaTime);
 
 		glfwSwapBuffers(window);
 		GLfloat currentTime = glfwGetTime();

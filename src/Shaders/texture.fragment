@@ -8,7 +8,7 @@ uniform sampler2D screenTexture;
 uniform float exposure;
 
 void main() {
-	color = vec4(vec3(0.4), 1.0); //vec4(vec3(texture(screenTexture, TexCoords).r), 1.0);
+	color = vec4(vec3(texture(screenTexture, TexCoords).r), 1.0);
 	//float average = (color.r + color.g + color.b) / 3.0;
 	//color = vec4(average, average, average, 1.0);
 	//color = vec4(texture(screenTexture) , 1.0f);

@@ -4,10 +4,11 @@
 
 class DirectionalLight : public Light {
 public:
-	glm::vec3 direction;
+	
 
 	DirectionalLight();
-
+	void change_direction(glm::vec3 direction);
+	glm::vec3 get_direction();
 	void apply(Shader shader, std::string target);
 
 	void begin_shadow_mapping();
@@ -15,6 +16,7 @@ public:
 
 	GLuint get_shadow_map();
 private:
+	glm::vec3 direction = glm::vec3(-1.0f);
 	GLuint depthMapFBO;
 	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 	GLuint depthMap;
@@ -22,4 +24,6 @@ private:
 	glm::mat4 lightProjection;
 	glm::mat4 lightView;
 	glm::mat4 lightSpaceMatrix;
+
+	void setup();
 };
