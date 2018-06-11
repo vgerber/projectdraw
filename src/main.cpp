@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "Core/core.h"
+#include "Core/Scene/scene.h"
 #include "Core/Scene/Camera/camera.h"
 #include "Core/Scene/Primitive/3D/cube.h"
 #include "Core/Scene/Light/dlight.h"
@@ -58,7 +59,7 @@ int main() {
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, mouse_scroll_callback);
 
-	initCore();
+	init_core();
 	//
 	// Handle Vertex Objects
 	//
@@ -103,9 +104,9 @@ int main() {
 	// Light
 	//
 	DirectionalLight dLight;
-	dLight.direction = glm::vec3(-1.0f, -1.0f, -1.0f);
+	dLight.direction = glm::vec3(-2.0f, -2.0f, -2.0f);
 	dLight.ambient = glm::vec3(0.001f, 0.001f, 0.001f);
-	dLight.diffuse = glm::vec3(0.01f, 0.01f, 0.01f);
+	dLight.diffuse = glm::vec3(0.9f, 0.9f, 0.9f);
 	dLight.specular = glm::vec3(0.03f, 0.03f, 0.03f);
 
 	PointLight pLight;
@@ -252,9 +253,8 @@ int main() {
 	//
 	// Uniform Block Binding
 	//
-	glUniformBlockBinding(Shaders[SHADER_BASIC].GetId(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].GetId(), "Matrices"), 0);
-	glUniformBlockBinding(Shaders[SHADER_FONT].GetId(), glGetUniformBlockIndex(Shaders[SHADER_FONT].GetId(), "Matrices"), 0);
-	glUniformBlockBinding(Shaders[SHADER_SKYBOX].GetId(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].GetId(), "Matrices"), 0);
+
+
 
 	GLuint uboMatrices;
 	glGenBuffers(1, &uboMatrices);
@@ -427,9 +427,19 @@ int main() {
 	// TEXT FreeType
 	//
 	Text text_fps(Loader::GetPath("/Fonts/VeraMono.ttf").c_str(), 60);
-	Shaders[SHADER_FONT].Use();
+	Shaders[SHADER_FONT].use();
 	text_fps.Scale(0.01f, 0.01f, 0.01f);
-	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_FONT].GetId(), "model"), 1, GL_FALSE, glm::value_ptr(text_fps.GetModelMatrix()));
+	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_FONT].get_id(), "model"), 1, GL_FALSE, glm::value_ptr(text_fps.GetModelMatrix()));
+
+
+
+	Scene scene_main;
+	scene_main.set_camera(mainCamera);
+
+	scene_main.set_dlight(dLight);
+
+	scene_main.add_object(ground);
+	scene_main.add_object(cube);
 
 
 	//depth
@@ -467,8 +477,8 @@ int main() {
 		// Shadow mapping
 		//
 		glCullFace(GL_FRONT);		
-		Shaders[SHADER_DEPTH].Use();
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH].GetId(), "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+		Shaders[SHADER_DEPTH].use();
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH].get_id(), "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -476,11 +486,11 @@ int main() {
 		
 
 		//render Scne in Depth Buffer
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH].GetId(), "model"), 1, GL_FALSE, glm::value_ptr(ground.GetModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH].get_id(), "model"), 1, GL_FALSE, glm::value_ptr(ground.GetModelMatrix()));
 		ground.Draw(Shaders[SHADER_DEPTH]);
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH].GetId(), "model"), 1, GL_FALSE, glm::value_ptr(cube.GetModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH].get_id(), "model"), 1, GL_FALSE, glm::value_ptr(cube.GetModelMatrix()));
 		cube.Draw(Shaders[SHADER_DEPTH]);
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH].GetId(), "model"), 1, GL_FALSE, glm::value_ptr(test_obj.GetModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH].get_id(), "model"), 1, GL_FALSE, glm::value_ptr(test_obj.GetModelMatrix()));
 		test_obj.Draw(Shaders[SHADER_DEPTH]);
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -489,26 +499,26 @@ int main() {
 
 
 		//Shadow Mapping PointLight
-		Shaders[SHADER_DEPTH_CUBE].Use();
+		Shaders[SHADER_DEPTH_CUBE].use();
 		glViewport(0, 0, SHADOW_C_WIDTH, SHADOW_C_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthCubemapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].GetId(), "shadowMatrices[0]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[0]));
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].GetId(), "shadowMatrices[1]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[1]));
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].GetId(), "shadowMatrices[2]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[2]));
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].GetId(), "shadowMatrices[3]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[3]));
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].GetId(), "shadowMatrices[4]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[4]));
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].GetId(), "shadowMatrices[5]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[5]));
-		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].GetId(), "far_plane"), far);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].GetId(), "lightPos"), pLight.GetPosition().x, pLight.GetPosition().y, pLight.GetPosition().z);
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[0]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[0]));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[1]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[1]));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[2]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[2]));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[3]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[3]));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[4]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[4]));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[5]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[5]));
+		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "far_plane"), far);
+		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "lightPos"), pLight.GetPosition().x, pLight.GetPosition().y, pLight.GetPosition().z);
 
 		//render Scene in Depth Buffer
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].GetId(), "model"), 1, GL_FALSE, glm::value_ptr(ground.GetModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "model"), 1, GL_FALSE, glm::value_ptr(ground.GetModelMatrix()));
 		ground.Draw(Shaders[SHADER_DEPTH_CUBE]);
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].GetId(), "model"), 1, GL_FALSE, glm::value_ptr(cube.GetModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "model"), 1, GL_FALSE, glm::value_ptr(cube.GetModelMatrix()));
 		cube.Draw(Shaders[SHADER_DEPTH_CUBE]);
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].GetId(), "model"), 1, GL_FALSE, glm::value_ptr(test_obj.GetModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "model"), 1, GL_FALSE, glm::value_ptr(test_obj.GetModelMatrix()));
 		test_obj.Draw(Shaders[SHADER_DEPTH_CUBE]);
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -532,22 +542,22 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//glEnable(GL_DEPTH_TEST);
 
-		Shaders[SHADER_FONT].Use();
+		Shaders[SHADER_FONT].use();
 		text_fps.setText(std::to_string((int)round(1 / deltaTime)));
 		text_fps.setColor(glm::vec4(0.2f, 0.5f, 1.0f, 0.0f));
 		text_fps.Draw();
 
-		Shaders[SHADER_BASIC].Use();
+		Shaders[SHADER_BASIC].use();
 
         //glUseProgram(shader.GetProgrammId());
 
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_BASIC].GetId(), "model"), 1, GL_FALSE, glm::value_ptr(ground.GetModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_BASIC].get_id(), "model"), 1, GL_FALSE, glm::value_ptr(ground.GetModelMatrix()));
 		ground.Draw(Shaders[SHADER_BASIC]);
 		
 
 
 
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_BASIC].GetId(), "model"), 1, GL_FALSE, glm::value_ptr(test_obj.GetModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_BASIC].get_id(), "model"), 1, GL_FALSE, glm::value_ptr(test_obj.GetModelMatrix()));
 		test_obj.Draw(Shaders[SHADER_BASIC]);
 		
 		//draw normals
@@ -560,7 +570,7 @@ int main() {
 		//glActiveTexture(GL_TEXTURE0);
 		//glBindTexture(GL_TEXTURE_2D, texture_window);
 		//glUniform1i(glGetUniformLocation(cube.GetShader().GetProgrammId(), "tex"), 0);
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_BASIC].GetId(), "model"), 1, GL_FALSE, glm::value_ptr(cube.GetModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_BASIC].get_id(), "model"), 1, GL_FALSE, glm::value_ptr(cube.GetModelMatrix()));
 		cube.Draw(Shaders[SHADER_BASIC]);
 
 		/*glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -627,19 +637,19 @@ int main() {
 		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		Shaders[SHADER_DEFERRED].Use();
-		dLight.Apply(Shaders[SHADER_DEFERRED], "dirLight");
-		pLight.Apply(Shaders[SHADER_DEFERRED], "pointLight");
-		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEFERRED].GetId(), "far_plane"), far);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].GetId(), "viewPos"), mainCamera.GetPosition().x, mainCamera.GetPosition().y, mainCamera.GetPosition().z);
-		glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEFERRED].GetId(), "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+		Shaders[SHADER_DEFERRED].use();
+		//dLight.apply(Shaders[SHADER_DEFERRED], "dirLight");
+		//pLight.Apply(Shaders[SHADER_DEFERRED], "pointLight");
+		//glUniform1f(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "far_plane"), far);
+		//glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "viewPos"), mainCamera.GetPosition().x, mainCamera.GetPosition().y, mainCamera.GetPosition().z);
+		//glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 
-		glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].GetId(), "shadowMap"),	 0);
-		glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].GetId(), "shadowCubeMap"), 1);
-		glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].GetId(), "gPosition"),  2);
-		glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].GetId(), "gNormal"),	 3);
-		glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].GetId(), "gAlbedo"),	 4);
-		glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].GetId(), "gUseLight"),	 5);
+		/*glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "shadowMap"),	 0);
+		glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "shadowCubeMap"), 1);
+		glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gPosition"),  2);
+		glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gNormal"),	 3);
+		glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gAlbedo"),	 4);
+		glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "gUseLight"),	 5);
 
 
 		glActiveTexture(GL_TEXTURE0);
@@ -653,27 +663,28 @@ int main() {
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
 		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_2D, gBufferUseLight);
+		glBindTexture(GL_TEXTURE_2D, gBufferUseLight);*/
 
 		glBindVertexArray(screenRectVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
 
 		glDisable(GL_DEPTH_TEST);
-		Shaders[SHADER_GEOMETRY].Use();
+		Shaders[SHADER_GEOMETRY].use();
 		glBindVertexArray(geoPointVAO);
 		glDrawArrays(GL_POINTS, 0, 4);
 		glBindVertexArray(0);
 		glEnable(GL_DEPTH_TEST);
 		//fontVera.RenderText(shader_font, ), 1.0f, 580.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
+		scene_main.draw(deltaTime);
 
 		glfwSwapBuffers(window);
 		GLfloat currentTime = glfwGetTime();
 		deltaTime = currentTime - lastTime;
 		lastTime = currentTime;
 	}
-
+	scene_main.dispose();
 	//glDeleteFramebuffers(1, &fbo_texture);
 
 	glfwTerminate();

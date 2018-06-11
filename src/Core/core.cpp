@@ -1,13 +1,13 @@
 #include "core.h"
 
-void initCore() {
+void init_core() {
 	Shader shader_geometry;
 	shader_geometry.layers = {
 		{ Loader::GetPath("/Shaders/geometry.vertex").c_str(), ShaderType::VERTEX },
 		{ Loader::GetPath("/Shaders/geometry.fragment").c_str(), ShaderType::FRAGMENT },
 		{ Loader::GetPath("/Shaders/geometry.geometry").c_str(), ShaderType::GEOMETRY }
 	};
-	shader_geometry.Load();
+	shader_geometry.load();
 	Shaders[SHADER_GEOMETRY] = shader_geometry;
 
 
@@ -17,7 +17,7 @@ void initCore() {
 		{ Loader::GetPath("/Shaders/normal.fragment").c_str(), ShaderType::FRAGMENT },
 		{ Loader::GetPath("/Shaders/normal.geometry").c_str(), ShaderType::GEOMETRY }
 	};
-	shader_normal_geometry.Load();
+	shader_normal_geometry.load();
 	Shaders["normal_geometry"] = shader_normal_geometry;
 
 
@@ -27,7 +27,7 @@ void initCore() {
 		{ Loader::GetPath("/Shaders/cube_depth.fragment").c_str(), ShaderType::FRAGMENT },
 		{ Loader::GetPath("/Shaders/cube_depth.geometry").c_str(), ShaderType::GEOMETRY }
 	};
-	shader_depth_cube.Load();
+	shader_depth_cube.load();
 	Shaders[SHADER_DEPTH_CUBE] = shader_depth_cube;
 
 
@@ -36,7 +36,7 @@ void initCore() {
 		{ Loader::GetPath("/Shaders/depth.vertex").c_str(), ShaderType::VERTEX },
 		{ Loader::GetPath("/Shaders/depth.fragment").c_str(), ShaderType::FRAGMENT }
 	};
-	shader_depth.Load();
+	shader_depth.load();
 	Shaders[SHADER_DEPTH] = shader_depth;
 
 
@@ -45,7 +45,7 @@ void initCore() {
 		{ Loader::GetPath("/Shaders/instancing.vertex").c_str(), ShaderType::VERTEX},
 		{ Loader::GetPath("/Shaders/instancing.fragment").c_str(), ShaderType::FRAGMENT}
 	};
-	shader_instancing.Load();
+	shader_instancing.load();
 	Shaders["instancing"] = shader_instancing;
 
 
@@ -54,7 +54,7 @@ void initCore() {
 		{ Loader::GetPath("/Shaders/basic.vertex").c_str(), ShaderType::VERTEX },
 		{ Loader::GetPath("/Shaders/basic.fragment").c_str(), ShaderType::FRAGMENT }
 	};
-	shader_basic.Load();
+	shader_basic.load();
 	Shaders[SHADER_BASIC] = shader_basic;
 
 
@@ -63,16 +63,16 @@ void initCore() {
 		{ Loader::GetPath("/Shaders/basic.vertex").c_str(), ShaderType::VERTEX },
 		{ Loader::GetPath("/Shaders/lamp.fragment").c_str(), ShaderType::FRAGMENT }
 	};
-	shader1.Load();
+	shader1.load();
 	Shaders["1"] = shader1;
 
 
 	Shader shader_deferred;
 	shader_deferred.layers = {
 		{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX },
-		{ Loader::GetPath("/Shaders/deferred.fragment").c_str(), ShaderType::FRAGMENT }
+		{ Loader::GetPath("/Shaders/texture.fragment").c_str(), ShaderType::FRAGMENT }
 	};
-	shader_deferred.Load();
+	shader_deferred.load();
 	Shaders[SHADER_DEFERRED] = shader_deferred;
 
 
@@ -81,7 +81,7 @@ void initCore() {
 		{ Loader::GetPath("/Shaders/font.vertex").c_str(), ShaderType::VERTEX },
 		{ Loader::GetPath("/Shaders/font.fragment").c_str(), ShaderType::FRAGMENT }
 	};
-	shader_font.Load();
+	shader_font.load();
 	Shaders[SHADER_FONT] = shader_font;
 
 
@@ -90,7 +90,12 @@ void initCore() {
 		{ Loader::GetPath("/Shaders/skybox.vertex").c_str(), ShaderType::VERTEX },
 		{ Loader::GetPath("/Shaders/skybox.fragment").c_str(), ShaderType::FRAGMENT }
 	};
-	shader_skybox.Load();
+	shader_skybox.load();
 	Shaders[SHADER_SKYBOX] = shader_skybox;
+
+
+	glUniformBlockBinding(Shaders[SHADER_BASIC].get_id(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].get_id(), "Matrices"), 0);
+	glUniformBlockBinding(Shaders[SHADER_FONT].get_id(), glGetUniformBlockIndex(Shaders[SHADER_FONT].get_id(), "Matrices"), 0);
+	glUniformBlockBinding(Shaders[SHADER_SKYBOX].get_id(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].get_id(), "Matrices"), 0);
 
 }

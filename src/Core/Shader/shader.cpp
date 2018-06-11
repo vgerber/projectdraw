@@ -4,12 +4,12 @@ Shader::Shader()
 {
 }
 
-GLuint Shader::GetId()
+GLuint Shader::get_id()
 {
 	return programm_id;
 }
 
-void Shader::Load()
+void Shader::load()
 {
 	GLint result = GL_FALSE;
 	int info_length;
@@ -80,7 +80,7 @@ void Shader::Load()
 
 }
 
-void Shader::Use()
+void Shader::use()
 {
 	glUseProgram(programm_id);
 }

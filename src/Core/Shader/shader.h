@@ -22,9 +22,9 @@ public:
 
 	Shader();
 
-	GLuint GetId();
-	void Load();
-	void Use();
+	GLuint get_id();
+	void load();
+	void use();
 
 private:
 	GLuint programm_id;

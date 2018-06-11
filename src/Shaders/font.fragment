@@ -22,5 +22,5 @@ void main() {
 	Albedo = vec4(textColor, 1.0) * sampled.a;
 	Normal = vec4(fs_in.Normal, 1.0);
 	Position = vec4(fs_in.FragPos, 1.0);
-	UseLight = vec4(0.0);
+	UseLight = vec4(vec3(0.0), 1.0);
 }

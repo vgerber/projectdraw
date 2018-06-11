@@ -4,4 +4,4 @@
 #include "Shader/shader.h"
 
 
-void initCore();
+void init_core();

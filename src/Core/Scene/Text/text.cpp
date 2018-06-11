@@ -19,9 +19,9 @@ Text::Text(std::string font_path, GLuint size)
 void Text::Draw()
 {
 	glDisable(GL_CULL_FACE);
-	shader.Use();
-	glUniformMatrix4fv(glGetUniformLocation(shader.GetId(), "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glUniform3f(glGetUniformLocation(shader.GetId(), "textColor"), color.x, color.y, color.z);
+	shader.use();
+	glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniform3f(glGetUniformLocation(shader.get_id(), "textColor"), color.x, color.y, color.z);
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
 
