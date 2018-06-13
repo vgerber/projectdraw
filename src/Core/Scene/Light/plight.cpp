@@ -38,9 +38,9 @@ void PointLight::end_shadow_mapping()
 	glCullFace(GL_BACK);		
 }
 
-void PointLight::SetPosition(glm::vec3 position)
+void PointLight::set_position(glm::vec3 position)
 {
-	this->position = position;
+	Drawable::set_position(position);
 	setup_shadow_cube();
 }
 

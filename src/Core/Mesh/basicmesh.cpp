@@ -22,7 +22,7 @@ BasicMesh::~BasicMesh()
 {
 }
 
-void BasicMesh::Draw(Shader shader)
+void BasicMesh::draw(Shader shader)
 {
 	//glUseProgram(shader.GetProgrammId());
 	GLuint diffuseNr = 1;
@@ -57,24 +57,24 @@ void BasicMesh::Draw(Shader shader)
 	}
 }
 
-void BasicMesh::DrawNormals(Shader normalShader)
+void BasicMesh::draw_normals(Shader normalShader)
 {
 	glBindVertexArray(this->VAO);
 	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-std::vector<Vertex> BasicMesh::GetVertices()
+std::vector<Vertex> BasicMesh::get_vertices()
 {
 	return vertices;
 }
 
-std::vector<GLuint> BasicMesh::GetIndices()
+std::vector<GLuint> BasicMesh::get_indices()
 {
 	return indices;
 }
 
-std::vector<Texture> BasicMesh::getTextures()
+std::vector<Texture> BasicMesh::get_textures()
 {
 	return textures;
 }

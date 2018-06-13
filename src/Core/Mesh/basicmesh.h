@@ -38,12 +38,12 @@ public:
 	BasicMesh(std::vector<Vertex> vertices, std::vector<GLuint> indices);
 	~BasicMesh();
 
-	void Draw(Shader shader);
-	void DrawNormals(Shader normalShader);
+	void draw(Shader shader);
+	void draw_normals(Shader normalShader);
 
-	std::vector<Vertex> GetVertices();
-	std::vector<GLuint> GetIndices();
-	std::vector<Texture> getTextures();
+	std::vector<Vertex> get_vertices();
+	std::vector<GLuint> get_indices();
+	std::vector<Texture> get_textures();
 protected:
 	GLuint VAO, VBO, EBO;
 

@@ -1,26 +1,26 @@
 #include "cube.h"
 
 
-Cube::Cube(float x, float y, float z, float width, float length, float height, glm::vec4 color = glm::vec4(0.0f))
+Cube::Cube(float x, float y, float z, float width, float depth, float height, glm::vec4 color = glm::vec4(0.0f))
 {
 	std::vector<GLfloat> vertices = {
 		x,			y,			z,			0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
 		x + width,	y,			z,			0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 
-		x + width,  y + length, z,			0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 
-		x,			y + length, z,			0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 
+		x + width,  y + depth, z,			0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 
+		x,			y + depth, z,			0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 
 
 		x,			y,			z + height, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 
 		x + width,	y,			z + height, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 
-		x + width,	y + length,	z + height, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 
-		x,			y + length, z + height, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 
+		x + width,	y + depth,	z + height, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 
+		x,			y + depth, z + height, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 
 
-		x,			y + length,	z + height, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 
-		x,			y + length, z,			-1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 
+		x,			y + depth,	z + height, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 
+		x,			y + depth, z,			-1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 
 		x,			y,			z,			-1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 
 		x,			y,			z + height, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 
 
-		x + width,  y + length, z + height, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 
-		x + width,  y + length, z,			1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 
+		x + width,  y + depth, z + height, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 
+		x + width,  y + depth, z,			1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 
 		x + width,	y,			z,			1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 
 		x + width,	y,			z + height, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 
 
@@ -29,10 +29,10 @@ Cube::Cube(float x, float y, float z, float width, float length, float height, g
 		x + width,	y,			z + height, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 
 		x,			y,			z + height, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 
 
-		x,			y + length, z,			0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 
-		x + width,  y + length, z,			0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 
-		x + width,  y + length, z + height, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 
-		x,			y + length, z + height, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f
+		x,			y + depth, z,			0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 
+		x + width,  y + depth, z,			0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 
+		x + width,  y + depth, z + height, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 
+		x,			y + depth, z + height, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f
 	};
 
 
@@ -73,6 +73,7 @@ Cube::Cube(float x, float y, float z, float width, float length, float height, g
 	std::vector<BasicMesh> meshes = {mesh};
 
 	objModel = Model(meshes, std::vector<Texture>());
+	size = objModel.get_size();
 }
 
 Cube::~Cube()

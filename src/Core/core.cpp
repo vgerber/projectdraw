@@ -18,7 +18,7 @@ void init_core() {
 		{ Loader::GetPath("/Shaders/normal.geometry").c_str(), ShaderType::GEOMETRY }
 	};
 	shader_normal_geometry.load();
-	Shaders["normal_geometry"] = shader_normal_geometry;
+	Shaders[SHADER_DEFFERED_NORMALS] = shader_normal_geometry;
 
 
 	Shader shader_depth_cube;
@@ -58,13 +58,13 @@ void init_core() {
 	Shaders[SHADER_BASIC] = shader_basic;
 
 
-	Shader shader1;
-	shader1.layers = {
-		{ Loader::GetPath("/Shaders/basic.vertex").c_str(), ShaderType::VERTEX },
-		{ Loader::GetPath("/Shaders/lamp.fragment").c_str(), ShaderType::FRAGMENT }
+	Shader shader_light;
+	shader_light.layers = {
+		{ Loader::GetPath("/Shaders/light.vertex").c_str(), ShaderType::VERTEX },
+		{ Loader::GetPath("/Shaders/light.fragment").c_str(), ShaderType::FRAGMENT }
 	};
-	shader1.load();
-	Shaders["1"] = shader1;
+	shader_light.load();
+	Shaders[SHADER_DEFFERED_LIGHT] = shader_light;
 
 
 	Shader shader_deferred;
@@ -97,5 +97,5 @@ void init_core() {
 	glUniformBlockBinding(Shaders[SHADER_BASIC].get_id(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].get_id(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_FONT].get_id(), glGetUniformBlockIndex(Shaders[SHADER_FONT].get_id(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_SKYBOX].get_id(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].get_id(), "Matrices"), 0);
-
+	glUniformBlockBinding(Shaders[SHADER_DEFFERED_LIGHT].get_id(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_LIGHT].get_id(), "Matrices"), 0);
 }

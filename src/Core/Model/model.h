@@ -5,6 +5,7 @@
 
 
 #include "../Mesh/basicmesh.h"
+#include "box.h"
 
 class Model
 {
@@ -14,16 +15,18 @@ public:
 	Model(std::vector<BasicMesh> meshes, std::vector<Texture> textures);
 	~Model();
 
-	void Draw(Shader shader);
-	void DrawNormals(Shader shader);
+	Size get_size();
+
+	void draw(Shader shader);
+	void draw_normals(Shader shader);
 private:
 	std::vector<Texture> textures_loaded;
 	std::vector<BasicMesh> meshes;
 	std::string directory;
 
-	void loadModel(std::string path);
-	void processNode(aiNode* node, const aiScene* scene);
-	BasicMesh processMesh(aiMesh* mesh, const aiScene* scene);
-	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+	void load_model(std::string path);
+	void process_node(aiNode* node, const aiScene* scene);
+	BasicMesh process_mesh(aiMesh* mesh, const aiScene* scene);
+	std::vector<Texture> load_material_textures(aiMaterial* mat, aiTextureType type, std::string typeName);
 
 };

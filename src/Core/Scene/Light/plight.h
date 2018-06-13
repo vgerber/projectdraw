@@ -12,7 +12,7 @@ public:
 	void begin_shadow_mapping();
 	void end_shadow_mapping();
 	GLuint get_shadow_cube_map();
-	void SetPosition(glm::vec3 position);
+	void set_position(glm::vec3 position);
 private:
 	GLuint depthCubeMap;
 	const GLuint SHADOW_C_WIDTH = 1024, SHADOW_C_HEIGHT = 1024;

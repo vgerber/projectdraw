@@ -2,7 +2,7 @@
 
 #include "sceneobject.h"
 #include "../Model/model.h"
-
+#include "../Model/box.h"
 #include <memory>
 
 struct Material {
@@ -12,37 +12,46 @@ struct Material {
 	GLfloat shininess;
 };
 
-class Drawable : public SceneObject
+class Drawable : public SceneObject, public BoundingBox
 {
 public:
 	Drawable();
-	Drawable(GLchar* model);
+	Drawable(GLchar* mmodel);
 	~Drawable();
 
-	virtual void Dispose();
-	virtual void Draw(Shader shader);
-	glm::mat4 GetModelMatrix();
+	virtual void dispose();
+	virtual void draw(Shader shader);
+	virtual void draw_normals(Shader shader);
+	glm::mat4 get_model_matrix();
 
-	void Rotate(GLfloat x, GLfloat y, GLfloat z);
-	void Rotate(glm::vec3 rotation);
-	void Translate(GLfloat x, GLfloat y, GLfloat z);
-	void Translate(glm::vec3 translation);
-	void Scale(GLfloat x, GLfloat y, GLfloat z);
-	void Scale(glm::vec3 scale);
+	void rotate(GLfloat x, GLfloat y, GLfloat z);
+	void rotate(glm::vec3 vrotation);
+	void translate(GLfloat x, GLfloat y, GLfloat z);
+	void translate(glm::vec3 vtranslation);
+	void scale(GLfloat x, GLfloat y, GLfloat z);
+	void scale(glm::vec3 vscale);
 
-	glm::vec3 GetPosition();
-	glm::vec3 GetScale();
-	glm::vec3 GetRotion();
-	void SetPosition(glm::vec3 position);
+	Size get_size();
+	void scale_to_size(Size size);
+	void scale_to_width(GLfloat width);
+	void scale_to_height(GLfloat height);
+	void scale_to_length(GLfloat depth);
 
+	glm::vec3 get_position();
+	glm::vec3 get_scale();
+	glm::vec3 get_rotation();
+	void set_position(glm::vec3 position);
+
+	Model get_model();
+	void set_model(Model model);
 protected:
-	Shader normalShader;
+	Size size;
 	Model objModel;
 
-	glm::vec3 rotation = glm::vec3(0.0f);
-	glm::vec3 scale = glm::vec3(1.0f);
-	glm::vec3 translation = glm::vec3(0.0f);
-	glm::mat4 model = glm::mat4(1.0f);
+	glm::vec3 vrotation = glm::vec3(0.0f);
+	glm::vec3 vscale = glm::vec3(1.0f);
+	glm::vec3 vtranslation = glm::vec3(0.0f);
+	glm::mat4 mmodel = glm::mat4(1.0f);
 
 	void updateModel();
 };

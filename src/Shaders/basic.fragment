@@ -53,8 +53,8 @@ struct SpotLight {
 };
 
 
-
 uniform DirLight dirLight;
+
 uniform PointLight pointLight;
 
 uniform Material material;

@@ -32,6 +32,8 @@ const std::string SHADER_DEPTH = "depth";
 const std::string SHADER_DEPTH_CUBE = "depth_cube";
 const std::string SHADER_DEFERRED = "deferred";
 const std::string SHADER_GEOMETRY = "geometry";
+const std::string SHADER_DEFFERED_LIGHT = "ligth";
+const std::string SHADER_DEFFERED_NORMALS = "normals";
 
 extern std::map<std::string, class Shader> Shaders;
 

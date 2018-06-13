@@ -6,7 +6,7 @@
 class Cube : public Drawable
 {
 public:
-	Cube(float x, float y, float z, float width, float length, float height, glm::vec4 color);
+	Cube(float x, float y, float z, float width, float depth, float height, glm::vec4 color);
 	~Cube();
 };
 

@@ -8,7 +8,7 @@ Model::Model()
 
 Model::Model(GLchar * path)
 {
-	loadModel(path);
+	load_model(path);
 }
 
 Model::Model(std::vector<BasicMesh> meshes, std::vector<Texture> textures)
@@ -21,21 +21,67 @@ Model::~Model()
 {
 }
 
-void Model::Draw(Shader shader)
+Size Model::get_size()
+{
+	Size size;
+	GLfloat x, y, z;
+	bool is_first = true;
+	for (BasicMesh mesh : meshes) {
+		for (Vertex vertex : mesh.get_vertices()) {
+			x = vertex.Position.x;
+			y = vertex.Position.y;
+			z = vertex.Position.z;
+			if (is_first) {
+				size.x = x;
+				size.y = y;
+				size.z = z;
+				is_first = false;
+			}
+			//min x
+			if (x < size.x) {
+				size.x = x;
+			}
+			//max width
+			if (x - size.x > size.width) {
+				size.width = (x - size.x);
+			}
+			//min y
+			if (y < size.y) {
+				size.y = y;
+			}
+			//max height
+			if (y - size.y > size.height) {
+				size.height = (y - size.y);
+			}
+			//min z
+			if (z < size.z) {
+				size.z = z;
+			}
+			//max length
+			if (z - size.z > size.depth) {
+				size.depth = (z - size.z);
+			}
+		}
+	}
+
+	return size;
+}
+
+void Model::draw(Shader shader)
 {
 	for (GLuint i = 0; i < this->meshes.size(); i++) {
-		this->meshes[i].Draw(shader);
+		this->meshes[i].draw(shader);
 	}
 }
 
-void Model::DrawNormals(Shader shader)
+void Model::draw_normals(Shader shader)
 {
 	for (GLuint i = 0; i < this->meshes.size(); i++) {
-		this->meshes[i].Draw(shader);
+		this->meshes[i].draw_normals(shader);
 	}
 }
 
-void Model::loadModel(std::string path)
+void Model::load_model(std::string path)
 {
 	Assimp::Importer importer;
 
@@ -48,21 +94,21 @@ void Model::loadModel(std::string path)
 
 	this->directory = path.substr(0, path.find_last_of('/'));
 	
-	this->processNode(scene->mRootNode, scene);
+	this->process_node(scene->mRootNode, scene);
 }
 
-void Model::processNode(aiNode * node, const aiScene * scene)
+void Model::process_node(aiNode * node, const aiScene * scene)
 {
 	for (GLuint i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		this->meshes.push_back(this->processMesh(mesh, scene));
+		this->meshes.push_back(this->process_mesh(mesh, scene));
 	}
 	for (GLuint i = 0; i < node->mNumChildren; i++) {
-		this->processNode(node->mChildren[i], scene);
+		this->process_node(node->mChildren[i], scene);
 	}
 }
 
-BasicMesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
+BasicMesh Model::process_mesh(aiMesh * mesh, const aiScene * scene)
 {
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
@@ -113,15 +159,15 @@ BasicMesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
 	if (mesh->mMaterialIndex >= 0) {
 		material = scene->mMaterials[mesh->mMaterialIndex];
 
-		std::vector<Texture> diffuseMaps = this->loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		std::vector<Texture> diffuseMaps = this->load_material_textures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 		textures.insert(textures.begin(), diffuseMaps.begin(), diffuseMaps.end());
-		std::vector<Texture> specularMaps = this->loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+		std::vector<Texture> specularMaps = this->load_material_textures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.begin(), specularMaps.begin(), specularMaps.end());
 	}
 	return BasicMesh(vertices, indices, textures);
 }
 
-std::vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType type, std::string typeName)
+std::vector<Texture> Model::load_material_textures(aiMaterial * mat, aiTextureType type, std::string typeName)
 {
 	std::vector<Texture> textures;
 	aiColor3D color;

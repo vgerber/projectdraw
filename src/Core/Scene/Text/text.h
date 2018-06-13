@@ -7,7 +7,7 @@ class Text : public Drawable {
 public:
 	Text(std::string font_path, GLuint size);
 
-	void Draw();
+	void draw();
 
 	void setColor(glm::vec4 color);
 	void setColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
