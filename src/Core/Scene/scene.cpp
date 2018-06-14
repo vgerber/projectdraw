@@ -68,16 +68,16 @@ void Scene::draw(GLfloat delta)
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
 	glViewport(0, 0, width, height);
 	glClearColor(0.001f, 0.001f, 0.001f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(camera->GetViewMatrix()));
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera->GetCameraMatrix(width, height)));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	shader_light.use();
-	for (auto plight : point_lights) {
+	for (auto plight : point_lights)
+	{
 		glUniform1f(glGetUniformLocation(shader_light.get_id(), "intensity"), plight->intensity);
 		glUniform3f(glGetUniformLocation(shader_light.get_id(), "color"), plight->diffuse.r, plight->diffuse.g, plight->diffuse.b);
 		glUniformMatrix4fv(glGetUniformLocation(shader_light.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(plight->get_model_matrix()));
@@ -93,8 +93,11 @@ void Scene::draw(GLfloat delta)
 	shader_normals.use();
 	for (auto drawable : objects)
 	{
-		glUniformMatrix4fv(glGetUniformLocation(shader_normals.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->get_model_matrix()));
-		drawable->draw_normals(shader_normals);
+		if (drawable->normals_visible)
+		{
+			glUniformMatrix4fv(glGetUniformLocation(shader_normals.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->get_model_matrix()));
+			drawable->draw_normals(shader_normals);
+		}
 	}
 
 	//render to window frame
@@ -132,13 +135,14 @@ void Scene::draw(GLfloat delta)
 	for (auto plight : point_lights)
 	{
 		plight->apply(shader_deferred, "pointLight[" + std::to_string(plight_count) + "]");
-		glUniform1i(glGetUniformLocation(shader_deferred.get_id(), ("pointLight["+std::to_string(plight_count)+"].shadowCubeMap").c_str()), 5 + plight_count);
+		glUniform1i(glGetUniformLocation(shader_deferred.get_id(), ("pointLight[" + std::to_string(plight_count) + "].shadowCubeMap").c_str()), 5 + plight_count);
 		glActiveTexture(GL_TEXTURE5 + plight_count);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
 		plight_count++;
 	}
-	for (int i = plight_count; i < 50; i++) {
-		PointLight* plight = point_lights[plight_count-1];
+	for (int i = plight_count; i < 5; i++)
+	{
+		PointLight *plight = point_lights[plight_count - 1];
 		plight->apply(shader_deferred, "pointLight[" + std::to_string(i) + "]");
 		glUniform1i(glGetUniformLocation(shader_deferred.get_id(), ("pointLight[" + std::to_string(i) + "].shadowCubeMap").c_str()), 5 + i);
 		glActiveTexture(GL_TEXTURE5 + (plight_count - 1));

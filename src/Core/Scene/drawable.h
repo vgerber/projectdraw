@@ -19,6 +19,9 @@ public:
 	Drawable(GLchar* mmodel);
 	~Drawable();
 
+	bool normals_visible = false;
+	bool bounding_box_visible = false;
+
 	virtual void dispose();
 	virtual void draw(Shader shader);
 	virtual void draw_normals(Shader shader);

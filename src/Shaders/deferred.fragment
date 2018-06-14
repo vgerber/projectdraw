@@ -45,7 +45,7 @@ struct SpotLight {
 	vec3 diffuse;
 	vec3 specular;
 };
-#define MAX_PLIGHTS 50
+#define MAX_PLIGHTS 5
 
 uniform DirLight dirLight;
 uniform SpotLight spotLight;

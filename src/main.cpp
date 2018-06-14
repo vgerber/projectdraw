@@ -114,17 +114,17 @@ int main() {
 	DirectionalLight dLight = DirectionalLight();
 	//dLight.direction = glm::vec3(-2.0f, -2.0f, -2.0f);
 	dLight.ambient = glm::vec3(0.001f, 0.001f, 0.001f);
-	dLight.diffuse = glm::vec3(0.1f, 0.1f, 0.1f);
+	dLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	dLight.specular = glm::vec3(0.03f, 0.03f, 0.03f);
 
-	glm::vec3 light_color(0.0f, 0.0f, 1.0f);
+	glm::vec3 light_color(1.0f, 1.0f, 0.0f);
 
 	PointLight pLight;
 	pLight.set_position(glm::vec3(4.0f, 2.0f, 0.0f));
 	pLight.ambient = glm::vec3(0.001f, 0.01f, 0.001f);
 	pLight.diffuse = light_color;
 	pLight.specular = light_color;
-	pLight.linear = 0.07f;
+	pLight.linear = 5.0f;
 	pLight.quadratic = 0.007f;
 
 	PointLight pLight2;
@@ -132,7 +132,7 @@ int main() {
 	pLight2.ambient = glm::vec3(0.001f, 0.01f, 0.001f);
 	pLight2.diffuse = light_color;
 	pLight2.specular = light_color;
-	pLight2.linear = 0.07f;
+	pLight2.linear = 1.0f;
 	pLight2.quadratic = 0.007f;
 	
 
@@ -268,6 +268,7 @@ int main() {
 
 	scene_main.set_dlight(dLight);
 	dLight.change_direction(glm::vec3(-2.0f, -10.0f, 0.0f));
+	dLight.draw_shadow = true;
 
 	scene_main.add_plight(pLight);
 	scene_main.add_plight(pLight2);
@@ -293,14 +294,14 @@ int main() {
 	size_big.width = 5.0f;
 	size_big.depth = 5.0f;
 
-	test_obj.scale_to_width(40.0);
+	test_obj.scale_to_width(1.0);
 
 	pLight.set_model(cube.get_model());
 	pLight2.set_model(cube.get_model());
 
 	cube.scale_to_size(size_medium);
-	cube.translate(glm::vec3(0.0f, 1.0f, -15.0f));
-
+	cube.translate(glm::vec3(0.0f, 1.0f, 0.0f));
+	cube.normals_visible = true;
 
 
 	//depth
@@ -346,9 +347,9 @@ int main() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-		dLight.intensity = 0.1f;
-		pLight.intensity = std::min(sin(glfwGetTime() * 15 + 1.7) * 0.5 + 0.5, 1.0);
-		pLight2.intensity = std::min(sin(glfwGetTime() * 15) * 0.5 + 0.5, 1.0);
+		dLight.intensity = 1.0f;
+		pLight.intensity = 1.0;//std::min(sin(glfwGetTime() * 50 + 1.7) * 0.5 + 0.5, 1.0);
+		pLight2.intensity = std::min(sin(glfwGetTime() * 4) * 0.5 + 0.5, 1.0);
 		scene_main.draw(deltaTime);
 
 
