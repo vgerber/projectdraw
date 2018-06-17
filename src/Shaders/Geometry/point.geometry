@@ -1,0 +1,20 @@
+#version 330 core
+layout (points) in;
+layout (points, max_vertices = 1) out;
+
+
+in VS_OUT {
+	vec3 color;
+} gs_in[];
+
+out vec3 fColor;
+
+
+void main() {	
+	fColor = gs_in[0].color;
+
+	gl_Position = position;
+	EmitVertex();
+
+	EndPrimitive();
+}

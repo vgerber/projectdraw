@@ -1,5 +1,17 @@
 #include "light.h"
 
+Light::Light()
+{
+	shader = Shaders[SHADER_DEFFERED_LIGHT];
+}
+
+void Light::update_model()
+{
+	Drawable::update_model();
+	glm::vec3 center_translate = glm::vec3(0.5f * size.width, 0.5f * size.height, 0.5f * size.depth);
+	mmodel = glm::translate(mmodel, -center_translate);
+}
+
 void Light::apply(Shader shader, std::string target)
 {
 	glUniform1f(glGetUniformLocation(shader.get_id(), (target + ".drawShadow").c_str()), draw_shadow);

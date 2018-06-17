@@ -34,6 +34,7 @@ const std::string SHADER_DEFERRED = "deferred";
 const std::string SHADER_GEOMETRY = "geometry";
 const std::string SHADER_DEFFERED_LIGHT = "ligth";
 const std::string SHADER_DEFFERED_NORMALS = "normals";
+const std::string SHADER_DEFFERED_GEOMETRY = "deferred_geometry";
 
 extern std::map<std::string, class Shader> Shaders;
 

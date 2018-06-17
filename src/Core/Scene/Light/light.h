@@ -13,6 +13,9 @@ public:
 	glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
+	Light();
+
+	void update_model();
 
 	void apply(Shader shader, std::string target);
 };

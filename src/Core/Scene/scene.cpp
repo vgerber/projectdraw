@@ -42,14 +42,13 @@ void Scene::draw(GLfloat delta)
 		directional_light->begin_shadow_mapping();
 		for (auto drawable : objects)
 		{
-
 			glUniformMatrix4fv(glGetUniformLocation(shader_depth.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->get_model_matrix()));
-
 			drawable->draw(shader_depth);
 		}
 		directional_light->end_shadow_mapping();
-	}
-
+	}	
+	//Point Light Shader is deactivated
+	/*
 	if (point_lights.size() > 0)
 	{
 		Shader shader_depth_cube = Shaders[SHADER_DEPTH_CUBE];
@@ -64,6 +63,7 @@ void Scene::draw(GLfloat delta)
 			plight->end_shadow_mapping();
 		}
 	}
+	*/
 
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
 	glViewport(0, 0, width, height);
@@ -75,28 +75,32 @@ void Scene::draw(GLfloat delta)
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera->GetCameraMatrix(width, height)));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	//glDisable(GL_CULL_FACE);
+
+
 	shader_light.use();
 	for (auto plight : point_lights)
 	{
 		glUniform1f(glGetUniformLocation(shader_light.get_id(), "intensity"), plight->intensity);
 		glUniform3f(glGetUniformLocation(shader_light.get_id(), "color"), plight->diffuse.r, plight->diffuse.g, plight->diffuse.b);
-		glUniformMatrix4fv(glGetUniformLocation(shader_light.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(plight->get_model_matrix()));
 		plight->draw(shader_light);
 	}
-
-	shader_basic.use();
+	
 	for (auto drawable : objects)
 	{
-		glUniformMatrix4fv(glGetUniformLocation(shader_basic.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->get_model_matrix()));
-		drawable->draw(shader_basic);
+		drawable->draw();
 	}
 	shader_normals.use();
 	for (auto drawable : objects)
 	{
-		if (drawable->normals_visible)
+		if (drawable->visible_normal)
 		{
-			glUniformMatrix4fv(glGetUniformLocation(shader_normals.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->get_model_matrix()));
 			drawable->draw_normals(shader_normals);
+		}
+	}
+	for (auto drawable : objects) {	
+		if (drawable->visible_box) {
+			drawable->draw_box();
 		}
 	}
 
@@ -140,6 +144,8 @@ void Scene::draw(GLfloat delta)
 		glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
 		plight_count++;
 	}
+	//Point Light Shadow is deactivated
+	/*
 	for (int i = plight_count; i < 5; i++)
 	{
 		PointLight *plight = point_lights[plight_count - 1];
@@ -148,7 +154,7 @@ void Scene::draw(GLfloat delta)
 		glActiveTexture(GL_TEXTURE5 + (plight_count - 1));
 		glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
 	}
-
+	*/
 	GLfloat vertices_rect[] = {
 		-1.0f,
 		1.0f,

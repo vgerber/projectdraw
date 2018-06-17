@@ -6,8 +6,6 @@ layout (location = 2) out vec4 Albedo;
 layout (location = 3) out vec4 UseLight;
 
 in VS_OUT {
-	vec2 TexCoords;
-	vec3 Normal;
 	vec3 FragPos;
 	vec4 Color;
 } fs_in;
@@ -15,11 +13,8 @@ in VS_OUT {
 
 
 void main() {
-	vec3 normal = normalize(fs_in.Normal);
-
 	Albedo = fs_in.Color;
 	Position = vec4(fs_in.FragPos, 1.0);
-	Normal = vec4(normal, 1.0);
-	UseLight = vec4(vec3(1.0), 1.0);
-
+	Normal = vec4(vec3(0.0), 1.0);
+	UseLight = vec4(vec3(0.0), 1.0);
 }

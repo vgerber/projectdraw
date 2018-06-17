@@ -22,7 +22,7 @@ BasicMesh::~BasicMesh()
 {
 }
 
-void BasicMesh::draw(Shader shader)
+void BasicMesh::draw(Shader shader, DrawType draw_type)
 {
 	//glUseProgram(shader.GetProgrammId());
 	GLuint diffuseNr = 1;
@@ -47,7 +47,15 @@ void BasicMesh::draw(Shader shader)
 
 	// Draw mesh
 	glBindVertexArray(this->VAO);
-	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+	if (draw_type == DrawType::LINE) {
+		glDrawElements(GL_LINE_STRIP, this->indices.size(), GL_UNSIGNED_INT, 0);
+	}
+	else if (draw_type == DrawType::POINT) {
+		glDrawElements(GL_POINTS, this->indices.size(), GL_UNSIGNED_INT, 0);
+	}
+	else {
+		glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+	}
 
 	// Always good practice to set everything back to defaults once configured.
 	for (GLuint i = 0; i < this->textures.size(); i++)
@@ -62,6 +70,16 @@ void BasicMesh::draw_normals(Shader normalShader)
 	glBindVertexArray(this->VAO);
 	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+}
+
+void BasicMesh::add_offset(glm::vec3 offset)
+{
+	for (size_t i = 0; i < vertices.size(); i++) {
+		vertices[i].Position += offset;
+	}
+	glBindVertexArray(this->VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
 }
 
 std::vector<Vertex> BasicMesh::get_vertices()

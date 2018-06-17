@@ -70,7 +70,10 @@ void init_core() {
 	Shader shader_deferred;
 	shader_deferred.layers = {
 		{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX },
-		{ Loader::GetPath("/Shaders/deferred.fragment").c_str(), ShaderType::FRAGMENT }
+		{ Loader::GetPath("/Shaders/deferred.fragment").c_str(), ShaderType::FRAGMENT },
+		{ Loader::GetPath("/Shaders/Light/dlight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
+		{ Loader::GetPath("/Shaders/Light/plight.fragment").c_str(), ShaderType::FRAGMENT },
+		{ Loader::GetPath("/Shaders/Light/slight.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shader_deferred.load();
 	Shaders[SHADER_DEFERRED] = shader_deferred;
@@ -93,9 +96,18 @@ void init_core() {
 	shader_skybox.load();
 	Shaders[SHADER_SKYBOX] = shader_skybox;
 
+	Shader shader_deferred_geometry;
+	shader_deferred_geometry.layers = {
+		{ Loader::GetPath("/Shaders/Geometry/geometry.vertex").c_str(), ShaderType::VERTEX },
+		{ Loader::GetPath("/Shaders/Geometry/geometry.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shader_deferred_geometry.load();
+	Shaders[SHADER_DEFFERED_GEOMETRY] = shader_deferred_geometry;
+
 
 	glUniformBlockBinding(Shaders[SHADER_BASIC].get_id(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].get_id(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_FONT].get_id(), glGetUniformBlockIndex(Shaders[SHADER_FONT].get_id(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_SKYBOX].get_id(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].get_id(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_DEFFERED_LIGHT].get_id(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_LIGHT].get_id(), "Matrices"), 0);
+	glUniformBlockBinding(Shaders[SHADER_DEFFERED_GEOMETRY].get_id(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_GEOMETRY].get_id(), "Matrices"), 0);
 }

@@ -13,6 +13,12 @@
 
 #include <vector>
 
+enum DrawType {
+	TRIANGLE,
+	POINT,
+	LINE,
+};
+
 struct Vertex {
 	glm::vec3 Position;
 	glm::vec3 Normal;
@@ -38,8 +44,9 @@ public:
 	BasicMesh(std::vector<Vertex> vertices, std::vector<GLuint> indices);
 	~BasicMesh();
 
-	void draw(Shader shader);
+	void draw(Shader shader, DrawType draw_type);
 	void draw_normals(Shader normalShader);
+	void add_offset(glm::vec3 offset);
 
 	std::vector<Vertex> get_vertices();
 	std::vector<GLuint> get_indices();

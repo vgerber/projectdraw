@@ -1,3 +1,4 @@
+#pragma once
 #include <SOIL.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -17,7 +18,7 @@ public:
 
 	Size get_size();
 
-	void draw(Shader shader);
+	void draw(Shader shader, DrawType draw_type);
 	void draw_normals(Shader shader);
 private:
 	std::vector<Texture> textures_loaded;

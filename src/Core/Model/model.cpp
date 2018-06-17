@@ -35,6 +35,9 @@ Size Model::get_size()
 				size.x = x;
 				size.y = y;
 				size.z = z;
+				size.width = 0.0;
+				size.height = 0.0;
+				size.depth = 0.0;
 				is_first = false;
 			}
 			//min x
@@ -42,35 +45,44 @@ Size Model::get_size()
 				size.x = x;
 			}
 			//max width
-			if (x - size.x > size.width) {
-				size.width = (x - size.x);
+			if (x > size.width) {
+				size.width = x;
 			}
 			//min y
 			if (y < size.y) {
 				size.y = y;
 			}
 			//max height
-			if (y - size.y > size.height) {
-				size.height = (y - size.y);
+			if (y > size.height) {
+				size.height = y;
 			}
 			//min z
 			if (z < size.z) {
 				size.z = z;
 			}
 			//max length
-			if (z - size.z > size.depth) {
-				size.depth = (z - size.z);
+			if (z > size.depth) {
+				size.depth = z;
 			}
 		}
 	}
-
+	size.width  -= size.x;
+	size.height -= size.y;
+	size.depth  -= size.z;
+	glm::vec3 offset(size.x, size.y, size.z);
+	for (size_t i = 0; i < meshes.size(); i++) {
+		meshes[i].add_offset(-offset);
+	}
+	size.x = 0.0f;
+	size.y = 0.0f;
+	size.z = 0.0f;
 	return size;
 }
 
-void Model::draw(Shader shader)
+void Model::draw(Shader shader, DrawType draw_type)
 {
 	for (GLuint i = 0; i < this->meshes.size(); i++) {
-		this->meshes[i].draw(shader);
+		this->meshes[i].draw(shader, draw_type);
 	}
 }
 

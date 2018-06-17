@@ -12,7 +12,7 @@
 #include "Core/core.h"
 #include "Core/Scene/scene.h"
 #include "Core/Scene/Camera/camera.h"
-#include "Core/Scene/Primitive/3D/cube.h"
+#include "Core/Scene/Primitive/primitives.h"
 #include "Core/Scene/Light/dlight.h"
 #include "Core/Scene/Light/plight.h"
 #include "Core/Scene/Text/text.h"
@@ -117,34 +117,40 @@ int main() {
 	dLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	dLight.specular = glm::vec3(0.03f, 0.03f, 0.03f);
 
-	glm::vec3 light_color(1.0f, 1.0f, 0.0f);
+	glm::vec3 light_color(0.0f, 0.0f, 1.0f);
+	glm::vec3 light_spec(0.0f, 0.0f, 1.0f);
 
 	PointLight pLight;
-	pLight.set_position(glm::vec3(4.0f, 2.0f, 0.0f));
+	pLight.set_position(glm::vec3(4.0f, 1.0f, 0.0f));
 	pLight.ambient = glm::vec3(0.001f, 0.01f, 0.001f);
 	pLight.diffuse = light_color;
-	pLight.specular = light_color;
-	pLight.linear = 5.0f;
+	pLight.specular = light_spec;
+	pLight.linear = 0.7f;
 	pLight.quadratic = 0.007f;
 
+	light_color = glm::vec3(1.0f, 0.2f, 0.0f);
 	PointLight pLight2;
-	pLight2.set_position(glm::vec3(2.0f, 2.0f, 0.0f));
+	pLight2.set_position(glm::vec3(0.0f, 0.0f, 0.0f));
 	pLight2.ambient = glm::vec3(0.001f, 0.01f, 0.001f);
 	pLight2.diffuse = light_color;
-	pLight2.specular = light_color;
-	pLight2.linear = 1.0f;
+	pLight2.specular = light_spec;
+	pLight2.linear = 0.7f;
 	pLight2.quadratic = 0.007f;
 	
 
     Drawable test_obj = Drawable(&path_obj_mountain[0]);
-	Cube ground = Cube(-100.0f, -0.1f, -100.0f, 200.0f, 0.098f, 200.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f));
+	Drawable ground = Drawable();
+	ground.set_model(primitves::generate_quad(200.0f, 0.098f, 200.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	ground.set_position(glm::vec3(-100.0f, -0.1f, -100.0f));
 
-	Cube cube = Cube(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, glm::vec4(0.2f, 0.3f, 0.8f, 1.0f));
+	Drawable cube = Drawable();
+	cube.set_model(primitves::generate_quad(1.0f, 1.0f, 1.0f, glm::vec4(1.0f, 0.3f, 0.8f, 1.0f)));
 	
 
 	
 	float skyboxSize = 50.0f;
-	Cube skyboxCube = Cube(-skyboxSize, -skyboxSize, -skyboxSize, 2 * skyboxSize, 2 * skyboxSize, 2 * skyboxSize, glm::vec4(0.0f));
+	Cube skyboxCube = Cube(2 * skyboxSize, 2 * skyboxSize, 2 * skyboxSize, glm::vec4(0.0f));
+	skyboxCube.set_position(glm::vec3(-skyboxSize, -skyboxSize, -skyboxSize));
 
 	GLuint screenRectVBO;
 	GLuint screenRectVAO;
@@ -267,13 +273,13 @@ int main() {
 	scene_main.set_camera(mainCamera);
 
 	scene_main.set_dlight(dLight);
-	dLight.change_direction(glm::vec3(-2.0f, -10.0f, 0.0f));
+	dLight.change_direction(glm::vec3(-2.0f, -1.0f, 0.0f));
 	dLight.draw_shadow = true;
 
 	scene_main.add_plight(pLight);
 	scene_main.add_plight(pLight2);
-	pLight.set_position(glm::vec3(-5.0f, 2.5f, 0.0f));
-	pLight2.set_position(glm::vec3(5.0f, 2.5f, 0.0f));
+	pLight.set_position(glm::vec3(2.0f, 1.0f, 0.0f));
+	pLight2.set_position(glm::vec3(5.0f, 1.0f, 0.0f));
 
 	scene_main.add_object(ground);
 	scene_main.add_object(cube);
@@ -294,16 +300,35 @@ int main() {
 	size_big.width = 5.0f;
 	size_big.depth = 5.0f;
 
-	test_obj.scale_to_width(1.0);
+	test_obj.scale_to_height(1.0f);
+	Size size = test_obj.get_size();
+	test_obj.set_position(glm::vec3(2.0, 0.0f, -10.0f));
+	test_obj.set_center(glm::vec3(0.5f, 0.5f, 1.7f));
+	test_obj.visible_box = true;
+	test_obj.visible_normal = true;
+	test_obj.draw_type = DrawType::TRIANGLE;
 
 	pLight.set_model(cube.get_model());
+	pLight.scale_to_size(size_small);
 	pLight2.set_model(cube.get_model());
 
 	cube.scale_to_size(size_medium);
-	cube.translate(glm::vec3(0.0f, 1.0f, 0.0f));
-	cube.normals_visible = true;
+	cube.set_position(glm::vec3(0.0f, 1.0f, 0.0f));
+	cube.visible_normal = true;
 
 
+	Drawable test_rect = Drawable();
+	test_rect.set_model(primitves::generate_circle(1.0f, 30.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	test_rect.set_position(glm::vec3(-2.0f, -0.5f, -2.0f));
+	
+	test_rect.draw_type = DrawType::TRIANGLE;
+	test_rect.visible_box = true;
+	scene_main.add_object(test_rect);
+
+
+	Geometry testGeometry = Geometry();
+
+	scene_main.add_object(testGeometry);
 	//depth
 	glEnable(GL_DEPTH_TEST);	
 	glDepthFunc(GL_LESS);
@@ -321,22 +346,32 @@ int main() {
 
 	glEnable(GL_FRAMEBUFFER_SRGB);
 
+	
+	glEnable(GL_LINE_SMOOTH);
+	
+	glEnable(GL_LINE_STIPPLE);	
+	glLineStipple(1, 0xAAAA);
+	glLineWidth(1);
+	glPointSize(1);
+
+	testGeometry.draw_type = DrawType::LINE;
 
 	GLfloat lastTime = glfwGetTime();
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
 		handle_key();
+		
+		test_rect.rotate(glm::vec3(-90.0f, 70.0f, 90.0f));
 
-
-		test_obj.rotate(test_obj.get_rotation() + glm::vec3(0.0f, 1.0f, 0.0f) * deltaTime);
-		test_obj.translate(sin(glfwGetTime()) * 0.3f, 0.0f, -5.0f);
-		cube.rotate(cube.get_rotation() + glm::vec3(0.0, 0.3f, 0.0f) * deltaTime);
+		test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * 10.0f, 0.0f));
+		
+		cube.rotate(cube.get_rotation() + glm::vec3(0.0, 10.0f, 0.0f) * deltaTime);
 		text_fps.rotate(text_fps.get_rotation() + glm::vec3(0.0f, 0.0f, 0.0f) * deltaTime);
 		
+		testGeometry.line_to(mainCamera.get_position());
 
 		//glClearColor(0.4f, 0.4f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//glEnable(GL_DEPTH_TEST);
 
 		Shaders[SHADER_FONT].use();
@@ -344,12 +379,14 @@ int main() {
 		text_fps.setColor(glm::vec4(0.2f, 0.5f, 1.0f, 0.0f));
 		text_fps.draw();
 
+		pLight.set_position(glm::vec3(-5.0, 1.0f, sin(glfwGetTime()) * 3.0f));
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
 		dLight.intensity = 1.0f;
-		pLight.intensity = 1.0;//std::min(sin(glfwGetTime() * 50 + 1.7) * 0.5 + 0.5, 1.0);
-		pLight2.intensity = std::min(sin(glfwGetTime() * 4) * 0.5 + 0.5, 1.0);
+		pLight.intensity = 0.4f; // (sin(glfwGetTime() * 15 + 1.7) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
+		pLight2.intensity = (sin(glfwGetTime()) * 0.5 + 0.5);
 		scene_main.draw(deltaTime);
 
 

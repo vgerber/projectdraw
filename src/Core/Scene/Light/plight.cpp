@@ -40,7 +40,7 @@ void PointLight::end_shadow_mapping()
 
 void PointLight::set_position(glm::vec3 position)
 {
-	Drawable::set_position(position);
+	Light::set_position(position);
 	setup_shadow_cube();
 }
 
