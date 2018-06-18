@@ -149,7 +149,7 @@ int main() {
 
 	
 	float skyboxSize = 50.0f;
-	Cube skyboxCube = Cube(2 * skyboxSize, 2 * skyboxSize, 2 * skyboxSize, glm::vec4(0.0f));
+	/*Cube skyboxCube = Cube(2 * skyboxSize, 2 * skyboxSize, 2 * skyboxSize, glm::vec4(0.0f));
 	skyboxCube.set_position(glm::vec3(-skyboxSize, -skyboxSize, -skyboxSize));
 
 	GLuint screenRectVBO;
@@ -167,7 +167,7 @@ int main() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*) (3 * sizeof(GLfloat)));
-	glBindVertexArray(0);
+	glBindVertexArray(0);*/
 
 	//
 	//Instancing

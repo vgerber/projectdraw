@@ -225,7 +225,7 @@ void Drawable::update_model()
 		vcenter.y * size.height * vscale.y,
 		vcenter.z * size.depth * vscale.z);
 	
-
+	
 	glm::quat rot_quat = glm::quat(glm::radians(vrotation));
 	glm::mat4 rotation = glm::toMat4(rot_quat);
 
@@ -233,7 +233,13 @@ void Drawable::update_model()
 		* rotation 
 		* glm::translate(glm::mat4(1.0f), -center_translation);
 
-
+	
+/*
+	glm::mat4 rotation = glm::mat4(1.0f);
+	rotation = glm::rotate(rotation, vrotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+	rotation = glm::rotate(rotation, vrotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+	rotation = glm::rotate(rotation, vrotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+*/
 	mmodel = glm::translate(glm::mat4(1.0f), position) * rotation * glm::scale(glm::mat4(1.0f), vscale);
 
 	dimension = 3;
