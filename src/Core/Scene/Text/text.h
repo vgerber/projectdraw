@@ -9,16 +9,16 @@ public:
 
 	void draw();
 
-	void setColor(glm::vec4 color);
-	void setColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
+	void set_color(glm::vec4 color);
+	void set_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 
-	void setText(std::string text);
-	std::string getText();
+	void set_text(std::string text);
+	std::string get_text();
 protected:
 	Font font;
-	Shader shader;	
 	glm::vec4 color = glm::vec4(1.0f);
 	std::string text = "";
 private:
 	GLuint VAO, VBO;
+	bool reload_text = false;
 };

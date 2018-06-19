@@ -3,6 +3,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include "reactphysics3d.h"
+
 #include "sceneobject.h"
 #include "../Model/model.h"
 #include "../Model/box.h"
@@ -21,6 +23,10 @@ public:
 	Drawable();
 	Drawable(GLchar* mmodel);
 	~Drawable();
+
+	rp3d::RigidBody *body = nullptr;
+	rp3d::Transform rp3d_prev_transform;
+
 
 	bool visible_normal = false;
 	bool visible_box = false;
@@ -45,6 +51,7 @@ public:
 	void scale(glm::vec3 vscale);
 
 	Size get_size();
+	Size get_aabb_box();
 	void scale_to_size(Size size);
 	void scale_to_width(GLfloat width);
 	void scale_to_height(GLfloat height);

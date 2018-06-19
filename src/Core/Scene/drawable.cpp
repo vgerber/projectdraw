@@ -49,19 +49,13 @@ void Drawable::draw_normals(Shader shader)
 
 void Drawable::draw_box()
 {
-	shader_box.use();
-	glUniform4f(glGetUniformLocation(shader_box.get_id(), "color"), 1.0f, 1.0f, 0.0f, 1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(shader_box.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-
-	glBindVertexArray(this->boxVAO);
-	glDrawArrays(GL_LINES, 0, 36);
-	glBindVertexArray(0);
+	draw_box(shader_box);
 }
 
 void Drawable::draw_box(Shader shader)
 {
 	shader.use();
-	glUniform4f(glGetUniformLocation(shader.get_id(), "color"), 1.0f, 1.0f, 0.0f, 1.0f);
+	glUniform4f(glGetUniformLocation(shader.get_id(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
 	glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 
 	glBindVertexArray(this->boxVAO);
@@ -100,7 +94,7 @@ void Drawable::rotate(glm::vec3 vrotation)
 }
 
 void Drawable::translate(GLfloat x, GLfloat y, GLfloat z)
-{
+{	
 	position += glm::vec3(x, y, z);
 	update_model();
 }
@@ -125,14 +119,87 @@ void Drawable::scale(glm::vec3 vscale)
 
 Size Drawable::get_size()
 {
-	return size;
+	Size scaled_size;
+	scaled_size = size;
+	scaled_size.width *= vscale.x;
+	scaled_size.height *= vscale.y;
+	scaled_size.depth *= vscale.z;
+	return scaled_size;
+}
+
+Size Drawable::get_aabb_box()
+{
+	glm::vec4 box[8] = {
+		mmodel * glm::vec4(size.x,				size.y,				  size.z,			   1.0f),
+		mmodel * glm::vec4(size.x + size.width, size.y,				  size.z,			   1.0f),
+		mmodel * glm::vec4(size.x,				size.y + size.height, size.z,			   1.0f),
+		mmodel * glm::vec4(size.x + size.width, size.y + size.height, size.z,			   1.0f),
+		mmodel * glm::vec4(size.x,				size.y,				  size.z + size.depth, 1.0f),
+		mmodel * glm::vec4(size.x + size.width, size.y,				  size.z + size.depth, 1.0f),
+		mmodel * glm::vec4(size.x,				size.y + size.height, size.z + size.depth, 1.0f),
+		mmodel * glm::vec4(size.x + size.width,	size.y + size.height, size.z + size.depth, 1.0f)
+	};
+	Size box_size;
+	bool is_first = true;
+	for (auto v : box) {
+		//v *= glm::vec4(vscale, 1.0f);
+		if (is_first) {
+			box_size.x = v.x;
+			box_size.y = v.y;
+			box_size.z = v.z;
+			box_size.width = v.x;
+			box_size.height = v.y;
+			box_size.depth = v.z;			
+			is_first = false;
+			continue;
+		}
+		if (v.x < box_size.x) {
+			box_size.x = v.x;
+		}
+		//max width
+		if (v.x > box_size.width) {
+			box_size.width = v.x;
+		}
+		//min y
+		if (v.y < box_size.y) {
+			box_size.y = v.y;
+		}
+		//max height
+		if (v.y > box_size.height) {
+			box_size.height = v.y;
+		}
+		//min z
+		if (v.z < box_size.z) {
+			box_size.z = v.z;
+		}
+		//max length
+		if (v.z > box_size.depth) {
+			box_size.depth = v.z;
+		}
+	}
+	box_size.width -= box_size.x;
+	box_size.height -= box_size.y;
+	box_size.depth -= box_size.z;
+	return box_size;
 }
 
 void Drawable::scale_to_size(Size size)
 {
-	vscale.x = (size.width / this->size.width);
-	vscale.y = (size.height / this->size.height);
-	vscale.z = (size.depth / this->size.depth);
+	if (isnan(size.width)) {
+		size.width = 1.0f;
+	}
+	if (isnan(size.height)) {
+		size.height = 1.0f;
+	}
+	if (isnan(size.depth)) {
+		size.depth = 1.0f;
+	}
+	if(this->size.width > 0.0f)
+		vscale.x = (size.width / this->size.width);
+	if(this->size.height > 0.0f)
+		vscale.y = (size.height / this->size.height);
+	if(this->size.depth > 0.0f)
+		vscale.z = (size.depth / this->size.depth);
 	update_model();
 }
 
@@ -251,6 +318,13 @@ void Drawable::update_model()
 	}
 	if (size.depth * vscale.z == 0.0f) {
 		dimension--;
+	}
+
+	if (body) {
+		rp3d::Vector3 position(position.x, position.y, position.z);
+		rp3d::Quaternion rotation = rp3d::Quaternion(vrotation.x, vrotation.y, vrotation.z, 1.0f);
+		rp3d::Transform transform(position, rotation);
+		body->setTransform(transform);
 	}
 }
 

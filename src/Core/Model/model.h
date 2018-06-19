@@ -16,6 +16,8 @@ public:
 	Model(std::vector<BasicMesh> meshes, std::vector<Texture> textures);
 	~Model();
 
+	
+
 	Size get_size();
 
 	void draw(Shader shader, DrawType draw_type);
@@ -29,5 +31,7 @@ private:
 	void process_node(aiNode* node, const aiScene* scene);
 	BasicMesh process_mesh(aiMesh* mesh, const aiScene* scene);
 	std::vector<Texture> load_material_textures(aiMaterial* mat, aiTextureType type, std::string typeName);
+
+	
 
 };

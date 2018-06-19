@@ -19,7 +19,7 @@ void main() {
 	if(sampled.a < 0.7) {
 		discard;
 	}
-	Albedo = vec4(textColor, 1.0) * sampled.a;
+	Albedo = vec4(textColor, 1.0);
 	Normal = vec4(fs_in.Normal, 1.0);
 	Position = vec4(fs_in.FragPos, 1.0);
 	UseLight = vec4(vec3(0.0), 1.0);

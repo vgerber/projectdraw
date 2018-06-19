@@ -17,6 +17,8 @@
 #include "Core/Scene/Light/plight.h"
 #include "Core/Scene/Text/text.h"
 
+#include "reactphysics3d.h"
+
 #ifdef _WIN32
 std::string path_obj_mountain = "C:/Users/Vincent/Documents/Projects/Blender/TriFace/basic_mountain.obj";
 #endif // _WIN32
@@ -71,6 +73,8 @@ int main() {
 	//
 	// Handle Vertex Objects
 	//
+
+
 
 	GLfloat vertices_rect[] = {
 		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
@@ -302,10 +306,10 @@ int main() {
 
 	test_obj.scale_to_height(1.0f);
 	Size size = test_obj.get_size();
-	test_obj.set_position(glm::vec3(2.0, 0.0f, -10.0f));
+	test_obj.set_position(glm::vec3(-5.0, 0.0f, -5.0f));
 	test_obj.set_center(glm::vec3(0.5f, 0.5f, 1.7f));
 	test_obj.visible_box = true;
-	test_obj.visible_normal = true;
+	test_obj.visible_normal = false;
 	test_obj.draw_type = DrawType::TRIANGLE;
 
 	pLight.set_model(cube.get_model());
@@ -319,7 +323,7 @@ int main() {
 
 	Drawable test_rect = Drawable();
 	test_rect.set_model(primitves::generate_circle(1.0f, 30.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-	test_rect.set_position(glm::vec3(-2.0f, -0.5f, -2.0f));
+	test_rect.set_position(glm::vec3(-2.0f, 0.0f, -2.0f));
 	
 	test_rect.draw_type = DrawType::TRIANGLE;
 	test_rect.visible_box = true;
@@ -327,8 +331,25 @@ int main() {
 
 
 	Geometry testGeometry = Geometry();
-
 	scene_main.add_object(testGeometry);
+
+
+	scene_main.add_object(text_fps);
+	text_fps.visible_box = true;
+	text_fps.rotate(glm::vec3(0.0f, 90.0f, 0.0f));
+	text_fps.set_color(0.1f, 0.1f, 0.1f, 1.0f);
+	text_fps.set_position(glm::vec3(-1.0f, 1.0f, -2.0f));
+
+
+	Text text_description = Text(Loader::GetPath("/Fonts/VeraMono.ttf").c_str(), 60);
+	text_description.set_position(glm::vec3(0.0f, 0.1f, -10.0f));
+	text_description.rotate(glm::vec3(0.0f, -30.0f, 0.0f));
+	text_description.set_color(1.0f, 0.5f, 0.0f, 1.0f);
+	text_description.set_text("This is a great test level!");
+	text_description.visible_box = true;
+	scene_main.add_object(text_description);
+
+
 	//depth
 	glEnable(GL_DEPTH_TEST);	
 	glDepthFunc(GL_LESS);
@@ -362,23 +383,25 @@ int main() {
 		glfwPollEvents();
 		handle_key();
 		
-		test_rect.rotate(glm::vec3(-90.0f, 70.0f, 90.0f));
+		test_rect.rotate(glm::vec3(0.0f, 90.0f, 0.0f));
 
-		test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * 10.0f, 0.0f));
+		test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * 30.0f, 0.0f));
 		
+		cube.set_position(glm::vec3(0.0f, 1.0f, 0.0f));
 		cube.rotate(cube.get_rotation() + glm::vec3(0.0, 10.0f, 0.0f) * deltaTime);
 		text_fps.rotate(text_fps.get_rotation() + glm::vec3(0.0f, 0.0f, 0.0f) * deltaTime);
 		
-		testGeometry.line_to(mainCamera.get_position());
+		testGeometry.line_to(mainCamera.get_position() * glm::vec3(0.0f, 1.0f, 1.0f));
 
-		//glClearColor(0.4f, 0.4f, 1.0f, 1.0f);
-		//glEnable(GL_DEPTH_TEST);
+		text_description.scale(glm::vec3(1.0f, 1.0f, 0.01f));
+		text_description.scale_to_height(1.0f);
+		text_description.rotate(text_description.get_rotation() + glm::vec3(-0.0f, 0.0f, 0.0f));
 
-		Shaders[SHADER_FONT].use();
-		text_fps.setText(std::to_string((int)round(1 / deltaTime)));
-		text_fps.setColor(glm::vec4(0.2f, 0.5f, 1.0f, 0.0f));
-		text_fps.draw();
-
+		
+		text_fps.set_position(glm::vec3(-0.99f, 1.0f - text_fps.get_size().height * 0.5f, -2.0f));
+		text_fps.scale_to_width(test_rect.get_size().width);
+		text_fps.set_text(std::to_string(glfwGetTime())); //(int)round(1 / deltaTime)));
+		
 		pLight.set_position(glm::vec3(-5.0, 1.0f, sin(glfwGetTime()) * 3.0f));
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

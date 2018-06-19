@@ -25,7 +25,7 @@ void Text::draw()
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
 
-	GLfloat x = position.x, y = position.y;
+	GLfloat x = 0.0f, y = 0.0f; // position.x, y = position.y;
 	for (auto c = text.begin(); c != text.end(); c++) {
 		Character ch = font.characters[*c];
 
@@ -56,28 +56,53 @@ void Text::draw()
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		// Now advance cursors for next glyph (note that advance is numberof 1 / 64 pixels)
 		x += (ch.Advance >> 6); // Bitshift by 6 to get value in pixels(2 ^ 6 = 64)
+
+		if (reload_text) {
+			if (size.width < xpos + w) {
+				size.width = xpos + w;
+			}
+			if (size.height < ypos + h) {
+				size.height = ypos + h;
+			}
+			if (c + 1 == text.end()) {
+				load_box();
+				reload_text = false;
+
+			}
+		}
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glEnable(GL_CULL_FACE);
 }
 
-void Text::setColor(glm::vec4 color)
+void Text::set_color(glm::vec4 color)
 {
 	this->color = color;
 }
 
-void Text::setColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
+void Text::set_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 {
 	color = glm::vec4(r, g, b, a);
 }
 
-void Text::setText(std::string text)
+void Text::set_text(std::string text)
 {
+	if (this->text != text) {
+		reload_text = true;
+		size.x = 0.0f;
+		size.y = 0.0f;
+		size.z = 0.0f;
+		size.width = 0.0f;
+		size.height = 0.0f;
+		size.depth = 0.0f;
+	}
+
 	this->text = text;
+
 }
 
-std::string Text::getText()
+std::string Text::get_text()
 {
 	return text;
 }
