@@ -26,7 +26,8 @@ public:
 
 	rp3d::RigidBody *body = nullptr;
 	rp3d::Transform rp3d_prev_transform;
-
+	rp3d::ProxyShape *proxy_shape = nullptr;
+	rp3d::BoxShape *box_shape;
 
 	bool visible_normal = false;
 	bool visible_box = false;

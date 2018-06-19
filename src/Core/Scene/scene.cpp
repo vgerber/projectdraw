@@ -3,7 +3,7 @@
 Scene::Scene()
 {
 	setup(800, 600);
-	gravity = rp3d::Vector3(0.0, -9.81, 0.0);
+	gravity = rp3d::Vector3(0.0, -1.81, 0.0);
 	world = new rp3d::DynamicsWorld(gravity);
 	world->setNbIterationsVelocitySolver(15);
 	world->setNbIterationsPositionSolver(8);
@@ -27,6 +27,18 @@ void Scene::add_object(Drawable &drawable)
 	drawable.body = world->createRigidBody(transform);
 	drawable.body->setType(rp3d::BodyType::STATIC);
 	drawable.body->enableGravity(false);
+
+	rp3d::Material &material = drawable.body->getMaterial();
+	material.setBounciness(rp3d::decimal(0.1f));
+	material.setFrictionCoefficient(rp3d::decimal(1.0f)); 
+
+	rp3d::Vector3 box_size(drawable.get_size().width * 0.5f, drawable.get_size().height * 0.5, drawable.get_size().depth * 0.0);
+	drawable.box_shape =  new rp3d::BoxShape(box_size);
+	
+
+
+	drawable.proxy_shape = drawable.body->addCollisionShape(drawable.box_shape, transform, 0.4f);
+	
 	objects.push_back(&drawable);
 }
 
@@ -66,7 +78,8 @@ void Scene::draw(GLfloat delta)
 		rp3d::Vector3 position = rp3d_current_transform.getPosition();
 
 		drawable->set_position(glm::vec3(position.x, position.y, position.z));
-		//drawable->rotate(glm::vec3(rotation.x, rotation.z, rotation.y));
+		
+		drawable->rotate(glm::vec3(rotation.x, rotation.y, rotation.z));
 	}
 
 

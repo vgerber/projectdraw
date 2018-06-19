@@ -14,6 +14,7 @@ Drawable::Drawable(GLchar* mmodel)
 
 Drawable::~Drawable()
 {
+	delete box_shape;
 }
 
 void Drawable::dispose()
@@ -321,9 +322,9 @@ void Drawable::update_model()
 	}
 
 	if (body) {
-		rp3d::Vector3 position(position.x, position.y, position.z);
+		rp3d::Vector3 rp3d_position(position.x, position.y, position.z);
 		rp3d::Quaternion rotation = rp3d::Quaternion(vrotation.x, vrotation.y, vrotation.z, 1.0f);
-		rp3d::Transform transform(position, rotation);
+		rp3d::Transform transform(rp3d_position, rotation);
 		body->setTransform(transform);
 	}
 }

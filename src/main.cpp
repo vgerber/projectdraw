@@ -17,7 +17,6 @@
 #include "Core/Scene/Light/plight.h"
 #include "Core/Scene/Text/text.h"
 
-#include "reactphysics3d.h"
 
 #ifdef _WIN32
 std::string path_obj_mountain = "C:/Users/Vincent/Documents/Projects/Blender/TriFace/basic_mountain.obj";
@@ -317,7 +316,8 @@ int main() {
 	pLight2.set_model(cube.get_model());
 
 	cube.scale_to_size(size_medium);
-	cube.set_position(glm::vec3(0.0f, 1.0f, 0.0f));
+	cube.set_position(glm::vec3(0.0f, 10.0f, 0.0f));
+	cube.rotate(glm::vec3(0.0f, 0.0f, 45.0f));
 	cube.visible_normal = true;
 
 
@@ -377,6 +377,10 @@ int main() {
 
 	testGeometry.draw_type = DrawType::LINE;
 
+	cube.body->setType(rp3d::BodyType::DYNAMIC);
+	cube.body->enableGravity(true);
+	//cube.set_position(glm::vec3(0.0f, 3.0f, 0.0f));
+
 	GLfloat lastTime = glfwGetTime();
 	while (!glfwWindowShouldClose(window))
 	{
@@ -384,21 +388,25 @@ int main() {
 		handle_key();
 		
 		test_rect.rotate(glm::vec3(0.0f, 90.0f, 0.0f));
+		rp3d::Vector3 min_vec, max_vec;
+		ground.box_shape->getLocalBounds(min_vec, max_vec);
+		std::cout << min_vec.y << std::endl;
 
-		test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * 30.0f, 0.0f));
+		//test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * 30.0f, 0.0f));
 		
-		cube.set_position(glm::vec3(0.0f, 1.0f, 0.0f));
-		cube.rotate(cube.get_rotation() + glm::vec3(0.0, 10.0f, 0.0f) * deltaTime);
+		//cube.set_position(glm::vec3(0.0f, 1.0f, 0.0f));
+		std::cout << cube.get_position().y << std::endl;
+		//cube.rotate(cube.get_rotation() + glm::vec3(0.0, 10.0f, 0.0f) * deltaTime);
 		text_fps.rotate(text_fps.get_rotation() + glm::vec3(0.0f, 0.0f, 0.0f) * deltaTime);
 		
-		testGeometry.line_to(mainCamera.get_position() * glm::vec3(0.0f, 1.0f, 1.0f));
+		//testGeometry.line_to(mainCamera.get_position() * glm::vec3(0.0f, 1.0f, 1.0f));
 
 		text_description.scale(glm::vec3(1.0f, 1.0f, 0.01f));
 		text_description.scale_to_height(1.0f);
 		text_description.rotate(text_description.get_rotation() + glm::vec3(-0.0f, 0.0f, 0.0f));
 
 		
-		text_fps.set_position(glm::vec3(-0.99f, 1.0f - text_fps.get_size().height * 0.5f, -2.0f));
+		text_fps.set_position(glm::vec3(-0.99f, 1.0f - text_fps.get_size().height * 0.5f, -2.0f + text_fps.get_size().width * 0.5f));
 		text_fps.scale_to_width(test_rect.get_size().width);
 		text_fps.set_text(std::to_string(glfwGetTime())); //(int)round(1 / deltaTime)));
 		

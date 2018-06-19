@@ -18,7 +18,7 @@ public:
 private:
 	glm::vec3 direction = glm::vec3(-1.0f);
 	GLuint depthMapFBO;
-	const GLuint SHADOW_WIDTH = 5000, SHADOW_HEIGHT = 5000;
+	const GLuint SHADOW_WIDTH = 1000, SHADOW_HEIGHT = 1000;
 	GLuint depthMap;
 	GLfloat near_plane = 0.1f, far_plane = 100.0f;
 	glm::mat4 lightProjection;

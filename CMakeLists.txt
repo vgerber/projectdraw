@@ -34,6 +34,7 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(SOIL DEFAULT_MSG SOIL_LIBRARIES SOIL_INCLUDE_D
 
 include_directories(~/Development/Lib/Cpp/glm-0.9.9.0/)
 
+#define GLM_ENABLE_EXPERIMENTAL
 find_package(GLEW REQUIRED)
 find_package(assimp REQUIRED)
 find_package(glfw3 REQUIRED)
@@ -41,8 +42,9 @@ find_package(OpenGL REQUIRED)
 find_package(Freetype REQUIRED)
 
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS})
+include_directories(~/Development/Lib/Cpp/reactphysics3d-0.7.0/src)
 
-target_link_libraries(engine assimp glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${SOIL_LIBRARIES} ${FREETYPE_LIBRARIES})
+target_link_libraries(engine assimp glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${SOIL_LIBRARIES} ${FREETYPE_LIBRARIES} /usr/local/lib/libreactphysics3d.a)
 endif()
 
 if(WIN32)
