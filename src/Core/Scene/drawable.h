@@ -24,14 +24,11 @@ public:
 	Drawable(GLchar* mmodel);
 	~Drawable();
 
-	rp3d::RigidBody *body = nullptr;
-	rp3d::Transform rp3d_prev_transform;
-	rp3d::ProxyShape *proxy_shape = nullptr;
-	rp3d::BoxShape *box_shape;
-
 	bool visible_normal = false;
 	bool visible_box = false;
 	DrawType draw_type = DrawType::TRIANGLE;
+
+	glm::mat4 mmodel = glm::mat4(1.0f);
 
 	virtual void dispose();
 	virtual void draw();
@@ -81,7 +78,7 @@ protected:
 	glm::vec3 vcenter = glm::vec3(0.5f);
 	glm::vec3 vrotation = glm::vec3(0.0f);
 	glm::vec3 vscale = glm::vec3(1.0f);
-	glm::mat4 mmodel = glm::mat4(1.0f);
+	
 
 	virtual void setup();
 	virtual void update_model();

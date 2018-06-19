@@ -6,9 +6,8 @@ file(GLOB_RECURSE ENGINE_SRC
     "src/*.cpp"
 )
 
-add_executable(engine src/main.cpp ${ENGINE_SRC})
-
 if (UNIX)
+add_executable(engine src/main.cpp ${ENGINE_SRC})
 
 IF (SOIL_INCLUDE_DIR)
   # Already in cache, be silent
@@ -56,14 +55,21 @@ include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/inc
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/src)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/include)
+include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/reactphysics3d-0.7.0/src)
+include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/src)
 
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glew-2.0.0/lib/Release/Win32)
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glfw-3.2.1/lib-vc2015)
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/)
-link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-3.1.1/build/code/Debug)
+link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/code/Debug)
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Debug)
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/objs/Win32/Debug)
+link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/reactphysics3d-0.7.0/build/lib/Debug)
+link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build_cmake/lib/Debug)
 
-target_link_libraries(engine assimp-vc140-mt glfw3 glew32s SOIL OpenGL32 freetype)
+add_executable(engine src/main.cpp ${ENGINE_SRC})
+target_link_libraries(engine assimp-vc140-mt glfw3 glew32s SOIL OpenGL32 freetype reactphysics3d Bullet3Dynamics_Debug Bullet3Collision_Debug LinearMath_Debug)
 endif()
+
+
 

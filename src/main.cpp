@@ -7,6 +7,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <SOIL.h>
 
+#include <btBulletDynamicsCommon.h>
+
+
 #include <iostream>
 
 #include "Core/core.h"
@@ -16,6 +19,7 @@
 #include "Core/Scene/Light/dlight.h"
 #include "Core/Scene/Light/plight.h"
 #include "Core/Scene/Text/text.h"
+
 
 
 #ifdef _WIN32
@@ -107,7 +111,7 @@ int main() {
 	GLuint cubemapTexture = Loader::LoadCubemap(skybox_faces);
 
 	//create camera
-	mainCamera.set_position(glm::vec3(0.0f, 0.0f, 5.0f));
+	mainCamera.set_position(glm::vec3(0.0f, 5.0f, 10.0f));
 
 	
 
@@ -316,8 +320,8 @@ int main() {
 	pLight2.set_model(cube.get_model());
 
 	cube.scale_to_size(size_medium);
-	cube.set_position(glm::vec3(0.0f, 10.0f, 0.0f));
-	cube.rotate(glm::vec3(0.0f, 0.0f, 45.0f));
+	cube.set_position(glm::vec3(0.0f, 5.0f, 0.0f));
+	//cube.rotate(glm::vec3(0.0f, 0.0f, 45.0f));
 	cube.visible_normal = true;
 
 
@@ -377,9 +381,78 @@ int main() {
 
 	testGeometry.draw_type = DrawType::LINE;
 
-	cube.body->setType(rp3d::BodyType::DYNAMIC);
-	cube.body->enableGravity(true);
 	//cube.set_position(glm::vec3(0.0f, 3.0f, 0.0f));
+	
+
+	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	btBroadphaseInterface *overlappingPairCache = new btDbvtBroadphase();
+	btSequentialImpulseConstraintSolver *solver = new btSequentialImpulseConstraintSolver;
+
+	btDiscreteDynamicsWorld *dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+
+	dynamicsWorld->setGravity(btVector3(0, -10, 0));
+
+	btAlignedObjectArray<btCollisionShape*> collisionShapes;
+
+	//add ground as ground plane
+	{
+		btCollisionShape *groundShape = new btBoxShape(btVector3(btScalar(10.0f), 10.0f, 10.0f));//(ground.get_size().width * 0.5f), btScalar(ground.get_size().height * 0.5f), btScalar(ground.get_size().depth * 0.5f)));
+		collisionShapes.push_back(groundShape);
+		btTransform ground_transform;
+		ground_transform.setIdentity();
+		ground_transform.setOrigin(btVector3(-10.0f, -10.0f, 0.0f));//ground.get_position().x, ground.get_position().y, ground.get_position().z));
+		btScalar mass(0.);
+
+		bool isDynamic = (mass != 0.0f);
+
+		btVector3 localInertia(0, 0, 0);
+		if (isDynamic) {
+			groundShape->calculateLocalInertia(mass, localInertia);
+		}
+
+		btDefaultMotionState *myMotionState = new btDefaultMotionState(ground_transform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
+		btRigidBody *body = new btRigidBody(rbInfo);
+
+		dynamicsWorld->addRigidBody(body);
+	}
+
+	//set cube as sceond item
+	{
+		btCollisionShape *cubeShape = new btBoxShape(btVector3(btScalar(1.0f), btScalar(.5f), btScalar(.5f)));
+		collisionShapes.push_back(cubeShape);
+
+		btTransform cube_transform;
+		cube_transform.setIdentity();
+		cube_transform.setOrigin(btVector3(0.0f, cube.get_position().y + cube.get_size().height * .5f, -1.0f));
+
+		btScalar mass(1.f);
+
+		bool isDynamic = (mass != 0.0f);
+
+		btVector3 localInertia(0, 0, 0);
+		if (isDynamic) {
+			cubeShape->calculateLocalInertia(mass, localInertia);
+		}
+
+		btDefaultMotionState *myMotionState = new btDefaultMotionState(cube_transform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, cubeShape, localInertia);
+		btRigidBody *body = new btRigidBody(rbInfo);
+
+		dynamicsWorld->addRigidBody(body);
+	}
+
+	//simulate
+
+	for (int i = 0; i < 150; i++) {
+
+	}
+
+
+
+
+
 
 	GLfloat lastTime = glfwGetTime();
 	while (!glfwWindowShouldClose(window))
@@ -387,15 +460,45 @@ int main() {
 		glfwPollEvents();
 		handle_key();
 		
-		test_rect.rotate(glm::vec3(0.0f, 90.0f, 0.0f));
-		rp3d::Vector3 min_vec, max_vec;
-		ground.box_shape->getLocalBounds(min_vec, max_vec);
-		std::cout << min_vec.y << std::endl;
 
-		//test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * 30.0f, 0.0f));
+		dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+
+		for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--) {
+			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
+			btRigidBody* body = btRigidBody::upcast(obj);
+			btTransform trans;
+			if (body && body->getMotionState()) {
+				body->getMotionState()->getWorldTransform(trans);
+			}
+			else {
+				trans = obj->getWorldTransform();
+			}
+			
+			btScalar rot_x, rot_y, rot_z;
+			trans.getRotation().getEulerZYX(rot_z, rot_y, rot_x);
+			rot_z = rot_z * 180.0f / glm::pi<float>();
+			rot_x = rot_x * 180.0f / glm::pi<float>();
+			rot_y = rot_y * 180.0f / glm::pi<float>();
+
+			if (j == 1) {
+				cube.set_position(glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY() - cube.get_size().height * 0.5f), float(trans.getOrigin().getZ())));
+				cube.rotate(glm::vec3(rot_x, rot_y, rot_z));
+			}
+			if (j == 0) {
+				ground.set_position(glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY()  - ground.get_size().height * 0.5f), float(trans.getOrigin().getZ())));
+			}
+
+
+			printf("world pos object %d %f,%f,%f - %f %f %f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()), rot_x, rot_y, rot_z);
+		}
+
+
+
+		test_rect.rotate(glm::vec3(0.0f, 90.0f, 0.0f));
+
+		test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * 30.0f, 0.0f));
 		
 		//cube.set_position(glm::vec3(0.0f, 1.0f, 0.0f));
-		std::cout << cube.get_position().y << std::endl;
 		//cube.rotate(cube.get_rotation() + glm::vec3(0.0, 10.0f, 0.0f) * deltaTime);
 		text_fps.rotate(text_fps.get_rotation() + glm::vec3(0.0f, 0.0f, 0.0f) * deltaTime);
 		
@@ -439,6 +542,11 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 
 
+
+
+
+
+
 		glfwSwapBuffers(window);
 		GLfloat currentTime = glfwGetTime();
 		deltaTime = currentTime - lastTime;
@@ -446,6 +554,30 @@ int main() {
 	}
 	scene_main.dispose();
 	//glDeleteFramebuffers(1, &fbo_texture);
+
+
+	//free memory
+	for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
+		btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody *body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState()) {
+			delete body->getMotionState();
+		}
+		dynamicsWorld->removeCollisionObject(obj);
+		delete obj;
+	}
+	for (int i = 0; i < collisionShapes.size(); i++) {
+		btCollisionShape* shape = collisionShapes[i];
+		collisionShapes[i] = 0;
+		delete shape;
+	}
+
+	delete dynamicsWorld;
+	delete solver;
+	delete dispatcher;
+	delete collisionConfiguration;
+	collisionShapes.clear();
+
 
 	glfwTerminate();
 	return 0;
