@@ -5,15 +5,16 @@
 
 #include <map>
 
+typedef  unsigned int (uint);
 
 struct RigidBody {
     btRigidBody* rigid_body;
 };
 
 class PhysicsObject {
-public:
+public:	
     uint add_rigid_body(RigidBody rigid_body);
-    RigidBody get_rigid_body(unsigned int id);
+    RigidBody get_rigid_body(uint id);
     std::map<uint, RigidBody> get_rigid_bodys();
 
 private:

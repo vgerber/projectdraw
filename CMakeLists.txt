@@ -66,10 +66,27 @@ link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Debug)
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/objs/Win32/Debug)
 link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/reactphysics3d-0.7.0/build/lib/Debug)
-link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build_cmake/lib/Debug)
+link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug)
 
 add_executable(engine src/main.cpp ${ENGINE_SRC})
-target_link_libraries(engine assimp-vc140-mt glfw3 glew32s SOIL OpenGL32 freetype reactphysics3d Bullet3Dynamics_Debug Bullet3Collision_Debug LinearMath_Debug)
+target_link_libraries(engine 
+	assimp-vc140-mt 
+	glfw3 
+	glew32s 
+	SOIL
+	OpenGL32 
+	freetype 
+	BulletSoftBody_Debug
+	BulletInverseDynamics_Debug
+	BulletInverseDynamicsUtils_Debug
+	BulletDynamics_Debug
+	BulletCollision_Debug
+	Bullet3Geometry_Debug
+	Bullet3Common_Debug
+	Bullet3Dynamics_Debug
+	Bullet3Collision_Debug
+	LinearMath_Debug
+)
 endif()
 
 

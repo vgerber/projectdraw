@@ -317,7 +317,7 @@ int main() {
 	pLight.scale_to_size(size_small);
 	pLight2.set_model(cube.get_model());
 
-	cube.scale_to_size(size_medium);
+	//cube.scale_to_size(size_medium);
 	cube.set_position(glm::vec3(1.0f, 5.0f, 0.0f));
 	cube.rotate(glm::radians(glm::vec3(45.0f, 45.0f, 45.0f)));
 	cube.visible_normal = true;
@@ -338,14 +338,14 @@ int main() {
 
 	scene_main.add_object(text_fps);
 	text_fps.visible_box = true;
-	text_fps.rotate(glm::vec3(0.0f, 90.0f, 0.0f));
+	text_fps.rotate(glm::radians(glm::vec3(0.0f, 90.0f, 0.0f)));
 	text_fps.set_color(0.1f, 0.1f, 0.1f, 1.0f);
 	text_fps.set_position(glm::vec3(-1.0f, 1.0f, -2.0f));
 
 
 	Text text_description = Text(Loader::GetPath("/Fonts/VeraMono.ttf").c_str(), 60);
 	text_description.set_position(glm::vec3(0.0f, 0.1f, -10.0f));
-	text_description.rotate(glm::vec3(0.0f, -30.0f, 0.0f));
+	text_description.rotate(glm::radians(glm::vec3(0.0f, -30.0f, 0.0f)));
 	text_description.set_color(1.0f, 0.5f, 0.0f, 1.0f);
 	text_description.set_text("This is a great test level!");
 	text_description.visible_box = true;
@@ -395,9 +395,9 @@ int main() {
 
 
 	ground.set_position(glm::vec3(-15.0f, -1.1f, -15.0f));
-	ground.rotate(glm::radians(glm::vec3(30.0f, 0.0f, 0.0f)));
+	ground.rotate(glm::radians(glm::vec3(5.0f, 0.0f, 0.0f)));
 
-	cube.set_position(glm::vec3(0.0f, 200.0f, 0.0f));
+	cube.set_position(glm::vec3(0.0f, 10.0f, 0.0f));
 	//add ground as ground plane
 	{
 		collision::CollisionShape ground_shape(collision::generate_cube(ground.get_size()));
@@ -421,14 +421,14 @@ int main() {
 		btDefaultMotionState *myMotionState = new btDefaultMotionState(ground_transform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, ground_shape.get_shape(), localInertia);
 		btRigidBody *body = new btRigidBody(rbInfo);
-
+		
 		dynamicsWorld->addRigidBody(body);
 	}
 
 	//set cube as sceond item
 	{
-		btCollisionShape *cubeShape = new btBoxShape(btVector3(btScalar(cube.get_size().width * .5f), btScalar(cube.get_size().height * .5f), btScalar(cube.get_size().depth * .5f)));
-		collisionShapes.push_back(cubeShape);
+		collision::CollisionShape cube_shape(collision::generate_cube(cube.get_size()));
+		collisionShapes.push_back(cube_shape.get_shape());
 
 		btTransform cube_transform;
 		cube_transform.setIdentity();
@@ -440,11 +440,11 @@ int main() {
 
 		btVector3 localInertia(0, 0, 0);
 		if (isDynamic) {
-			cubeShape->calculateLocalInertia(mass, localInertia);
+			cube_shape.get_shape()->calculateLocalInertia(mass, localInertia);
 		}
 
 		btDefaultMotionState *myMotionState = new btDefaultMotionState(cube_transform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, cubeShape, localInertia);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, cube_shape.get_shape(), localInertia);
 		btRigidBody *body = new btRigidBody(rbInfo);
 
 		dynamicsWorld->addRigidBody(body);
