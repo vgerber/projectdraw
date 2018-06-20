@@ -185,13 +185,13 @@ Size Drawable::get_aabb_box()
 
 void Drawable::scale_to_size(Size size)
 {
-	if (isnan(size.width)) {
+	if (std::isnan(size.width)) {
 		size.width = 1.0f;
 	}
-	if (isnan(size.height)) {
+	if (std::isnan(size.height)) {
 		size.height = 1.0f;
 	}
-	if (isnan(size.depth)) {
+	if (std::isnan(size.depth)) {
 		size.depth = 1.0f;
 	}
 	if(this->size.width > 0.0f)
@@ -293,7 +293,7 @@ void Drawable::update_model()
 		vcenter.z * size.depth * vscale.z);
 	
 	
-	glm::quat rot_quat = glm::quat(glm::radians(vrotation));
+	glm::quat rot_quat = glm::quat(vrotation);
 	glm::mat4 rotation = glm::toMat4(rot_quat);
 
 	rotation = glm::translate(glm::mat4(1.0f), center_translation) 

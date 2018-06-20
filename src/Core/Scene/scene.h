@@ -1,5 +1,4 @@
 #pragma once
-#include "reactphysics3d.h"
 
 #include "../core.h"
 #include "Camera/camera.h"
@@ -25,9 +24,6 @@ public:
 	virtual void draw(GLfloat delta);
 	void dispose();
 private:
-	rp3d::Vector3 gravity;
-	rp3d::WorldSettings settings;
-	rp3d::DynamicsWorld *world;
 	float rp3d_accumulator = 0.0f;
 	float rp3d_time_step = 1.0f / 60.0f;
 

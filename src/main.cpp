@@ -19,8 +19,7 @@
 #include "Core/Scene/Light/dlight.h"
 #include "Core/Scene/Light/plight.h"
 #include "Core/Scene/Text/text.h"
-
-
+#include "Core/Physics/physics.h"
 
 #ifdef _WIN32
 std::string path_obj_mountain = "C:/Users/Vincent/Documents/Projects/Blender/TriFace/basic_mountain.obj";
@@ -147,8 +146,7 @@ int main() {
 
     Drawable test_obj = Drawable(&path_obj_mountain[0]);
 	Drawable ground = Drawable();
-	ground.set_model(primitves::generate_quad(200.0f, 0.098f, 200.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	ground.set_position(glm::vec3(-100.0f, -0.1f, -100.0f));
+	ground.set_model(primitves::generate_quad(30.0f, 1.098f, 30.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	Drawable cube = Drawable();
 	cube.set_model(primitves::generate_quad(1.0f, 1.0f, 1.0f, glm::vec4(1.0f, 0.3f, 0.8f, 1.0f)));
@@ -320,8 +318,8 @@ int main() {
 	pLight2.set_model(cube.get_model());
 
 	cube.scale_to_size(size_medium);
-	cube.set_position(glm::vec3(0.0f, 5.0f, 0.0f));
-	//cube.rotate(glm::vec3(0.0f, 0.0f, 45.0f));
+	cube.set_position(glm::vec3(1.0f, 5.0f, 0.0f));
+	cube.rotate(glm::radians(glm::vec3(45.0f, 45.0f, 45.0f)));
 	cube.visible_normal = true;
 
 
@@ -377,7 +375,7 @@ int main() {
 	glEnable(GL_LINE_STIPPLE);	
 	glLineStipple(1, 0xAAAA);
 	glLineWidth(1);
-	glPointSize(1);
+	glPointSize(10);
 
 	testGeometry.draw_type = DrawType::LINE;
 
@@ -391,28 +389,37 @@ int main() {
 
 	btDiscreteDynamicsWorld *dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 
-	dynamicsWorld->setGravity(btVector3(0, -10, 0));
+	dynamicsWorld->setGravity(btVector3(0, -9.81, 0));
 
 	btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
+
+	ground.set_position(glm::vec3(-15.0f, -1.1f, -15.0f));
+	ground.rotate(glm::radians(glm::vec3(30.0f, 0.0f, 0.0f)));
+
+	cube.set_position(glm::vec3(0.0f, 200.0f, 0.0f));
 	//add ground as ground plane
 	{
-		btCollisionShape *groundShape = new btBoxShape(btVector3(btScalar(10.0f), 10.0f, 10.0f));//(ground.get_size().width * 0.5f), btScalar(ground.get_size().height * 0.5f), btScalar(ground.get_size().depth * 0.5f)));
-		collisionShapes.push_back(groundShape);
+		collision::CollisionShape ground_shape(collision::generate_cube(ground.get_size()));
+		//btCollisionShape *groundShape = //new btBoxShape(btVector3(ground.get_size().width * .5f, ground.get_size().height * .5f, ground.get_size().depth * .5f));//(ground.get_size().width * 0.5f), btScalar(ground.get_size().height * 0.5f), btScalar(ground.get_size().depth * 0.5f)));
+		collisionShapes.push_back(ground_shape.get_shape());
+		
 		btTransform ground_transform;
 		ground_transform.setIdentity();
-		ground_transform.setOrigin(btVector3(-10.0f, -10.0f, 0.0f));//ground.get_position().x, ground.get_position().y, ground.get_position().z));
+		ground_transform.setOrigin(btVector3(ground.get_position().x + ground.get_size().width * .5f, ground.get_position().y + ground.get_size().height * .5f, ground.get_position().z + ground.get_size().depth * 0.5));//ground.get_position().x, ground.get_position().y, ground.get_position().z));
+		ground_transform.setRotation(btQuaternion(ground.get_rotation().y, ground.get_rotation().x, ground.get_rotation().z));
+		
 		btScalar mass(0.);
 
 		bool isDynamic = (mass != 0.0f);
 
 		btVector3 localInertia(0, 0, 0);
 		if (isDynamic) {
-			groundShape->calculateLocalInertia(mass, localInertia);
+			ground_shape.get_shape()->calculateLocalInertia(mass, localInertia);
 		}
 
 		btDefaultMotionState *myMotionState = new btDefaultMotionState(ground_transform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, ground_shape.get_shape(), localInertia);
 		btRigidBody *body = new btRigidBody(rbInfo);
 
 		dynamicsWorld->addRigidBody(body);
@@ -420,14 +427,14 @@ int main() {
 
 	//set cube as sceond item
 	{
-		btCollisionShape *cubeShape = new btBoxShape(btVector3(btScalar(1.0f), btScalar(.5f), btScalar(.5f)));
+		btCollisionShape *cubeShape = new btBoxShape(btVector3(btScalar(cube.get_size().width * .5f), btScalar(cube.get_size().height * .5f), btScalar(cube.get_size().depth * .5f)));
 		collisionShapes.push_back(cubeShape);
 
 		btTransform cube_transform;
 		cube_transform.setIdentity();
-		cube_transform.setOrigin(btVector3(0.0f, cube.get_position().y + cube.get_size().height * .5f, -1.0f));
-
-		btScalar mass(1.f);
+		cube_transform.setOrigin(btVector3(cube.get_position().x + cube.get_size().width * 0.5, cube.get_position().y + cube.get_size().height * .5f, cube.get_position().z + cube.get_size().depth * 0.5));
+		cube_transform.setRotation(btQuaternion(cube.get_rotation().y, cube.get_rotation().x, cube.get_rotation().z));
+		btScalar mass(0.1f);
 
 		bool isDynamic = (mass != 0.0f);
 
@@ -444,14 +451,7 @@ int main() {
 	}
 
 	//simulate
-
-	for (int i = 0; i < 150; i++) {
-
-	}
-
-
-
-
+	float bullet_accumulator = 0.0f;
 
 
 	GLfloat lastTime = glfwGetTime();
@@ -461,11 +461,12 @@ int main() {
 		handle_key();
 		
 
-		dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+		dynamicsWorld->stepSimulation(1.f / 60.f, 100);
 
 		for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--) {
 			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
 			btRigidBody* body = btRigidBody::upcast(obj);
+			
 			btTransform trans;
 			if (body && body->getMotionState()) {
 				body->getMotionState()->getWorldTransform(trans);
@@ -476,16 +477,14 @@ int main() {
 			
 			btScalar rot_x, rot_y, rot_z;
 			trans.getRotation().getEulerZYX(rot_z, rot_y, rot_x);
-			rot_z = rot_z * 180.0f / glm::pi<float>();
-			rot_x = rot_x * 180.0f / glm::pi<float>();
-			rot_y = rot_y * 180.0f / glm::pi<float>();
 
 			if (j == 1) {
-				cube.set_position(glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY() - cube.get_size().height * 0.5f), float(trans.getOrigin().getZ())));
+				cube.set_position(glm::vec3(float(trans.getOrigin().getX() - cube.get_size().width * 0.5), float(trans.getOrigin().getY() - cube.get_size().height * 0.5f), float(trans.getOrigin().getZ() - cube.get_size().depth * 0.5)));
 				cube.rotate(glm::vec3(rot_x, rot_y, rot_z));
 			}
 			if (j == 0) {
-				ground.set_position(glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY()  - ground.get_size().height * 0.5f), float(trans.getOrigin().getZ())));
+				ground.set_position(glm::vec3(float(trans.getOrigin().getX() - ground.get_size().width * 0.5), float(trans.getOrigin().getY()  - ground.get_size().height * 0.5f), float(trans.getOrigin().getZ() - ground.get_size().depth * 0.5)));
+				ground.rotate(glm::vec3(rot_x, rot_y, rot_z));
 			}
 
 
@@ -493,10 +492,9 @@ int main() {
 		}
 
 
+		test_rect.rotate(glm::vec3(0.0f, glm::radians(90.0f), 0.0f));
 
-		test_rect.rotate(glm::vec3(0.0f, 90.0f, 0.0f));
-
-		test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * 30.0f, 0.0f));
+		test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * glm::radians(30.0f), 0.0f));
 		
 		//cube.set_position(glm::vec3(0.0f, 1.0f, 0.0f));
 		//cube.rotate(cube.get_rotation() + glm::vec3(0.0, 10.0f, 0.0f) * deltaTime);

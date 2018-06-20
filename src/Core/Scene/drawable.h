@@ -1,13 +1,15 @@
 #pragma once
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include "reactphysics3d.h"
+#include <btBulletDynamicsCommon.h>
 
 #include "sceneobject.h"
 #include "../Model/model.h"
 #include "../Model/box.h"
+#include "../Physics/physics.h"
 #include <memory>
 
 struct Material {
@@ -79,6 +81,7 @@ protected:
 	glm::vec3 vrotation = glm::vec3(0.0f);
 	glm::vec3 vscale = glm::vec3(1.0f);
 	
+	PhysicsObject physics_object;
 
 	virtual void setup();
 	virtual void update_model();

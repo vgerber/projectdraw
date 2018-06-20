@@ -10,7 +10,7 @@
                     "/home/vincent/Development/Lib/Cpp/glfw-3.2.1/include/",
                     "/home/vincent/Development/Lib/Cpp/assimp-master/include/",
                     "/home/vincent/Development/Lib/Cpp/freetype-2.9/include/",
-                    "/home/vincent/Development/Lib/Cpp/reactphysics3d-0.7.0/src"
+                    "/home/vincent/Development/Lib/Cpp/bullet3/src"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             },
@@ -21,7 +21,7 @@
                 "/home/vincent/Development/Lib/Cpp/glfw-3.2.1/include/",
                 "/home/vincent/Development/Lib/Cpp/assimp-master/include/",
                 "/home/vincent/Development/Lib/Cpp/freetype-2.9/include/",
-                "/home/vincent/Development/Lib/Cpp/reactphysics3d-0.7.0/src"
+                "/home/vincent/Development/Lib/Cpp/bullet3/src"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
