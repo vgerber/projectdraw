@@ -7,9 +7,9 @@ struct Size {
 };
 
 class BoundingBox {
-	virtual Size get_size() = 0;
-	virtual void scale_to_size(Size size) = 0;
-	virtual void scale_to_width(GLfloat width) = 0;
-	virtual void scale_to_height(GLfloat height) = 0;
-	virtual void scale_to_length(GLfloat depth) = 0;
+	virtual Size getSize() = 0;
+	virtual void scaleToSize(Size size) = 0;
+	virtual void scaleToWidth(GLfloat width) = 0;
+	virtual void scaleToHeight(GLfloat height) = 0;
+	virtual void scaleToLength(GLfloat depth) = 0;
 };

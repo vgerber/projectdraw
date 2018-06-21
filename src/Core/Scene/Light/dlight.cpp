@@ -18,9 +18,9 @@ glm::vec3 DirectionalLight::get_direction() {
 void DirectionalLight::apply(Shader shader, std::string target)
 {
 	Light::apply(shader, target);
-	glUniform3f(glGetUniformLocation(shader.get_id(), (target + ".direction").c_str()), direction.x, direction.y, direction.z);
+	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".direction").c_str()), direction.x, direction.y, direction.z);
 	glUniformMatrix4fv(
-		glGetUniformLocation(shader.get_id(), (target + ".lightSpaceMatrix").c_str()),
+		glGetUniformLocation(shader.getId(), (target + ".lightSpaceMatrix").c_str()),
 		1,
 		GL_FALSE,
 		glm::value_ptr(lightSpaceMatrix));
@@ -36,7 +36,7 @@ void DirectionalLight::begin_shadow_mapping()
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	glUniformMatrix4fv(
-		glGetUniformLocation(Shaders[SHADER_DEPTH].get_id(), "lightSpaceMatrix"),
+		glGetUniformLocation(Shaders[SHADER_DEPTH].getId(), "lightSpaceMatrix"),
 		1,
 		GL_FALSE,
 		glm::value_ptr(lightSpaceMatrix));

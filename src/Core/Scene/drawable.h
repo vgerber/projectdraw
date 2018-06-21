@@ -4,11 +4,11 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include <btBulletDynamicsCommon.h>
 
 #include "sceneobject.h"
 #include "../Model/model.h"
 #include "../Model/box.h"
-#include "../Physics/physics.h"
 #include <memory>
 
 struct Material {
@@ -25,22 +25,22 @@ public:
 	Drawable(GLchar* mmodel);
 	~Drawable();
 
-	bool visible_normal = false;
-	bool visible_box = false;
-	DrawType draw_type = DrawType::TRIANGLE;
+	bool visibleNormal = false;
+	bool visibleBox = false;
+	DrawType drawType = DrawType::TRIANGLE;
 
 	glm::mat4 mmodel = glm::mat4(1.0f);
 
 	virtual void dispose();
 	virtual void draw();
 	virtual void draw(Shader shader);
-	virtual void draw_normals();
-	virtual void draw_normals(Shader shader);
-	virtual void draw_box();
-	virtual void draw_box(Shader shader);
+	virtual void drawNormals();
+	virtual void drawNormals(Shader shader);
+	virtual void drawBox();
+	virtual void drawBox(Shader shader);
 	
 
-	glm::mat4 get_model_matrix();
+	glm::mat4 getModelMatrix();
 
 	void rotate(GLfloat x, GLfloat y, GLfloat z);
 	void rotate(glm::vec3 vrotation);
@@ -49,21 +49,25 @@ public:
 	void scale(GLfloat x, GLfloat y, GLfloat z);
 	void scale(glm::vec3 vscale);
 
-	Size get_size();
-	Size get_aabb_box();
-	void scale_to_size(Size size);
-	void scale_to_width(GLfloat width);
-	void scale_to_height(GLfloat height);
-	void scale_to_length(GLfloat depth);
+	Size getSize();
+	Size getAABBBox();
+	void scaleToSize(Size size);
+	void scaleToWidth(GLfloat width);
+	void scaleToHeight(GLfloat height);
+	void scaleToLength(GLfloat depth);
 
-	glm::vec3 get_position();
-	glm::vec3 get_position_center();
+	glm::vec3 getPosition();
+	glm::vec3 getPositionCenter();
 
-	glm::vec3 get_scale();
-	glm::vec3 get_rotation();	
-	void set_position(glm::vec3 position);
+	glm::vec3 getScale();
+	glm::vec3 getRotation();	
 
-	void set_center(glm::vec3 center);
+	void setPosition(glm::vec3 position);
+	void setPositionCenter(glm::vec3 position);
+
+	void setCenter(glm::vec3 center);
+
+	void transform(btTransform transform);
 
 
 	Model get_model();
@@ -83,7 +87,6 @@ protected:
 	glm::vec3 vrotation = glm::vec3(0.0f);
 	glm::vec3 vscale = glm::vec3(1.0f);
 	
-	//PhysicsObject physics_object;
 
 	virtual void setup();
 	virtual void update_model();

@@ -7,11 +7,11 @@ PointLight::PointLight() {
 void PointLight::apply(Shader shader, std::string target)
 {
 	Light::apply(shader, target);
-	glUniform3f(glGetUniformLocation(shader.get_id(), (target + ".position").c_str()), position.x, position.y, position.z);
-	glUniform1f(glGetUniformLocation(shader.get_id(), (target + ".constant").c_str()), constant);
-	glUniform1f(glGetUniformLocation(shader.get_id(), (target + ".linear").c_str()), linear);
-	glUniform1f(glGetUniformLocation(shader.get_id(), (target + ".quadratic").c_str()), quadratic);
-	glUniform1f(glGetUniformLocation(shader.get_id(), (target + ".far_plane").c_str()), far);
+	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".position").c_str()), position.x, position.y, position.z);
+	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".constant").c_str()), constant);
+	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".linear").c_str()), linear);
+	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".quadratic").c_str()), quadratic);
+	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".far_plane").c_str()), far);
 }
 
 void PointLight::begin_shadow_mapping()
@@ -22,14 +22,14 @@ void PointLight::begin_shadow_mapping()
 	glBindFramebuffer(GL_FRAMEBUFFER, depthCubemapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[0]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[0]));
-	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[1]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[1]));
-	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[2]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[2]));
-	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[3]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[3]));
-	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[4]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[4]));
-	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "shadowMatrices[5]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[5]));
-	glUniform1f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "far_plane"), far);
-	glUniform3f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].get_id(), "lightPos"), position.x, position.y, position.z);
+	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "shadowMatrices[0]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[0]));
+	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "shadowMatrices[1]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[1]));
+	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "shadowMatrices[2]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[2]));
+	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "shadowMatrices[3]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[3]));
+	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "shadowMatrices[4]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[4]));
+	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "shadowMatrices[5]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[5]));
+	glUniform1f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "far_plane"), far);
+	glUniform3f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "lightPos"), position.x, position.y, position.z);
 }
 
 void PointLight::end_shadow_mapping()
@@ -38,9 +38,9 @@ void PointLight::end_shadow_mapping()
 	glCullFace(GL_BACK);		
 }
 
-void PointLight::set_position(glm::vec3 position)
+void PointLight::setPosition(glm::vec3 position)
 {
-	Light::set_position(position);
+	Light::setPosition(position);
 	setup_shadow_cube();
 }
 

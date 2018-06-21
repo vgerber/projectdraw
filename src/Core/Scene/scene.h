@@ -4,7 +4,7 @@
 #include "Camera/camera.h"
 #include "drawable.h"
 #include "Light/lights.h"
-
+#include "../Physics/physics.h"
 
 #include <map>
 #include <memory>
@@ -15,18 +15,28 @@ public:
 	Scene();
 	~Scene();
 
-	void add_object(Drawable &drawable);
-	void add_plight(PointLight &plight);
+	void addDrawable(Drawable &drawable);
+	void addRigidBody(RigidBody &rigidBody);
 
-	void set_camera(Camera &camera);
-	void set_dlight(DirectionalLight &dlight);
+	void addPlight(PointLight &plight);
+
+	void setCamera(Camera &camera);
+	void setDlight(DirectionalLight &dlight);
 
 	virtual void draw(GLfloat delta);
 	void dispose();
 private:
-	float rp3d_accumulator = 0.0f;
-	float rp3d_time_step = 1.0f / 60.0f;
+	//Physics
+	btDiscreteDynamicsWorld *dynamicsWorld					= nullptr;
+	btDefaultCollisionConfiguration* collisionConfiguration = nullptr;
+	btCollisionDispatcher *dispatcher						= nullptr;
+	btBroadphaseInterface *overlappingPairCache				= nullptr;
+	btSequentialImpulseConstraintSolver *solver				= nullptr;
+	btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
+
+	std::vector<RigidBody*> rigidBodys;
+	//Meta
 
 	int width = 100, height = 100;
 
@@ -37,8 +47,8 @@ private:
 	std::vector<Drawable*> objects;
 
 	//lights
-	DirectionalLight* directional_light = nullptr;
-	std::vector<PointLight*> point_lights;
+	DirectionalLight* directionalLight = nullptr;
+	std::vector<PointLight*> pointLights;
 
 	void setup(int width, int height);
 };

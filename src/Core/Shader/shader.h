@@ -22,7 +22,7 @@ public:
 
 	Shader();
 
-	GLuint get_id();
+	GLuint getId();
 	void load();
 	void use();
 

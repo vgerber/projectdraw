@@ -16,11 +16,11 @@ public:
 	SceneObject();
 	~SceneObject();
 
-	virtual glm::vec3 get_position();
-	std::string get_id();
+	virtual glm::vec3 getPosition();
+	std::string getId();
 
-	virtual void set_position(glm::vec3 position);
-	void set_id(std::string id);
+	virtual void setPosition(glm::vec3 position);
+	void setId(std::string id);
 
 protected:
 	glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);

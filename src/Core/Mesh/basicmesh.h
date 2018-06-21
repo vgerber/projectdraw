@@ -44,8 +44,8 @@ public:
 	BasicMesh(std::vector<Vertex> vertices, std::vector<GLuint> indices);
 	~BasicMesh();
 
-	void draw(Shader shader, DrawType draw_type);
-	void draw_normals(Shader normalShader);
+	void draw(Shader shader, DrawType drawType);
+	void drawNormals(Shader normalShader);
 	void add_offset(glm::vec3 offset);
 
 	std::vector<Vertex> get_vertices();

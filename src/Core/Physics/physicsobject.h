@@ -4,6 +4,7 @@
 
 #include "../Scene/sceneobject.h"
 #include "CollisionShapes/cshape.h"
+#include "../Scene/drawable.h"
 
 #include <map>
 
@@ -13,12 +14,20 @@ typedef  unsigned int (uint);
 class RigidBody {
 public:
     RigidBody();
-    RigidBody(collision::CollisionShape *shape, glm::vec3 center, glm::vec3 rotion, GLfloat mass);
-    btRigidBody* get_body();
+    RigidBody(collision::CollisionShape shape, glm::vec3 center, glm::vec3 rotion, GLfloat mass);
+	void setDrawable(Drawable &drawable);
 
+	void syncBody();
+	void syncDrawable();
+
+	void dispose();
+
+	btRigidBody* getBody();
+	Drawable* getDrawable();
 private:
-    collision::CollisionShape *shape;
-    btRigidBody* rigid_body;
+    collision::CollisionShape *shape = nullptr;
+    btRigidBody* rigidBody = nullptr;
+	Drawable *drawable = nullptr;
 };
 
 
@@ -26,11 +35,11 @@ private:
 
 class PhysicsObject {
 public:	
-    uint add_rigid_body(RigidBody rigid_body);
-    RigidBody get_rigid_body(uint id);
-    std::map<uint, class RigidBody> get_rigid_bodys();
+    uint addRigidBody(RigidBody rigidBody);
+    RigidBody getRigidBody(uint id);
+    std::map<uint, class RigidBody> getRigidBodys();
 
 private:
     uint id_counter = 0;
-    std::map<uint, class RigidBody> rigid_bodys;
+    std::map<uint, class RigidBody> rigidBodys;
 };

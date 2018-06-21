@@ -110,7 +110,7 @@ int main() {
 	GLuint cubemapTexture = Loader::LoadCubemap(skybox_faces);
 
 	//create camera
-	mainCamera.set_position(glm::vec3(0.0f, 5.0f, 10.0f));
+	mainCamera.setPosition(glm::vec3(0.0f, 5.0f, 10.0f));
 
 	
 
@@ -127,7 +127,7 @@ int main() {
 	glm::vec3 light_spec(0.0f, 0.0f, 1.0f);
 
 	PointLight pLight;
-	pLight.set_position(glm::vec3(4.0f, 1.0f, 0.0f));
+	pLight.setPosition(glm::vec3(4.0f, 1.0f, 0.0f));
 	pLight.ambient = glm::vec3(0.001f, 0.01f, 0.001f);
 	pLight.diffuse = light_color;
 	pLight.specular = light_spec;
@@ -136,7 +136,7 @@ int main() {
 
 	light_color = glm::vec3(1.0f, 0.2f, 0.0f);
 	PointLight pLight2;
-	pLight2.set_position(glm::vec3(0.0f, 0.0f, 0.0f));
+	pLight2.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	pLight2.ambient = glm::vec3(0.001f, 0.01f, 0.001f);
 	pLight2.diffuse = light_color;
 	pLight2.specular = light_spec;
@@ -146,7 +146,7 @@ int main() {
 
     Drawable test_obj = Drawable(&path_obj_mountain[0]);
 	Drawable ground = Drawable();
-	ground.set_model(primitves::generate_quad(30.0f, 1.098f, 30.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	ground.set_model(primitves::generate_quad(30.0f, 1.0f, 30.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	Drawable cube = Drawable();
 	cube.set_model(primitves::generate_quad(1.f, 1.0f, 1.0f, glm::vec4(1.0f, 0.3f, 0.8f, 1.0f)));
@@ -155,7 +155,7 @@ int main() {
 	
 	float skyboxSize = 50.0f;
 	/*Cube skyboxCube = Cube(2 * skyboxSize, 2 * skyboxSize, 2 * skyboxSize, glm::vec4(0.0f));
-	skyboxCube.set_position(glm::vec3(-skyboxSize, -skyboxSize, -skyboxSize));
+	skyboxCube.setPosition(glm::vec3(-skyboxSize, -skyboxSize, -skyboxSize));
 
 	GLuint screenRectVBO;
 	GLuint screenRectVAO;
@@ -267,7 +267,7 @@ int main() {
 	Text text_fps(Loader::GetPath("/Fonts/VeraMono.ttf").c_str(), 60);
 	Shaders[SHADER_FONT].use();
 	text_fps.scale(0.01f, 0.01f, 0.01f);
-	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_FONT].get_id(), "model"), 1, GL_FALSE, glm::value_ptr(text_fps.get_model_matrix()));
+	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_FONT].getId(), "model"), 1, GL_FALSE, glm::value_ptr(text_fps.getModelMatrix()));
 
 	//
 	// 
@@ -275,20 +275,20 @@ int main() {
 
 
 	Scene scene_main;
-	scene_main.set_camera(mainCamera);
+	scene_main.setCamera(mainCamera);
 
-	scene_main.set_dlight(dLight);
+	scene_main.setDlight(dLight);
 	dLight.change_direction(glm::vec3(-2.0f, -1.0f, 0.0f));
 	dLight.draw_shadow = true;
 
-	scene_main.add_plight(pLight);
-	scene_main.add_plight(pLight2);
-	pLight.set_position(glm::vec3(2.0f, 1.0f, 0.0f));
-	pLight2.set_position(glm::vec3(5.0f, 1.0f, 0.0f));
+	scene_main.addPlight(pLight);
+	scene_main.addPlight(pLight2);
+	pLight.setPosition(glm::vec3(2.0f, 1.0f, 0.0f));
+	pLight2.setPosition(glm::vec3(5.0f, 1.0f, 0.0f));
 
-	scene_main.add_object(ground);
-	scene_main.add_object(cube);
-	scene_main.add_object(test_obj);
+	scene_main.addDrawable(ground);
+	scene_main.addDrawable(cube);
+	scene_main.addDrawable(test_obj);
 
 	Size size_small;
 	size_small.height = 0.1f;
@@ -305,51 +305,50 @@ int main() {
 	size_big.width = 5.0f;
 	size_big.depth = 5.0f;
 
-	test_obj.scale_to_height(1.0f);
-	Size size = test_obj.get_size();
-	test_obj.set_position(glm::vec3(-5.0, 0.0f, -5.0f));
-	test_obj.set_center(glm::vec3(0.5f, 0.5f, 1.7f));
-	test_obj.visible_box = true;
-	test_obj.visible_normal = false;
-	test_obj.draw_type = DrawType::TRIANGLE;
+	test_obj.scaleToHeight(1.0f);
+	Size size = test_obj.getSize();
+	test_obj.setPosition(glm::vec3(-5.0, 0.0f, -5.0f));
+	test_obj.setCenter(glm::vec3(0.5f, 0.5f, 1.7f));
+	test_obj.visibleBox = true;
+	test_obj.visibleNormal = false;
+	test_obj.drawType = DrawType::TRIANGLE;
 
 	pLight.set_model(cube.get_model());
-	pLight.scale_to_size(size_small);
+	pLight.scaleToSize(size_small);
 	pLight2.set_model(cube.get_model());
 
-	//cube.scale_to_size(size_medium);
-	cube.set_position(glm::vec3(1.0f, 5.0f, 0.0f));
-	cube.rotate(glm::radians(glm::vec3(45.0f, 45.0f, 45.0f)));
-	cube.visible_normal = true;
+	//cube.scaleToSize(size_medium);
+	cube.setPosition(glm::vec3(1.0f, 5.0f, 0.0f));	
+	cube.visibleNormal = true;
 
 
 	Drawable test_rect = Drawable();
 	test_rect.set_model(primitves::generate_circle(1.0f, 30.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-	test_rect.set_position(glm::vec3(-2.0f, 0.0f, -2.0f));
+	test_rect.setPosition(glm::vec3(-2.0f, 0.0f, -2.0f));
 	
-	test_rect.draw_type = DrawType::TRIANGLE;
-	test_rect.visible_box = true;
-	scene_main.add_object(test_rect);
+	test_rect.drawType = DrawType::TRIANGLE;
+	test_rect.visibleBox = true;
+	scene_main.addDrawable(test_rect);
 
 
 	Geometry testGeometry = Geometry();
-	scene_main.add_object(testGeometry);
+	scene_main.addDrawable(testGeometry);
 
 
-	scene_main.add_object(text_fps);
-	text_fps.visible_box = true;
+	scene_main.addDrawable(text_fps);
+	text_fps.visibleBox = true;
 	text_fps.rotate(glm::radians(glm::vec3(0.0f, 90.0f, 0.0f)));
-	text_fps.set_color(0.1f, 0.1f, 0.1f, 1.0f);
-	text_fps.set_position(glm::vec3(-1.0f, 1.0f, -2.0f));
+	text_fps.setColor(0.1f, 0.1f, 0.1f, 1.0f);
+	text_fps.setPosition(glm::vec3(-1.0f, 1.0f, -2.0f));
 
 
 	Text text_description = Text(Loader::GetPath("/Fonts/VeraMono.ttf").c_str(), 60);
-	text_description.set_position(glm::vec3(0.0f, 0.1f, -10.0f));
+	text_description.setPosition(glm::vec3(0.0f, 0.1f, -10.0f));
 	text_description.rotate(glm::radians(glm::vec3(0.0f, -30.0f, 0.0f)));
-	text_description.set_color(1.0f, 0.5f, 0.0f, 1.0f);
-	text_description.set_text("This is a great test level!");
-	text_description.visible_box = true;
-	scene_main.add_object(text_description);
+	text_description.setColor(1.0f, 0.5f, 0.0f, 1.0f);
+	text_description.setText("This is a great test level!");
+	text_description.visibleBox = true;
+	scene_main.addDrawable(text_description);
 
 
 	//depth
@@ -377,65 +376,40 @@ int main() {
 	glLineWidth(1);
 	glPointSize(10);
 
-	testGeometry.draw_type = DrawType::LINE;
+	testGeometry.drawType = DrawType::LINE;
 
-	//cube.set_position(glm::vec3(0.0f, 3.0f, 0.0f));
+	//cube.setPosition(glm::vec3(0.0f, 3.0f, 0.0f));
 	
 
-	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
-	btBroadphaseInterface *overlappingPairCache = new btDbvtBroadphase();
-	btSequentialImpulseConstraintSolver *solver = new btSequentialImpulseConstraintSolver;
 
-	btDiscreteDynamicsWorld *dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+	std::vector<RigidBody*> rigidBodys;
 
-	dynamicsWorld->setGravity(btVector3(0, -9.81, 0));
+	ground.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
+	ground.rotate(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
 
-	btAlignedObjectArray<btCollisionShape*> collisionShapes;
-
-
-	ground.set_position(glm::vec3(-15.0f, -1.1f, -15.0f));
-	ground.rotate(glm::radians(glm::vec3(15.0f, 0.0f, 0.0f)));
-
-	cube.set_position(glm::vec3(0.0f, 10.0f, 0.0f));
+	cube.setPosition(glm::vec3(0.0f, 10.0f, 0.0f));
+	cube.rotate(glm::radians(glm::vec3(40.0f, 40.0f, 40.0f)));
 	//add ground as ground plane
 	{
-		collision::CollisionShape ground_shape(collision::generate_cube(ground.get_size()));
-		//btCollisionShape *groundShape = //new btBoxShape(btVector3(ground.get_size().width * .5f, ground.get_size().height * .5f, ground.get_size().depth * .5f));//(ground.get_size().width * 0.5f), btScalar(ground.get_size().height * 0.5f), btScalar(ground.get_size().depth * 0.5f)));
-		collisionShapes.push_back(ground_shape.get_shape());
-		
-		RigidBody rbody(&ground_shape, ground.get_position_center(), ground.get_rotation(), 0.0f);
+		collision::CollisionShape ground_shape(collision::generate_cube(ground.getSize()));		
+		RigidBody rbody(ground_shape, ground.getPositionCenter(), ground.getRotation(), 0.0f);
+		rbody.setDrawable(ground);
+		rigidBodys.push_back(&rbody);
 
-		dynamicsWorld->addRigidBody(rbody.get_body());
 	}
 
 	//set cube as sceond item
 	{
-		collision::CollisionShape cube_shape(collision::generate_cube(cube.get_size()));
-		collisionShapes.push_back(cube_shape.get_shape());
-
-		btTransform cube_transform;
-		cube_transform.setIdentity();
-		cube_transform.setOrigin(btVector3(cube.get_position().x + cube.get_size().width * 0.5, cube.get_position().y + cube.get_size().height * .5f, cube.get_position().z + cube.get_size().depth * 0.5));
-		cube_transform.setRotation(btQuaternion(cube.get_rotation().y, cube.get_rotation().x, cube.get_rotation().z));
-		btScalar mass(0.1f);
-
-		bool isDynamic = (mass != 0.0f);
-
-		btVector3 localInertia(0, 0, 0);
-		if (isDynamic) {
-			cube_shape.get_shape()->calculateLocalInertia(mass, localInertia);
-		}
-
-		btDefaultMotionState *myMotionState = new btDefaultMotionState(cube_transform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, cube_shape.get_shape(), localInertia);
-		btRigidBody *body = new btRigidBody(rbInfo);
-
-		dynamicsWorld->addRigidBody(body);
+		collision::CollisionShape cube_shape(collision::generate_cube(cube.getSize()));
+		RigidBody rbody(cube_shape, cube.getPositionCenter(), cube.getRotation(), 0.001f);
+		rbody.setDrawable(cube);
+		rigidBodys.push_back(&rbody);
 	}
 
+	for (auto body : rigidBodys) {
+		scene_main.addRigidBody((*body));
+	}
 	//simulate
-	float bullet_accumulator = 0.0f;
 
 
 	GLfloat lastTime = glfwGetTime();
@@ -444,58 +418,40 @@ int main() {
 		glfwPollEvents();
 		handle_key();
 		
-
-		dynamicsWorld->stepSimulation(1.f / 60.f, 100);
-
-		for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--) {
-			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
-			btRigidBody* body = btRigidBody::upcast(obj);
-			
-			btTransform trans;
-			if (body && body->getMotionState()) {
-				body->getMotionState()->getWorldTransform(trans);
-			}
-			else {
-				trans = obj->getWorldTransform();
-			}
-			
-			btScalar rot_x, rot_y, rot_z;
-			trans.getRotation().getEulerZYX(rot_z, rot_y, rot_x);
-
-			if (j == 1) {
-				cube.set_position(glm::vec3(float(trans.getOrigin().getX() - cube.get_size().width * 0.5), float(trans.getOrigin().getY() - cube.get_size().height * 0.5f), float(trans.getOrigin().getZ() - cube.get_size().depth * 0.5)));
-				cube.rotate(glm::vec3(rot_x, rot_y, rot_z));
-			}
-			if (j == 0) {
-				ground.set_position(glm::vec3(float(trans.getOrigin().getX() - ground.get_size().width * 0.5), float(trans.getOrigin().getY()  - ground.get_size().height * 0.5f), float(trans.getOrigin().getZ() - ground.get_size().depth * 0.5)));
-				ground.rotate(glm::vec3(rot_x, rot_y, rot_z));
-			}
-
-
-			printf("world pos object %d %f,%f,%f - %f %f %f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()), rot_x, rot_y, rot_z);
+		
+		rigidBodys[1]->syncDrawable();
+		if (cube.getPosition().y < -15.f) {
+			cube.setPosition(glm::vec3(0.0f, 30.0f, 0.0f));
+			rigidBodys[1]->syncBody();
+			rigidBodys[1]->getBody()->setLinearVelocity(btVector3(0.0f, -1.0f, 0.0f));
 		}
+
+		//rigidBodys[0]->syncDrawable();
+		//ground.rotate(glm::radians(glm::vec3(sin(glfwGetTime() * 1.0f) * 40.0f, 0.0f, 0.0f)));
+		//rigidBodys[1]->syncDrawable();
+		//rigidBodys[0]->syncBody();
 
 
 		test_rect.rotate(glm::vec3(0.0f, glm::radians(90.0f), 0.0f));
 
 		test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * glm::radians(30.0f), 0.0f));
 		
-		//cube.set_position(glm::vec3(0.0f, 1.0f, 0.0f));
-		//cube.rotate(cube.get_rotation() + glm::vec3(0.0, 10.0f, 0.0f) * deltaTime);
-		text_fps.rotate(text_fps.get_rotation() + glm::vec3(0.0f, 0.0f, 0.0f) * deltaTime);
+		//cube.setPosition(glm::vec3(0.0f, 1.0f, 0.0f));
+		//cube.rotate(cube.getRotation() + glm::vec3(0.0, 10.0f, 0.0f) * deltaTime);
+		text_fps.rotate(text_fps.getRotation() + glm::vec3(0.0f, 0.0f, 0.0f) * deltaTime);
 		
-		//testGeometry.line_to(mainCamera.get_position() * glm::vec3(0.0f, 1.0f, 1.0f));
+		//testGeometry.line_to(mainCamera.getPosition() * glm::vec3(0.0f, 1.0f, 1.0f));
 
 		text_description.scale(glm::vec3(1.0f, 1.0f, 0.01f));
-		text_description.scale_to_height(1.0f);
-		text_description.rotate(text_description.get_rotation() + glm::vec3(-0.0f, 0.0f, 0.0f));
+		text_description.scaleToHeight(1.0f);
+		text_description.rotate(text_description.getRotation() + glm::vec3(-0.0f, 0.0f, 0.0f));
 
 		
-		text_fps.set_position(glm::vec3(-0.99f, 1.0f - text_fps.get_size().height * 0.5f, -2.0f + text_fps.get_size().width * 0.5f));
-		text_fps.scale_to_width(test_rect.get_size().width);
-		text_fps.set_text(std::to_string(glfwGetTime())); //(int)round(1 / deltaTime)));
+		text_fps.setPosition(glm::vec3(-0.99f, 1.0f - text_fps.getSize().height * 0.5f, -2.0f + text_fps.getSize().width * 0.5f));
+		text_fps.scaleToWidth(test_rect.getSize().width);
+		text_fps.setText(std::to_string(glfwGetTime())); //(int)round(1 / deltaTime)));
 		
-		pLight.set_position(glm::vec3(-5.0, 1.0f, sin(glfwGetTime()) * 3.0f));
+		pLight.setPosition(glm::vec3(-5.0, 1.0f, sin(glfwGetTime()) * 3.0f));
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -507,14 +463,14 @@ int main() {
 
 
 		Shaders[SHADER_DEFERRED].use();
-		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "spotLight.intensity"), 1.0f);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "spotLight.ambient"), 0.0f, 0.0f, 0.0f);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "spotLight.specular"), 1.0f, 1.0f, 1.0f);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "spotLight.direction"), 0.0f, -0.1f, -1.0f);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "spotLight.position"), 5.0f, 1.0f, 0.0f);
-		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "spotLight.cutOff"), glm::cos(glm::radians(6.1f)));
-		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEFERRED].get_id(), "spotLight.outerCutOff"), glm::cos(glm::radians(7.0f)));
+		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.intensity"), 1.0f);
+		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.ambient"), 0.0f, 0.0f, 0.0f);
+		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
+		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.specular"), 1.0f, 1.0f, 1.0f);
+		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.direction"), 0.0f, -0.1f, -1.0f);
+		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.position"), 5.0f, 1.0f, 0.0f);
+		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.cutOff"), glm::cos(glm::radians(6.1f)));
+		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.outerCutOff"), glm::cos(glm::radians(7.0f)));
 
 		glDisable(GL_DEPTH_TEST);
 		Shaders[SHADER_GEOMETRY].use();
@@ -539,26 +495,11 @@ int main() {
 
 
 	//free memory
-	for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
-		btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody *body = btRigidBody::upcast(obj);
-		if (body && body->getMotionState()) {
-			delete body->getMotionState();
-		}
-		dynamicsWorld->removeCollisionObject(obj);
-		delete obj;
+	for (auto rbody : rigidBodys) {
+		rbody->dispose();
 	}
-	for (int i = 0; i < collisionShapes.size(); i++) {
-		btCollisionShape* shape = collisionShapes[i];
-		collisionShapes[i] = 0;
-		delete shape;
-	}
+	rigidBodys.clear();
 
-	delete dynamicsWorld;
-	delete solver;
-	delete dispatcher;
-	delete collisionConfiguration;
-	collisionShapes.clear();
 
 
 	glfwTerminate();

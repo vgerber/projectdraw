@@ -24,8 +24,8 @@ void Geometry::draw()
 void Geometry::draw(Shader shader)
 {
 	shader.use();
-	glUniform4f(glGetUniformLocation(shader.get_id(), "color"), 1.0f, 1.0f, 0.0f, 1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	glUniform4f(glGetUniformLocation(shader.getId(), "color"), 1.0f, 1.0f, 0.0f, 1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 	glBindVertexArray(VAO);
 	if (size != points.size()) {		
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -35,7 +35,7 @@ void Geometry::draw(Shader shader)
 		size = points.size();
 	}
 	if (points.size() > 0) {
-		if (draw_type == DrawType::LINE) {
+		if (drawType == DrawType::LINE) {
 			glDrawArrays(GL_LINES, 0, points.size());
 		}
 		else {

@@ -105,9 +105,9 @@ void init_core() {
 	Shaders[SHADER_DEFFERED_GEOMETRY] = shader_deferred_geometry;
 
 
-	glUniformBlockBinding(Shaders[SHADER_BASIC].get_id(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].get_id(), "Matrices"), 0);
-	glUniformBlockBinding(Shaders[SHADER_FONT].get_id(), glGetUniformBlockIndex(Shaders[SHADER_FONT].get_id(), "Matrices"), 0);
-	glUniformBlockBinding(Shaders[SHADER_SKYBOX].get_id(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].get_id(), "Matrices"), 0);
-	glUniformBlockBinding(Shaders[SHADER_DEFFERED_LIGHT].get_id(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_LIGHT].get_id(), "Matrices"), 0);
-	glUniformBlockBinding(Shaders[SHADER_DEFFERED_GEOMETRY].get_id(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_GEOMETRY].get_id(), "Matrices"), 0);
+	glUniformBlockBinding(Shaders[SHADER_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].getId(), "Matrices"), 0);
+	glUniformBlockBinding(Shaders[SHADER_FONT].getId(), glGetUniformBlockIndex(Shaders[SHADER_FONT].getId(), "Matrices"), 0);
+	glUniformBlockBinding(Shaders[SHADER_SKYBOX].getId(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].getId(), "Matrices"), 0);
+	glUniformBlockBinding(Shaders[SHADER_DEFFERED_LIGHT].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_LIGHT].getId(), "Matrices"), 0);
+	glUniformBlockBinding(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), "Matrices"), 0);
 }

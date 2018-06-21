@@ -21,7 +21,7 @@ Model::~Model()
 {
 }
 
-Size Model::get_size()
+Size Model::getSize()
 {
 	Size size;
 	GLfloat x, y, z;
@@ -79,17 +79,17 @@ Size Model::get_size()
 	return size;
 }
 
-void Model::draw(Shader shader, DrawType draw_type)
+void Model::draw(Shader shader, DrawType drawType)
 {
 	for (GLuint i = 0; i < this->meshes.size(); i++) {
-		this->meshes[i].draw(shader, draw_type);
+		this->meshes[i].draw(shader, drawType);
 	}
 }
 
-void Model::draw_normals(Shader shader)
+void Model::drawNormals(Shader shader)
 {
 	for (GLuint i = 0; i < this->meshes.size(); i++) {
-		this->meshes[i].draw_normals(shader);
+		this->meshes[i].drawNormals(shader);
 	}
 }
 

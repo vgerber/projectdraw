@@ -20,8 +20,8 @@ void Text::draw()
 {
 	glDisable(GL_CULL_FACE);
 	shader.use();
-	glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-	glUniform3f(glGetUniformLocation(shader.get_id(), "textColor"), color.x, color.y, color.z);
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	glUniform3f(glGetUniformLocation(shader.getId(), "textColor"), color.x, color.y, color.z);
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
 
@@ -57,7 +57,7 @@ void Text::draw()
 		// Now advance cursors for next glyph (note that advance is numberof 1 / 64 pixels)
 		x += (ch.Advance >> 6); // Bitshift by 6 to get value in pixels(2 ^ 6 = 64)
 
-		if (reload_text) {
+		if (reloadText) {
 			if (size.width < xpos + w) {
 				size.width = xpos + w;
 			}
@@ -66,7 +66,7 @@ void Text::draw()
 			}
 			if (c + 1 == text.end()) {
 				load_box();
-				reload_text = false;
+				reloadText = false;
 
 			}
 		}
@@ -76,20 +76,20 @@ void Text::draw()
 	glEnable(GL_CULL_FACE);
 }
 
-void Text::set_color(glm::vec4 color)
+void Text::setColor(glm::vec4 color)
 {
 	this->color = color;
 }
 
-void Text::set_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
+void Text::setColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 {
 	color = glm::vec4(r, g, b, a);
 }
 
-void Text::set_text(std::string text)
+void Text::setText(std::string text)
 {
 	if (this->text != text) {
-		reload_text = true;
+		reloadText = true;
 		size.x = 0.0f;
 		size.y = 0.0f;
 		size.z = 0.0f;
@@ -102,7 +102,7 @@ void Text::set_text(std::string text)
 
 }
 
-std::string Text::get_text()
+std::string Text::getText()
 {
 	return text;
 }

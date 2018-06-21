@@ -18,10 +18,10 @@ public:
 
 	
 
-	Size get_size();
+	Size getSize();
 
-	void draw(Shader shader, DrawType draw_type);
-	void draw_normals(Shader shader);
+	void draw(Shader shader, DrawType drawType);
+	void drawNormals(Shader shader);
 private:
 	std::vector<Texture> textures_loaded;
 	std::vector<BasicMesh> meshes;

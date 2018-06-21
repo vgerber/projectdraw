@@ -27,7 +27,7 @@ public:
 	Camera(glm::vec3 position);
 	~Camera();
 
-	void set_position(glm::vec3 position);
+	void setPosition(glm::vec3 position);
 
 	// Camera options
 	GLfloat MovementSpeed;

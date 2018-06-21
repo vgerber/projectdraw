@@ -22,7 +22,7 @@ BasicMesh::~BasicMesh()
 {
 }
 
-void BasicMesh::draw(Shader shader, DrawType draw_type)
+void BasicMesh::draw(Shader shader, DrawType drawType)
 {
 	//glUseProgram(shader.GetProgrammId());
 	GLuint diffuseNr = 1;
@@ -37,7 +37,7 @@ void BasicMesh::draw(Shader shader, DrawType draw_type)
 		else if (name == "texture_specular")
 			number = std::to_string(specularNr++); // Transfer GLuint to stream
 		// Now set the sampler to the correct texture unit
-		glUniform1i(glGetUniformLocation(shader.get_id(), (name + number).c_str()), i);
+		glUniform1i(glGetUniformLocation(shader.getId(), (name + number).c_str()), i);
 		// And finally bind the texture
 		glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
 	}
@@ -47,10 +47,10 @@ void BasicMesh::draw(Shader shader, DrawType draw_type)
 
 	// Draw mesh
 	glBindVertexArray(this->VAO);
-	if (draw_type == DrawType::LINE) {
+	if (drawType == DrawType::LINE) {
 		glDrawElements(GL_LINE_STRIP, this->indices.size(), GL_UNSIGNED_INT, 0);
 	}
-	else if (draw_type == DrawType::POINT) {
+	else if (drawType == DrawType::POINT) {
 		glDrawElements(GL_POINTS, this->indices.size(), GL_UNSIGNED_INT, 0);
 	}
 	else {
@@ -65,7 +65,7 @@ void BasicMesh::draw(Shader shader, DrawType draw_type)
 	}
 }
 
-void BasicMesh::draw_normals(Shader normalShader)
+void BasicMesh::drawNormals(Shader normalShader)
 {
 	glBindVertexArray(this->VAO);
 	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);

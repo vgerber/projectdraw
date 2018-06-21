@@ -4,7 +4,7 @@ Shader::Shader()
 {
 }
 
-GLuint Shader::get_id()
+GLuint Shader::getId()
 {
 	return programm_id;
 }

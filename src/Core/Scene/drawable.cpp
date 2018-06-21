@@ -8,7 +8,7 @@ Drawable::Drawable()
 Drawable::Drawable(GLchar* mmodel)
 {
 	objModel = Model(mmodel);
-	size = objModel.get_size();
+	size = objModel.getSize();
 	setup();
 }
 
@@ -25,38 +25,38 @@ void Drawable::dispose()
 void Drawable::draw()
 {
 	shader.use();
-	glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-	objModel.draw(shader, draw_type);
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	objModel.draw(shader, drawType);
 }
 
 void Drawable::draw(Shader shader)
 {
-	glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-	objModel.draw(shader, draw_type);
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	objModel.draw(shader, drawType);
 }
 
-void Drawable::draw_normals()
+void Drawable::drawNormals()
 {
-	glUniformMatrix4fv(glGetUniformLocation(shader_normals.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-	objModel.draw_normals(shader_normals);
+	glUniformMatrix4fv(glGetUniformLocation(shader_normals.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	objModel.drawNormals(shader_normals);
 }
 
-void Drawable::draw_normals(Shader shader)
+void Drawable::drawNormals(Shader shader)
 {
-	glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-	objModel.draw_normals(shader);
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	objModel.drawNormals(shader);
 }
 
-void Drawable::draw_box()
+void Drawable::drawBox()
 {
-	draw_box(shader_box);
+	drawBox(shader_box);
 }
 
-void Drawable::draw_box(Shader shader)
+void Drawable::drawBox(Shader shader)
 {
 	shader.use();
-	glUniform4f(glGetUniformLocation(shader.get_id(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(shader.get_id(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	glUniform4f(glGetUniformLocation(shader.getId(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 
 	glBindVertexArray(this->boxVAO);
 	glDrawArrays(GL_LINES, 0, 30);
@@ -76,7 +76,7 @@ void Drawable::setup()
 	load_box();
 }
 
-glm::mat4 Drawable::get_model_matrix()
+glm::mat4 Drawable::getModelMatrix()
 {
 	return mmodel;
 }
@@ -117,7 +117,7 @@ void Drawable::scale(glm::vec3 vscale)
 	update_model();
 }
 
-Size Drawable::get_size()
+Size Drawable::getSize()
 {
 	Size scaled_size;
 	scaled_size = size;
@@ -127,7 +127,7 @@ Size Drawable::get_size()
 	return scaled_size;
 }
 
-Size Drawable::get_aabb_box()
+Size Drawable::getAABBBox()
 {
 	glm::vec4 box[8] = {
 		mmodel * glm::vec4(size.x,				size.y,				  size.z,			   1.0f),
@@ -183,7 +183,7 @@ Size Drawable::get_aabb_box()
 	return box_size;
 }
 
-void Drawable::scale_to_size(Size size)
+void Drawable::scaleToSize(Size size)
 {
 	if (std::isnan(size.width)) {
 		size.width = 1.0f;
@@ -203,64 +203,78 @@ void Drawable::scale_to_size(Size size)
 	update_model();
 }
 
-void Drawable::scale_to_width(GLfloat width)
+void Drawable::scaleToWidth(GLfloat width)
 {
 	GLfloat scale_size = width / size.width;
 	Size new_size;
 	new_size.width = size.width * scale_size;
 	new_size.height = size.height * scale_size;
 	new_size.depth = size.depth * scale_size;
-	scale_to_size(new_size);
+	scaleToSize(new_size);
 }
 
-void Drawable::scale_to_height(GLfloat height)
+void Drawable::scaleToHeight(GLfloat height)
 {
 	GLfloat scale_size = height / size.height;
 	Size new_size;
 	new_size.width = size.width * scale_size;
 	new_size.height = size.height * scale_size;
 	new_size.depth = size.depth * scale_size;
-	scale_to_size(new_size);
+	scaleToSize(new_size);
 }
 
-void Drawable::scale_to_length(GLfloat depth)
+void Drawable::scaleToLength(GLfloat depth)
 {
 	GLfloat scale_size = depth / size.depth;
 	Size new_size;
 	new_size.width = size.width * scale_size;
 	new_size.height = size.height * scale_size;
 	new_size.depth = size.depth * scale_size;
-	scale_to_size(new_size);
+	scaleToSize(new_size);
 }
 
-glm::vec3 Drawable::get_position()
+glm::vec3 Drawable::getPosition()
 {
 	return position;
 }
 
-glm::vec3 Drawable::get_position_center() {
+glm::vec3 Drawable::getPositionCenter() {
 	return glm::vec3(position.x + size.width * .5f, position.y + size.height * .5f, position.z + size.depth * .5f);
 }
 
-glm::vec3 Drawable::get_scale()
+glm::vec3 Drawable::getScale()
 {
 	return vscale;
 }
 
-glm::vec3 Drawable::get_rotation()
+glm::vec3 Drawable::getRotation()
 {
 	return vrotation;
 }
 
-void Drawable::set_position(glm::vec3 position)
+void Drawable::setPosition(glm::vec3 position)
 {
 	translate(position - this->position);
 }
 
-void Drawable::set_center(glm::vec3 center)
+void Drawable::setPositionCenter(glm::vec3 position)
+{
+	setPosition(glm::vec3(position.x - size.width * .5f, position.y - size.height * .5f, position.z - size.depth * .5f));
+}
+
+void Drawable::setCenter(glm::vec3 center)
 {
 	this->vcenter = center;
 	load_box();
+}
+
+void Drawable::transform(btTransform transform)
+{
+	btScalar rot_x, rot_y, rot_z;
+	transform.getRotation().getEulerZYX(rot_z, rot_y, rot_x);
+	rotate(rot_x, rot_y, rot_z);
+	btVector3 pos = transform.getOrigin();
+	setPositionCenter(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
 }
 
 Model Drawable::get_model()
@@ -272,7 +286,7 @@ void Drawable::set_model(Model model)
 {
 	vscale = glm::vec3(1.0f);
 	objModel = model;
-	size = objModel.get_size();
+	size = objModel.getSize();
 	update_model();
 	load_box();
 }

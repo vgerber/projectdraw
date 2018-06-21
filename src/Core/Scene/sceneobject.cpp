@@ -11,22 +11,22 @@ SceneObject::~SceneObject()
 {
 }
 
-glm::vec3 SceneObject::get_position()
+glm::vec3 SceneObject::getPosition()
 {
 	return position;
 }
 
-std::string SceneObject::get_id()
+std::string SceneObject::getId()
 {
 	return id;
 }
 
-void SceneObject::set_position(glm::vec3 position)
+void SceneObject::setPosition(glm::vec3 position)
 {
 	this->position = position;
 }
 
-void SceneObject::set_id(std::string id)
+void SceneObject::setId(std::string id)
 {
 	this->id = id;
 }
