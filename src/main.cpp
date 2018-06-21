@@ -149,7 +149,7 @@ int main() {
 	ground.set_model(primitves::generate_quad(30.0f, 1.098f, 30.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	Drawable cube = Drawable();
-	cube.set_model(primitves::generate_quad(1.0f, 1.0f, 1.0f, glm::vec4(1.0f, 0.3f, 0.8f, 1.0f)));
+	cube.set_model(primitves::generate_quad(1.f, 1.0f, 1.0f, glm::vec4(1.0f, 0.3f, 0.8f, 1.0f)));
 	
 
 	
@@ -395,7 +395,7 @@ int main() {
 
 
 	ground.set_position(glm::vec3(-15.0f, -1.1f, -15.0f));
-	ground.rotate(glm::radians(glm::vec3(5.0f, 0.0f, 0.0f)));
+	ground.rotate(glm::radians(glm::vec3(15.0f, 0.0f, 0.0f)));
 
 	cube.set_position(glm::vec3(0.0f, 10.0f, 0.0f));
 	//add ground as ground plane
@@ -404,25 +404,9 @@ int main() {
 		//btCollisionShape *groundShape = //new btBoxShape(btVector3(ground.get_size().width * .5f, ground.get_size().height * .5f, ground.get_size().depth * .5f));//(ground.get_size().width * 0.5f), btScalar(ground.get_size().height * 0.5f), btScalar(ground.get_size().depth * 0.5f)));
 		collisionShapes.push_back(ground_shape.get_shape());
 		
-		btTransform ground_transform;
-		ground_transform.setIdentity();
-		ground_transform.setOrigin(btVector3(ground.get_position().x + ground.get_size().width * .5f, ground.get_position().y + ground.get_size().height * .5f, ground.get_position().z + ground.get_size().depth * 0.5));//ground.get_position().x, ground.get_position().y, ground.get_position().z));
-		ground_transform.setRotation(btQuaternion(ground.get_rotation().y, ground.get_rotation().x, ground.get_rotation().z));
-		
-		btScalar mass(0.);
+		RigidBody rbody(&ground_shape, ground.get_position_center(), ground.get_rotation(), 0.0f);
 
-		bool isDynamic = (mass != 0.0f);
-
-		btVector3 localInertia(0, 0, 0);
-		if (isDynamic) {
-			ground_shape.get_shape()->calculateLocalInertia(mass, localInertia);
-		}
-
-		btDefaultMotionState *myMotionState = new btDefaultMotionState(ground_transform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, ground_shape.get_shape(), localInertia);
-		btRigidBody *body = new btRigidBody(rbInfo);
-		
-		dynamicsWorld->addRigidBody(body);
+		dynamicsWorld->addRigidBody(rbody.get_body());
 	}
 
 	//set cube as sceond item

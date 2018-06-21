@@ -4,7 +4,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include <btBulletDynamicsCommon.h>
 
 #include "sceneobject.h"
 #include "../Model/model.h"
@@ -58,11 +57,14 @@ public:
 	void scale_to_length(GLfloat depth);
 
 	glm::vec3 get_position();
+	glm::vec3 get_position_center();
+
 	glm::vec3 get_scale();
-	glm::vec3 get_rotation();
+	glm::vec3 get_rotation();	
 	void set_position(glm::vec3 position);
 
 	void set_center(glm::vec3 center);
+
 
 	Model get_model();
 	void set_model(Model model);
@@ -81,7 +83,7 @@ protected:
 	glm::vec3 vrotation = glm::vec3(0.0f);
 	glm::vec3 vscale = glm::vec3(1.0f);
 	
-	PhysicsObject physics_object;
+	//PhysicsObject physics_object;
 
 	virtual void setup();
 	virtual void update_model();

@@ -238,6 +238,10 @@ glm::vec3 Drawable::get_position()
 	return position;
 }
 
+glm::vec3 Drawable::get_position_center() {
+	return glm::vec3(position.x + size.width * .5f, position.y + size.height * .5f, position.z + size.depth * .5f);
+}
+
 glm::vec3 Drawable::get_scale()
 {
 	return vscale;

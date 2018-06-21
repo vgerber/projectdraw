@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Scene/drawable.h"
+#include "../../Model/box.h"
 
 #include <btBulletCollisionCommon.h>
 
