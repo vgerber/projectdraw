@@ -13,12 +13,16 @@ typedef  unsigned int (uint);
 
 class RigidBody {
 public:
+    bool visibleAABB = false;
+
     RigidBody();
     RigidBody(collision::CollisionShape shape, glm::vec3 center, glm::vec3 rotion, GLfloat mass);
 	void setDrawable(Drawable &drawable);
 
 	void syncBody();
 	void syncDrawable();
+
+    void drawAABB(Shader shader);
 
 	void dispose();
 
@@ -28,6 +32,8 @@ private:
     collision::CollisionShape *shape = nullptr;
     btRigidBody* rigidBody = nullptr;
 	Drawable *drawable = nullptr;
+
+    GLuint aabbVAO, aabbVBO;
 };
 
 

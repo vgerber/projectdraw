@@ -324,7 +324,7 @@ int main() {
 
 	Drawable test_rect = Drawable();
 	test_rect.set_model(primitves::generate_circle(1.0f, 30.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-	test_rect.setPosition(glm::vec3(-2.0f, 0.0f, -2.0f));
+	test_rect.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
 	
 	test_rect.drawType = DrawType::TRIANGLE;
 	test_rect.visibleBox = true;
@@ -384,30 +384,42 @@ int main() {
 
 	std::vector<RigidBody*> rigidBodys;
 
-	ground.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
+	ground.setPositionCenter(glm::vec3(0.0f, -(ground.getSize().height + 0.01) * 0.5f, 0.0f));
 	ground.rotate(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
+	//ground.setCenter(glm::vec3(0.5f, 0.5f, 0.0f));
+	ground.visibleBox = true;
 
-	cube.setPosition(glm::vec3(0.0f, 10.0f, 0.0f));
+	cube.setPositionCenter(glm::vec3(0.0f, 10.0f, 10.0f));
 	cube.rotate(glm::radians(glm::vec3(40.0f, 40.0f, 40.0f)));
+
+	text_fps.setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
 	//add ground as ground plane
 	{
 		collision::CollisionShape ground_shape(collision::generate_cube(ground.getSize()));		
 		RigidBody rbody(ground_shape, ground.getPositionCenter(), ground.getRotation(), 0.0f);
 		rbody.setDrawable(ground);
-		rigidBodys.push_back(&rbody);
+		rigidBodys.push_back(new RigidBody(rbody));
 
 	}
 
 	//set cube as sceond item
 	{
 		collision::CollisionShape cube_shape(collision::generate_cube(cube.getSize()));
-		RigidBody rbody(cube_shape, cube.getPositionCenter(), cube.getRotation(), 0.001f);
-		rbody.setDrawable(cube);
-		rigidBodys.push_back(&rbody);
+		RigidBody rbodyCube(cube_shape, cube.getPositionCenter(), cube.getRotation(), 1.0f);
+		rbodyCube.setDrawable(cube);
+		rigidBodys.push_back(new RigidBody(rbodyCube));
+	}
+
+	{
+		collision::CollisionShape text_shape(collision::generate_sphere(test_rect.getSize().width * 0.5));
+		RigidBody rbody(text_shape, test_rect.getPositionCenter(), test_rect.getRotation(), 1.0f);
+		rbody.setDrawable(test_rect);
+		rigidBodys.push_back(new RigidBody(rbody));
 	}
 
 	for (auto body : rigidBodys) {
 		scene_main.addRigidBody((*body));
+		std::cout << body << std::endl;
 	}
 	//simulate
 
@@ -419,18 +431,21 @@ int main() {
 		handle_key();
 		
 		
-		rigidBodys[1]->syncDrawable();
-		if (cube.getPosition().y < -15.f) {
-			cube.setPosition(glm::vec3(0.0f, 30.0f, 0.0f));
+		
+		ground.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
+		ground.rotate(glm::radians(glm::vec3(sin(glfwGetTime() * 1.0f) * 10.0f, 0.0f, 0.0f)));
+		//rigidBodys[1]->syncDrawable();
+		rigidBodys[0]->syncBody();
+
+		//rigidBodys[1]->syncDrawable();
+		rigidBodys[1]->getBody()->activate(true);
+		if (cube.getPosition().y < -5.0f) {
+			cube.setPosition(glm::vec3(0.0f, 10.0f, 10.0f));
 			rigidBodys[1]->syncBody();
-			rigidBodys[1]->getBody()->setLinearVelocity(btVector3(0.0f, -1.0f, 0.0f));
+			rigidBodys[1]->getBody()->setLinearVelocity(btVector3(0.0f, -30.0f, -50.0f));
 		}
 
-		//rigidBodys[0]->syncDrawable();
-		//ground.rotate(glm::radians(glm::vec3(sin(glfwGetTime() * 1.0f) * 40.0f, 0.0f, 0.0f)));
-		//rigidBodys[1]->syncDrawable();
-		//rigidBodys[0]->syncBody();
-
+		scene_main.draw(deltaTime);
 
 		test_rect.rotate(glm::vec3(0.0f, glm::radians(90.0f), 0.0f));
 
@@ -438,7 +453,7 @@ int main() {
 		
 		//cube.setPosition(glm::vec3(0.0f, 1.0f, 0.0f));
 		//cube.rotate(cube.getRotation() + glm::vec3(0.0, 10.0f, 0.0f) * deltaTime);
-		text_fps.rotate(text_fps.getRotation() + glm::vec3(0.0f, 0.0f, 0.0f) * deltaTime);
+		//text_fps.rotate(text_fps.getRotation() + glm::vec3(0.0f, 0.0f, 0.0f) * deltaTime);
 		
 		//testGeometry.line_to(mainCamera.getPosition() * glm::vec3(0.0f, 1.0f, 1.0f));
 
@@ -447,11 +462,24 @@ int main() {
 		text_description.rotate(text_description.getRotation() + glm::vec3(-0.0f, 0.0f, 0.0f));
 
 		
-		text_fps.setPosition(glm::vec3(-0.99f, 1.0f - text_fps.getSize().height * 0.5f, -2.0f + text_fps.getSize().width * 0.5f));
-		text_fps.scaleToWidth(test_rect.getSize().width);
+		//text_fps.setPosition(glm::vec3(-0.99f, 1.0f - text_fps.getSize().height * 0.5f, -2.0f + text_fps.getSize().width * 0.5f));
+		//text_fps.scaleToWidth(test_rect.getSize().width);
 		text_fps.setText(std::to_string(glfwGetTime())); //(int)round(1 / deltaTime)));
 		
 		pLight.setPosition(glm::vec3(-5.0, 1.0f, sin(glfwGetTime()) * 3.0f));
+
+		btVector3 rayStart(0.0f, 15.0f, 0.0f);
+		btVector3 rayEnd(0.0f, -5.0f, 2.0f);
+		btCollisionWorld::ClosestRayResultCallback RayCallback(rayStart, rayEnd);
+		scene_main.getPhysicsWorld()->rayTest(rayStart, rayEnd, RayCallback);
+		if(RayCallback.hasHit()) {
+			rayEnd = RayCallback.m_hitPointWorld;
+			btVector3 normal = RayCallback.m_hitNormalWorld;
+			//std::cout << rayEnd.getY() << std::endl;
+			pLight2.setPosition(glm::vec3(rayEnd.getX(), rayEnd.getY(), rayEnd.getZ()));
+			//std::cout << pLight2.getPosition().y << std::endl;
+		}
+
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -459,7 +487,7 @@ int main() {
 		dLight.intensity = 1.0f;
 		pLight.intensity = 0.4f; // (sin(glfwGetTime() * 15 + 1.7) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
 		pLight2.intensity = (sin(glfwGetTime()) * 0.5 + 0.5);
-		scene_main.draw(deltaTime);
+		//scene_main.draw(deltaTime);
 
 
 		Shaders[SHADER_DEFERRED].use();
@@ -497,6 +525,7 @@ int main() {
 	//free memory
 	for (auto rbody : rigidBodys) {
 		rbody->dispose();
+		delete rbody;
 	}
 	rigidBodys.clear();
 

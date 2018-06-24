@@ -23,6 +23,8 @@ public:
 	void setCamera(Camera &camera);
 	void setDlight(DirectionalLight &dlight);
 
+	btDiscreteDynamicsWorld* getPhysicsWorld();
+
 	virtual void draw(GLfloat delta);
 	void dispose();
 private:

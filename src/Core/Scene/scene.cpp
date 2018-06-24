@@ -35,15 +35,24 @@ void Scene::setDlight(DirectionalLight &dlight)
 	directionalLight = &dlight;
 }
 
+btDiscreteDynamicsWorld* Scene::getPhysicsWorld() {
+	return dynamicsWorld;
+}
+
 void Scene::draw(GLfloat delta)
 {
 	//Physics
 	dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+	
+	for(auto body : rigidBodys) {
+		body->syncDrawable();
+	}
 
 
 	Shader shader_basic = Shaders[SHADER_BASIC];
 	Shader shader_light = Shaders[SHADER_DEFFERED_LIGHT];
 	Shader shader_normals = Shaders[SHADER_DEFFERED_NORMALS];
+	Shader shader_geometry = Shaders[SHADER_DEFFERED_GEOMETRY];
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	if (directionalLight)
 	{
@@ -112,6 +121,14 @@ void Scene::draw(GLfloat delta)
 		if (drawable->visibleBox) {
 			drawable->drawBox();
 		}
+	}
+
+	shader_geometry.use();
+	glUniform4f(glGetUniformLocation(shader_geometry.getId(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(shader_geometry.getId(), "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+	for(auto body : rigidBodys) {
+		if(body->visibleAABB)
+			body->drawAABB(shader_geometry);
 	}
 
 	//render to window frame
