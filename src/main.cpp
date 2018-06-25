@@ -33,6 +33,8 @@ GLfloat deltaTime = 0.0f, mouseX = 0, mouseY = 0, mousePitch = 0, mouseYaw = 0, 
 GLfloat WIDTH = 800.0f, HEIGHT = 600.0f;
 Camera mainCamera = Camera();
 
+btRaycastVehicle *vehicle;
+
 bool keys[1024];
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
@@ -101,14 +103,14 @@ int main() {
 	skybox_faces.push_back(Loader::GetPath("/Textures/Skybox/back.jpg"));
 	skybox_faces.push_back(Loader::GetPath("/Textures/Skybox/front.jpg"));
 	*/
-	skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
+	/*skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
 	skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
 	skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
 	skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
 	skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
 	skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
 	GLuint cubemapTexture = Loader::LoadCubemap(skybox_faces);
-
+	*/
 	//create camera
 	mainCamera.setPosition(glm::vec3(0.0f, 5.0f, 10.0f));
 
@@ -145,8 +147,7 @@ int main() {
 	
 
     Drawable test_obj = Drawable(&path_obj_mountain[0]);
-	Drawable borderGround = Drawable();
-	borderGround.set_model(primitves::generate_quad(30.0f, 1.0f, 30.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+
 
 	
 
@@ -310,9 +311,8 @@ int main() {
 	test_obj.visibleNormal = false;
 	test_obj.drawType = DrawType::TRIANGLE;
 
-	pLight.set_model(test_obj.get_model());
-	pLight.scaleToSize(size_small);
-	pLight2.set_model(test_obj.get_model());
+	pLight.set_model(primitves::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
+	pLight2.set_model(pLight.get_model());
 
 	//cube.scaleToSize(size_medium);
 	//cube.setPosition(glm::vec3(1.0f, 5.0f, 0.0f));	
@@ -333,7 +333,7 @@ int main() {
 
 	scene_main.addDrawable(text_fps);
 	text_fps.rotate(glm::radians(glm::vec3(0.0f, 90.0f, 0.0f)));
-	text_fps.setColor(0.1f, 0.1f, 0.1f, 1.0f);
+	text_fps.setColor(1.0f, 1.0f, 0.1f, 1.0f);
 	text_fps.setPosition(glm::vec3(-1.0f, 1.0f, -2.0f));
 
 
@@ -346,11 +346,11 @@ int main() {
 
 	std::vector<Drawable*> cubes;
 	
-	glm::vec3 cubes_position(0.0f, 0.0f, 0.0f);
+	glm::vec3 cubes_position(0.0f, 0.0f, 15.0f);
 
-	for(size_t x = 0; x < 3; x++) {
-		for(size_t y = 0;  y < 60; y++) {
-			for(size_t z = 0; z < 3; z++) {
+	for(size_t x = 0; x < 5; x++) {
+		for(size_t y = 0;  y < 5; y++) {
+			for(size_t z = 0; z < 5; z++) {
 				Drawable cube;
 				cube.set_model(primitves::generate_quad(1.f, 1.0f, 1.0f, glm::vec4(1.0f, 0.3f, 0.8f, 1.0f)));
 				cube.setPosition(cubes_position + glm::vec3(x * 1.0f, y * 1.0f, z * 1.0f));
@@ -361,7 +361,8 @@ int main() {
 	}
 
 
-
+	Drawable borderGround = Drawable();
+	borderGround.set_model(primitves::generate_quad(100.0f, 1.0f, 100.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	Size sizeGround = borderGround.getSize();
 	GLfloat heightScale = 20.0f;
@@ -379,6 +380,41 @@ int main() {
 	scene_main.addDrawable(borderRight);
 
 
+
+
+	//
+	// Vehicle
+	//
+	GLfloat carMass = 800.0f;
+	GLfloat carWheelThickness = 0.1f;
+
+	Drawable carAnchor;
+	carAnchor.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
+	Drawable carChassis;
+	carChassis.set_model(primitves::generate_quad(1.0f, 1.25f, 4.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
+	carChassis.setPositionCenter(carAnchor.getPositionCenter());
+
+	std::vector<Drawable*> carWheels;
+	for (int i = 0; i < 4; i++) {
+		Drawable *wheel = new Drawable();
+		wheel->set_model(primitves::generate_quad(carWheelThickness, 0.3f, 0.3f, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)));
+		carWheels.push_back(wheel);
+	}
+
+	{
+		glm::vec3 carCenter = carChassis.getPositionCenter();
+		Size carSize = carChassis.getSize();
+
+		carWheels[0]->setPositionCenter(glm::vec3(carCenter.x + (carSize.width * 0.5f + carWheelThickness * 0.5f), carCenter.y - carSize.height * 0.5f, carCenter.z + carSize.depth * 0.3f));
+		carWheels[1]->setPositionCenter(glm::vec3(carCenter.x - (carSize.width * 0.5f + carWheelThickness * 0.5f), carCenter.y - carSize.height * 0.5f, carCenter.z + carSize.depth * 0.3f));
+		carWheels[2]->setPositionCenter(glm::vec3(carCenter.x + (carSize.width * 0.5f + carWheelThickness * 0.5f), carCenter.y - carSize.height * 0.5f, carCenter.z - carSize.depth * 0.3f));
+		carWheels[3]->setPositionCenter(glm::vec3(carCenter.x - (carSize.width * 0.5f + carWheelThickness * 0.5f), carCenter.y - carSize.height * 0.5f, carCenter.z - carSize.depth * 0.3f));
+	}
+
+	scene_main.addDrawable(carChassis);
+	for (auto wheel : carWheels) {
+		scene_main.addDrawable(*wheel);
+	}
 
 
 
@@ -474,10 +510,10 @@ int main() {
 		rbody.setDrawable(borderAnchor);
 		rbody.getBody()->setCollisionFlags(rbody.getBody()->getCollisionFlags() | btRigidBody::CF_KINEMATIC_OBJECT);
 		rbody.getBody()->setActivationState(DISABLE_DEACTIVATION);
-		rbody.visibleAABB = true;
+		rbody.visibleAABB = false;
 		rigidBodys.push_back(new RigidBody(rbody));
 
-		borderAnchor.setPositionCenter(glm::vec3(10.0f, -10.0f, 0.0f));
+		borderAnchor.setPositionCenter(glm::vec3(0.0f, -sizeGround.height * 0.5f - 3.01f, 0.0f));
 		rbody.syncBody();
 
 	}
@@ -499,6 +535,62 @@ int main() {
 		rigidBodys.push_back(new RigidBody(rbody));
 	}
 
+	//set vehicle physics
+	collision::CollisionShape carChassisShape = collision::CollisionShape(collision::generate_cube(carChassis.getSize()));
+	
+	
+	{
+		btTransform transform;
+
+		RigidBody rbody(carChassisShape, carAnchor.getPositionCenter(), carAnchor.getRotation(), carMass);
+		rbody.setDrawable(carAnchor);
+		rbody.getBody()->setActivationState(DISABLE_DEACTIVATION);
+		rbody.visibleAABB = true;
+		rigidBodys.push_back(new RigidBody(rbody));
+
+		btVehicleRaycaster *vehicleRayCaster = new btDefaultVehicleRaycaster(scene_main.getPhysicsWorld());
+		btRaycastVehicle::btVehicleTuning tuning;
+
+		vehicle = new btRaycastVehicle(tuning, rbody.getBody(), vehicleRayCaster);
+		
+		//raycast direction
+		btVector3 wheelDirectionCS0(0, -1, 0);
+		//rotating axis
+		btVector3 wheelAxleCS(1, 0, 0);
+		btScalar suspensionRestLength(0.7f);
+		btScalar connectionHeight(0.0f);
+		btScalar wheelWidth(0.1);
+		btScalar wheelRadius(carWheels[0]->getSize().depth * 0.5);
+
+		btVector3 wheelConnectionPoint(carChassis.getSize().width * 0.5, connectionHeight, carChassis.getSize().depth * 0.3);
+
+		vehicle->addWheel(wheelConnectionPoint, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
+		vehicle->addWheel(wheelConnectionPoint * btVector3(-1, 1, 1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
+		vehicle->addWheel(wheelConnectionPoint * btVector3(1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
+		vehicle->addWheel(wheelConnectionPoint * btVector3(-1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
+
+		for (int i = 0; i < vehicle->getNumWheels(); i++) {
+			btWheelInfo &wheel = vehicle->getWheelInfo(i);
+			wheel.m_suspensionStiffness = 100;
+			wheel.m_wheelsDampingCompression = btScalar(0.3) * 2 * btSqrt(wheel.m_suspensionStiffness);
+			wheel.m_wheelsDampingRelaxation = btScalar(0.5) * 2 * btSqrt(wheel.m_suspensionStiffness);
+
+			wheel.m_frictionSlip = btScalar(1.2);
+			wheel.m_rollInfluence = 1;
+		}
+		
+
+		scene_main.getPhysicsWorld()->addVehicle(vehicle);
+
+		
+
+		carAnchor.setPositionCenter(glm::vec3(0.0f, carChassis.getSize().height * 2.0f, 0.0f));
+		rbody.syncBody();
+
+	}
+
+
+
 	for (auto body : rigidBodys) {
 		scene_main.addRigidBody((*body));
 	}
@@ -513,7 +605,7 @@ int main() {
 		
 		//borderGround.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
 		if(glfwGetTime() > 0.0f) { 
-			borderAnchor.rotate(glm::radians(glm::vec3(cos((glfwGetTime()) * 1.5f) * 30.0f, glfwGetTime() * 100.0f, cos((glfwGetTime()) * 1.0f) * 0.0f)));
+			borderAnchor.rotate(glm::radians(glm::vec3(cos((glfwGetTime()) * 1.5f) * 0.0f, glfwGetTime() * 00.0f, cos((glfwGetTime()) * 1.0f) * 0.0f)));
 			rigidBodys[0]->syncBody();
 		}
 
@@ -542,6 +634,22 @@ int main() {
 		borderRight.rotate(borderGround.getRotation());
 
 
+
+		//synchronize vehicle
+
+		carChassis.transform(vehicle->getChassisWorldTransform());
+
+		carChassis.setPositionCenter(carAnchor.getPositionCenter());
+		glm::vec3 carCenter = carChassis.getPositionCenter();
+
+		for (int i = 0; i < 4; i++) {
+			btTransform transform = vehicle->getWheelTransformWS(i);
+			transform.setRotation(vehicle->getChassisWorldTransform().getRotation());	
+			carWheels[i]->transform(transform);
+			//carWheels[i]->rotate(carWheels[i]->getRotation() +  glm::radians(glm::vec3(0.0f, 90.0f * vehicle->getSteeringValue(i), 0.0f)));
+		}
+
+
 		scene_main.draw(deltaTime);
 
 
@@ -562,9 +670,10 @@ int main() {
 		text_description.rotate(text_description.getRotation() + glm::vec3(-0.0f, 0.0f, 0.0f));
 
 		
-		//text_fps.setPosition(glm::vec3(-0.99f, 1.0f - text_fps.getSize().height * 0.5f, -2.0f + text_fps.getSize().width * 0.5f));
+		text_fps.setPosition(carChassis.getPosition() - glm::vec3(carChassis.getSize().width * 0.5f, 0.0f, -carChassis.getSize().depth * 0.5f)  + glm::vec3(0.0f, 2.0f, 0.0f));
+		text_fps.rotate(carChassis.getRotation());
 		//text_fps.scaleToWidth(test_rect.getSize().width);
-		text_fps.setText(std::to_string((int)round(1 / deltaTime)));
+		text_fps.setText(std::to_string(abs(vehicle->getCurrentSpeedKmHour())) + " km/h");
 		
 		pLight.setPosition(glm::vec3(-5.0, 1.0f, sin(glfwGetTime()) * 3.0f));
 
@@ -618,6 +727,15 @@ int main() {
 		deltaTime = currentTime - lastTime;
 		lastTime = currentTime;
 	}
+
+
+	for (auto body : rigidBodys) {
+		while (body->getBody()->getNumConstraintRefs()) {
+			btTypedConstraint *constraint = body->getBody()->getConstraintRef(0);
+			scene_main.getPhysicsWorld()->removeConstraint(constraint);
+		}
+	}
+
 	scene_main.dispose();
 	//glDeleteFramebuffers(1, &fbo_texture);
 
@@ -635,11 +753,28 @@ int main() {
 	borderLeftShape.dispose();
 	borderRightShape.dispose();
 
+	borderGround.dispose();
+	borderFront.dispose();
+	borderBack.dispose();
+	borderLeft.dispose();
+	borderRight.dispose();
+
 	for(auto cube : cubes) {
 		cube->dispose();
 		delete cube;
 	}
 
+	carChassisShape.dispose();
+
+
+	//carAnchor.dispose();
+	carChassis.dispose();
+	for (auto wheel : carWheels) {
+		wheel->dispose();
+	}
+	carWheels.clear();
+
+	delete vehicle;
 
 	glfwTerminate();
 	return 0;
@@ -684,6 +819,39 @@ void handle_key()
 		mainCamera.HandleKeyboard(CameraMovement::LEFT, deltaTime);
 	if (keys[GLFW_KEY_D])
 		mainCamera.HandleKeyboard(CameraMovement::RIGHT, deltaTime);
+	if (keys[GLFW_KEY_SPACE]) {
+		vehicle->applyEngineForce(0, 0);
+		vehicle->applyEngineForce(0, 1);
+		vehicle->setBrake(500, 0);
+		vehicle->setBrake(500, 1);
+	}
+	if (keys[GLFW_KEY_UP]) {
+		vehicle->applyEngineForce(400, 0);
+		vehicle->applyEngineForce(400, 1);
+		vehicle->setSteeringValue(btScalar(0), 2);
+		vehicle->setSteeringValue(btScalar(0), 3);
+	}
+	else {
+		if (!keys[GLFW_KEY_DOWN]) {
+			vehicle->applyEngineForce(0, 0);
+			vehicle->applyEngineForce(0, 1);
+		}
+	}
+	if (keys[GLFW_KEY_DOWN]) {
+		vehicle->applyEngineForce(-250, 0);
+		vehicle->applyEngineForce(-250, 1);
+		vehicle->setSteeringValue(btScalar(0), 2);
+		vehicle->setSteeringValue(btScalar(0), 3);
+	}
+	if (keys[GLFW_KEY_LEFT]) {
+		vehicle->setSteeringValue(btScalar(0.3), 2);
+		vehicle->setSteeringValue(btScalar(0.3), 3);
+	}
+	if (keys[GLFW_KEY_RIGHT]) {
+		vehicle->setSteeringValue(btScalar(-0.3), 2);
+		vehicle->setSteeringValue(btScalar(-0.3), 3);
+	}
+
 	if (keys[GLFW_KEY_LEFT_SHIFT]) {
 		mainCamera.MovementSpeed = 12.0f;
 	}

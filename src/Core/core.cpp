@@ -111,3 +111,13 @@ void init_core() {
 	glUniformBlockBinding(Shaders[SHADER_DEFFERED_LIGHT].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_LIGHT].getId(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), "Matrices"), 0);
 }
+
+glm::vec3 toVec3(btVector3 vec)
+{
+	return glm::vec3(vec.getX(), vec.getY(), vec.getZ());
+}
+
+btVector3 toBtVec3(glm::vec3 vec)
+{
+	return btVector3(vec.x, vec.y, vec.z);
+}

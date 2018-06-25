@@ -125,7 +125,6 @@ void RigidBody::dispose()
 {
 	delete rigidBody->getMotionState();
 	delete rigidBody;
-	delete shape;
 }
 
 btRigidBody* RigidBody::getBody() {

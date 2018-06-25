@@ -233,13 +233,14 @@ void Scene::dispose()
 {
 	while (objects.size() > 0)
 	{
+		objects[objects.size() - 1]->dispose();
 		objects.pop_back();
 	}
+
 
 	for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
 		btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[i];
 		dynamicsWorld->removeCollisionObject(obj);
-		//delete obj;
 	}
 	rigidBodys.clear();
 
