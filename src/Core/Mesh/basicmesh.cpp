@@ -82,6 +82,12 @@ void BasicMesh::add_offset(glm::vec3 offset)
 	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
 }
 
+void BasicMesh::dispose() {
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+	glDeleteVertexArrays(1, &VAO);
+}
+
 std::vector<Vertex> BasicMesh::get_vertices()
 {
 	return vertices;

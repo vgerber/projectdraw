@@ -93,6 +93,13 @@ void Model::drawNormals(Shader shader)
 	}
 }
 
+void Model::dispose() {
+	for (GLuint i = 0; i < this->meshes.size(); i++) {
+		this->meshes[i].dispose();
+	}
+	this->meshes.clear();
+}
+
 void Model::load_model(std::string path)
 {
 	Assimp::Importer importer;

@@ -45,6 +45,7 @@ private:
 	int width = 100, height = 100;
 
 	GLuint gBufferFBO;
+	GLuint rboGDepth;
 	GLuint gBufferPosition, gBufferNormal, gBufferAlbedo, gBufferUseLight;
 	GLuint uboMatrices;
 	Camera* camera = nullptr;

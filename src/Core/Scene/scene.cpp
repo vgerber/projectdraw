@@ -248,6 +248,14 @@ void Scene::dispose()
 	delete dispatcher;
 	delete collisionConfiguration;
 	delete overlappingPairCache;
+
+	glDeleteFramebuffers(1, &gBufferFBO);
+	glDeleteRenderbuffers(1, &rboGDepth);
+	glDeleteTextures(1, &gBufferAlbedo);
+	glDeleteTextures(1, &gBufferNormal);
+	glDeleteTextures(1, &gBufferPosition);
+	glDeleteTextures(1, &gBufferUseLight);
+	glDeleteBuffers(1, &uboMatrices);
 	
 }
 
@@ -288,7 +296,6 @@ void Scene::setup(int width, int height)
 	GLuint gAttachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
 	glDrawBuffers(4, gAttachments);
 
-	GLuint rboGDepth;
 	glGenRenderbuffers(1, &rboGDepth);
 	glBindRenderbuffer(GL_RENDERBUFFER, rboGDepth);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);

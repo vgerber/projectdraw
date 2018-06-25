@@ -22,6 +22,7 @@ public:
 
 	void draw(Shader shader, DrawType drawType);
 	void drawNormals(Shader shader);
+	void dispose();
 private:
 	std::vector<Texture> textures_loaded;
 	std::vector<BasicMesh> meshes;
