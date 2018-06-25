@@ -66,6 +66,10 @@ public:
 	void setPositionCenter(glm::vec3 position);
 
 	void setCenter(glm::vec3 center);
+	void setCenterInWorld(glm::vec3 point);
+
+	glm::vec3 getCenter();
+	glm::vec3 getCenterPoint();
 
 	void transform(btTransform transform);
 

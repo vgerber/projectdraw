@@ -145,8 +145,8 @@ int main() {
 	
 
     Drawable test_obj = Drawable(&path_obj_mountain[0]);
-	Drawable ground = Drawable();
-	ground.set_model(primitves::generate_quad(30.0f, 1.0f, 30.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	Drawable borderGround = Drawable();
+	borderGround.set_model(primitves::generate_quad(30.0f, 1.0f, 30.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	Drawable cube = Drawable();
 	cube.set_model(primitves::generate_quad(1.f, 1.0f, 1.0f, glm::vec4(1.0f, 0.3f, 0.8f, 1.0f)));
@@ -286,7 +286,7 @@ int main() {
 	pLight.setPosition(glm::vec3(2.0f, 1.0f, 0.0f));
 	pLight2.setPosition(glm::vec3(5.0f, 1.0f, 0.0f));
 
-	scene_main.addDrawable(ground);
+	
 	scene_main.addDrawable(cube);
 	scene_main.addDrawable(test_obj);
 
@@ -309,7 +309,6 @@ int main() {
 	Size size = test_obj.getSize();
 	test_obj.setPosition(glm::vec3(-5.0, 0.0f, -5.0f));
 	test_obj.setCenter(glm::vec3(0.5f, 0.5f, 1.7f));
-	test_obj.visibleBox = true;
 	test_obj.visibleNormal = false;
 	test_obj.drawType = DrawType::TRIANGLE;
 
@@ -324,10 +323,9 @@ int main() {
 
 	Drawable test_rect = Drawable();
 	test_rect.set_model(primitves::generate_circle(1.0f, 30.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
-	test_rect.setPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+	test_rect.setPosition(glm::vec3(0.0f, 5.0f, -2.0f));
 	
 	test_rect.drawType = DrawType::TRIANGLE;
-	test_rect.visibleBox = true;
 	scene_main.addDrawable(test_rect);
 
 
@@ -336,7 +334,6 @@ int main() {
 
 
 	scene_main.addDrawable(text_fps);
-	text_fps.visibleBox = true;
 	text_fps.rotate(glm::radians(glm::vec3(0.0f, 90.0f, 0.0f)));
 	text_fps.setColor(0.1f, 0.1f, 0.1f, 1.0f);
 	text_fps.setPosition(glm::vec3(-1.0f, 1.0f, -2.0f));
@@ -347,8 +344,21 @@ int main() {
 	text_description.rotate(glm::radians(glm::vec3(0.0f, -30.0f, 0.0f)));
 	text_description.setColor(1.0f, 0.5f, 0.0f, 1.0f);
 	text_description.setText("This is a great test level!");
-	text_description.visibleBox = true;
 	scene_main.addDrawable(text_description);
+
+	Size sizeGround = borderGround.getSize();
+
+	Drawable borderAnchor, borderBack, borderFront, borderLeft, borderRight;
+	borderBack.set_model(primitves::generate_quad(sizeGround.width + 2.0f, sizeGround.height * 4.0f, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderFront.set_model(primitves::generate_quad(sizeGround.width + 2.0f, sizeGround.height * 4.0f, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderLeft.set_model(primitves::generate_quad(1.0f , sizeGround.height * 4.0f, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderRight.set_model(primitves::generate_quad(1.0f, sizeGround.height * 4.0f, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+
+	scene_main.addDrawable(borderGround);
+	scene_main.addDrawable(borderBack);
+	scene_main.addDrawable(borderFront);
+	scene_main.addDrawable(borderLeft);
+	scene_main.addDrawable(borderRight);
 
 
 	//depth
@@ -384,21 +394,69 @@ int main() {
 
 	std::vector<RigidBody*> rigidBodys;
 
-	ground.setPositionCenter(glm::vec3(0.0f, -(ground.getSize().height + 0.01) * 0.5f, 0.0f));
-	ground.rotate(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
-	//ground.setCenter(glm::vec3(0.5f, 0.5f, 0.0f));
-	ground.visibleBox = true;
+	borderAnchor.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
+
+	borderGround.setPositionCenter(borderAnchor.getPositionCenter());
+	borderGround.rotate(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
+	borderGround.visibleBox = false;
+
+	//calc positions in compound
+	borderBack.setPosition(borderGround.getPosition() - glm::vec3(1.0f, 0.0f, 1.0f));
+	borderBack.setCenterInWorld(borderGround.getPositionCenter());
+	borderFront.setPosition(borderGround.getPosition() - glm::vec3(1.0f, 0.0f, -sizeGround.depth));
+	borderFront.setCenterInWorld(borderGround.getPositionCenter());
+	borderLeft.setPosition(borderGround.getPosition() - glm::vec3(1.0f, 0.0f, 0.0f));
+	borderLeft.setCenterInWorld(borderGround.getPositionCenter());
+	borderRight.setPosition(borderGround.getPosition() + glm::vec3(sizeGround.width, 0.0f, 0.0f));
+	borderRight.setCenterInWorld(borderGround.getPositionCenter());
 
 	cube.setPositionCenter(glm::vec3(0.0f, 10.0f, 10.0f));
 	cube.rotate(glm::radians(glm::vec3(40.0f, 40.0f, 40.0f)));
 
 	text_fps.setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
-	//add ground as ground plane
-	{
-		collision::CollisionShape ground_shape(collision::generate_cube(ground.getSize()));		
-		RigidBody rbody(ground_shape, ground.getPositionCenter(), ground.getRotation(), 0.0f);
-		rbody.setDrawable(ground);
+	//add borderGround as borderGround plane
+	collision::CollisionShape borderGroundShape(collision::generate_cube(borderGround.getSize()));
+	collision::CollisionShape borderFrontShape(collision::generate_cube(borderFront.getSize()));
+	collision::CollisionShape borderBackShape(collision::generate_cube(borderBack.getSize()));
+	collision::CollisionShape borderLeftShape(collision::generate_cube(borderLeft.getSize()));
+	collision::CollisionShape borderRightShape(collision::generate_cube(borderRight.getSize()));
+	{		
+		btCompoundShape* borderCompound = new btCompoundShape();
+		btTransform transform;
+		transform.setIdentity();
+
+		glm::vec3 posCenter = glm::vec3(0.0f, 0.0f, 0.0f);//borderGround.getPositionCenter();
+		transform.setOrigin(btVector3(posCenter.x, posCenter.y, posCenter.z));
+		borderCompound->addChildShape(transform, borderGroundShape.get_shape());
+		
+		posCenter = borderBack.getPositionCenter();
+		transform.setOrigin(btVector3(posCenter.x, posCenter.y, posCenter.z));
+		borderCompound->addChildShape(transform, borderFrontShape.get_shape());
+
+		posCenter = borderFront.getPositionCenter();
+		transform.setOrigin(btVector3(posCenter.x, posCenter.y, posCenter.z));
+		borderCompound->addChildShape(transform, borderBackShape.get_shape());
+		
+		posCenter = borderLeft.getPositionCenter();
+		transform.setOrigin(btVector3(posCenter.x, posCenter.y, posCenter.z));
+		borderCompound->addChildShape(transform, borderLeftShape.get_shape());
+
+		posCenter = borderRight.getPositionCenter();
+		transform.setOrigin(btVector3(posCenter.x, posCenter.y, posCenter.z));
+		borderCompound->addChildShape(transform, borderRightShape.get_shape());
+		
+
+		collision::CollisionShape borderCompoundShape(borderCompound);
+
+		RigidBody rbody(borderCompoundShape, borderAnchor.getPositionCenter(), borderAnchor.getRotation(), 0.0f);
+		rbody.setDrawable(borderAnchor);
+		rbody.getBody()->setCollisionFlags(rbody.getBody()->getCollisionFlags() | btRigidBody::CF_KINEMATIC_OBJECT);
+		rbody.getBody()->setActivationState(DISABLE_DEACTIVATION);
+		rbody.visibleAABB = true;
 		rigidBodys.push_back(new RigidBody(rbody));
+
+		borderAnchor.setPositionCenter(glm::vec3(10.0f, -10.0f, 0.0f));
+		rbody.syncBody();
 
 	}
 
@@ -406,7 +464,7 @@ int main() {
 	{
 		collision::CollisionShape cube_shape(collision::generate_cube(cube.getSize()));
 		RigidBody rbodyCube(cube_shape, cube.getPositionCenter(), cube.getRotation(), 1.0f);
-		rbodyCube.setDrawable(cube);
+		rbodyCube.setDrawable(cube);		
 		rigidBodys.push_back(new RigidBody(rbodyCube));
 	}
 
@@ -419,10 +477,7 @@ int main() {
 
 	for (auto body : rigidBodys) {
 		scene_main.addRigidBody((*body));
-		std::cout << body << std::endl;
 	}
-	//simulate
-
 
 	GLfloat lastTime = glfwGetTime();
 	while (!glfwWindowShouldClose(window))
@@ -432,20 +487,39 @@ int main() {
 		
 		
 		
-		ground.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
-		ground.rotate(glm::radians(glm::vec3(sin(glfwGetTime() * 1.0f) * 10.0f, 0.0f, 0.0f)));
-		//rigidBodys[1]->syncDrawable();
+		//borderGround.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
+		borderAnchor.rotate(glm::radians(glm::vec3(cos(glfwGetTime() * 1.0f) * 30.0f, glfwGetTime() * 20.0f, cos(glfwGetTime() * 1.0f) * 20.0f)));
 		rigidBodys[0]->syncBody();
 
 		//rigidBodys[1]->syncDrawable();
 		rigidBodys[1]->getBody()->activate(true);
-		if (cube.getPosition().y < -5.0f) {
+		if (cube.getPosition().y < -30.0f) {
 			cube.setPosition(glm::vec3(0.0f, 10.0f, 10.0f));
 			rigidBodys[1]->syncBody();
 			rigidBodys[1]->getBody()->setLinearVelocity(btVector3(0.0f, -30.0f, -50.0f));
 		}
 
+		scene_main.updatePhysics(deltaTime);
+
+		//synchronize walls to ground
+
+		borderGround.setPositionCenter(borderAnchor.getPosition());
+		borderBack.setPosition(borderGround.getPosition() - glm::vec3(1.0f, 0.0f, 1.0f));
+		borderFront.setPosition(borderGround.getPosition() - glm::vec3(1.0f, 0.0f, -sizeGround.depth));
+		borderLeft.setPosition(borderGround.getPosition() - glm::vec3(1.0f, 0.0f, 0.0f));
+		borderRight.setPosition(borderGround.getPosition() + glm::vec3(sizeGround.width, 0.0f, 0.0f));
+
+		borderGround.rotate(borderAnchor.getRotation());
+		borderBack.rotate(borderGround.getRotation());
+		borderFront.rotate(borderGround.getRotation());
+		borderLeft.rotate(borderGround.getRotation());
+		borderRight.rotate(borderGround.getRotation());
+
+
 		scene_main.draw(deltaTime);
+
+
+
 
 		test_rect.rotate(glm::vec3(0.0f, glm::radians(90.0f), 0.0f));
 
@@ -528,6 +602,12 @@ int main() {
 		delete rbody;
 	}
 	rigidBodys.clear();
+
+	borderGroundShape.dispose();
+	borderFrontShape.dispose();
+	borderBackShape.dispose();
+	borderLeftShape.dispose();
+	borderRightShape.dispose();
 
 
 

@@ -268,6 +268,25 @@ void Drawable::setCenter(glm::vec3 center)
 	load_box();
 }
 
+void Drawable::setCenterInWorld(glm::vec3 point)
+{
+	glm::vec3 dPoint = point - position;
+	vcenter.x = dPoint.x / size.width;
+	vcenter.y = dPoint.y / size.height;
+	vcenter.z = dPoint.z / size.depth;
+	load_box();
+}
+
+glm::vec3 Drawable::getCenter()
+{
+	return vcenter;
+}
+
+glm::vec3 Drawable::getCenterPoint()
+{
+	return position + glm::vec3(size.width, size.height, size.depth) * vcenter;
+}
+
 void Drawable::transform(btTransform transform)
 {
 	btScalar rot_x, rot_y, rot_z;

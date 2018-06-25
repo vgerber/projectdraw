@@ -14,7 +14,7 @@ RigidBody::RigidBody(collision::CollisionShape shape, glm::vec3 center, glm::vec
 	
 	btScalar bt_mass(mass);
 
-	bool isDynamic = (bt_mass != 0.0f);
+	bool isDynamic = true; // (bt_mass != 0.0f);
 
 	btVector3 localInertia(0, 0, 0);
 	if (isDynamic) {
@@ -36,44 +36,34 @@ void RigidBody::setDrawable(Drawable &drawable)
 
 void RigidBody::syncBody()
 {
-	btTransform transform = btTransform::getIdentity();
-	glm::vec3 center = drawable->getPositionCenter();
-
-	/*glm::vec3 center = drawable->getPositionCenter();
-	glm::vec3 rotation = drawable->getRotation();
 	btTransform transform;
+	glm::vec3 center = drawable->getPositionCenter();
+	glm::vec3 rotation = drawable->getRotation();
+
+
 	transform.setIdentity();
 	transform.setOrigin(btVector3(center.x, center.y, center.z));
 	transform.setRotation(btQuaternion(rotation.y, rotation.x, rotation.z));
-	rigidBody->setWorldTransform(transform);
-	*/
+	rigidBody->setWorldTransform(transform);	
+	rigidBody->getMotionState()->setWorldTransform(transform);
 	
-	/*
-	transform.setFromOpenGLMatrix(glm::value_ptr(drawable->getModelMatrix()));
-	glm::vec3 center = drawable->getPositionCenter();
-	transform.setOrigin(btVector3(center.x, center.y, center.z));
-	//transform.setOrigin(btVector3(center.x, center.y, center.z));
-	rigidBody->setWorldTransform(transform);
-	//std::cout << "Sync Body: " << transform.getOrigin().getY() << std::endl;
-	*/
-	
-	
-	transform.setFromOpenGLMatrix(glm::value_ptr(drawable->getModelMatrix()));
+	/*transform.setFromOpenGLMatrix(glm::value_ptr(drawable->getModelMatrix()));
 	transform.setOrigin(btVector3(center.x, center.y, center.z));
 	rigidBody->setWorldTransform(transform);
+	*/
 
 }
 
 void RigidBody::syncDrawable()
 {
-	btTransform transform = rigidBody->getWorldTransform();
+	btTransform transform; // = rigidBody->getWorldTransform();
 	drawable->setCenter(glm::vec3(0.5f, 0.5f, 0.5f));
-	/*if (rigidBody && rigidBody->getMotionState()) {
+	if (false && rigidBody && rigidBody->getMotionState()) {
 		rigidBody->getMotionState()->getWorldTransform(transform);
 	}
 	else {
 		transform = rigidBody->getWorldTransform();
-	}*/
+	}
 	//std::cout << transform.getOrigin().getY() << std::endl;
 	drawable->transform(transform);
 }

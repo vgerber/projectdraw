@@ -41,13 +41,6 @@ btDiscreteDynamicsWorld* Scene::getPhysicsWorld() {
 
 void Scene::draw(GLfloat delta)
 {
-	//Physics
-	dynamicsWorld->stepSimulation(1.f / 60.f, 10);
-	
-	for(auto body : rigidBodys) {
-		body->syncDrawable();
-	}
-
 
 	Shader shader_basic = Shaders[SHADER_BASIC];
 	Shader shader_light = Shaders[SHADER_DEFFERED_LIGHT];
@@ -224,6 +217,16 @@ void Scene::draw(GLfloat delta)
 	glBindVertexArray(screenRectVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
+}
+
+void Scene::updatePhysics(GLfloat delta)
+{
+	//Physics
+	dynamicsWorld->stepSimulation(delta, 10);
+
+	for (auto body : rigidBodys) {
+		body->syncDrawable();
+	}
 }
 
 void Scene::dispose()

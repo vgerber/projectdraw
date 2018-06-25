@@ -26,6 +26,8 @@ public:
 	btDiscreteDynamicsWorld* getPhysicsWorld();
 
 	virtual void draw(GLfloat delta);
+	virtual void updatePhysics(GLfloat delta);
+
 	void dispose();
 private:
 	//Physics
