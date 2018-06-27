@@ -1,5 +1,6 @@
 #pragma once
 #include "../sceneobject.h"
+#include "../../Model/box.h"
 
 #include <memory>
 
@@ -21,7 +22,7 @@ class Camera : public SceneObject
 public:
 
 	float NearZ = 0.1f;
-	float FarZ = 100.0f;
+	float FarZ = 200.0f;
 	float FOV = 45.0f;
 
 	Camera(glm::vec3 position);
@@ -56,6 +57,8 @@ public:
 	void HandleMouseScroll(GLfloat yoffset);
 
 	std::shared_ptr<Camera> GetCamera();
+
+	Size getViewFrustum();
 
 private:
 	bool initial_move = true;

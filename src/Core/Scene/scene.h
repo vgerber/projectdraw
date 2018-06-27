@@ -5,6 +5,7 @@
 #include "drawable.h"
 #include "Light/lights.h"
 #include "../Physics/physics.h"
+#include "../Util/vehicle.h"
 
 #include <map>
 #include <memory>
@@ -17,6 +18,7 @@ public:
 
 	void addDrawable(Drawable &drawable);
 	void addRigidBody(RigidBody &rigidBody);
+	void addVehicle(Vehicle &vehicle);
 
 	void addPlight(PointLight &plight);
 
@@ -40,6 +42,7 @@ private:
 
 
 	std::vector<RigidBody*> rigidBodys;
+	std::vector<Vehicle*> vehicles;
 	//Meta
 
 	int width = 100, height = 100;

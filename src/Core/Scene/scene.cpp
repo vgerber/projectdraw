@@ -20,6 +20,12 @@ void Scene::addRigidBody(RigidBody & rigidBody)
 	dynamicsWorld->addRigidBody(rigidBody.getBody());
 }
 
+void Scene::addVehicle(Vehicle & vehicle)
+{
+	vehicles.push_back(&vehicle);
+	dynamicsWorld->addVehicle(vehicle.getVehicle());
+}
+
 void Scene::addPlight(PointLight &plight)
 {
 	pointLights.push_back(&plight);
@@ -226,6 +232,10 @@ void Scene::updatePhysics(GLfloat delta)
 
 	for (auto body : rigidBodys) {
 		body->syncDrawable();
+	}
+
+	for (auto vehicle : vehicles) {
+		vehicle->sync();
 	}
 }
 

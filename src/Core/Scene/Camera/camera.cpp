@@ -122,6 +122,14 @@ std::shared_ptr<Camera> Camera::GetCamera()
 {
 	return std::make_shared<Camera>(*this);
 }
+Size Camera::getViewFrustum()
+{
+	Size size;
+	size.height = 2.0f * tanf(glm::radians(FOV) / 2.0f) * FarZ;
+	size.width = size.height * (800.0f / 600.0f);
+
+	return size;
+}
 void Camera::updateCameraVectors()
 {
 	// Calculate the new Front vector

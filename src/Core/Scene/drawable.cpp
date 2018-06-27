@@ -19,8 +19,8 @@ Drawable::~Drawable()
 void Drawable::dispose()
 {
 	objModel.dispose();
-	//glDeleteVertexArrays(1, &VAO);
-	//glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &boxVAO);
+	glDeleteBuffers(1, &boxVBO);
 }
 
 void Drawable::draw()
