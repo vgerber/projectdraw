@@ -388,18 +388,18 @@ int main() {
 	// Vehicle
 	//
 	GLfloat carMass = 800.0f;
-	GLfloat carWheelThickness = 0.1f;
+	GLfloat carWheelThickness = 1.0f;
 
 	Drawable carAnchor;
 	carAnchor.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
 	Drawable carChassis;
-	carChassis.set_model(primitves::generate_quad(2.0f, 1.25f, 4.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
+	carChassis.set_model(primitves::generate_quad(3.0f, 1.25f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
 	carChassis.setPositionCenter(carAnchor.getPositionCenter());
 
 	std::vector<Drawable*> carWheels;
 	for (int i = 0; i < 4; i++) {
 		Drawable *wheel = new Drawable();
-		wheel->set_model(primitves::generate_quad(carWheelThickness, 0.3f, 0.3f, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)));
+		wheel->set_model(primitves::generate_quad(carWheelThickness, 2.0, 2.0, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)));
 		carWheels.push_back(wheel);
 	}
 
@@ -450,7 +450,7 @@ int main() {
 
 	//cube.setPosition(glm::vec3(0.0f, 3.0f, 0.0f));
 	
-
+	//compensation log db exam?
 
 	std::vector<RigidBody*> rigidBodys;
 
@@ -570,7 +570,7 @@ int main() {
 		vehicle = testVehicle->getVehicle();
 
 
-		carAnchor.setPositionCenter(glm::vec3(0.0f, carChassis.getSize().height * 2.0f, 0.0f));
+		carAnchor.setPositionCenter(glm::vec3(0.0f, carChassis.getSize().height * 4.0f, 0.0f));
 		rbody.syncBody();
 
 	}
