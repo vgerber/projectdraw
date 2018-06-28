@@ -6,6 +6,7 @@
 #include "Light/lights.h"
 #include "../Physics/physics.h"
 #include "../Util/vehicle.h"
+#include "Particle/particlegenerator.h"
 
 #include <map>
 #include <memory>
@@ -19,6 +20,7 @@ public:
 	void addDrawable(Drawable &drawable);
 	void addRigidBody(RigidBody &rigidBody);
 	void addVehicle(Vehicle &vehicle);
+	void addParticleGenerator(ParticleGenerator &pg);
 
 	void addPlight(PointLight &plight);
 
@@ -57,6 +59,9 @@ private:
 	//lights
 	DirectionalLight* directionalLight = nullptr;
 	std::vector<PointLight*> pointLights;
+
+	//particles
+	std::vector<ParticleGenerator*> particleGenerators;
 
 	void setup(int width, int height);
 };

@@ -19,8 +19,6 @@
 #include "Core/Scene/Light/dlight.h"
 #include "Core/Scene/Light/plight.h"
 #include "Core/Scene/Text/text.h"
-#include "Core/Physics/physics.h"
-#include "Core/Util/vehicle.h"
 
 #ifdef _WIN32
 std::string path_obj_mountain = "C:/Users/Vincent/Documents/Projects/Blender/TriFace/basic_mountain.obj";
@@ -387,19 +385,19 @@ int main() {
 	//
 	// Vehicle
 	//
-	GLfloat carMass = 800.0f;
-	GLfloat carWheelThickness = 1.0f;
+	GLfloat carMass = 1000.0f;
+	GLfloat carWheelThickness = 0.2f;
 
 	Drawable carAnchor;
 	carAnchor.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
 	Drawable carChassis;
-	carChassis.set_model(primitves::generate_quad(3.0f, 1.25f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
+	carChassis.set_model(primitves::generate_quad(4.0f, 1.25f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
 	carChassis.setPositionCenter(carAnchor.getPositionCenter());
 
 	std::vector<Drawable*> carWheels;
 	for (int i = 0; i < 4; i++) {
 		Drawable *wheel = new Drawable();
-		wheel->set_model(primitves::generate_quad(carWheelThickness, 2.0, 2.0, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)));
+		wheel->set_model(primitves::generate_quad(carWheelThickness, 0.5, 0.5, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)));
 		carWheels.push_back(wheel);
 	}
 
@@ -509,6 +507,7 @@ int main() {
 		collision::CollisionShape borderCompoundShape(borderCompound);
 
 		RigidBody rbody(borderCompoundShape, borderAnchor.getPositionCenter(), borderAnchor.getRotation(), 0.0f);
+		rbody.getBody()->setFriction(btScalar(10.0f));
 		rbody.setDrawable(borderAnchor);
 		rbody.getBody()->setCollisionFlags(rbody.getBody()->getCollisionFlags() | btRigidBody::CF_KINEMATIC_OBJECT);
 		rbody.getBody()->setActivationState(DISABLE_DEACTIVATION);
@@ -524,7 +523,7 @@ int main() {
 	{
 		for(auto cube : cubes) {
 			collision::CollisionShape cube_shape(collision::generate_cube(cube->getSize()));
-			RigidBody rbodyCube(cube_shape, cube->getPositionCenter(), cube->getRotation(), 100.0f);
+			RigidBody rbodyCube(cube_shape, cube->getPositionCenter(), cube->getRotation(), .1f);
 			rbodyCube.setDrawable(*cube);		
 			rigidBodys.push_back(new RigidBody(rbodyCube));
 		}
@@ -550,7 +549,7 @@ int main() {
 		
 		testVehicle = new Vehicle(new RigidBody(rbody), scene_main.getPhysicsWorld());
 
-		btScalar connectionHeight(0.0f);
+		btScalar connectionHeight(0.0);
 		btVector3 wheelConnectionPoint(carChassis.getSize().width * 0.5, connectionHeight, carChassis.getSize().depth * 0.3);
 		btVector3 wheelConnectionPoints[] = {
 			btVector3( 1, 1,  1),
@@ -570,7 +569,7 @@ int main() {
 		vehicle = testVehicle->getVehicle();
 
 
-		carAnchor.setPositionCenter(glm::vec3(0.0f, carChassis.getSize().height * 4.0f, 0.0f));
+		carAnchor.setPositionCenter(glm::vec3(0.0f, carChassis.getSize().height * 1.0f, 0.0f));
 		rbody.syncBody();
 
 	}
@@ -580,6 +579,13 @@ int main() {
 	for (auto body : rigidBodys) {
 		scene_main.addRigidBody((*body));
 	}
+
+	Drawable particle;
+	particle.set_model(primitves::generate_quad(1.0f, 1.0f, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	ParticleGenerator pgTest(particle, 300);
+	scene_main.addParticleGenerator(pgTest);
+
+
 
 
 	GLfloat lastTime = glfwGetTime();
@@ -651,6 +657,8 @@ int main() {
 			pLight2.setPosition(glm::vec3(rayEnd.getX(), rayEnd.getY(), rayEnd.getZ()));
 			//std::cout << pLight2.getPosition().y << std::endl;
 		}
+
+		pgTest.setPosition(carChassis.getPositionCenter());
 
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -804,18 +812,24 @@ void handle_key()
 		vehicle->setBrake(0, 3);
 	}
 	if (keys[GLFW_KEY_UP]) {
-		vehicle->applyEngineForce(1800, 0);
-		vehicle->applyEngineForce(1800, 1);
+		vehicle->applyEngineForce(500, 0);
+		vehicle->applyEngineForce(500, 1);
+		vehicle->applyEngineForce(3500, 2);
+		vehicle->applyEngineForce(3500, 3);
 	}
 	else {
 		if (!keys[GLFW_KEY_DOWN]) {
 			vehicle->applyEngineForce(0, 0);
 			vehicle->applyEngineForce(0, 1);
+			vehicle->applyEngineForce(0, 2);
+			vehicle->applyEngineForce(0, 3);
 		}
 	}
 	if (keys[GLFW_KEY_DOWN]) {
-		vehicle->applyEngineForce(-1000, 0);
-		vehicle->applyEngineForce(-1000, 1);
+		vehicle->applyEngineForce(-3500, 0);
+		vehicle->applyEngineForce(-3500, 1);
+		vehicle->applyEngineForce(-500, 2);
+		vehicle->applyEngineForce(-500, 3);
 	}
 	vehicle->setSteeringValue(btScalar(0.0), 2);
 	vehicle->setSteeringValue(btScalar(0.0), 3);

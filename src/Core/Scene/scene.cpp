@@ -26,6 +26,11 @@ void Scene::addVehicle(Vehicle & vehicle)
 	dynamicsWorld->addVehicle(vehicle.getVehicle());
 }
 
+void Scene::addParticleGenerator(ParticleGenerator &pg)
+{
+	particleGenerators.push_back(&pg);
+}
+
 void Scene::addPlight(PointLight &plight)
 {
 	pointLights.push_back(&plight);
@@ -104,10 +109,16 @@ void Scene::draw(GLfloat delta)
 		plight->draw(shader_light);
 	}
 	
+	for (auto pg : particleGenerators) {
+		pg->update(delta);
+		pg->draw(delta, shader_basic);
+	}
+
 	for (auto drawable : objects)
 	{
 		drawable->draw();
 	}
+
 	shader_normals.use();
 	for (auto drawable : objects)
 	{
