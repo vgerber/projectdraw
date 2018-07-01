@@ -31,6 +31,7 @@ std::string path_obj_mountain = "/home/vincent/Development/Cpp/opengl/basic_moun
 GLfloat deltaTime = 0.0f, mouseX = 0, mouseY = 0, mousePitch = 0, mouseYaw = 0, mouseRoll = 0;
 GLfloat WIDTH = 800.0f, HEIGHT = 600.0f;
 Camera mainCamera = Camera();
+Camera testCamera;
 
 btRaycastVehicle *vehicle = nullptr;
 
@@ -114,7 +115,43 @@ int main() {
 	//create camera
 	mainCamera.setPosition(glm::vec3(0.0f, 5.0f, 10.0f));
 
+	testCamera.setPosition(glm::vec3(1.0f, 6.0f, 25.0f));
+	testCamera.HandleMouseMove(10.0f, 0.0f, true);
+	testCamera.FarZ = 10.0f;
+	testCamera.NearZ = 0.1f;
+	testCamera.FOV = 45.0f;
+
+	Geometry geoCam;
+	ViewFrustum viewF = testCamera.getViewFrustum();
+
+	geoCam.color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+	geoCam.line(viewF.position, viewF.position + viewF.up);
+	geoCam.line(viewF.position, viewF.position + viewF.front);
+	geoCam.line(viewF.position, viewF.position + viewF.right);
+
+
+	geoCam.drawType = DrawType::LINE;
+
+
+	geoCam.line(viewF.farCorners[0], viewF.farCorners[1]);
+	geoCam.line(viewF.farCorners[1], viewF.farCorners[3]);
+	geoCam.line(viewF.farCorners[3], viewF.farCorners[2]);
+	geoCam.line(viewF.farCorners[2], viewF.farCorners[0]);
+
+	geoCam.line(viewF.nearCorners[0], viewF.nearCorners[1]);
+	geoCam.line(viewF.nearCorners[1], viewF.nearCorners[3]);
+	geoCam.line(viewF.nearCorners[3], viewF.nearCorners[2]);
+	geoCam.line(viewF.nearCorners[2], viewF.nearCorners[0]);
 	
+	geoCam.line(viewF.position, viewF.farCorners[1]);
+	geoCam.line(viewF.position, viewF.farCorners[3]);
+	geoCam.line(viewF.position, viewF.farCorners[2]);
+	geoCam.line(viewF.position, viewF.farCorners[0]);
+
+	/*
+	for (glm::vec3 point : viewFrustum.nearCorners) {
+		geoLight.addPoint(point);
+	}*/
 
 	//
 	// Light
@@ -149,8 +186,89 @@ int main() {
     Drawable test_obj = Drawable(&path_obj_mountain[0]);
 
 
-	
+	dLight.setViewFrustum(testCamera.getViewFrustum());
+	geoCam.line(dLight.maxVec, dLight.minVec);
 
+	Geometry geoLight;
+	{
+		float minX = -10.0f;//dLight.minVec.x;
+		float minY = -10.0f;//dLight.minVec.y;
+		float minZ = 0.1f;// dLight.minVec.z;
+		float maxX = 10.0f;//dLight.maxVec.x;
+		float maxY = 10.0f;//dLight.maxVec.y;
+		float maxZ = 10.0f; // dLight.maxVec.z;
+
+		glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+		glm::vec3 pos = glm::vec3(10.0f, 5.0f, +10.0f);
+		glm::mat4 lightView = glm::lookAt(pos, pos + dLight.get_direction(), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		glm::vec3 front_vector = glm::vec3(lightView[0][2], lightView[1][2], lightView[2][2]);
+		glm::vec3 up_vector = glm::vec3(lightView[0][1], lightView[1][1], lightView[2][1]);
+		glm::vec3 right_vector = glm::vec3(lightView[0][0], lightView[1][0], lightView[2][0]);
+		glm::vec3 position = pos;
+
+		ViewFrustum viewFrustum;
+		glm::vec3 nearCenter = position - (front_vector * minZ);
+		glm::vec3 farCenter = position - (front_vector * maxZ);
+
+		Size sizeFar;
+		sizeFar.height = maxY - minY;
+		sizeFar.width = maxX - minX;
+
+		Size sizeNear;
+		sizeNear.height = sizeFar.height;
+		sizeNear.width = sizeFar.width;
+
+
+		viewFrustum.farCorners.push_back(farCenter + up_vector * (sizeFar.height * 0.5f) - right_vector * (sizeFar.width * 0.5f));
+		viewFrustum.farCorners.push_back(farCenter + up_vector * (sizeFar.height * 0.5f) + right_vector * (sizeFar.width * 0.5f));
+		viewFrustum.farCorners.push_back(farCenter - up_vector * (sizeFar.height * 0.5f) - right_vector * (sizeFar.width * 0.5f));
+		viewFrustum.farCorners.push_back(farCenter - up_vector * (sizeFar.height * 0.5f) + right_vector * (sizeFar.width * 0.5f));
+
+		viewFrustum.nearCorners.push_back(nearCenter + up_vector * (sizeNear.height * 0.5f) - right_vector * (sizeNear.width * 0.5f));
+		viewFrustum.nearCorners.push_back(nearCenter + up_vector * (sizeNear.height * 0.5f) + right_vector * (sizeNear.width * 0.5f));
+		viewFrustum.nearCorners.push_back(nearCenter - up_vector * (sizeNear.height * 0.5f) - right_vector * (sizeNear.width * 0.5f));
+		viewFrustum.nearCorners.push_back(nearCenter - up_vector * (sizeNear.height * 0.5f) + right_vector * (sizeNear.width * 0.5f));
+
+		glm::mat4 inv_view = glm::mat4(1.0f); // lightView;
+
+		for (auto &corner : viewFrustum.farCorners) {
+			corner = inv_view * glm::vec4(corner, 1.0);
+		}
+		for (auto &corner : viewFrustum.nearCorners) {
+			corner = inv_view * glm::vec4(corner, 1.0);
+		}
+
+		viewFrustum.position = position;
+		viewFrustum.front = front_vector;
+		viewFrustum.up = up_vector;
+		viewFrustum.right = right_vector;
+
+
+		geoLight.color = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f);
+		geoLight.line(viewFrustum.position, viewFrustum.position + viewFrustum.up);
+		geoLight.line(viewFrustum.position, viewFrustum.position + viewFrustum.front);
+		geoLight.line(viewFrustum.position, viewFrustum.position + viewFrustum.right);
+
+
+		geoLight.drawType = DrawType::LINE;
+
+
+		geoLight.line(viewFrustum.farCorners[0], viewFrustum.farCorners[1]);
+		geoLight.line(viewFrustum.farCorners[1], viewFrustum.farCorners[3]);
+		geoLight.line(viewFrustum.farCorners[3], viewFrustum.farCorners[2]);
+		geoLight.line(viewFrustum.farCorners[2], viewFrustum.farCorners[0]);
+
+		geoLight.line(viewFrustum.nearCorners[0], viewFrustum.nearCorners[1]);
+		geoLight.line(viewFrustum.nearCorners[1], viewFrustum.nearCorners[3]);
+		geoLight.line(viewFrustum.nearCorners[3], viewFrustum.nearCorners[2]);
+		geoLight.line(viewFrustum.nearCorners[2], viewFrustum.nearCorners[0]);
+
+		geoLight.line(viewFrustum.position, viewFrustum.farCorners[1]);
+		geoLight.line(viewFrustum.position, viewFrustum.farCorners[3]);
+		geoLight.line(viewFrustum.position, viewFrustum.farCorners[2]);
+		geoLight.line(viewFrustum.position, viewFrustum.farCorners[0]);
+	}
 	
 	float skyboxSize = 50.0f;
 	/*Cube skyboxCube = Cube(2 * skyboxSize, 2 * skyboxSize, 2 * skyboxSize, glm::vec4(0.0f));
@@ -276,8 +394,11 @@ int main() {
 	Scene scene_main;
 	scene_main.setCamera(mainCamera);
 
+	scene_main.addDrawable(geoCam);
+	scene_main.addDrawable(geoLight);
+
 	scene_main.setDlight(dLight);
-	dLight.change_direction(glm::vec3(-2.0f, -1.0f, 0.0f));
+	dLight.change_direction(glm::vec3(-1.0f, 0.0f, 0.0f));
 	dLight.draw_shadow = true;
 
 	scene_main.addPlight(pLight);
@@ -304,15 +425,15 @@ int main() {
 	size_big.width = 5.0f;
 	size_big.depth = 5.0f;
 
-	test_obj.scaleToHeight(1.0f);
+	test_obj.scaleToHeight(50.0f);
 	Size size = test_obj.getSize();
-	test_obj.setPosition(glm::vec3(-5.0, 0.0f, -5.0f));
-	test_obj.setCenter(glm::vec3(0.5f, 0.5f, 1.7f));
-	test_obj.visibleNormal = false;
+	test_obj.setPosition(glm::vec3(40.0, -4.0f, -10.0f));
+	//test_obj.setCenter(glm::vec3(0.5f, 0.5f, 1.7f));
+	test_obj.visibleBox =  false;
 	test_obj.drawType = DrawType::TRIANGLE;
 
-	pLight.set_model(primitves::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
-	pLight2.set_model(pLight.get_model());
+	pLight.setModel(primitves::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
+	pLight2.setModel(pLight.getModel());
 
 	//cube.scaleToSize(size_medium);
 	//cube.setPosition(glm::vec3(1.0f, 5.0f, 0.0f));	
@@ -320,7 +441,7 @@ int main() {
 
 
 	Drawable test_rect = Drawable();
-	test_rect.set_model(primitves::generate_circle(1.0f, 30.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	test_rect.setModel(primitves::generate_circle(1.0f, 30.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	test_rect.setPosition(glm::vec3(0.0f, 5.0f, -2.0f));
 	
 	test_rect.drawType = DrawType::TRIANGLE;
@@ -352,7 +473,7 @@ int main() {
 		for(size_t y = 0;  y < 5; y++) {
 			for(size_t z = 0; z < 5; z++) {
 				Drawable cube;
-				cube.set_model(primitves::generate_quad(1.f, 1.0f, 1.0f, glm::vec4(1.0f, 0.3f, 0.8f, 1.0f)));
+				cube.setModel(primitves::generate_quad(1.f, 1.0f, 1.0f, glm::vec4(1.0f, 0.3f, 0.8f, 1.0f)));
 				cube.setPosition(cubes_position + glm::vec3(x * 1.0f, y * 1.0f, z * 1.0f));
 				cubes.push_back(new Drawable(cube));
 				scene_main.addDrawable(*cubes[cubes.size()-1]);
@@ -362,16 +483,16 @@ int main() {
 
 
 	Drawable borderGround = Drawable();
-	borderGround.set_model(primitves::generate_quad(100.0f, 1.0f, 100.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderGround.setModel(primitves::generate_quad(500.0f, 1.0f, 500.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	Size sizeGround = borderGround.getSize();
 	GLfloat heightScale = 20.0f;
 
 	Drawable borderAnchor, borderBack, borderFront, borderLeft, borderRight;
-	borderBack.set_model(primitves::generate_quad(sizeGround.width + 2.0f, sizeGround.height * heightScale, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderFront.set_model(primitves::generate_quad(sizeGround.width + 2.0f, sizeGround.height * heightScale, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderLeft.set_model(primitves::generate_quad(1.0f , sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderRight.set_model(primitves::generate_quad(1.0f, sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderBack.setModel(primitves::generate_quad(sizeGround.width + 2.0f, sizeGround.height * heightScale, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderFront.setModel(primitves::generate_quad(sizeGround.width + 2.0f, sizeGround.height * heightScale, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderLeft.setModel(primitves::generate_quad(1.0f , sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderRight.setModel(primitves::generate_quad(1.0f, sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	scene_main.addDrawable(borderGround);
 	scene_main.addDrawable(borderBack);
@@ -391,13 +512,13 @@ int main() {
 	Drawable carAnchor;
 	carAnchor.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
 	Drawable carChassis;
-	carChassis.set_model(primitves::generate_quad(4.0f, 1.25f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
+	carChassis.setModel(primitves::generate_quad(4.0f, 1.25f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
 	carChassis.setPositionCenter(carAnchor.getPositionCenter());
 
 	std::vector<Drawable*> carWheels;
 	for (int i = 0; i < 4; i++) {
 		Drawable *wheel = new Drawable();
-		wheel->set_model(primitves::generate_quad(carWheelThickness, 0.5, 0.5, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)));
+		wheel->setModel(primitves::generate_quad(carWheelThickness, 0.5, 0.5, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)));
 		carWheels.push_back(wheel);
 	}
 
@@ -442,7 +563,7 @@ int main() {
 	glEnable(GL_LINE_STIPPLE);	
 	glLineStipple(1, 0xAAAA);
 	glLineWidth(1);
-	glPointSize(10);
+	glPointSize(2);
 
 	testGeometry.drawType = DrawType::LINE;
 
@@ -473,11 +594,11 @@ int main() {
 
 	text_fps.setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
 	//add borderGround as borderGround plane
-	collision::CollisionShape borderGroundShape(collision::generate_cube(borderGround.getSize()));
-	collision::CollisionShape borderFrontShape(collision::generate_cube(borderFront.getSize()));
-	collision::CollisionShape borderBackShape(collision::generate_cube(borderBack.getSize()));
-	collision::CollisionShape borderLeftShape(collision::generate_cube(borderLeft.getSize()));
-	collision::CollisionShape borderRightShape(collision::generate_cube(borderRight.getSize()));
+	collision::CollisionShape borderGroundShape(collision::generateCube(borderGround.getSize()));
+	collision::CollisionShape borderFrontShape(collision::generateCube(borderFront.getSize()));
+	collision::CollisionShape borderBackShape(collision::generateCube(borderBack.getSize()));
+	collision::CollisionShape borderLeftShape(collision::generateCube(borderLeft.getSize()));
+	collision::CollisionShape borderRightShape(collision::generateCube(borderRight.getSize()));
 	{		
 		btCompoundShape* borderCompound = new btCompoundShape();
 		btTransform transform;
@@ -485,23 +606,23 @@ int main() {
 
 		glm::vec3 posCenter = glm::vec3(0.0f, 0.0f, 0.0f);//borderGround.getPositionCenter();
 		transform.setOrigin(btVector3(posCenter.x, posCenter.y, posCenter.z));
-		borderCompound->addChildShape(transform, borderGroundShape.get_shape());
+		borderCompound->addChildShape(transform, borderGroundShape.getShape());
 		
 		posCenter = borderBack.getPositionCenter();
 		transform.setOrigin(btVector3(posCenter.x, posCenter.y, posCenter.z));
-		borderCompound->addChildShape(transform, borderFrontShape.get_shape());
+		borderCompound->addChildShape(transform, borderFrontShape.getShape());
 
 		posCenter = borderFront.getPositionCenter();
 		transform.setOrigin(btVector3(posCenter.x, posCenter.y, posCenter.z));
-		borderCompound->addChildShape(transform, borderBackShape.get_shape());
+		borderCompound->addChildShape(transform, borderBackShape.getShape());
 		
 		posCenter = borderLeft.getPositionCenter();
 		transform.setOrigin(btVector3(posCenter.x, posCenter.y, posCenter.z));
-		borderCompound->addChildShape(transform, borderLeftShape.get_shape());
+		borderCompound->addChildShape(transform, borderLeftShape.getShape());
 
 		posCenter = borderRight.getPositionCenter();
 		transform.setOrigin(btVector3(posCenter.x, posCenter.y, posCenter.z));
-		borderCompound->addChildShape(transform, borderRightShape.get_shape());
+		borderCompound->addChildShape(transform, borderRightShape.getShape());
 		
 
 		collision::CollisionShape borderCompoundShape(borderCompound);
@@ -514,7 +635,7 @@ int main() {
 		rbody.visibleAABB = false;
 		rigidBodys.push_back(new RigidBody(rbody));
 
-		borderAnchor.setPositionCenter(glm::vec3(0.0f, -sizeGround.height * 0.5f - 3.01f, 0.0f));
+		borderAnchor.setPositionCenter(glm::vec3(0.0f, -sizeGround.height * 0.5f, 0.0f));
 		rbody.syncBody();
 
 	}
@@ -522,22 +643,23 @@ int main() {
 	//set cube as sceond item
 	{
 		for(auto cube : cubes) {
-			collision::CollisionShape cube_shape(collision::generate_cube(cube->getSize()));
+			collision::CollisionShape cube_shape(collision::generateCube(cube->getSize()));
 			RigidBody rbodyCube(cube_shape, cube->getPositionCenter(), cube->getRotation(), .1f);
-			rbodyCube.setDrawable(*cube);		
+			rbodyCube.setDrawable(*cube);
+			rbodyCube.visibleAABB = true;
 			rigidBodys.push_back(new RigidBody(rbodyCube));
 		}
 	}
 
 	{
-		collision::CollisionShape text_shape(collision::generate_sphere(test_rect.getSize().width * 0.5));
+		collision::CollisionShape text_shape(collision::generateSphere(test_rect.getSize().width * 0.5));
 		RigidBody rbody(text_shape, test_rect.getPositionCenter(), test_rect.getRotation(), 1.0f);
 		rbody.setDrawable(test_rect);
 		rigidBodys.push_back(new RigidBody(rbody));
 	}
 
 	//set vehicle physics
-	collision::CollisionShape carChassisShape = collision::CollisionShape(collision::generate_cube(carChassis.getSize()));
+	collision::CollisionShape carChassisShape = collision::CollisionShape(collision::generateCube(carChassis.getSize()));
 	
 	Vehicle *testVehicle;
 	{
@@ -574,6 +696,15 @@ int main() {
 
 	}
 
+	test_obj.scaleToHeight(100.0f);
+	collision::CollisionShape terrainShape = collision::CollisionShape(collision::generateTriangleMesh(test_obj.getModel()));
+	{
+		RigidBody rbody(terrainShape, test_obj.getPositionCenter(), test_obj.getRotation(), 0.0f);
+		rbody.setDrawable(test_obj);
+		rbody.visibleAABB = true;
+		rigidBodys.push_back(new RigidBody(rbody));
+	}
+
 
 
 	for (auto body : rigidBodys) {
@@ -581,8 +712,8 @@ int main() {
 	}
 
 	Drawable particle;
-	particle.set_model(primitves::generate_quad(1.0f, 1.0f, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	ParticleGenerator pgTest(particle, 300);
+	particle.setModel(primitves::generate_quad(1.0f, 1.0f, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	ParticleGenerator pgTest(particle, 30);
 	scene_main.addParticleGenerator(pgTest);
 
 
@@ -626,13 +757,13 @@ int main() {
 
 		test_rect.rotate(glm::vec3(0.0f, glm::radians(90.0f), 0.0f));
 
-		test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * glm::radians(30.0f), 0.0f));
+		//test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * glm::radians(30.0f), 0.0f));
 		
 		//cube.setPosition(glm::vec3(0.0f, 1.0f, 0.0f));
 		//cube.rotate(cube.getRotation() + glm::vec3(0.0, 10.0f, 0.0f) * deltaTime);
 		//text_fps.rotate(text_fps.getRotation() + glm::vec3(0.0f, 0.0f, 0.0f) * deltaTime);
 		
-		//testGeometry.line_to(mainCamera.getPosition() * glm::vec3(0.0f, 1.0f, 1.0f));
+		//testGeometry.lineTo(mainCamera.getPosition() * glm::vec3(0.0f, 1.0f, 1.0f));
 
 		text_description.scale(glm::vec3(1.0f, 1.0f, 0.01f));
 		text_description.scaleToHeight(1.0f);
@@ -692,13 +823,6 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 
 
-
-
-		Size viewFrustum = mainCamera.getViewFrustum();
-
-		std::cout << viewFrustum.width << " " << viewFrustum.height << std::endl;
-
-
 		glfwSwapBuffers(window);
 		GLfloat currentTime = glfwGetTime();
 		deltaTime = currentTime - lastTime;
@@ -750,8 +874,9 @@ int main() {
 		wheel->dispose();
 	}
 	carWheels.clear();
-
 	delete vehicle;
+
+	terrainShape.dispose();
 
 	glfwTerminate();
 	return 0;
@@ -800,10 +925,12 @@ void handle_key()
 	if (keys[GLFW_KEY_SPACE]) {
 		vehicle->applyEngineForce(0, 0);
 		vehicle->applyEngineForce(0, 1);
-		vehicle->setBrake(60, 0);
-		vehicle->setBrake(60, 1);
-		vehicle->setBrake(60, 2);
-		vehicle->setBrake(60, 3);
+		vehicle->applyEngineForce(0, 2);
+		vehicle->applyEngineForce(0, 3);
+		vehicle->setBrake(200, 0);
+		vehicle->setBrake(200, 1);
+		vehicle->setBrake(200, 2);
+		vehicle->setBrake(200, 3);
 	}
 	else {
 		vehicle->setBrake(0, 0);
@@ -847,10 +974,10 @@ void handle_key()
 
 
 	if (keys[GLFW_KEY_LEFT_SHIFT]) {
-		mainCamera.MovementSpeed = 12.0f;
+		mainCamera.MovementSpeed = 150.0f;
 	}
 	else {
-		mainCamera.MovementSpeed = 3.0f;
+		mainCamera.MovementSpeed = 30.0f;
 	}
 
 }

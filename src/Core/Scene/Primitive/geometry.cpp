@@ -24,7 +24,7 @@ void Geometry::draw()
 void Geometry::draw(Shader shader)
 {
 	shader.use();
-	glUniform4f(glGetUniformLocation(shader.getId(), "color"), 1.0f, 1.0f, 0.0f, 1.0f);
+	glUniform4f(glGetUniformLocation(shader.getId(), "color"), color.r, color.g, color.b, color.a);
 	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 	glBindVertexArray(VAO);
 	if (size != points.size()) {		
@@ -50,7 +50,7 @@ void Geometry::draw_normal()
 	shader_normals.use();
 }
 
-void Geometry::line_to(Point point)
+void Geometry::lineTo(Point point)
 {
 	if (points.size() % 2 == 0) {
 		points.push_back(point);
@@ -61,22 +61,36 @@ void Geometry::line_to(Point point)
 	}
 }
 
-void Geometry::line_to(glm::vec3 point)
+void Geometry::lineTo(glm::vec3 point)
 {
-	line_to(Point { point });
+	lineTo(Point { point });
 }
 
-void Geometry::add_point(Point point)
+void Geometry::line(Point p1, Point p2)
+{
+	if (points.size() % 2 == 1) {
+		points.push_back(points[points.size() - 1]);
+	}
+	points.push_back(p1);
+	points.push_back(p2);
+}
+
+void Geometry::line(glm::vec3 p1, glm::vec3 p2)
+{
+	line(Point{ p1 }, Point{ p2 });
+}
+
+void Geometry::addPoint(Point point)
 {
 	points.push_back(point);
 }
 
-void Geometry::add_point(glm::vec3 point)
+void Geometry::addPoint(glm::vec3 point)
 {
-	add_point(Point { point });
+	addPoint(Point { point });
 }
 
-void Geometry::remove_point(Point point)
+void Geometry::removePoint(Point point)
 {
 	for (size_t i = 0; i < points.size(); i++) {
 		if (points[i].position == point.position) {
@@ -86,7 +100,7 @@ void Geometry::remove_point(Point point)
 	}
 }
 
-std::vector<Point> Geometry::get_points()
+std::vector<Point> Geometry::getPoints()
 {
 	return points;
 }

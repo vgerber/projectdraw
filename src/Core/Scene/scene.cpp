@@ -52,7 +52,9 @@ btDiscreteDynamicsWorld* Scene::getPhysicsWorld() {
 
 void Scene::draw(GLfloat delta)
 {
-
+	/*if (directionalLight) {
+		directionalLight->setViewFrustum(camera->getViewFrustum());
+	}*/
 	Shader shader_basic = Shaders[SHADER_BASIC];
 	Shader shader_light = Shaders[SHADER_DEFFERED_LIGHT];
 	Shader shader_normals = Shaders[SHADER_DEFFERED_NORMALS];
@@ -192,48 +194,23 @@ void Scene::draw(GLfloat delta)
 		glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
 	}
 	*/
-	GLfloat vertices_rect[] = {
-		-1.0f,
-		1.0f,
-		0.0f,
-		0.0f,
-		1.0f,
-		-1.0f,
-		-1.0f,
-		0.0f,
-		0.0f,
-		0.0f,
-		1.0f,
-		1.0f,
-		0.0f,
-		1.0f,
-		1.0f,
-		1.0f,
-		-1.0f,
-		0.0f,
-		1.0f,
-		0.0f,
-	};
 
-	GLuint screenRectVBO;
-	GLuint screenRectVAO;
-
-	glGenVertexArrays(1, &screenRectVAO);
-	glGenBuffers(1, &screenRectVBO);
-
-	glBindVertexArray(screenRectVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, screenRectVBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_rect), &vertices_rect, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
-	glBindVertexArray(0);
 
 	glBindVertexArray(screenRectVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
+
+	glDisable(GL_DEPTH_TEST);
+	Shaders[SHADER_TEXTURE].use();
+	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "screenTexture"), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, directionalLight->get_shadow_map());
+	
+	glBindVertexArray(screenShadowVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+	glEnable(GL_DEPTH_TEST);
+	
 }
 
 void Scene::updatePhysics(GLfloat delta)
@@ -278,6 +255,9 @@ void Scene::dispose()
 	glDeleteTextures(1, &gBufferPosition);
 	glDeleteTextures(1, &gBufferUseLight);
 	glDeleteBuffers(1, &uboMatrices);
+
+	glDeleteBuffers(1, &screenRectVBO);
+	glDeleteVertexArrays(1, &screenRectVAO);
 	
 }
 
@@ -333,6 +313,65 @@ void Scene::setup(int width, int height)
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
+
+
+	GLfloat vertices_rect[] = {
+		-1.0f,
+		1.0f,
+		0.0f,
+		0.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
+		0.0f,
+		0.0f,
+		0.0f,
+		1.0f,
+		1.0f,
+		0.0f,
+		1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		0.0f,
+		1.0f,
+		0.0f,
+	};
+
+
+	glGenVertexArrays(1, &screenRectVAO);
+	glGenBuffers(1, &screenRectVBO);
+
+	glBindVertexArray(screenRectVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, screenRectVBO);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_rect), &vertices_rect, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
+	glBindVertexArray(0);
+
+
+	GLfloat shadow_vertices_rect[] = {
+		0.0f,  0.0f,  0.0f,  0.0f,  1.0f, 
+		0.0f, -1.0f,  0.0f,  0.0f,  0.0f,	
+		1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+		1.0f, -1.0f,  0.0f,  1.0f,	 0.0f,
+	};
+
+	glGenVertexArrays(1, &screenShadowVAO);
+	glGenBuffers(1, &screenShadowVBO);
+
+	glBindVertexArray(screenShadowVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, screenShadowVBO);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(shadow_vertices_rect), &shadow_vertices_rect, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
+	glBindVertexArray(0);
 
 
 	collisionConfiguration = new btDefaultCollisionConfiguration();

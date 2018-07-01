@@ -104,6 +104,14 @@ void init_core() {
 	shader_deferred_geometry.load();
 	Shaders[SHADER_DEFFERED_GEOMETRY] = shader_deferred_geometry;
 
+	Shader shader_texture;
+	shader_texture.layers = {
+		{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ Loader::GetPath("/Shaders/texture.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shader_texture.load();
+	Shaders[SHADER_TEXTURE] = shader_texture;
+
 
 	glUniformBlockBinding(Shaders[SHADER_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].getId(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_FONT].getId(), glGetUniformBlockIndex(Shaders[SHADER_FONT].getId(), "Matrices"), 0);

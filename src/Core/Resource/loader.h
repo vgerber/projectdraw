@@ -26,6 +26,7 @@ const std::string ROOT_DIR = "/home/vincent/Development/Cpp/opengl/projectdraw/s
 #endif
 
 const std::string SHADER_FONT = "font";
+const std::string SHADER_TEXTURE = "texture";
 const std::string SHADER_BASIC = "basic";
 const std::string SHADER_SKYBOX = "skybox";
 const std::string SHADER_DEPTH = "depth";

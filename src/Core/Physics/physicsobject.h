@@ -16,7 +16,7 @@ public:
     bool visibleAABB = false;
 
     RigidBody();
-    RigidBody(collision::CollisionShape shape, glm::vec3 center, glm::vec3 rotion, GLfloat mass);
+    RigidBody(collision::CollisionShape shape, glm::vec3 center, glm::vec3 rotion, GLfloat mass, bool isKinematic = false);
 	void setDrawable(Drawable &drawable);
 
 	void syncBody();

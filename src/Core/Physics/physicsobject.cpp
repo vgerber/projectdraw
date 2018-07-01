@@ -5,24 +5,25 @@ RigidBody::RigidBody() {
     shape = nullptr;
 }
 
-RigidBody::RigidBody(collision::CollisionShape shape, glm::vec3 center, glm::vec3 rotation, GLfloat mass) {
+RigidBody::RigidBody(collision::CollisionShape shape, glm::vec3 center, glm::vec3 rotation, GLfloat mass, bool isKinematic) {
 	this->shape = new collision::CollisionShape(shape);
 	btTransform transform;
 	transform.setIdentity();
-	transform.setOrigin(btVector3(center.x, center.y, center.z));
+	btVector3 shapeScale = shape.getShape()->getLocalScaling();
+	transform.setOrigin(btVector3(center.x , center.y, center.z));
 	transform.setRotation(btQuaternion(rotation.y, rotation.x, rotation.z));
 	
 	btScalar bt_mass(mass);
 
-	bool isDynamic = true; // (bt_mass != 0.0f);
+	bool isDynamic = (bt_mass != 0.0f) || isKinematic;
 
 	btVector3 localInertia(0, 0, 0);
 	if (isDynamic) {
-		this->shape->get_shape()->calculateLocalInertia(bt_mass, localInertia);
+		this->shape->getShape()->calculateLocalInertia(bt_mass, localInertia);
 	}
 
 	btDefaultMotionState *myMotionState = new btDefaultMotionState(transform);
-	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, this->shape->get_shape(), localInertia);
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, this->shape->getShape(), localInertia);
 	rigidBody = new btRigidBody(rbInfo);	
 	
 	glGenVertexArrays(1, &aabbVAO);
@@ -32,6 +33,11 @@ RigidBody::RigidBody(collision::CollisionShape shape, glm::vec3 center, glm::vec
 void RigidBody::setDrawable(Drawable &drawable)
 {
 	this->drawable = &drawable;
+	shape->getShape()->setLocalScaling(toBtVec3(drawable.getScale()));
+	btTransform transform = rigidBody->getWorldTransform();
+
+	transform.setOrigin(transform.getOrigin() - btVector3(drawable.getSize().width, drawable.getSize().height, drawable.getSize().depth) * btVector3(0.5f, 0.5f, 0.5f));
+	rigidBody->setWorldTransform(transform);
 }
 
 void RigidBody::syncBody()
@@ -39,6 +45,8 @@ void RigidBody::syncBody()
 	btTransform transform;
 	glm::vec3 center = drawable->getPositionCenter();
 	glm::vec3 rotation = drawable->getRotation();
+
+	shape->getShape()->setLocalScaling(toBtVec3(drawable->getScale()));
 
 
 	transform.setIdentity();
@@ -56,7 +64,7 @@ void RigidBody::syncBody()
 
 void RigidBody::syncDrawable()
 {
-	btTransform transform; // = rigidBody->getWorldTransform();
+	btTransform transform;
 	drawable->setCenter(glm::vec3(0.5f, 0.5f, 0.5f));
 	if (false && rigidBody && rigidBody->getMotionState()) {
 		rigidBody->getMotionState()->getWorldTransform(transform);
@@ -64,7 +72,8 @@ void RigidBody::syncDrawable()
 	else {
 		transform = rigidBody->getWorldTransform();
 	}
-	//std::cout << transform.getOrigin().getY() << std::endl;
+	if(drawable->getScale() - glm::vec3(1.0f) != glm::vec3(0.0))
+		transform.setOrigin(transform.getOrigin() + btVector3(drawable->getSize().width, drawable->getSize().height, drawable->getSize().depth) * btVector3(0.5f, 0.5f, 0.5f));
 	drawable->transform(transform);
 }
 

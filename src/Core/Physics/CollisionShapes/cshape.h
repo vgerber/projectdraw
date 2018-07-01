@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Model/box.h"
+#include "../../Model/model.h"
 
 #include <btBulletCollisionCommon.h>
 
@@ -10,7 +11,7 @@ namespace collision {
     class CollisionShape {
     public:
         CollisionShape(btCollisionShape *shape);
-        btCollisionShape* get_shape();
+        btCollisionShape* getShape();
         
 
         void dispose();
@@ -18,7 +19,9 @@ namespace collision {
         btCollisionShape *shape;
     };
 
-    btCollisionShape* generate_cube(Size size);
+    btCollisionShape* generateCube(Size size);
 
-    btCollisionShape* generate_sphere(GLfloat radius);
+    btCollisionShape* generateSphere(GLfloat radius);
+
+	btCollisionShape* generateTriangleMesh(Model model);
 }

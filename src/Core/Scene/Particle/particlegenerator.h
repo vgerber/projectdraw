@@ -26,4 +26,5 @@ private:
 	Drawable drawableParticle;
 	std::vector<Particle> particles;
 	bool replay = false;
+	float respawnTimer = 0.0f;
 };

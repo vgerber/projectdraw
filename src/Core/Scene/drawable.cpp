@@ -73,8 +73,8 @@ void Drawable::setup()
 	glGenVertexArrays(1, &this->boxVAO);
 	glGenBuffers(1, &this->boxVBO);
 
-	update_model();
-	load_box();
+	updateModel();
+	loadBox();
 }
 
 glm::mat4 Drawable::getModelMatrix()
@@ -85,37 +85,37 @@ glm::mat4 Drawable::getModelMatrix()
 void Drawable::rotate(GLfloat x, GLfloat y, GLfloat z)
 {
 	vrotation = glm::vec3(x, y, z);
-	update_model();
+	updateModel();
 }
 
 void Drawable::rotate(glm::vec3 vrotation)
 {
 	this->vrotation = vrotation;
-	update_model();
+	updateModel();
 }
 
 void Drawable::translate(GLfloat x, GLfloat y, GLfloat z)
 {	
 	position += glm::vec3(x, y, z);
-	update_model();
+	updateModel();
 }
 
 void Drawable::translate(glm::vec3 vtranslation)
 {
 	position += vtranslation;
-	update_model();
+	updateModel();
 }
 
 void Drawable::scale(GLfloat x, GLfloat y, GLfloat z) {
 	vscale = glm::vec3(x, y, z);
-	update_model();
+	updateModel();
 
 }
 
 void Drawable::scale(glm::vec3 vscale)
 {
 	this->vscale = vscale;
-	update_model();
+	updateModel();
 }
 
 Size Drawable::getSize()
@@ -201,7 +201,7 @@ void Drawable::scaleToSize(Size size)
 		vscale.y = (size.height / this->size.height);
 	if(this->size.depth > 0.0f)
 		vscale.z = (size.depth / this->size.depth);
-	update_model();
+	updateModel();
 }
 
 void Drawable::scaleToWidth(GLfloat width)
@@ -240,7 +240,7 @@ glm::vec3 Drawable::getPosition()
 }
 
 glm::vec3 Drawable::getPositionCenter() {
-	return glm::vec3(position.x + size.width * .5f, position.y + size.height * .5f, position.z + size.depth * .5f);
+	return position + glm::vec3(size.width, size.height, size.depth) * glm::vec3(0.5f, 0.5f, 0.5f) * vscale;
 }
 
 glm::vec3 Drawable::getScale()
@@ -260,13 +260,13 @@ void Drawable::setPosition(glm::vec3 position)
 
 void Drawable::setPositionCenter(glm::vec3 position)
 {
-	setPosition(glm::vec3(position.x - size.width * .5f, position.y - size.height * .5f, position.z - size.depth * .5f));
+	setPosition(position - glm::vec3(size.width, size.height, size.depth) * glm::vec3(0.5f, 0.5f, 0.5f) * vscale);
 }
 
 void Drawable::setCenter(glm::vec3 center)
 {
 	this->vcenter = center;
-	load_box();
+	loadBox();
 }
 
 void Drawable::setCenterInWorld(glm::vec3 point)
@@ -275,7 +275,7 @@ void Drawable::setCenterInWorld(glm::vec3 point)
 	vcenter.x = dPoint.x / size.width;
 	vcenter.y = dPoint.y / size.height;
 	vcenter.z = dPoint.z / size.depth;
-	load_box();
+	loadBox();
 }
 
 glm::vec3 Drawable::getCenter()
@@ -297,31 +297,31 @@ void Drawable::transform(btTransform transform)
 	setPositionCenter(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
 }
 
-Model Drawable::get_model()
+Model Drawable::getModel()
 {
 	return objModel;
 }
 
-void Drawable::set_model(Model model)
+void Drawable::setModel(Model model)
 {
 	vscale = glm::vec3(1.0f);
 	objModel = model;
 	size = objModel.getSize();
-	update_model();
-	load_box();
+	updateModel();
+	loadBox();
 }
 
-void Drawable::set_shader(Shader shader)
+void Drawable::setShader(Shader shader)
 {
 	this->shader = shader;
 }
 
-unsigned int Drawable::get_dimension()
+unsigned int Drawable::getDimension()
 {
 	return dimension;
 }
 
-void Drawable::update_model()
+void Drawable::updateModel()
 {
 	mmodel = glm::mat4(1.0f);
 
@@ -359,7 +359,7 @@ void Drawable::update_model()
 	}
 }
 
-void Drawable::load_box()
+void Drawable::loadBox()
 {
 	GLfloat max_center_size = 0.0f;
 	max_center_size = size.width;

@@ -19,6 +19,7 @@ public:
 	
 
 	Size getSize();
+	std::vector<BasicMesh> getMeshes();
 
 	void draw(Shader shader, DrawType drawType);
 	void drawNormals(Shader shader);

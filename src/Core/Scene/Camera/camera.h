@@ -4,6 +4,16 @@
 
 #include <memory>
 
+struct ViewFrustum {
+	glm::vec3 position;
+	glm::vec3 front;
+	glm::vec3 up;
+	glm::vec3 right;
+
+	std::vector<glm::vec3> farCorners;
+	std::vector<glm::vec3> nearCorners;
+};
+
 enum CameraMovement {
 	FORWARD,
 	BACKWARD,
@@ -22,7 +32,7 @@ class Camera : public SceneObject
 public:
 
 	float NearZ = 0.1f;
-	float FarZ = 200.0f;
+	float FarZ = 700.0f;
 	float FOV = 45.0f;
 
 	Camera(glm::vec3 position);
@@ -58,7 +68,7 @@ public:
 
 	std::shared_ptr<Camera> GetCamera();
 
-	Size getViewFrustum();
+	ViewFrustum getViewFrustum();
 
 private:
 	bool initial_move = true;

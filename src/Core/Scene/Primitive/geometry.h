@@ -9,20 +9,24 @@ struct Point {
 class Geometry : public Drawable
 {
 public:
+	glm::vec4 color;
+
 	Geometry();
 	~Geometry();
 	void draw();
 	void draw(Shader shader);
 	void draw_normal();
 	
-	void line_to(Point point);
-	void line_to(glm::vec3 point);
+	void lineTo(Point point);
+	void lineTo(glm::vec3 point);
+	void line(Point p1, Point p2);
+	void line(glm::vec3 p1, glm::vec3 p2);
 
-	void add_point(Point point);
-	void add_point(glm::vec3 point);
+	void addPoint(Point point);
+	void addPoint(glm::vec3 point);
 
-	void remove_point(Point point);
-	std::vector<Point> get_points();
+	void removePoint(Point point);
+	std::vector<Point> getPoints();
 private:
 	std::vector<Point> points;
 	int size = 0;

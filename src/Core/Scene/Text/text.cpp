@@ -65,7 +65,7 @@ void Text::draw()
 				size.height = ypos + h;
 			}
 			if (c + 1 == text.end()) {
-				load_box();
+				loadBox();
 				reloadText = false;
 
 			}

@@ -15,7 +15,7 @@ public:
 
 	Light();
 
-	void update_model();
+	void updateModel();
 
 	void apply(Shader shader, std::string target);
 };

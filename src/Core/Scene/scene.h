@@ -53,6 +53,12 @@ private:
 	GLuint rboGDepth;
 	GLuint gBufferPosition, gBufferNormal, gBufferAlbedo, gBufferUseLight;
 	GLuint uboMatrices;
+	GLuint screenRectVBO;
+	GLuint screenRectVAO;
+
+	GLuint screenShadowVBO;
+	GLuint screenShadowVAO;
+
 	Camera* camera = nullptr;
 	std::vector<Drawable*> objects;
 

@@ -79,6 +79,11 @@ Size Model::getSize()
 	return size;
 }
 
+std::vector<BasicMesh> Model::getMeshes()
+{
+	return meshes;
+}
+
 void Model::draw(Shader shader, DrawType drawType)
 {
 	for (GLuint i = 0; i < this->meshes.size(); i++) {

@@ -74,11 +74,11 @@ public:
 	void transform(btTransform transform);
 
 
-	Model get_model();
-	void set_model(Model model);
+	Model getModel();
+	void setModel(Model model);
 
-	void set_shader(Shader shader);
-	unsigned int get_dimension();
+	void setShader(Shader shader);
+	unsigned int getDimension();
 protected:
 	GLuint boxVBO, boxVAO;
 	Size size;
@@ -93,8 +93,8 @@ protected:
 	
 
 	virtual void setup();
-	virtual void update_model();
-	virtual void load_box();
+	virtual void updateModel();
+	virtual void loadBox();
 private:
 	bool size_changed = true;
 	unsigned int dimension = 0;

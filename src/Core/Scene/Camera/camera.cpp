@@ -17,18 +17,6 @@ void Camera::setPosition(glm::vec3 position)
 	this->position = position;
 }
 
-glm::vec3 Position;
-glm::vec3 Front;
-glm::vec3 Up;
-glm::vec3 Right;
-glm::vec3 WorldUp;
-// Eular Angles
-GLfloat Yaw;
-GLfloat Pitch;
-// Camera options
-GLfloat MovementSpeed;
-GLfloat MouseSensitivity;
-GLfloat Zoom;
 
 // Constructor with vectors
 Camera::Camera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY)
@@ -53,11 +41,14 @@ Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat up
 glm::mat4 Camera::GetViewMatrix()
 {
 	return glm::lookAt(this->position, this->position + this->front_vector, this->up_vector);
+	//glm::vec3 pos = glm::vec3(10.0f, 5.0f, +10.0f);
+	//return glm::lookAt(pos, pos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 glm::mat4 Camera::GetCameraMatrix(GLfloat width, GLfloat height)
 {
 	return glm::perspective(glm::radians(FOV), width / height, NearZ, FarZ);
+	//return glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 10.0f); 
 }
 
 glm::vec3 Camera::GetDirection()
@@ -122,13 +113,47 @@ std::shared_ptr<Camera> Camera::GetCamera()
 {
 	return std::make_shared<Camera>(*this);
 }
-Size Camera::getViewFrustum()
+ViewFrustum Camera::getViewFrustum()
 {
-	Size size;
-	size.height = 2.0f * tanf(glm::radians(FOV) / 2.0f) * FarZ;
-	size.width = size.height * (800.0f / 600.0f);
+	ViewFrustum viewFrustum;
+	glm::vec3 nearCenter = position - (-front_vector * NearZ);
+	glm::vec3 farCenter = position - (-front_vector * FarZ);
 
-	return size;
+	Size sizeFar;
+	sizeFar.height = 2.0f * tanf(glm::radians(FOV) / 2.0f) * FarZ;
+	sizeFar.width = sizeFar.height * (800.0f / 600.0f);
+
+	Size sizeNear;
+	sizeNear.height = 2.0f * tanf(glm::radians(FOV) / 2.0f) * NearZ;
+	sizeNear.width = sizeNear.height * (800.0f / 600.0f);
+
+
+	viewFrustum.farCorners.push_back(farCenter + up_vector * (sizeFar.height * 0.5f) - right_vector * (sizeFar.width * 0.5f));
+	viewFrustum.farCorners.push_back(farCenter + up_vector * (sizeFar.height * 0.5f) + right_vector * (sizeFar.width * 0.5f));
+	viewFrustum.farCorners.push_back(farCenter - up_vector * (sizeFar.height * 0.5f) - right_vector * (sizeFar.width * 0.5f));
+	viewFrustum.farCorners.push_back(farCenter - up_vector * (sizeFar.height * 0.5f) + right_vector * (sizeFar.width * 0.5f));
+
+	viewFrustum.nearCorners.push_back(nearCenter + up_vector * (sizeNear.height * 0.5f) - right_vector * (sizeNear.width * 0.5f));
+	viewFrustum.nearCorners.push_back(nearCenter + up_vector * (sizeNear.height * 0.5f) + right_vector * (sizeNear.width * 0.5f));
+	viewFrustum.nearCorners.push_back(nearCenter - up_vector * (sizeNear.height * 0.5f) - right_vector * (sizeNear.width * 0.5f));
+	viewFrustum.nearCorners.push_back(nearCenter - up_vector * (sizeNear.height * 0.5f) + right_vector * (sizeNear.width * 0.5f));
+
+	glm::mat4 inv_view = glm::inverse(GetViewMatrix());
+
+	for (auto &corner : viewFrustum.farCorners) {
+		corner = inv_view * glm::vec4(corner, 0.0);
+	}
+	for (auto &corner : viewFrustum.nearCorners) {
+		corner = inv_view * glm::vec4(corner, 0.0);
+	}
+
+	viewFrustum.position = position;
+	viewFrustum.front    = front_vector;
+	viewFrustum.up		 = up_vector;
+	viewFrustum.right	 = right_vector;
+
+
+	return viewFrustum;
 }
 void Camera::updateCameraVectors()
 {
