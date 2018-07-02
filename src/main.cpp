@@ -115,15 +115,17 @@ int main() {
 	*/
 	//create camera
 	mainCamera.setPosition(glm::vec3(0.0f, 5.0f, 10.0f));
+	mainCamera.FarZ = 500.0f;
 
-	testCamera.setPosition(glm::vec3(1.0f, 6.0f, 25.0f));
-	testCamera.HandleMouseMove(10.0f, 0.0f, true);
+	testCamera.setPosition(glm::vec3(1.0f, 4.0f, 40.0f));
 	testCamera.FarZ = 10.0f;
 	testCamera.NearZ = 0.1f;
 	testCamera.FOV = 45.0f;
 
 	Geometry geoCam;
-	ViewFrustum viewF = testCamera.getViewFrustum();
+
+	int testCamSplits = 1;
+	ViewFrustum viewF = testCamera.getViewFrustum(testCamSplits);
 
 	geoCam.color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
 	geoCam.line(viewF.position, viewF.position + viewF.up);
@@ -134,23 +136,25 @@ int main() {
 	geoCam.drawType = DrawType::LINE;
 
 
-	geoCam.line(viewF.farCorners[0], viewF.farCorners[1]);
-	geoCam.line(viewF.farCorners[1], viewF.farCorners[3]);
-	geoCam.line(viewF.farCorners[3], viewF.farCorners[2]);
-	geoCam.line(viewF.farCorners[2], viewF.farCorners[0]);
+	for (int i = 0; i < viewF.splits.size(); i++) {
+		std::vector<glm::vec3> corners = viewF.splits[i];
 
-	geoCam.line(viewF.nearCorners[0], viewF.nearCorners[1]);
-	geoCam.line(viewF.nearCorners[1], viewF.nearCorners[3]);
-	geoCam.line(viewF.nearCorners[3], viewF.nearCorners[2]);
-	geoCam.line(viewF.nearCorners[2], viewF.nearCorners[0]);
-	
-	geoCam.line(viewF.position, viewF.farCorners[1]);
-	geoCam.line(viewF.position, viewF.farCorners[3]);
-	geoCam.line(viewF.position, viewF.farCorners[2]);
-	geoCam.line(viewF.position, viewF.farCorners[0]);
+		geoCam.line(corners[0], corners[1]);
+		geoCam.line(corners[1], corners[3]);
+		geoCam.line(corners[3], corners[2]);
+		geoCam.line(corners[2], corners[0]);
+
+
+		if (i == viewF.splits.size() - 1) {
+			geoCam.line(viewF.position, corners[1]);
+			geoCam.line(viewF.position, corners[3]);
+			geoCam.line(viewF.position, corners[2]);
+			geoCam.line(viewF.position, corners[0]);
+		}
+	}
 
 	/*
-	for (glm::vec3 point : viewFrustum.nearCorners) {
+	for (glm::vec3 point : localViewFrustum.nearCorners) {
 		geoLight.addPoint(point);
 	}*/
 
@@ -188,7 +192,6 @@ int main() {
 
 
 	dLight.setViewFrustum(testCamera.getViewFrustum());
-	geoCam.line(dLight.maxVec, dLight.minVec);
 
 	Geometry geoLight;
 	{
@@ -199,177 +202,227 @@ int main() {
 		float maxY = dLight.maxVec.y;
 		float maxZ = dLight.maxVec.z;
 
-		glm::vec3 center = (dLight.maxVec + dLight.minVec) * glm::vec3(0.5f);
+		ViewFrustum viewFrustum = testCamera.getViewFrustum(testCamSplits);
 
-		glm::mat4 lightView = glm::lookAt(center, center + dLight.get_direction(), glm::vec3(0.0f, 1.0f, 0.0f));
+		for (int i = 0; i < viewFrustum.splits.size()-1; i++) {
+			bool isInit = true;
+			for (auto corner : viewFrustum.splits[i])
+			{
+				
+				if (isInit)
+				{
+					maxX = corner.x;
+					minX = corner.x;
+					maxY = corner.y;
+					minY = corner.y;
+					maxZ = corner.z;
+					minZ = corner.z;
+					isInit = false;
+					continue;
+				}
+				if (corner.x < minX)
+				{
+					minX = corner.x;
+				}
+				if (corner.x > maxX)
+				{
+					maxX = corner.x;
+				}
+				if (corner.y < minY)
+				{
+					minY = corner.y;
+				}
+				if (corner.y > maxY)
+				{
+					maxY = corner.y;
+				}
+				if (corner.z < minZ)
+				{
+					minZ = corner.z;
+				}
+				if (corner.z > maxZ)
+				{
+					maxZ = corner.z;
+				}
+			}
 
-		glm::vec3 lsMaxVec = lightView * glm::vec4(dLight.maxVec, 1.0f);
-		glm::vec3 lsMinVec = lightView * glm::vec4(dLight.minVec, 1.0f);
+			for (auto corner : viewFrustum.splits[i+1])
+			{
+				if (isInit)
+				{
+					maxX = corner.x;
+					minX = corner.x;
+					maxY = corner.y;
+					minY = corner.y;
+					maxZ = corner.z;
+					minZ = corner.z;
+					isInit = false;
+					continue;
+				}
+				if (corner.x < minX)
+				{
+					minX = corner.x;
+				}
+				if (corner.x > maxX)
+				{
+					maxX = corner.x;
+				}
+				if (corner.y < minY)
+				{
+					minY = corner.y;
+				}
+				if (corner.y > maxY)
+				{
+					maxY = corner.y;
+				}
+				if (corner.z < minZ)
+				{
+					minZ = corner.z;
+				}
+				if (corner.z > maxZ)
+				{
+					maxZ = corner.z;
+				}
+			}
 
-		/*
-		if(lsMaxVec.x > lsMinVec.x) {
-			maxX = lsMaxVec.x;
-			minX = lsMinVec.x;
+			glm::vec3 maxVec(maxX, maxY, maxZ);
+			glm::vec3 minVec(minX, minY, minZ);
+
+			glm::vec3 center = (maxVec + minVec) * glm::vec3(0.5f);
+
+			glm::mat4 lightView = glm::lookAt(center, center + dLight.get_direction(), glm::vec3(0.0f, 1.0f, 0.0f));
+
+
+
+			isInit = true;
+			for (auto corner : viewFrustum.splits[i]) {
+				corner = lightView * glm::vec4(corner, 1.0f);
+				if (isInit) {
+					maxX = corner.x;
+					minX = corner.x;
+					maxY = corner.y;
+					minY = corner.y;
+					maxZ = corner.z;
+					minZ = corner.z;
+					isInit = false;
+					continue;
+				}
+				if (corner.x < minX) {
+					minX = corner.x;
+				}
+				if (corner.x > maxX) {
+					maxX = corner.x;
+				}
+				if (corner.y < minY) {
+					minY = corner.y;
+				}
+				if (corner.y > maxY) {
+					maxY = corner.y;
+				}
+				if (corner.z < minZ) {
+					minZ = corner.z;
+				}
+				if (corner.z > maxZ) {
+					maxZ = corner.z;
+				}
+			}
+
+			for (auto corner : viewFrustum.splits[i+1]) {
+				corner = lightView * glm::vec4(corner, 1.0f);
+				if (isInit) {
+					maxX = corner.x;
+					minX = corner.x;
+					maxY = corner.y;
+					minY = corner.y;
+					maxZ = corner.z;
+					minZ = corner.z;
+					isInit = false;
+					continue;
+				}
+				if (corner.x < minX) {
+					minX = corner.x;
+				}
+				if (corner.x > maxX) {
+					maxX = corner.x;
+				}
+				if (corner.y < minY) {
+					minY = corner.y;
+				}
+				if (corner.y > maxY) {
+					maxY = corner.y;
+				}
+				if (corner.z < minZ) {
+					minZ = corner.z;
+				}
+				if (corner.z > maxZ) {
+					maxZ = corner.z;
+				}
+			}
+
+
+
+			glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+
+			glm::vec3 front_vector = glm::vec3(lightView[0][2], lightView[1][2], lightView[2][2]);
+			glm::vec3 up_vector = glm::vec3(lightView[0][1], lightView[1][1], lightView[2][1]);
+			glm::vec3 right_vector = glm::vec3(lightView[0][0], lightView[1][0], lightView[2][0]);
+			glm::vec3 position = center;
+
+			ViewFrustum localViewFrustum;
+			glm::vec3 nearCenter = position - (front_vector * minZ);
+			glm::vec3 farCenter = position - (front_vector *  maxZ);
+
+			Size sizeFar;
+			sizeFar.height = maxY - minY;
+			sizeFar.width = maxX - minX;
+
+			Size sizeNear;
+			sizeNear.height = sizeFar.height;
+			sizeNear.width = sizeFar.width;
+
+			localViewFrustum.position = position;
+			localViewFrustum.front = front_vector;
+			localViewFrustum.up = up_vector;
+			localViewFrustum.right = right_vector;
+
+
+			geoLight.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			geoLight.line(localViewFrustum.position, localViewFrustum.position + localViewFrustum.up);
+			geoLight.line(localViewFrustum.position, localViewFrustum.position + localViewFrustum.front);
+			geoLight.line(localViewFrustum.position, localViewFrustum.position + localViewFrustum.right);
+
+
+			geoLight.drawType = DrawType::LINE;
+
+
+
+			std::vector<glm::vec3> corners;
+			corners.push_back(glm::vec3(maxX, maxY, minZ));
+			corners.push_back(glm::vec3(minX, maxY, minZ));
+			corners.push_back(glm::vec3(maxX, minY, minZ));
+			corners.push_back(glm::vec3(minX, minY, minZ));
+
+			corners.push_back(glm::vec3(maxX, maxY, maxZ));
+			corners.push_back(glm::vec3(minX, maxY, maxZ));
+			corners.push_back(glm::vec3(maxX, minY, maxZ));
+			corners.push_back(glm::vec3(minX, minY, maxZ));
+
+			glm::mat4 inv_view = glm::inverse(lightView);
+
+			for (auto &corner : corners) {
+				corner = inv_view * glm::vec4(corner, 1.0);
+			}
+
+			geoLight.line(corners[0], corners[1]);
+			geoLight.line(corners[1], corners[3]);
+			geoLight.line(corners[3], corners[2]);
+			geoLight.line(corners[2], corners[0]);
+
+			geoLight.line(corners[4], corners[5]);
+			geoLight.line(corners[5], corners[7]);
+			geoLight.line(corners[7], corners[6]);
+			geoLight.line(corners[6], corners[4]);
 		}
-		else {
-			maxX = lsMinVec.x;
-			minX = lsMaxVec.x;
-		}
-
-		if(lsMaxVec.y > lsMinVec.y) {
-			maxY = lsMaxVec.y;
-			minY = lsMinVec.y;
-		}
-		else {
-			maxY = lsMinVec.y;
-			minY = lsMaxVec.y;
-		}
-
-		if(lsMaxVec.z > lsMinVec.z) {
-			maxZ = lsMaxVec.z;
-			minZ = lsMinVec.z;
-		}
-		else {
-			maxZ = lsMinVec.z;
-			minZ = lsMaxVec.z;
-		}
-		*/
-		ViewFrustum viewFrustum = testCamera.getViewFrustum();
-		bool isInit = true;
-		for (auto corner : viewFrustum.farCorners) {
-			corner = lightView * glm::vec4(corner, 1.0f);
-			if (isInit) {
-				maxX = corner.x;
-				minX = corner.x;
-				maxY = corner.y;
-				minY = corner.y;
-				maxZ = corner.z;
-				minZ = corner.z;
-				isInit = false;
-				continue;
-			}
-			if (corner.x < minX) {
-				minX = corner.x;
-			}
-			if (corner.x > maxX) {
-				maxX = corner.x;
-			}
-			if (corner.y < minY) {
-				minY = corner.y;
-			}
-			if (corner.y > maxY) {
-				maxY = corner.y;
-			}
-			if (corner.z < minZ) {
-				minZ = corner.z;
-			}
-			if (corner.z > maxZ) {
-				maxZ = corner.z;
-			}
-		}
-
-		for (auto corner : viewFrustum.nearCorners) {
-			corner = lightView * glm::vec4(corner, 1.0f);
-			if (isInit) {
-				maxX = corner.x;
-				minX = corner.x;
-				maxY = corner.y;
-				minY = corner.y;
-				maxZ = corner.z;
-				minZ = corner.z;
-				isInit = false;
-				continue;
-			}
-			if (corner.x < minX) {
-				minX = corner.x;
-			}
-			if (corner.x > maxX) {
-				maxX = corner.x;
-			}
-			if (corner.y < minY) {
-				minY = corner.y;
-			}
-			if (corner.y > maxY) {
-				maxY = corner.y;
-			}
-			if (corner.z < minZ) {
-				minZ = corner.z;
-			}
-			if (corner.z > maxZ) {
-				maxZ = corner.z;
-			}
-		}
-
-
-
-		glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
-
-		glm::vec3 front_vector = glm::vec3(lightView[0][2], lightView[1][2], lightView[2][2]);
-		glm::vec3 up_vector = glm::vec3(lightView[0][1], lightView[1][1], lightView[2][1]);
-		glm::vec3 right_vector = glm::vec3(lightView[0][0], lightView[1][0], lightView[2][0]);
-		glm::vec3 position = center;
-
-		viewFrustum = ViewFrustum();
-		glm::vec3 nearCenter = position - (front_vector * minZ);
-		glm::vec3 farCenter = position - (front_vector * maxZ);
-
-		Size sizeFar;
-		sizeFar.height = maxY - minY;
-		sizeFar.width = maxX - minX;
-
-		Size sizeNear;
-		sizeNear.height = sizeFar.height;
-		sizeNear.width = sizeFar.width;
-
-
-		viewFrustum.farCorners.push_back(farCenter + up_vector * (sizeFar.height * 0.5f) - right_vector * (sizeFar.width * 0.5f));
-		viewFrustum.farCorners.push_back(farCenter + up_vector * (sizeFar.height * 0.5f) + right_vector * (sizeFar.width * 0.5f));
-		viewFrustum.farCorners.push_back(farCenter - up_vector * (sizeFar.height * 0.5f) - right_vector * (sizeFar.width * 0.5f));
-		viewFrustum.farCorners.push_back(farCenter - up_vector * (sizeFar.height * 0.5f) + right_vector * (sizeFar.width * 0.5f));
-
-		viewFrustum.nearCorners.push_back(nearCenter + up_vector * (sizeNear.height * 0.5f) - right_vector * (sizeNear.width * 0.5f));
-		viewFrustum.nearCorners.push_back(nearCenter + up_vector * (sizeNear.height * 0.5f) + right_vector * (sizeNear.width * 0.5f));
-		viewFrustum.nearCorners.push_back(nearCenter - up_vector * (sizeNear.height * 0.5f) - right_vector * (sizeNear.width * 0.5f));
-		viewFrustum.nearCorners.push_back(nearCenter - up_vector * (sizeNear.height * 0.5f) + right_vector * (sizeNear.width * 0.5f));
-
-		glm::mat4 inv_view = glm::mat4(1.0f); // lightView;
-
-		for (auto &corner : viewFrustum.farCorners) {
-			corner = inv_view * glm::vec4(corner, 1.0);
-		}
-		for (auto &corner : viewFrustum.nearCorners) {
-			corner = inv_view * glm::vec4(corner, 1.0);
-		}
-
-		viewFrustum.position = position;
-		viewFrustum.front = front_vector;
-		viewFrustum.up = up_vector;
-		viewFrustum.right = right_vector;
-
-
-		geoLight.color = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f);
-		geoLight.line(viewFrustum.position, viewFrustum.position + viewFrustum.up);
-		geoLight.line(viewFrustum.position, viewFrustum.position + viewFrustum.front);
-		geoLight.line(viewFrustum.position, viewFrustum.position + viewFrustum.right);
-
-
-		geoLight.drawType = DrawType::LINE;
-
-
-		geoLight.line(viewFrustum.farCorners[0], viewFrustum.farCorners[1]);
-		geoLight.line(viewFrustum.farCorners[1], viewFrustum.farCorners[3]);
-		geoLight.line(viewFrustum.farCorners[3], viewFrustum.farCorners[2]);
-		geoLight.line(viewFrustum.farCorners[2], viewFrustum.farCorners[0]);
-
-		geoLight.line(viewFrustum.nearCorners[0], viewFrustum.nearCorners[1]);
-		geoLight.line(viewFrustum.nearCorners[1], viewFrustum.nearCorners[3]);
-		geoLight.line(viewFrustum.nearCorners[3], viewFrustum.nearCorners[2]);
-		geoLight.line(viewFrustum.nearCorners[2], viewFrustum.nearCorners[0]);
-
-		geoLight.line(viewFrustum.position, viewFrustum.farCorners[1]);
-		geoLight.line(viewFrustum.position, viewFrustum.farCorners[3]);
-		geoLight.line(viewFrustum.position, viewFrustum.farCorners[2]);
-		geoLight.line(viewFrustum.position, viewFrustum.farCorners[0]);
 	}
 	
 	float skyboxSize = 50.0f;
@@ -500,7 +553,7 @@ int main() {
 	scene_main.addDrawable(geoLight);
 
 	scene_main.setDlight(dLight);
-	dLight.change_direction(glm::vec3(-1.0f, 0.0f, 0.0f));
+	//dLight.change_direction(glm::vec3(-1.0f, 0.0f, 0.0f));
 	dLight.draw_shadow = true;
 
 	scene_main.addPlight(pLight);

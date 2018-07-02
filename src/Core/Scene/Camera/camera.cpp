@@ -113,11 +113,15 @@ std::shared_ptr<Camera> Camera::GetCamera()
 {
 	return std::make_shared<Camera>(*this);
 }
-ViewFrustum Camera::getViewFrustum()
+ViewFrustum Camera::getViewFrustum(int splits)
 {
 	ViewFrustum viewFrustum;
 	glm::vec3 nearCenter = position - (-front_vector * NearZ);
-	glm::vec3 farCenter = position - (-front_vector * FarZ);
+
+	std::vector<glm::vec3> farSplits;
+	for (int i = 0; i < splits; i++) {
+		farSplits.push_back(position - (-front_vector * (FarZ / (i+1))));
+	}
 
 	Size sizeFar;
 	sizeFar.height = 2.0f * tanf(glm::radians(FOV) / 2.0f) * FarZ;
@@ -127,25 +131,29 @@ ViewFrustum Camera::getViewFrustum()
 	sizeNear.height = 2.0f * tanf(glm::radians(FOV) / 2.0f) * NearZ;
 	sizeNear.width = sizeNear.height * (800.0f / 600.0f);
 
+	std::vector<glm::vec3> nearCorners;
+	nearCorners.push_back(nearCenter + up_vector * (sizeNear.height * 0.5f) - right_vector * (sizeNear.width * 0.5f));
+	nearCorners.push_back(nearCenter + up_vector * (sizeNear.height * 0.5f) + right_vector * (sizeNear.width * 0.5f));
+	nearCorners.push_back(nearCenter - up_vector * (sizeNear.height * 0.5f) - right_vector * (sizeNear.width * 0.5f));
+	nearCorners.push_back(nearCenter - up_vector * (sizeNear.height * 0.5f) + right_vector * (sizeNear.width * 0.5f));
+	viewFrustum.splits.push_back(nearCorners);
 
-	btScalar connectionHeight(0.0f);
-	viewFrustum.farCorners.push_back(farCenter + up_vector * (sizeFar.height * 0.5f) - right_vector * (sizeFar.width * 0.5f));
-	viewFrustum.farCorners.push_back(farCenter + up_vector * (sizeFar.height * 0.5f) + right_vector * (sizeFar.width * 0.5f));
-	viewFrustum.farCorners.push_back(farCenter - up_vector * (sizeFar.height * 0.5f) - right_vector * (sizeFar.width * 0.5f));
-	viewFrustum.farCorners.push_back(farCenter - up_vector * (sizeFar.height * 0.5f) + right_vector * (sizeFar.width * 0.5f));
+	while (splits > 0)
+	{
+		GLfloat split = (FarZ / splits);
+		glm::vec3 splitCenter = position - (-front_vector * split);
 
-	viewFrustum.nearCorners.push_back(nearCenter + up_vector * (sizeNear.height * 0.5f) - right_vector * (sizeNear.width * 0.5f));
-	viewFrustum.nearCorners.push_back(nearCenter + up_vector * (sizeNear.height * 0.5f) + right_vector * (sizeNear.width * 0.5f));
-	viewFrustum.nearCorners.push_back(nearCenter - up_vector * (sizeNear.height * 0.5f) - right_vector * (sizeNear.width * 0.5f));
-	viewFrustum.nearCorners.push_back(nearCenter - up_vector * (sizeNear.height * 0.5f) + right_vector * (sizeNear.width * 0.5f));
+		Size sizeSplit;
+		sizeSplit.height = 2.0f * tanf(glm::radians(FOV) / 2.0f) * split;
+		sizeSplit.width = sizeSplit.height * (800.0f / 600.0f);
 
-	glm::mat4 inv_view = glm::inverse(GetViewMatrix());
-
-	for (auto &corner : viewFrustum.farCorners) {
-		corner = inv_view * glm::vec4(corner, 0.0);
-	}
-	for (auto &corner : viewFrustum.nearCorners) {
-		corner = inv_view * glm::vec4(corner, 0.0);
+		std::vector<glm::vec3> splitCorners;
+		splitCorners.push_back(splitCenter + up_vector * (sizeSplit.height * 0.5f) - right_vector * (sizeSplit.width * 0.5f));
+		splitCorners.push_back(splitCenter + up_vector * (sizeSplit.height * 0.5f) + right_vector * (sizeSplit.width * 0.5f));
+		splitCorners.push_back(splitCenter - up_vector * (sizeSplit.height * 0.5f) - right_vector * (sizeSplit.width * 0.5f));
+		splitCorners.push_back(splitCenter - up_vector * (sizeSplit.height * 0.5f) + right_vector * (sizeSplit.width * 0.5f));
+		viewFrustum.splits.push_back(splitCorners);
+		splits--;
 	}
 
 	viewFrustum.position = position;

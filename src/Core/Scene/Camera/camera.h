@@ -10,8 +10,8 @@ struct ViewFrustum {
 	glm::vec3 up;
 	glm::vec3 right;
 
-	std::vector<glm::vec3> farCorners;
-	std::vector<glm::vec3> nearCorners;
+
+	std::vector<std::vector<glm::vec3>> splits;
 };
 
 enum CameraMovement {
@@ -22,8 +22,8 @@ enum CameraMovement {
 };
 
 // Default camera values
-const GLfloat YAW = -90.0f;
-const GLfloat PITCH = 0.0f;
+const GLfloat YAW = 33.0f;
+const GLfloat PITCH = -20.0f;
 const GLfloat SPEED = 3.0f;
 const GLfloat SENSITIVTY = 0.07f;
 
@@ -68,7 +68,7 @@ public:
 
 	std::shared_ptr<Camera> GetCamera();
 
-	ViewFrustum getViewFrustum();
+	virtual ViewFrustum getViewFrustum(int splits = 1);
 
 private:
 	bool initial_move = true;
@@ -79,6 +79,7 @@ private:
 	// Eular Angles
 	GLfloat yaw;
 	GLfloat pitch;
+	GLfloat roll;
 
 	void updateCameraVectors();
 };

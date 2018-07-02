@@ -33,7 +33,7 @@ void DirectionalLight::setViewFrustum(ViewFrustum viewFrustum)
 
 	float maxX, minX, maxY, minY, maxZ, minZ;
 	bool isInit = true;
-	for (auto corner : viewFrustum.farCorners)
+	for (auto corner : viewFrustum.splits[viewFrustum.splits.size()-1])
 	{
 		if (isInit)
 		{
@@ -72,7 +72,7 @@ void DirectionalLight::setViewFrustum(ViewFrustum viewFrustum)
 		}
 	}
 
-	for (auto corner : viewFrustum.nearCorners)
+	for (auto corner : viewFrustum.splits[0])
 	{
 		if (isInit)
 		{
@@ -117,10 +117,10 @@ void DirectionalLight::setViewFrustum(ViewFrustum viewFrustum)
 	glm::vec3 center = (maxVec + minVec) * glm::vec3(0.5f);
 
 
-	glm::mat4 lightView = glm::lookAt(center, center + direction, glm::vec3(0.0f, 1.0f, 0.0f));
+	lightView = glm::lookAt(center, center + direction, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	isInit = true;
-	for (auto corner : viewFrustum.farCorners)
+	for (auto corner : viewFrustum.splits[viewFrustum.splits.size()-1])
 	{
 		corner = lightView * glm::vec4(corner, 1.0f);
 		if (isInit)
@@ -160,7 +160,7 @@ void DirectionalLight::setViewFrustum(ViewFrustum viewFrustum)
 		}
 	}
 
-	for (auto corner : viewFrustum.nearCorners)
+	for (auto corner : viewFrustum.splits[0])
 	{
 		corner = lightView * glm::vec4(corner, 1.0f);
 		if (isInit)
@@ -200,8 +200,7 @@ void DirectionalLight::setViewFrustum(ViewFrustum viewFrustum)
 		}
 	}
 
-	lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
-	//lightView = glm::lookAt(-direction, glm::vec3(0.0), glm::vec3(0.0f, 1.0f, 0.0f));
+	lightProjection = glm::ortho(minX, maxX, minY, maxY, -maxZ, -minZ);
 	lightSpaceMatrix = lightProjection * lightView;
 }
 
@@ -252,9 +251,7 @@ void DirectionalLight::setup()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	near_plane = 0.1f;
-	far_plane = 100.0f;
-	lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 10.0f);
-	lightView = glm::lookAt(position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
+	lightProjection = glm::mat4(0.0f);
+	lightView = glm::mat4(0.0);
 	lightSpaceMatrix = lightProjection * lightView;
 }
