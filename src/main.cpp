@@ -19,6 +19,7 @@
 #include "Core/Scene/Light/dlight.h"
 #include "Core/Scene/Light/plight.h"
 #include "Core/Scene/Text/text.h"
+#include "Core/Util/Debug/vector.h"
 
 #ifdef _WIN32
 std::string path_obj_mountain = "C:/Users/Vincent/Documents/Projects/Blender/TriFace/basic_mountain.obj";
@@ -191,23 +192,124 @@ int main() {
 
 	Geometry geoLight;
 	{
-		float minX = -10.0f;//dLight.minVec.x;
-		float minY = -10.0f;//dLight.minVec.y;
-		float minZ = 0.1f;// dLight.minVec.z;
-		float maxX = 10.0f;//dLight.maxVec.x;
-		float maxY = 10.0f;//dLight.maxVec.y;
-		float maxZ = 10.0f; // dLight.maxVec.z;
+		float minX = dLight.minVec.x;
+		float minY = dLight.minVec.y;
+		float minZ = dLight.minVec.z;
+		float maxX = dLight.maxVec.x;
+		float maxY = dLight.maxVec.y;
+		float maxZ = dLight.maxVec.z;
+
+		glm::vec3 center = (dLight.maxVec + dLight.minVec) * glm::vec3(0.5f);
+
+		glm::mat4 lightView = glm::lookAt(center, center + dLight.get_direction(), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		glm::vec3 lsMaxVec = lightView * glm::vec4(dLight.maxVec, 1.0f);
+		glm::vec3 lsMinVec = lightView * glm::vec4(dLight.minVec, 1.0f);
+
+		/*
+		if(lsMaxVec.x > lsMinVec.x) {
+			maxX = lsMaxVec.x;
+			minX = lsMinVec.x;
+		}
+		else {
+			maxX = lsMinVec.x;
+			minX = lsMaxVec.x;
+		}
+
+		if(lsMaxVec.y > lsMinVec.y) {
+			maxY = lsMaxVec.y;
+			minY = lsMinVec.y;
+		}
+		else {
+			maxY = lsMinVec.y;
+			minY = lsMaxVec.y;
+		}
+
+		if(lsMaxVec.z > lsMinVec.z) {
+			maxZ = lsMaxVec.z;
+			minZ = lsMinVec.z;
+		}
+		else {
+			maxZ = lsMinVec.z;
+			minZ = lsMaxVec.z;
+		}
+		*/
+		ViewFrustum viewFrustum = testCamera.getViewFrustum();
+		bool isInit = true;
+		for (auto corner : viewFrustum.farCorners) {
+			corner = lightView * glm::vec4(corner, 1.0f);
+			if (isInit) {
+				maxX = corner.x;
+				minX = corner.x;
+				maxY = corner.y;
+				minY = corner.y;
+				maxZ = corner.z;
+				minZ = corner.z;
+				isInit = false;
+				continue;
+			}
+			if (corner.x < minX) {
+				minX = corner.x;
+			}
+			if (corner.x > maxX) {
+				maxX = corner.x;
+			}
+			if (corner.y < minY) {
+				minY = corner.y;
+			}
+			if (corner.y > maxY) {
+				maxY = corner.y;
+			}
+			if (corner.z < minZ) {
+				minZ = corner.z;
+			}
+			if (corner.z > maxZ) {
+				maxZ = corner.z;
+			}
+		}
+
+		for (auto corner : viewFrustum.nearCorners) {
+			corner = lightView * glm::vec4(corner, 1.0f);
+			if (isInit) {
+				maxX = corner.x;
+				minX = corner.x;
+				maxY = corner.y;
+				minY = corner.y;
+				maxZ = corner.z;
+				minZ = corner.z;
+				isInit = false;
+				continue;
+			}
+			if (corner.x < minX) {
+				minX = corner.x;
+			}
+			if (corner.x > maxX) {
+				maxX = corner.x;
+			}
+			if (corner.y < minY) {
+				minY = corner.y;
+			}
+			if (corner.y > maxY) {
+				maxY = corner.y;
+			}
+			if (corner.z < minZ) {
+				minZ = corner.z;
+			}
+			if (corner.z > maxZ) {
+				maxZ = corner.z;
+			}
+		}
+
+
 
 		glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
-		glm::vec3 pos = glm::vec3(10.0f, 5.0f, +10.0f);
-		glm::mat4 lightView = glm::lookAt(pos, pos + dLight.get_direction(), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		glm::vec3 front_vector = glm::vec3(lightView[0][2], lightView[1][2], lightView[2][2]);
 		glm::vec3 up_vector = glm::vec3(lightView[0][1], lightView[1][1], lightView[2][1]);
 		glm::vec3 right_vector = glm::vec3(lightView[0][0], lightView[1][0], lightView[2][0]);
-		glm::vec3 position = pos;
+		glm::vec3 position = center;
 
-		ViewFrustum viewFrustum;
+		viewFrustum = ViewFrustum();
 		glm::vec3 nearCenter = position - (front_vector * minZ);
 		glm::vec3 farCenter = position - (front_vector * maxZ);
 

@@ -5,13 +5,15 @@ DirectionalLight::DirectionalLight()
 	setup();
 }
 
-void DirectionalLight::change_direction(glm::vec3 direction) {
+void DirectionalLight::change_direction(glm::vec3 direction)
+{
 	this->direction = direction;
-	lightView = glm::lookAt(-direction, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	lightSpaceMatrix = lightProjection * lightView;
+	//lightView = glm::lookAt(-direction, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//lightSpaceMatrix = lightProjection * lightView;
 }
 
-glm::vec3 DirectionalLight::get_direction() {
+glm::vec3 DirectionalLight::get_direction()
+{
 	return direction;
 }
 
@@ -28,99 +30,185 @@ void DirectionalLight::apply(Shader shader, std::string target)
 
 void DirectionalLight::setViewFrustum(ViewFrustum viewFrustum)
 {
+
 	float maxX, minX, maxY, minY, maxZ, minZ;
 	bool isInit = true;
-	
-	glm::mat4 inv_lightView = glm::mat4(1.0f);
-
-	for (auto corner : viewFrustum.farCorners) {
-		glm::vec4 cornerLight = inv_lightView * glm::vec4(corner, 0.0);
-
-		if (isInit) {
-			maxX = cornerLight.x;
-			minX = cornerLight.x;
-			maxY = cornerLight.y;
-			minY = cornerLight.y;
-			maxZ = cornerLight.z;
-			minZ = cornerLight.z;
+	for (auto corner : viewFrustum.farCorners)
+	{
+		if (isInit)
+		{
+			maxX = corner.x;
+			minX = corner.x;
+			maxY = corner.y;
+			minY = corner.y;
+			maxZ = corner.z;
+			minZ = corner.z;
 			isInit = false;
 			continue;
 		}
-		if (cornerLight.x < minX) {
-			minX = cornerLight.x;
+		if (corner.x < minX)
+		{
+			minX = corner.x;
 		}
-		if (cornerLight.x > maxX) {
-			maxX = cornerLight.x;
+		if (corner.x > maxX)
+		{
+			maxX = corner.x;
 		}
-		if (cornerLight.y < minY) {
-			minY = cornerLight.y;
+		if (corner.y < minY)
+		{
+			minY = corner.y;
 		}
-		if (cornerLight.y > maxY) {
-			maxY = cornerLight.y;
+		if (corner.y > maxY)
+		{
+			maxY = corner.y;
 		}
-		if (cornerLight.z < minZ) {
-			minZ = cornerLight.z;
+		if (corner.z < minZ)
+		{
+			minZ = corner.z;
 		}
-		if (cornerLight.z > maxZ) {
-			maxZ = cornerLight.z;
+		if (corner.z > maxZ)
+		{
+			maxZ = corner.z;
 		}
 	}
 
-	for (auto corner : viewFrustum.nearCorners) {
-		glm::vec4 cornerLight = inv_lightView * glm::vec4(corner, 0.0);
-
-		if (isInit) {
-			maxX = cornerLight.x;
-			minX = cornerLight.x;
-			maxY = cornerLight.y;
-			minY = cornerLight.y;
-			maxZ = cornerLight.z;
-			minZ = cornerLight.z;
+	for (auto corner : viewFrustum.nearCorners)
+	{
+		if (isInit)
+		{
+			maxX = corner.x;
+			minX = corner.x;
+			maxY = corner.y;
+			minY = corner.y;
+			maxZ = corner.z;
+			minZ = corner.z;
 			isInit = false;
 			continue;
 		}
-		if (cornerLight.x < minX) {
-			minX = cornerLight.x;
+		if (corner.x < minX)
+		{
+			minX = corner.x;
 		}
-		if (cornerLight.x > maxX) {
-			maxX = cornerLight.x;
+		if (corner.x > maxX)
+		{
+			maxX = corner.x;
 		}
-		if (cornerLight.y < minY) {
-			minY = cornerLight.y;
+		if (corner.y < minY)
+		{
+			minY = corner.y;
 		}
-		if (cornerLight.y > maxY) {
-			maxY = cornerLight.y;
+		if (corner.y > maxY)
+		{
+			maxY = corner.y;
 		}
-		if (cornerLight.z < minZ) {
-			minZ = cornerLight.z;
+		if (corner.z < minZ)
+		{
+			minZ = corner.z;
 		}
-		if (cornerLight.z > maxZ) {
-			maxZ = cornerLight.z;
+		if (corner.z > maxZ)
+		{
+			maxZ = corner.z;
 		}
 	}
 
-	maxVec = glm::vec4(maxX, maxY, maxZ, 0.0f);
-	minVec = glm::vec4(minX, minY, minZ, 0.0f);
-	/*
+	maxVec = glm::vec4(maxX, maxY, maxZ, 1.0f);
+	minVec = glm::vec4(minX, minY, minZ, 1.0f);
 
-	
-	glm::vec3 pos = glm::vec3(minX + .5f * maxX, minY + 0.5f * maxY, minZ + 0.5f * maxZ);
+	glm::vec3 center = (maxVec + minVec) * glm::vec3(0.5f);
 
-	lightView = glm::lookAt(pos, pos + direction , glm::vec3(0.0f, 1.0f, 0.0f));
-	lightSpaceMatrix = lightProjection * lightView;
-	*/
-	lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 10.0f);
-	glm::vec3 pos = glm::vec3(20.0f, 5.0f, 0.0f);
-	lightView = glm::lookAt(pos, pos + direction, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	glm::mat4 lightView = glm::lookAt(center, center + direction, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	isInit = true;
+	for (auto corner : viewFrustum.farCorners)
+	{
+		corner = lightView * glm::vec4(corner, 1.0f);
+		if (isInit)
+		{
+			maxX = corner.x;
+			minX = corner.x;
+			maxY = corner.y;
+			minY = corner.y;
+			maxZ = corner.z;
+			minZ = corner.z;
+			isInit = false;
+			continue;
+		}
+		if (corner.x < minX)
+		{
+			minX = corner.x;
+		}
+		if (corner.x > maxX)
+		{
+			maxX = corner.x;
+		}
+		if (corner.y < minY)
+		{
+			minY = corner.y;
+		}
+		if (corner.y > maxY)
+		{
+			maxY = corner.y;
+		}
+		if (corner.z < minZ)
+		{
+			minZ = corner.z;
+		}
+		if (corner.z > maxZ)
+		{
+			maxZ = corner.z;
+		}
+	}
+
+	for (auto corner : viewFrustum.nearCorners)
+	{
+		corner = lightView * glm::vec4(corner, 1.0f);
+		if (isInit)
+		{
+			maxX = corner.x;
+			minX = corner.x;
+			maxY = corner.y;
+			minY = corner.y;
+			maxZ = corner.z;
+			minZ = corner.z;
+			isInit = false;
+			continue;
+		}
+		if (corner.x < minX)
+		{
+			minX = corner.x;
+		}
+		if (corner.x > maxX)
+		{
+			maxX = corner.x;
+		}
+		if (corner.y < minY)
+		{
+			minY = corner.y;
+		}
+		if (corner.y > maxY)
+		{
+			maxY = corner.y;
+		}
+		if (corner.z < minZ)
+		{
+			minZ = corner.z;
+		}
+		if (corner.z > maxZ)
+		{
+			maxZ = corner.z;
+		}
+	}
+
+	lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
 	//lightView = glm::lookAt(-direction, glm::vec3(0.0), glm::vec3(0.0f, 1.0f, 0.0f));
 	lightSpaceMatrix = lightProjection * lightView;
-
 }
 
 void DirectionalLight::begin_shadow_mapping()
 {
 	glCullFace(GL_FRONT);
-	Shaders[SHADER_DEPTH].use();	
+	Shaders[SHADER_DEPTH].use();
 
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -144,7 +232,8 @@ GLuint DirectionalLight::get_shadow_map()
 	return depthMap;
 }
 
-void DirectionalLight::setup() {
+void DirectionalLight::setup()
+{
 	glGenFramebuffers(1, &depthMapFBO);
 
 	glGenTextures(1, &depthMap);
@@ -154,7 +243,7 @@ void DirectionalLight::setup() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	GLfloat bordercolor[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat bordercolor[] = {1.0, 1.0, 1.0, 1.0};
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, bordercolor);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -165,7 +254,7 @@ void DirectionalLight::setup() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	near_plane = 0.1f;
 	far_plane = 100.0f;
-	lightProjection = glm::ortho(-1000.0f, 1000.0f, -500.0f, 500.0f, near_plane, far_plane);
-	lightView = glm::lookAt(-direction, glm::vec3(100.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 10.0f);
+	lightView = glm::lookAt(position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
 	lightSpaceMatrix = lightProjection * lightView;
 }

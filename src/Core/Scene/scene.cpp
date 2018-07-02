@@ -258,6 +258,10 @@ void Scene::dispose()
 
 	glDeleteBuffers(1, &screenRectVBO);
 	glDeleteVertexArrays(1, &screenRectVAO);
+
+
+	glDeleteBuffers(1, &screenShadowVBO);
+	glDeleteVertexArrays(1, &screenShadowVAO);
 	
 }
 

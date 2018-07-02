@@ -20,7 +20,7 @@ public:
 
 	GLuint get_shadow_map();
 private:
-	glm::vec3 direction = glm::vec3(-1.0f, 0.0f, 0.0f);
+	glm::vec3 direction = glm::vec3(-1.0f, 0.0f, -1.0f);
 	GLuint depthMapFBO;
 	const GLuint SHADOW_WIDTH = 1000, SHADOW_HEIGHT = 1000;
 	GLuint depthMap;

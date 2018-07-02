@@ -128,6 +128,7 @@ ViewFrustum Camera::getViewFrustum()
 	sizeNear.width = sizeNear.height * (800.0f / 600.0f);
 
 
+	btScalar connectionHeight(0.0f);
 	viewFrustum.farCorners.push_back(farCenter + up_vector * (sizeFar.height * 0.5f) - right_vector * (sizeFar.width * 0.5f));
 	viewFrustum.farCorners.push_back(farCenter + up_vector * (sizeFar.height * 0.5f) + right_vector * (sizeFar.width * 0.5f));
 	viewFrustum.farCorners.push_back(farCenter - up_vector * (sizeFar.height * 0.5f) - right_vector * (sizeFar.width * 0.5f));
