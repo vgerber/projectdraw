@@ -154,10 +154,10 @@ ViewFrustum Camera::getViewFrustum(int splits)
 		sizeSplit.width = sizeSplit.height * (800.0f / 600.0f);
 
 		std::vector<glm::vec3> splitCorners;
-		splitCorners.push_back(splitCenter + up_vector * (sizeSplit.height * 0.5f) - right_vector * (sizeSplit.width * 0.5f));
-		splitCorners.push_back(splitCenter + up_vector * (sizeSplit.height * 0.5f) + right_vector * (sizeSplit.width * 0.5f));
-		splitCorners.push_back(splitCenter - up_vector * (sizeSplit.height * 0.5f) - right_vector * (sizeSplit.width * 0.5f));
-		splitCorners.push_back(splitCenter - up_vector * (sizeSplit.height * 0.5f) + right_vector * (sizeSplit.width * 0.5f));
+		splitCorners.push_back(splitCenter + up_vector * (sizeSplit.height * 0.55f) - right_vector * (sizeSplit.width * 0.55f));
+		splitCorners.push_back(splitCenter + up_vector * (sizeSplit.height * 0.55f) + right_vector * (sizeSplit.width * 0.55f));
+		splitCorners.push_back(splitCenter - up_vector * (sizeSplit.height * 0.55f) - right_vector * (sizeSplit.width * 0.55f));
+		splitCorners.push_back(splitCenter - up_vector * (sizeSplit.height * 0.55f) + right_vector * (sizeSplit.width * 0.55f));
 		viewFrustum.splits.push_back(splitCorners);
 		splits--;
 	}

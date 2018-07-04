@@ -115,7 +115,7 @@ int main() {
 	*/
 	//create camera
 	mainCamera.setPosition(glm::vec3(0.0f, 5.0f, 10.0f));
-	mainCamera.FarZ = 500.0f;
+	mainCamera.FarZ = 700.0f;
 
 	testCamera.setPosition(glm::vec3(1.0f, 0.0f, 40.0f));
 	testCamera.FarZ = 10.0f;
@@ -449,6 +449,7 @@ int main() {
 	//
 	//Instancing
 	//
+	/*
 	glm::vec2 translations[100];
 	int index = 0;
 	GLfloat offset = 0.1f;
@@ -473,6 +474,7 @@ int main() {
 	glVertexAttribDivisor(2, 1);
 
 	glBindVertexArray(0);
+	*/
 
 	//
 	//Geometry
@@ -582,7 +584,7 @@ int main() {
 
 	test_obj.scaleToHeight(50.0f);
 	Size size = test_obj.getSize();
-	test_obj.setPosition(glm::vec3(40.0, -4.0f, -10.0f));
+	test_obj.setPosition(glm::vec3(-250.0, -4.0f, -250.0f));
 	//test_obj.setCenter(glm::vec3(0.5f, 0.5f, 1.7f));
 	test_obj.visibleBox =  false;
 	test_obj.drawType = DrawType::TRIANGLE;
@@ -622,7 +624,7 @@ int main() {
 
 	std::vector<Drawable*> cubes;
 	
-	glm::vec3 cubes_position(0.0f, 0.0f, 15.0f);
+	glm::vec3 cubes_position(0.0f, 0.5f, 15.0f);
 
 	for(size_t x = 0; x < 5; x++) {
 		for(size_t y = 0;  y < 5; y++) {
@@ -644,10 +646,10 @@ int main() {
 	GLfloat heightScale = 20.0f;
 
 	Drawable borderAnchor, borderBack, borderFront, borderLeft, borderRight;
-	borderBack.setModel(primitves::generate_quad(sizeGround.width + 2.0f, sizeGround.height * heightScale, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderFront.setModel(primitves::generate_quad(sizeGround.width + 2.0f, sizeGround.height * heightScale, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderLeft.setModel(primitves::generate_quad(1.0f , sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderRight.setModel(primitves::generate_quad(1.0f, sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderBack.setModel(primitves::generate_quad(sizeGround.width + 6.0f, sizeGround.height * heightScale, 5.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderFront.setModel(primitves::generate_quad(sizeGround.width + 6.0f, sizeGround.height * heightScale, 5.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderLeft.setModel(primitves::generate_quad(5.0f , sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderRight.setModel(primitves::generate_quad(5.0f, sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	scene_main.addDrawable(borderGround);
 	scene_main.addDrawable(borderBack);
@@ -801,7 +803,7 @@ int main() {
 			collision::CollisionShape cube_shape(collision::generateCube(cube->getSize()));
 			RigidBody rbodyCube(cube_shape, cube->getPositionCenter(), cube->getRotation(), .1f);
 			rbodyCube.setDrawable(*cube);
-			rbodyCube.visibleAABB = true;
+			rbodyCube.visibleAABB = false;
 			rigidBodys.push_back(new RigidBody(rbodyCube));
 		}
 	}

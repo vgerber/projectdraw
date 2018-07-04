@@ -73,9 +73,9 @@ float ShadowDirCalculation(DirLight light, vec4 fragPosLightSpace, float bias);
 
 void main() {
 	vec3 Normal = texture(gNormal, TexCoords).rgb;
-	vec4 FragPos = texture(gPosition, TexCoords).rgba;
+	vec3 FragPos = texture(gPosition, TexCoords).rgb;
 	vec3 Color = texture(gAlbedo, TexCoords).rgb;
-	vec3 viewDir = normalize(viewPos - FragPos.xyz);    
+	vec3 viewDir = normalize(viewPos - FragPos);    
 	float UseLight = texture(gUseLight, TexCoords).r;     
 	
 	
@@ -84,11 +84,11 @@ void main() {
 		vec3 result = vec3(0.0);
 		if(pointLights != 0) {
 			for(int i = 0; i < pointLights; i++){ 
-				result += CalcPointLight(pointLight[i], Normal, FragPos.xyz, viewDir, Color) * pointLight[i].intensity;
+				result += CalcPointLight(pointLight[i], Normal, FragPos, viewDir, Color) * pointLight[i].intensity;
 			}
 		}
-		result += CalcSpotLight(spotLight, Normal, FragPos.xyz, viewDir, Color);
-		result += CalcDirLight(dirLight, Normal, viewDir, FragPos, Color) * dirLight.intensity;		
+		result += CalcSpotLight(spotLight, Normal, FragPos, viewDir, Color);
+		result += CalcDirLight(dirLight, Normal, viewDir, vec4(FragPos, 1.0), Color) * dirLight.intensity;		
 			
 
 

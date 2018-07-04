@@ -206,7 +206,7 @@ void Scene::draw(GLfloat delta)
 	glBindVertexArray(screenRectVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
-
+	/*
 	glDisable(GL_DEPTH_TEST);
 	Shaders[SHADER_TEXTURE].use();
 	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "screenTexture"), 0);
@@ -216,6 +216,7 @@ void Scene::draw(GLfloat delta)
 	glBindVertexArray(screenShadowVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
+	*/
 	glEnable(GL_DEPTH_TEST);
 	
 }
