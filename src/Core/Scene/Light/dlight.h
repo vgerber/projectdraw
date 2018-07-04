@@ -3,6 +3,7 @@
 #include "light.h"
 #include "../Camera/camera.h"
 
+
 class DirectionalLight : public Light {
 public:
 	glm::vec3 minVec;
@@ -15,18 +16,20 @@ public:
 
 	void setViewFrustum(ViewFrustum viewFrustum);
 
-	void begin_shadow_mapping();
+	void begin_shadow_mapping(int slice = 1);
 	void end_shadow_mapping();
 
-	GLuint get_shadow_map();
+	GLuint getShadowMap(int slice = 0);
+	const int getCSMSlices();
+
+	void dispose();
 private:
+	const int csmSlices = 3;
+	std::vector<DepthMap> depthMaps;
+	GLfloat farPlane = 0.0f;
+
 	glm::vec3 direction = glm::vec3(-1.0f, -1.0f, -1.0f);
-	GLuint depthMapFBO;
-	const GLuint SHADOW_WIDTH = 1000, SHADOW_HEIGHT = 1000;
-	GLuint depthMap;
-	glm::mat4 lightProjection;
-	glm::mat4 lightView;
-	glm::mat4 lightSpaceMatrix;
+	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
 	void setup();
 };

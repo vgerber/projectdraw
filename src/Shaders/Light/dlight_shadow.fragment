@@ -1,21 +1,28 @@
 #version 330 core
 
+#define DIR_SPLITS 3
+
 struct DirLight {
 	bool drawShadow;
+
 	float intensity;
+	float farPlane;
+
 	vec3 direction;
 
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
 
-	sampler2D shadowMap;
-	mat4 lightSpaceMatrix;
+	sampler2D[DIR_SPLITS] shadowMap;
+	mat4[DIR_SPLITS] lightSpaceMatrix;
 };
 
-float ShadowDirCalculation(DirLight light, vec4 fragPosLightSpace, float bias);
 
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec4 fragPosLightSpace, vec3 color) {
+//fragPos [xyz] coordinates [w] frag_depth
+float ShadowDirCalculation(DirLight light, vec4 fragPos, float bias);
+
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec4 fragPos, vec3 color) {
 	vec3 lightDir = normalize(-light.direction);
 	float diff = max(dot(normal, lightDir), 0.0);
 
@@ -29,44 +36,57 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec4 fragPosLightSp
     vec3 specular = light.specular * spec * color.rgb;  
 	vec3 ambient = light.ambient * color.rgb;
 
-	float bias = max(0.0002 * (1.0 - dot(normal, lightDir)), 0.0002);
+	float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.005);
 
 	float shadow = 0.0;
 	if(light.drawShadow) {
-		shadow = ShadowDirCalculation(light, fragPosLightSpace, bias);
+		shadow = ShadowDirCalculation(light, fragPos, bias);
 	}
 
 	return (ambient + (1.0 - shadow) * (diffuse + specular));
 }
 
-float ShadowDirCalculation(DirLight light, vec4 fragPosLightSpace, float bias) {
-	//perspective divide
-	vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+float ShadowDirCalculation(DirLight light, vec4 fragPos, float bias) {
+	int shadowMapIndex = 0;
+	
+	float ShadowRes = 0.0f;
 
-	//Transform from [-1,1] to [0,1]
-	projCoords = projCoords * 0.5f + 0.5f;
+	for(int i = 0; i < 3; i++) {
+		shadowMapIndex = i;
+		vec4 fragPosLightSpace = light.lightSpaceMatrix[shadowMapIndex] * vec4(fragPos.xyz, 1.0);
 
-	//Get closest depth value from lights perspective
-	float closestDepth = texture(light.shadowMap, projCoords.xy).r;
+		//perspective divide
+		vec3 projCoords = fragPosLightSpace.xyz;
 
-	//get depth of current fragment from lights perspective
-	float currentDepth = projCoords.z;
+		//Transform from [-1,1] to [0,1]
+		projCoords = projCoords * 0.5f + 0.5f;
 
-	//check wether current frag pos is in shadow
-	//float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
-	float shadow = 0.0;
+		//Get closest depth value from lights perspective
+		float closestDepth = texture(light.shadowMap[shadowMapIndex], projCoords.xy).r;
 
-	//texel attempt (pcf)
-	//float shadow = 0.0;
-	vec2 texelSize = 1.0 / textureSize(light.shadowMap, 0);
-	for(int x = -1; x <= 1; ++x) {
-		for(int y = -1; y <= 1; ++y) {
-			float pcfDepth = texture(light.shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+		//get depth of current fragment from lights perspective
+		float currentDepth = projCoords.z;
+
+		//check wether current frag pos is in shadow
+		//float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
+		float shadow = 0.0;
+
+		//texel attempt (pcf)
+		//float shadow = 0.0;
+		vec2 texelSize = 1.0 / textureSize(light.shadowMap[shadowMapIndex], 0);
+		for(int x = -1; x <= 1; ++x) {
+			for(int y = -1; y <= 1; ++y) {
+				float pcfDepth = texture(light.shadowMap[shadowMapIndex], projCoords.xy + vec2(x, y) * texelSize).r;
+				shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+			}
+		}
+		shadow /= 9.0;
+		if(projCoords.z > 1.0)
+			shadow = 0.0;
+
+		if(shadow > 0.0f) {
+			return shadow;
 		}
 	}
-	shadow /= 9.0;
-	if(projCoords.z > 1.0)
-		shadow = 0.0;
-	return shadow;
+	return 0.0f;
 }

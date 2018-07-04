@@ -18,7 +18,7 @@ void main() {
 	vec3 normal = normalize(fs_in.Normal);
 
 	Albedo = fs_in.Color;
-	Position = vec4(fs_in.FragPos, 1.0);
+	Position = vec4(fs_in.FragPos.xyz, gl_FragCoord.z);
 	Normal = vec4(normal, 1.0);
 	UseLight = vec4(vec3(1.0), 1.0);
 

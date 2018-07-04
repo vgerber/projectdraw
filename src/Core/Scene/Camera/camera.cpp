@@ -140,7 +140,13 @@ ViewFrustum Camera::getViewFrustum(int splits)
 
 	while (splits > 0)
 	{
-		GLfloat split = (FarZ / splits);
+		GLfloat split;
+		if (splits == 3) {
+			split = (FarZ * 0.1);
+		}
+		else {
+			split = (FarZ / splits);
+		}
 		glm::vec3 splitCenter = position - (-front_vector * split);
 
 		Size sizeSplit;
@@ -161,6 +167,8 @@ ViewFrustum Camera::getViewFrustum(int splits)
 	viewFrustum.up		 = up_vector;
 	viewFrustum.right	 = right_vector;
 
+	viewFrustum.farZ = FarZ;
+	viewFrustum.nearZ = NearZ;
 
 	return viewFrustum;
 }

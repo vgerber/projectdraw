@@ -117,14 +117,14 @@ int main() {
 	mainCamera.setPosition(glm::vec3(0.0f, 5.0f, 10.0f));
 	mainCamera.FarZ = 500.0f;
 
-	testCamera.setPosition(glm::vec3(1.0f, 4.0f, 40.0f));
+	testCamera.setPosition(glm::vec3(1.0f, 0.0f, 40.0f));
 	testCamera.FarZ = 10.0f;
 	testCamera.NearZ = 0.1f;
 	testCamera.FOV = 45.0f;
 
 	Geometry geoCam;
 
-	int testCamSplits = 1;
+	int testCamSplits = 3;
 	ViewFrustum viewF = testCamera.getViewFrustum(testCamSplits);
 
 	geoCam.color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
@@ -191,7 +191,7 @@ int main() {
     Drawable test_obj = Drawable(&path_obj_mountain[0]);
 
 
-	dLight.setViewFrustum(testCamera.getViewFrustum());
+	dLight.setViewFrustum(testCamera.getViewFrustum(dLight.getCSMSlices()));
 
 	Geometry geoLight;
 	{
@@ -995,6 +995,7 @@ int main() {
 	scene_main.dispose();
 	//glDeleteFramebuffers(1, &fbo_texture);
 
+	dLight.dispose();
 
 	//free memory
 	for (auto rbody : rigidBodys) {

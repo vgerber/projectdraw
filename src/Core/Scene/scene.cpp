@@ -52,9 +52,11 @@ btDiscreteDynamicsWorld* Scene::getPhysicsWorld() {
 
 void Scene::draw(GLfloat delta)
 {
-	/*if (directionalLight) {
-		directionalLight->setViewFrustum(camera->getViewFrustum());
-	}*/
+	if (directionalLight) {
+		directionalLight->setViewFrustum(
+			camera->getViewFrustum(directionalLight->getCSMSlices())
+		);
+	}
 	Shader shader_basic = Shaders[SHADER_BASIC];
 	Shader shader_light = Shaders[SHADER_DEFFERED_LIGHT];
 	Shader shader_normals = Shaders[SHADER_DEFFERED_NORMALS];
@@ -63,14 +65,15 @@ void Scene::draw(GLfloat delta)
 	if (directionalLight)
 	{
 		Shader shader_depth = Shaders[SHADER_DEPTH];
-
-		directionalLight->begin_shadow_mapping();
-		for (auto drawable : objects)
-		{
-			glUniformMatrix4fv(glGetUniformLocation(shader_depth.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
-			drawable->draw(shader_depth);
+		for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
+			directionalLight->begin_shadow_mapping(i);
+			for (auto drawable : objects)
+			{
+				glUniformMatrix4fv(glGetUniformLocation(shader_depth.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
+				drawable->draw(shader_depth);
+			}
+			directionalLight->end_shadow_mapping();
 		}
-		directionalLight->end_shadow_mapping();
 	}	
 	//Point Light Shader is deactivated
 	/*
@@ -169,19 +172,23 @@ void Scene::draw(GLfloat delta)
 	if (directionalLight)
 	{
 		directionalLight->apply(shader_deferred, "dirLight");
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "dirLight.shadowMap"), 4);
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, directionalLight->get_shadow_map());
+		for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("dirLight.shadowMap["+ std::to_string(i) +"]").c_str()), 4 + i);
+			glActiveTexture(GL_TEXTURE4 + i);
+			glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
+		}
 	}
 	GLint plight_count = 0;
 	glUniform1i(glGetUniformLocation(shader_deferred.getId(), "pointLights"), pointLights.size());
 	for (auto plight : pointLights)
 	{
+		
 		plight->apply(shader_deferred, "pointLight[" + std::to_string(plight_count) + "]");
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("pointLight[" + std::to_string(plight_count) + "].shadowCubeMap").c_str()), 5 + plight_count);
-		glActiveTexture(GL_TEXTURE5 + plight_count);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("pointLight[" + std::to_string(plight_count) + "].shadowCubeMap").c_str()), 8 + plight_count);
+		glActiveTexture(GL_TEXTURE8 + plight_count);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
 		plight_count++;
+		
 	}
 	//Point Light Shadow is deactivated
 	/*
@@ -204,7 +211,7 @@ void Scene::draw(GLfloat delta)
 	Shaders[SHADER_TEXTURE].use();
 	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "screenTexture"), 0);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, directionalLight->get_shadow_map());
+	glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(2));
 	
 	glBindVertexArray(screenShadowVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

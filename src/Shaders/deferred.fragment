@@ -3,17 +3,23 @@ in vec2 TexCoords;
 
 out vec4 color;
 
+#define DIR_SPLITS 3
+
 struct DirLight {
 	bool drawShadow;
+
 	float intensity;
+	float farPlane;
+
 	vec3 direction;
+
 
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
 
-	sampler2D shadowMap;
-	mat4 lightSpaceMatrix;
+	sampler2D[DIR_SPLITS] shadowMap;
+	mat4[DIR_SPLITS] lightSpaceMatrix;
 };
 
 struct PointLight {
@@ -57,42 +63,33 @@ uniform sampler2D gUseLight;
 
 uniform float weight[10] = float[] (0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1);
 
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec4 fragPosLightSpace, vec3 color);
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec4 fragPos, vec3 color);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color);
 
 float LinearizeDepth(float depth);
 float ShadowDirCalculation(DirLight light, vec4 fragPosLightSpace, float bias);
 
-vec3 blur(sampler2D image, int strength);
 
 void main() {
 	vec3 Normal = texture(gNormal, TexCoords).rgb;
-	vec3 FragPos = texture(gPosition, TexCoords).rgb;
+	vec4 FragPos = texture(gPosition, TexCoords).rgba;
 	vec3 Color = texture(gAlbedo, TexCoords).rgb;
-	vec3 viewDir = normalize(viewPos - FragPos);    
+	vec3 viewDir = normalize(viewPos - FragPos.xyz);    
 	float UseLight = texture(gUseLight, TexCoords).r;     
 	
-
+	
 	if(UseLight == 1.0) {
-		
-		vec4 FragPosLightSpace = dirLight.lightSpaceMatrix * vec4(FragPos, 1.0);
-		
+				
 		vec3 result = vec3(0.0);
 		if(pointLights != 0) {
 			for(int i = 0; i < pointLights; i++){ 
-				result += CalcPointLight(pointLight[i], Normal, FragPos, viewDir, Color) * pointLight[i].intensity;
+				result += CalcPointLight(pointLight[i], Normal, FragPos.xyz, viewDir, Color) * pointLight[i].intensity;
 			}
 		}
-		result += CalcSpotLight(spotLight, Normal, FragPos, viewDir, Color);
-		result += CalcDirLight(dirLight, Normal, viewDir, FragPosLightSpace, Color) * dirLight.intensity;		
-
-
-
-		//vec3 depth =  vec3(LinearizeDepth(gl_FragCoord.z));
-		//if (tex_vec.a <= 0.1)
-		//	discard;
-		
+		result += CalcSpotLight(spotLight, Normal, FragPos.xyz, viewDir, Color);
+		result += CalcDirLight(dirLight, Normal, viewDir, FragPos, Color) * dirLight.intensity;		
+			
 
 
 		//gamma correction
@@ -104,37 +101,5 @@ void main() {
 	else {
 		color = vec4(Color.rgb, 1.0);
 	}	
-}
-
-
-
-
-
-
-vec3 blur(sampler2D image, int strength) {
-	vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel
-    vec3 result = texture(image, TexCoords).rgb * weight[0]; // current fragment's contribution
-
-	for(int s = 0; s < 1; s++){
-		for(int i = 1; i < strength; ++i)
-		{
-			vec2 texcoords_of = vec2(tex_offset.x * i, 0.0);
-			vec2 texcoords = TexCoords + texcoords_of;
-			if(texture(gUseLight, texcoords).r == 0.0) {
-				result += texture(image, texcoords).rgb * weight[i];
-			}
-			else {
-				result += vec3(0.0) * weight[i];
-			}
-			texcoords = TexCoords - texcoords_of;
-			if(texture(gUseLight, texcoords).r == 0.0) {
-				result += texture(image, texcoords).rgb * weight[i];
-			}
-			else {
-				result += vec3(0.0) * weight[i];
-			}
-		}
-	}
-
-	return result;
+	
 }
