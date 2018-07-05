@@ -22,6 +22,7 @@ public:
 	void draw(GLfloat deltaTime, Shader shader);
 	void update(GLfloat deltaTime);
 
+	virtual void dispose();
 private:
 	Drawable drawableParticle;
 	std::vector<Particle> particles;

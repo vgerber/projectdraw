@@ -52,3 +52,8 @@ void ParticleGenerator::update(GLfloat deltaTime)
 		}
 	}
 }
+
+void ParticleGenerator::dispose()
+{
+
+}

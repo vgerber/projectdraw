@@ -37,6 +37,11 @@ struct PointLight {
 
 struct SpotLight {
 	float intensity; 
+
+	float linear;
+	float constant;
+	float quadratic;
+
 	vec3 position;
 	vec3 direction;
 	float cutOff;
@@ -63,12 +68,12 @@ uniform sampler2D gUseLight;
 
 uniform float weight[10] = float[] (0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1);
 
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec4 fragPos, vec3 color);
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, float depth, vec3 color);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color);
 
 float LinearizeDepth(float depth);
-float ShadowDirCalculation(DirLight light, vec4 fragPosLightSpace, float bias);
+float ShadowDirCalculation(DirLight light, vec4 fragPosLightSpace, float depth, float bias);
 
 
 void main() {
@@ -77,6 +82,7 @@ void main() {
 	vec3 Color = texture(gAlbedo, TexCoords).rgb;
 	vec3 viewDir = normalize(viewPos - FragPos);    
 	float UseLight = texture(gUseLight, TexCoords).r;     
+	float Depth = texture(gUseLight, TexCoords).g;
 	
 	
 	if(UseLight == 1.0) {
@@ -87,19 +93,19 @@ void main() {
 				result += CalcPointLight(pointLight[i], Normal, FragPos, viewDir, Color) * pointLight[i].intensity;
 			}
 		}
-		result += CalcSpotLight(spotLight, Normal, FragPos, viewDir, Color);
-		result += CalcDirLight(dirLight, Normal, viewDir, vec4(FragPos, 1.0), Color) * dirLight.intensity;		
+		result += CalcSpotLight(spotLight, Normal, FragPos, viewDir, Color) * spotLight.intensity;
+		result += CalcDirLight(dirLight, Normal, viewDir, FragPos, Depth, Color) * dirLight.intensity;		
 			
 
 
 		//gamma correction
-		float gamma = 1.2;
-		result.rgb = pow(result, vec3(1.0 / gamma));
+		//float gamma = 1.2;
+		//result.rgb = pow(result, vec3(1.0 / gamma));
 
 		color = vec4(result.rgb, 1.0);
 	}
 	else {
 		color = vec4(Color.rgb, 1.0);
-	}	
+	}
 	
 }

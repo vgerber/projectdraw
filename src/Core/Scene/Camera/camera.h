@@ -73,6 +73,7 @@ public:
 
 	virtual ViewFrustum getViewFrustum(int splits = 1);
 
+	virtual void dispose();
 private:
 	bool initial_move = true;
 	glm::vec3 front_vector;

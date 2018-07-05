@@ -1,7 +1,12 @@
 #version 330 core
 
 struct SpotLight {
-	float intensity; 
+	float intensity;
+
+	float linear;
+	float constant;
+	float quadratic;
+
 	vec3 position;
 	vec3 direction;
 	float cutOff;
@@ -30,9 +35,15 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
 	vec3 diffuse = light.diffuse * diff * color.rgb;  
 	vec3 specular = light.specular * spec * color.rgb;    
 
+
+	float distance = length(light.position - fragPos);
+	float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * distance * distance);
+
 	diffuse *= intensity;
 	specular *= intensity;
 
 
-	return (ambient + diffuse + specular);
+
+
+	return (ambient + diffuse + specular) * attenuation;
 }

@@ -20,3 +20,9 @@ void Light::apply(Shader shader, std::string target)
 	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".diffuse").c_str()), diffuse.r, diffuse.g, diffuse.b);
 	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".specular").c_str()), specular.r, specular.g, specular.b);
 }
+
+void DepthMap::dispose()
+{
+	glDeleteTextures(1, &depthMap);
+	glDeleteFramebuffers(1, &depthMapFBO);
+}

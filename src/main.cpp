@@ -115,7 +115,7 @@ int main() {
 	*/
 	//create camera
 	mainCamera.setPosition(glm::vec3(0.0f, 5.0f, 10.0f));
-	mainCamera.FarZ = 700.0f;
+	mainCamera.FarZ = 500.0f;
 
 	testCamera.setPosition(glm::vec3(1.0f, 0.0f, 40.0f));
 	testCamera.FarZ = 10.0f;
@@ -166,6 +166,7 @@ int main() {
 	dLight.ambient = glm::vec3(0.001f, 0.001f, 0.001f);
 	dLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	dLight.specular = glm::vec3(0.03f, 0.03f, 0.03f);
+	dLight.intensity = 0.01;
 
 	glm::vec3 light_color(0.0f, 0.0f, 1.0f);
 	glm::vec3 light_spec(0.0f, 0.0f, 1.0f);
@@ -187,6 +188,14 @@ int main() {
 	pLight2.linear = 0.7f;
 	pLight2.quadratic = 0.007f;
 	
+	SpotLight frontLight;
+	frontLight.intensity = 1.0;
+	frontLight.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+	//frontLight.setDistance(100.0f);
+	frontLight.setCutOff(6.1, 7.0);
+	frontLight.attenuationLinear = 0.007f;
+	frontLight.attenuationQuadratic = 0.000001f;
+
 
     Drawable test_obj = Drawable(&path_obj_mountain[0]);
 
@@ -563,7 +572,7 @@ int main() {
 	pLight.setPosition(glm::vec3(2.0f, 1.0f, 0.0f));
 	pLight2.setPosition(glm::vec3(5.0f, 1.0f, 0.0f));
 
-	
+	scene_main.addSLight(frontLight);
 
 	scene_main.addDrawable(test_obj);
 
@@ -801,7 +810,7 @@ int main() {
 	{
 		for(auto cube : cubes) {
 			collision::CollisionShape cube_shape(collision::generateCube(cube->getSize()));
-			RigidBody rbodyCube(cube_shape, cube->getPositionCenter(), cube->getRotation(), .1f);
+			RigidBody rbodyCube(cube_shape, cube->getPositionCenter(), cube->getRotation(), 80.0f);
 			rbodyCube.setDrawable(*cube);
 			rbodyCube.visibleAABB = false;
 			rigidBodys.push_back(new RigidBody(rbodyCube));
@@ -952,7 +961,6 @@ int main() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-		dLight.intensity = 1.0f;
 		pLight.intensity = 0.4f; // (sin(glfwGetTime() * 15 + 1.7) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
 		pLight2.intensity = (sin(glfwGetTime()) * 0.5 + 0.5);
 		//scene_main.draw(deltaTime);
@@ -961,16 +969,9 @@ int main() {
 		transform = vehicle->getChassisWorldTransform();
 		glm::vec3 carPosition = toVec3(transform.getOrigin());
 
+		frontLight.setPosition(carChassis.getPositionCenter() + glm::vec3(0.0f, 2.0f, 0.0f));
+		frontLight.setDirection(testVehicle->getDirection());
 
-		Shaders[SHADER_DEFERRED].use();
-		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.intensity"), 1.0f);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.ambient"), 0.0f, 0.0f, 0.0f);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.specular"), 1.0f, 1.0f, 1.0f);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.direction"), testVehicle->getDirection().x, testVehicle->getDirection().y, testVehicle->getDirection().z);
-		glUniform3f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.position"), carPosition.x, carPosition.y, carPosition.z);
-		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.cutOff"), glm::cos(glm::radians(6.1f)));
-		glUniform1f(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "spotLight.outerCutOff"), glm::cos(glm::radians(7.0f)));
 
 		glDisable(GL_DEPTH_TEST);
 		Shaders[SHADER_GEOMETRY].use();

@@ -36,6 +36,11 @@ void Scene::addPlight(PointLight &plight)
 	pointLights.push_back(&plight);
 }
 
+void Scene::addSLight(SpotLight & sLight)
+{
+	spotLights.push_back(&sLight);
+}
+
 void Scene::setCamera(Camera &camera)
 {
 	this->camera = &camera;
@@ -75,6 +80,8 @@ void Scene::draw(GLfloat delta)
 			directionalLight->end_shadow_mapping();
 		}
 	}	
+
+
 	//Point Light Shader is deactivated
 	/*
 	if (point_lights.size() > 0)
@@ -92,6 +99,21 @@ void Scene::draw(GLfloat delta)
 		}
 	}
 	*/
+
+
+	if (spotLights.size() > 0) {
+		Shader shader_depth = Shaders[SHADER_DEPTH];
+		for (auto sLight : spotLights) {
+			sLight->beginShadowMapping();
+			for (auto drawable : objects)
+			{
+				glUniformMatrix4fv(glGetUniformLocation(shader_depth.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
+				drawable->draw(shader_depth);
+			}
+			sLight->endShadadowMapping();
+		}
+	}
+
 
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
 	glViewport(0, 0, width, height);
@@ -202,21 +224,25 @@ void Scene::draw(GLfloat delta)
 	}
 	*/
 
+	for (auto sLight : spotLights) {
+		sLight->apply(shader_deferred, "spotLight");
+	}
+
 
 	glBindVertexArray(screenRectVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
-	/*
+	
 	glDisable(GL_DEPTH_TEST);
 	Shaders[SHADER_TEXTURE].use();
 	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "screenTexture"), 0);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(2));
+	glBindTexture(GL_TEXTURE_2D, spotLights[0]->getShadowMap());
 	
 	glBindVertexArray(screenShadowVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
-	*/
+	
 	glEnable(GL_DEPTH_TEST);
 	
 }

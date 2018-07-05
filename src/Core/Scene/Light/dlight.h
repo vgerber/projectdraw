@@ -26,7 +26,7 @@ public:
 private:
 	const int csmSlices = 3;
 	std::vector<DepthMap> depthMaps;
-	GLfloat farPlane = 0.0f;
+	GLfloat distance = 0.0f;
 
 	glm::vec3 direction = glm::vec3(-1.0f, -1.0f, -0.0f);
 	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;

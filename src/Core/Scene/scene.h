@@ -23,6 +23,7 @@ public:
 	void addParticleGenerator(ParticleGenerator &pg);
 
 	void addPlight(PointLight &plight);
+	void addSLight(SpotLight &sLight);
 
 	void setCamera(Camera &camera);
 	void setDlight(DirectionalLight &dlight);
@@ -65,6 +66,7 @@ private:
 	//lights
 	DirectionalLight* directionalLight = nullptr;
 	std::vector<PointLight*> pointLights;
+	std::vector<SpotLight*> spotLights;
 
 	//particles
 	std::vector<ParticleGenerator*> particleGenerators;

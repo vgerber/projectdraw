@@ -3,10 +3,13 @@
 #include "../drawable.h"
 #include "../../Shader/shader.h"
 
-struct DepthMap {
+class DepthMap {
+public:
 	glm::mat4 lightSpaceMatrix = glm::mat4(0.0);
 	GLuint depthMap;
 	GLuint depthMapFBO;
+
+	void dispose();
 };
 
 class Light : public Drawable

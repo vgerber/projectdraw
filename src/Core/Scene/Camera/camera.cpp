@@ -172,6 +172,10 @@ ViewFrustum Camera::getViewFrustum(int splits)
 
 	return viewFrustum;
 }
+void Camera::dispose()
+{
+}
+
 void Camera::updateCameraVectors()
 {
 	// Calculate the new Front vector
