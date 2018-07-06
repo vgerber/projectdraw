@@ -224,8 +224,13 @@ void Scene::draw(GLfloat delta)
 	}
 	*/
 
+
 	for (auto sLight : spotLights) {
 		sLight->apply(shader_deferred, "spotLight");
+
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "spotLight.shadowMap"), 10);
+		glActiveTexture(GL_TEXTURE10);
+		glBindTexture(GL_TEXTURE_2D, sLight->getShadowMap());
 	}
 
 

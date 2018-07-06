@@ -7,8 +7,8 @@ SpotLight::SpotLight()
 
 void SpotLight::beginShadowMapping()
 {
-	glm::mat4 lightView = glm::lookAt(position, position + direction, glm::vec3(0.0, 1.0, 0.0));
-	depthMap.lightSpaceMatrix = glm::perspective(glm::radians(45.0f), 8.0f / 6.0f, -5.0f, 10.0f) * lightView;
+	glm::mat4 lightView = glm::lookAt(position, position + glm::normalize(direction), glm::vec3(0.0, 1.0, 0.0));
+	depthMap.lightSpaceMatrix =  glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.0f, 1000.0f) * lightView; //glm::perspective(glm::radians(45.0f), 8.0f / 6.0f, 0.0f, 100.0f) * lightView;
 
 	Shaders[SHADER_DEPTH].use();
 
@@ -53,6 +53,12 @@ void SpotLight::apply(Shader shader, std::string target)
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".linear").c_str()), attenuationLinear);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".constant").c_str()), attenuationConstant);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".quadratic").c_str()), attenuationQuadratic);
+
+	glUniformMatrix4fv(
+			glGetUniformLocation(shader.getId(), (target + ".lightSpaceMatrix").c_str()),
+			1,
+			GL_FALSE,
+			glm::value_ptr(depthMap.lightSpaceMatrix));
 }
 
 void SpotLight::setCutOff(float inner, float outer)

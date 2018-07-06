@@ -57,7 +57,7 @@ void init_core() {
 	shader_basic.load();
 	Shaders[SHADER_BASIC] = shader_basic;
 
-
+	/*
 	Shader shader_light;
 	shader_light.layers = {
 		{ Loader::GetPath("/Shaders/light.vertex").c_str(), ShaderType::VERTEX },
@@ -65,7 +65,7 @@ void init_core() {
 	};
 	shader_light.load();
 	Shaders[SHADER_DEFFERED_LIGHT] = shader_light;
-
+*/
 
 	Shader shader_deferred;
 	shader_deferred.layers = {
@@ -73,7 +73,7 @@ void init_core() {
 		{ Loader::GetPath("/Shaders/deferred.fragment").c_str(), ShaderType::FRAGMENT },
 		{ Loader::GetPath("/Shaders/Light/dlight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
 		{ Loader::GetPath("/Shaders/Light/plight.fragment").c_str(), ShaderType::FRAGMENT },
-		{ Loader::GetPath("/Shaders/Light/slight.fragment").c_str(), ShaderType::FRAGMENT }
+		{ Loader::GetPath("/Shaders/Light/slight_shadow.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shader_deferred.load();
 	Shaders[SHADER_DEFERRED] = shader_deferred;
