@@ -31,6 +31,7 @@ const std::string SHADER_BASIC = "basic";
 const std::string SHADER_SKYBOX = "skybox";
 const std::string SHADER_DEPTH = "depth";
 const std::string SHADER_DEPTH_CUBE = "depth_cube";
+const std::string SHADER_DEPTH_PERSP = "depth_persp";
 const std::string SHADER_DEFERRED = "deferred";
 const std::string SHADER_GEOMETRY = "geometry";
 const std::string SHADER_DEFFERED_LIGHT = "ligth";

@@ -8,16 +8,20 @@ SpotLight::SpotLight()
 void SpotLight::beginShadowMapping()
 {
 	glm::mat4 lightView = glm::lookAt(position, position + glm::normalize(direction), glm::vec3(0.0, 1.0, 0.0));
-	depthMap.lightSpaceMatrix =  glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.0f, 1000.0f) * lightView; //glm::perspective(glm::radians(45.0f), 8.0f / 6.0f, 0.0f, 100.0f) * lightView;
+	depthMap.lightSpaceMatrix =  glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 300.0f) * lightView;
 
-	Shaders[SHADER_DEPTH].use();
+	Shader shader_depth = Shaders[SHADER_DEPTH_PERSP];
+	shader_depth.use();
 
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMap.depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
+	glUniform1f(glGetUniformLocation(shader_depth.getId(), "farPlane"), 300.0f);
+	glUniform3f(glGetUniformLocation(shader_depth.getId(), "lightPos"), position.x, position.y, position.z);
+
 	glUniformMatrix4fv(
-		glGetUniformLocation(Shaders[SHADER_DEPTH].getId(), "lightSpaceMatrix"),
+		glGetUniformLocation(shader_depth.getId(), "lightSpaceMatrix"),
 		1,
 		GL_FALSE,
 		glm::value_ptr(depthMap.lightSpaceMatrix));

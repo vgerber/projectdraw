@@ -113,6 +113,16 @@ void init_core() {
 	Shaders[SHADER_TEXTURE] = shader_texture;
 
 
+
+	Shader shader_perspective_depth;
+	shader_perspective_depth.layers = {
+		{ Loader::GetPath("/Shaders/Depth/depth_persp.vertex").c_str(), ShaderType::VERTEX },
+		{ Loader::GetPath("/Shaders/Depth/depth_persp.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shader_perspective_depth.load();
+	Shaders[SHADER_DEPTH_PERSP] = shader_perspective_depth;
+
+
 	glUniformBlockBinding(Shaders[SHADER_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].getId(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_FONT].getId(), glGetUniformBlockIndex(Shaders[SHADER_FONT].getId(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_SKYBOX].getId(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].getId(), "Matrices"), 0);

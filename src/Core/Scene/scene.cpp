@@ -102,7 +102,7 @@ void Scene::draw(GLfloat delta)
 
 
 	if (spotLights.size() > 0) {
-		Shader shader_depth = Shaders[SHADER_DEPTH];
+		Shader shader_depth = Shaders[SHADER_DEPTH_PERSP];
 		for (auto sLight : spotLights) {
 			sLight->beginShadowMapping();
 			for (auto drawable : objects)
