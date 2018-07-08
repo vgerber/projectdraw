@@ -142,7 +142,7 @@ ViewFrustum Camera::getViewFrustum(int splits)
 	{
 		GLfloat split;
 		if (splits == 3) {
-			split = (FarZ * 0.1);
+			split = (FarZ * 0.2);
 		}
 		else {
 			split = (FarZ / splits);

@@ -166,7 +166,7 @@ int main() {
 	dLight.ambient = glm::vec3(0.001f, 0.001f, 0.001f);
 	dLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	dLight.specular = glm::vec3(0.03f, 0.03f, 0.03f);
-	dLight.intensity = 0.01;
+	dLight.intensity = 0.2;
 
 	glm::vec3 light_color(0.0f, 0.0f, 1.0f);
 	glm::vec3 light_spec(0.0f, 0.0f, 1.0f);
@@ -192,7 +192,7 @@ int main() {
 	frontLight.intensity = 1.0;
 	frontLight.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
 	//frontLight.setDistance(100.0f);
-	frontLight.setCutOff(6.1, 7.0);
+	frontLight.setCutOff(6.1, 12.0);
 	frontLight.attenuationLinear = 0.007f;
 	frontLight.attenuationQuadratic = 0.000001f;
 
@@ -962,7 +962,7 @@ int main() {
 
 
 		pLight.intensity = 0.4f; // (sin(glfwGetTime() * 15 + 1.7) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
-		pLight2.intensity = (sin(glfwGetTime()) * 0.5 + 0.5);
+		pLight2.intensity = (sin(glfwGetTime()) * 0.5 + 0.5);    
 		//scene_main.draw(deltaTime);
 		
 		btTransform transform;
@@ -970,7 +970,7 @@ int main() {
 		glm::vec3 carPosition = toVec3(transform.getOrigin());
 
 		frontLight.setPosition(carChassis.getPositionCenter() + glm::vec3(0.0f, 2.0f, 0.0f));
-		frontLight.setDirection(testVehicle->getDirection());
+		frontLight.setDirection(testVehicle->getDirection() + glm::vec3(0.0f, -0.05f, 0.0f));
 
 
 		glDisable(GL_DEPTH_TEST);

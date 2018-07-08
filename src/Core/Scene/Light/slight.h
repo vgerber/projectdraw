@@ -28,7 +28,7 @@ public:
 private:
 	DepthMap depthMap;
 	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-	float distance = 100.0f;
+	float distance = 200.0f;
 
 	void setup();
 };

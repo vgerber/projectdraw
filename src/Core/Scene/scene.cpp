@@ -243,11 +243,11 @@ void Scene::draw(GLfloat delta)
 	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "screenTexture"), 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, spotLights[0]->getShadowMap());
-	
+	/*
 	glBindVertexArray(screenShadowVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
-	
+	*/
 	glEnable(GL_DEPTH_TEST);
 	
 }

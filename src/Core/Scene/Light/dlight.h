@@ -29,7 +29,7 @@ private:
 	GLfloat distance = 0.0f;
 
 	glm::vec3 direction = glm::vec3(-1.0f, -1.0f, -0.0f);
-	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+	const GLuint SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 
 	void setup();
 };

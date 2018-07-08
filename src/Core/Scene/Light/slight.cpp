@@ -8,7 +8,7 @@ SpotLight::SpotLight()
 void SpotLight::beginShadowMapping()
 {
 	glm::mat4 lightView = glm::lookAt(position, position + glm::normalize(direction), glm::vec3(0.0, 1.0, 0.0));
-	depthMap.lightSpaceMatrix =  glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 300.0f) * lightView;
+	depthMap.lightSpaceMatrix =  glm::perspective(glm::radians(glm::degrees(outerCutOff) * 2.f), 1.0f, 0.1f, distance) * lightView;
 
 	Shader shader_depth = Shaders[SHADER_DEPTH_PERSP];
 	shader_depth.use();
@@ -17,7 +17,7 @@ void SpotLight::beginShadowMapping()
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMap.depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	glUniform1f(glGetUniformLocation(shader_depth.getId(), "farPlane"), 300.0f);
+	glUniform1f(glGetUniformLocation(shader_depth.getId(), "farPlane"), distance);
 	glUniform3f(glGetUniformLocation(shader_depth.getId(), "lightPos"), position.x, position.y, position.z);
 
 	glUniformMatrix4fv(
@@ -57,6 +57,7 @@ void SpotLight::apply(Shader shader, std::string target)
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".linear").c_str()), attenuationLinear);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".constant").c_str()), attenuationConstant);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".quadratic").c_str()), attenuationQuadratic);
+	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".farPlane").c_str()), distance);
 
 	glUniformMatrix4fv(
 			glGetUniformLocation(shader.getId(), (target + ".lightSpaceMatrix").c_str()),

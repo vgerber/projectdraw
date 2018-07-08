@@ -10,6 +10,7 @@ in VS_OUT {
 	vec3 Normal;
 	vec3 FragPos;
 	vec4 Color;
+	float Depth;
 } fs_in;
 
 
@@ -20,5 +21,5 @@ void main() {
 	Albedo = fs_in.Color;
 	Position = vec4(vec3(fs_in.FragPos.xyz), 1.0);
 	Normal = vec4(normal, 1.0);
-	UseLight = vec4(1.0, gl_FragCoord.z * gl_FragCoord.w, 0.0, 1.0);
+	UseLight = vec4(1.0, fs_in.Depth, 0.0, 1.0);
 }
