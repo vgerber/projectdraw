@@ -3,9 +3,10 @@
 
 class PointLight : public Light {
 public:
-	GLfloat constant = 1.0f;
-	GLfloat linear = 0.0f;
-	GLfloat quadratic = 0.0f;
+	GLfloat radius = 10.0f;
+	GLfloat attenuationConstant = 1.0f;
+	GLfloat attenuationLinear = 0.7f;
+	GLfloat attenuationQuadratic = 0.007f;
 
 	PointLight();
 	void apply(Shader shader, std::string target);

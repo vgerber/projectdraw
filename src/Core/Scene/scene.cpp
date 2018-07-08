@@ -123,6 +123,7 @@ void Scene::draw(GLfloat delta)
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(camera->GetViewMatrix()));
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera->GetCameraMatrix(width, height)));
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(GLfloat), &camera->FarZ);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	//glDisable(GL_CULL_FACE);
@@ -190,7 +191,7 @@ void Scene::draw(GLfloat delta)
 	glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, gBufferUseLight);
-
+	
 	if (directionalLight)
 	{
 		directionalLight->apply(shader_deferred, "dirLight");
@@ -200,6 +201,7 @@ void Scene::draw(GLfloat delta)
 			glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
 		}
 	}
+	
 	GLint plight_count = 0;
 	glUniform1i(glGetUniformLocation(shader_deferred.getId(), "pointLights"), pointLights.size());
 	for (auto plight : pointLights)
@@ -353,9 +355,9 @@ void Scene::setup(int width, int height)
 
 	glGenBuffers(1, &uboMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4) + sizeof(GLfloat));
 
 
 	GLfloat vertices_rect[] = {

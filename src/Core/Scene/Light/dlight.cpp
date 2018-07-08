@@ -7,9 +7,7 @@ DirectionalLight::DirectionalLight()
 
 void DirectionalLight::change_direction(glm::vec3 direction)
 {
-	//this->direction = direction;
-	//lightView = glm::lookAt(-direction, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//lightSpaceMatrix = lightProjection * lightView;
+	this->direction = direction;
 }
 
 glm::vec3 DirectionalLight::get_direction()

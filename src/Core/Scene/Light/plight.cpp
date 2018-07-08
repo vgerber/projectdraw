@@ -7,11 +7,14 @@ PointLight::PointLight() {
 void PointLight::apply(Shader shader, std::string target)
 {
 	Light::apply(shader, target);
-	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".position").c_str()), position.x, position.y, position.z);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".constant").c_str()), constant);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".linear").c_str()), linear);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".quadratic").c_str()), quadratic);
+
+	glm::vec4 Mpos = mmodel * glm::vec4(size.width * 0.5f, size.height * 0.5f, size.depth * 0.5f, 1.0f);
+	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".position").c_str()), Mpos.x, Mpos.y, Mpos.z);
+	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".radius").c_str()), radius);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".far_plane").c_str()), far);
+	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".constant").c_str()), attenuationConstant);
+	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".linear").c_str()), attenuationLinear);
+	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".quadratic").c_str()), attenuationQuadratic);
 }
 
 void PointLight::begin_shadow_mapping()

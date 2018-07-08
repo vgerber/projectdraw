@@ -164,37 +164,44 @@ int main() {
 	DirectionalLight dLight = DirectionalLight();
 	//dLight.direction = glm::vec3(-2.0f, -2.0f, -2.0f);
 	dLight.ambient = glm::vec3(0.001f, 0.001f, 0.001f);
-	dLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	dLight.diffuse = glm::vec3(1.0f, 0.7f, 0.5f);
 	dLight.specular = glm::vec3(0.03f, 0.03f, 0.03f);
-	dLight.intensity = 0.2;
+	dLight.intensity = 1.0;
+	dLight.change_direction(glm::vec3(-1.0f, -0.4f, -1.0f));
 
 	glm::vec3 light_color(0.0f, 0.0f, 1.0f);
 	glm::vec3 light_spec(0.0f, 0.0f, 1.0f);
 
-	PointLight pLight;
-	pLight.setPosition(glm::vec3(4.0f, 1.0f, 0.0f));
-	pLight.ambient = glm::vec3(0.001f, 0.01f, 0.001f);
-	pLight.diffuse = light_color;
-	pLight.specular = light_spec;
-	pLight.linear = 0.7f;
-	pLight.quadratic = 0.007f;
+	PointLight pLightLeft;
+	pLightLeft.intensity = 1.0f;
+	pLightLeft.setPosition(glm::vec3(4.0f, 4.0f, 0.0f));
+	pLightLeft.ambient = glm::vec3(0.001f, 0.01f, 0.001f);
+	pLightLeft.diffuse = light_color;
+	pLightLeft.specular = light_spec;
+	pLightLeft.radius = 200.0f;
+
+
+	PointLight pLightRight;
+	pLightRight.intensity = 1.0f;
+	pLightRight.setPosition(glm::vec3(4.0f, 4.0f, 0.0f));
+	pLightRight.ambient = glm::vec3(0.001f, 0.01f, 0.001f);
+	pLightRight.diffuse = light_color;
+	pLightRight.specular = light_spec;
+	pLightRight.radius = 200.0f;
 
 	light_color = glm::vec3(1.0f, 0.2f, 0.0f);
+	light_spec  = glm::vec3(1.0f, 0.2f, 0.0f);
 	PointLight pLight2;
 	pLight2.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	pLight2.ambient = glm::vec3(0.001f, 0.01f, 0.001f);
 	pLight2.diffuse = light_color;
 	pLight2.specular = light_spec;
-	pLight2.linear = 0.7f;
-	pLight2.quadratic = 0.007f;
 	
 	SpotLight frontLight;
 	frontLight.intensity = 1.0;
 	frontLight.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
-	//frontLight.setDistance(100.0f);
+	frontLight.setDistance(200.0f);
 	frontLight.setCutOff(6.1, 12.0);
-	frontLight.attenuationLinear = 0.007f;
-	frontLight.attenuationQuadratic = 0.000001f;
 
 
     Drawable test_obj = Drawable(&path_obj_mountain[0]);
@@ -567,9 +574,11 @@ int main() {
 	//dLight.change_direction(glm::vec3(-1.0f, 0.0f, 0.0f));
 	dLight.draw_shadow = true;
 
-	scene_main.addPlight(pLight);
+	scene_main.addPlight(pLightLeft);
+	scene_main.addPlight(pLightRight);
+
 	scene_main.addPlight(pLight2);
-	pLight.setPosition(glm::vec3(2.0f, 1.0f, 0.0f));
+	pLightLeft.setPosition(glm::vec3(2.0f, 1.0f, 0.0f));
 	pLight2.setPosition(glm::vec3(5.0f, 1.0f, 0.0f));
 
 	scene_main.addSLight(frontLight);
@@ -598,8 +607,9 @@ int main() {
 	test_obj.visibleBox =  false;
 	test_obj.drawType = DrawType::TRIANGLE;
 
-	pLight.setModel(primitves::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
-	pLight2.setModel(pLight.getModel());
+	pLightLeft.setModel(primitves::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
+	pLightRight.setModel(primitves::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
+	pLight2.setModel(pLightLeft.getModel());
 
 	//cube.scaleToSize(size_medium);
 	//cube.setPosition(glm::vec3(1.0f, 5.0f, 0.0f));	
@@ -698,6 +708,13 @@ int main() {
 		carWheels[3]->setPositionCenter(glm::vec3(carCenter.x - (carSize.width * 0.5f + carWheelThickness * 0.5f), carCenter.y - carSize.height * 0.5f, carCenter.z - carSize.depth * 0.3f));
 	}
 
+
+	pLightLeft.setPosition(carChassis.getPositionCenter() + glm::vec3(-carChassis.getSize().width * 0.5f + 0.25, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
+	pLightLeft.setCenterInWorld(carChassis.getPositionCenter());
+
+	pLightRight.setPosition(carChassis.getPositionCenter() + glm::vec3(carChassis.getSize().width * 0.5f - 0.75f, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
+	pLightRight.setCenterInWorld(carChassis.getPositionCenter());
+
 	scene_main.addDrawable(carChassis);
 	for (auto wheel : carWheels) {
 		scene_main.addDrawable(*wheel);
@@ -754,6 +771,7 @@ int main() {
 	borderLeft.setCenterInWorld(borderGround.getPositionCenter());
 	borderRight.setPosition(borderGround.getPosition() + glm::vec3(sizeGround.width, 0.0f, 0.0f));
 	borderRight.setCenterInWorld(borderGround.getPositionCenter());
+
 
 	//cube.setPositionCenter(glm::vec3(0.0f, 10.0f, 10.0f));
 	//cube.rotate(glm::radians(glm::vec3(40.0f, 40.0f, 40.0f)));
@@ -941,7 +959,6 @@ int main() {
 		//text_fps.scaleToWidth(test_rect.getSize().width);
 		text_fps.setText(std::to_string((int)abs(vehicle->getCurrentSpeedKmHour())) + " km/h");
 		
-		pLight.setPosition(glm::vec3(-5.0, 1.0f, sin(glfwGetTime()) * 3.0f));
 
 		btVector3 rayStart(0.0f, 15.0f, 0.0f);
 		btVector3 rayEnd(0.0f, -5.0f, 2.0f);
@@ -955,23 +972,34 @@ int main() {
 			//std::cout << pLight2.getPosition().y << std::endl;
 		}
 
-		pgTest.setPosition(carChassis.getPositionCenter());
+		//pgTest.setPosition(carChassis.getPositionCenter());
 
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-		pLight.intensity = 0.4f; // (sin(glfwGetTime() * 15 + 1.7) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
+		dLight.intensity = std::max(sin(glfwGetTime() * 0.5f), 0.0);
+		
 		pLight2.intensity = (sin(glfwGetTime()) * 0.5 + 0.5);    
 		//scene_main.draw(deltaTime);
 		
-		btTransform transform;
-		transform = vehicle->getChassisWorldTransform();
-		glm::vec3 carPosition = toVec3(transform.getOrigin());
+		//update vehicle lights
+		{
+			btTransform transform;
+			transform = vehicle->getChassisWorldTransform();
+			glm::vec3 carPosition = toVec3(transform.getOrigin());
 
-		frontLight.setPosition(carChassis.getPositionCenter() + glm::vec3(0.0f, 2.0f, 0.0f));
-		frontLight.setDirection(testVehicle->getDirection() + glm::vec3(0.0f, -0.05f, 0.0f));
+			frontLight.setPosition(carChassis.getPositionCenter() + glm::vec3(0.0f, 2.0f, 0.0f));
+			frontLight.setDirection(testVehicle->getDirection() + glm::vec3(0.0f, -0.05f, 0.0f));
 
+			pLightLeft.setPosition(carChassis.getPositionCenter() + glm::vec3(-carChassis.getSize().width * 0.5f + 0.25f, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
+			pLightLeft.rotate(carChassis.getRotation());
+
+			pLightRight.setPosition(carChassis.getPositionCenter() + glm::vec3(carChassis.getSize().width * 0.5f - 0.75f, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
+			pLightRight.rotate(carChassis.getRotation());
+
+			pLightLeft.intensity = (sin(glfwGetTime() * 10) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
+			pLightRight.intensity = (sin(glfwGetTime() * 11 + glm::pi<GLfloat>()) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
+		}
 
 		glDisable(GL_DEPTH_TEST);
 		Shaders[SHADER_GEOMETRY].use();

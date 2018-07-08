@@ -28,8 +28,8 @@ private:
 	std::vector<DepthMap> depthMaps;
 	GLfloat distance = 0.0f;
 
-	glm::vec3 direction = glm::vec3(-1.0f, -1.0f, -0.0f);
-	const GLuint SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
+	glm::vec3 direction = glm::vec3(-1.0f, -1.0f, -1.0f);
+	const GLuint SHADOW_WIDTH = 4096, SHADOW_HEIGHT = 4096;
 
 	void setup();
 };

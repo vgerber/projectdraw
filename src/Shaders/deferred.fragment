@@ -30,6 +30,8 @@ struct PointLight {
 	vec3 diffuse;
 	vec3 specular;
 
+	float radius;
+
 	float constant;
 	float linear;
 	float quadratic;
@@ -38,10 +40,6 @@ struct PointLight {
 struct SpotLight {
 	float intensity;
 	float farPlane;
-
-	float linear;
-	float constant;
-	float quadratic;
 
 	vec3 position;
 	vec3 direction;
@@ -57,7 +55,7 @@ struct SpotLight {
 };
 
 
-#define MAX_PLIGHTS 2
+#define MAX_PLIGHTS 100
 
 uniform DirLight dirLight;
 uniform SpotLight spotLight;
@@ -103,11 +101,13 @@ void main() {
 		result += CalcSpotLight(spotLight, Normal, FragPos, viewDir, Color) * spotLight.intensity;
 		result += CalcDirLight(dirLight, Normal, viewDir, FragPos, Depth, Color) * dirLight.intensity;		
 			
+		
+
 
 
 		//gamma correction
-		//float gamma = 1.2;
-		//result.rgb = pow(result, vec3(1.0 / gamma));
+		float gamma = 1.2;
+		result.rgb = pow(result, vec3(1.0 / gamma));
 
 		color = vec4(result.rgb, 1.0);
 	}

@@ -8,8 +8,8 @@ Light::Light()
 void Light::updateModel()
 {
 	Drawable::updateModel();
-	glm::vec3 center_translate = glm::vec3(0.5f * size.width, 0.5f * size.height, 0.5f * size.depth);
-	mmodel = glm::translate(mmodel, -center_translate);
+	//glm::vec3 center_translate = glm::vec3(0.5f * size.width, 0.5f * size.height, 0.5f * size.depth);
+	//mmodel = glm::translate(mmodel, -center_translate);
 }
 
 void Light::apply(Shader shader, std::string target)
