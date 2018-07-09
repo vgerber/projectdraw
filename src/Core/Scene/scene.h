@@ -2,6 +2,7 @@
 
 #include "../core.h"
 #include "Camera/camera.h"
+#include "Camera/scenecamera.h"
 #include "drawable.h"
 #include "Light/lights.h"
 #include "../Physics/physics.h"
@@ -10,6 +11,8 @@
 
 #include <map>
 #include <memory>
+
+
 
 class Scene
 {
@@ -25,7 +28,8 @@ public:
 	void addPlight(PointLight &plight);
 	void addSLight(SpotLight &sLight);
 
-	void setCamera(Camera &camera);
+	//camera with size from -1.0 - 1.0
+	void addCamera(Camera &camera, Size size);
 	void setDlight(DirectionalLight &dlight);
 
 	btDiscreteDynamicsWorld* getPhysicsWorld();
@@ -60,7 +64,7 @@ private:
 	GLuint screenShadowVBO;
 	GLuint screenShadowVAO;
 
-	Camera* camera = nullptr;
+	std::vector<SceneCamera> cameras;
 	std::vector<Drawable*> objects;
 
 	//lights

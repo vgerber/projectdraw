@@ -1,12 +1,13 @@
 #include "perspcamera.h"
 
-glm::mat4 PerspectiveCamera::GetCameraMatrix()
+glm::mat4 PerspectiveCamera::getCameraMatrix()
 {
 	return glm::perspective(glm::radians(FOV), Width / Height, NearZ, FarZ);
 }
 
 ViewFrustum PerspectiveCamera::getViewFrustum(int splits)
 {
+	float aspect = Width / Height;
 	ViewFrustum viewFrustum;
 	glm::vec3 nearCenter = position - (-front_vector * NearZ);
 
@@ -17,11 +18,11 @@ ViewFrustum PerspectiveCamera::getViewFrustum(int splits)
 
 	Size sizeFar;
 	sizeFar.height = 2.0f * tanf(glm::radians(FOV) / 2.0f) * FarZ;
-	sizeFar.width = sizeFar.height * (800.0f / 600.0f);
+	sizeFar.width = sizeFar.height * aspect;
 
 	Size sizeNear;
 	sizeNear.height = 2.0f * tanf(glm::radians(FOV) / 2.0f) * NearZ;
-	sizeNear.width = sizeNear.height * (800.0f / 600.0f);
+	sizeNear.width = sizeNear.height * aspect;
 
 	std::vector<glm::vec3> nearCorners;
 	nearCorners.push_back(nearCenter + up_vector * (sizeNear.height * 0.5f) - right_vector * (sizeNear.width * 0.5f));
@@ -43,13 +44,13 @@ ViewFrustum PerspectiveCamera::getViewFrustum(int splits)
 
 		Size sizeSplit;
 		sizeSplit.height = 2.0f * tanf(glm::radians(FOV) / 2.0f) * split;
-		sizeSplit.width = sizeSplit.height * (800.0f / 600.0f);
+		sizeSplit.width = sizeSplit.height * aspect;
 
 		std::vector<glm::vec3> splitCorners;
-		splitCorners.push_back(splitCenter + up_vector * (sizeSplit.height * 0.55f) - right_vector * (sizeSplit.width * 0.55f));
-		splitCorners.push_back(splitCenter + up_vector * (sizeSplit.height * 0.55f) + right_vector * (sizeSplit.width * 0.55f));
-		splitCorners.push_back(splitCenter - up_vector * (sizeSplit.height * 0.55f) - right_vector * (sizeSplit.width * 0.55f));
-		splitCorners.push_back(splitCenter - up_vector * (sizeSplit.height * 0.55f) + right_vector * (sizeSplit.width * 0.55f));
+		splitCorners.push_back(splitCenter + up_vector * (sizeSplit.height * 0.5f) - right_vector * (sizeSplit.width * 0.5f));
+		splitCorners.push_back(splitCenter + up_vector * (sizeSplit.height * 0.5f) + right_vector * (sizeSplit.width * 0.5f));
+		splitCorners.push_back(splitCenter - up_vector * (sizeSplit.height * 0.5f) - right_vector * (sizeSplit.width * 0.5f));
+		splitCorners.push_back(splitCenter - up_vector * (sizeSplit.height * 0.5f) + right_vector * (sizeSplit.width * 0.5f));
 		viewFrustum.splits.push_back(splitCorners);
 		splits--;
 	}

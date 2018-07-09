@@ -20,6 +20,8 @@
 #include "Core/Scene/Light/plight.h"
 #include "Core/Scene/Text/text.h"
 #include "Core/Util/Debug/vector.h"
+#include "Core/Scene/Camera/perspcamera.h"
+#include "Core/Scene/Camera/orthocamera.h"
 
 #ifdef _WIN32
 std::string path_obj_mountain = "C:/Users/Vincent/Documents/Projects/Blender/TriFace/basic_mountain.obj";
@@ -31,8 +33,10 @@ std::string path_obj_mountain = "/home/vincent/Development/Cpp/opengl/basic_moun
 
 GLfloat deltaTime = 0.0f, mouseX = 0, mouseY = 0, mousePitch = 0, mouseYaw = 0, mouseRoll = 0;
 GLfloat WIDTH = 800.0f, HEIGHT = 600.0f;
-Camera mainCamera = Camera();
-Camera testCamera;
+
+bool initialCameraMove = true;
+PerspectiveCamera mainCamera;
+OrthographicCamera testCamera;
 
 btRaycastVehicle *vehicle = nullptr;
 
@@ -114,13 +118,24 @@ int main() {
 	GLuint cubemapTexture = Loader::LoadCubemap(skybox_faces);
 	*/
 	//create camera
-	mainCamera.setPosition(glm::vec3(0.0f, 5.0f, 10.0f));
+	mainCamera.setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
 	mainCamera.FarZ = 500.0f;
+	mainCamera.Width = WIDTH;
+	mainCamera.Height = HEIGHT;
 
-	testCamera.setPosition(glm::vec3(1.0f, 0.0f, 40.0f));
-	testCamera.FarZ = 10.0f;
+	PerspectiveCamera carCamera;
+	carCamera.FarZ = 100.0f;
+	carCamera.Width = WIDTH;
+	carCamera.Height = HEIGHT;
+
+
+	testCamera = OrthographicCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+	testCamera.setPosition(glm::vec3(1.0f, 50.0f, 0.0f));
+	testCamera.FarZ = 55.0f;
 	testCamera.NearZ = 0.1f;
-	testCamera.FOV = 45.0f;
+	testCamera.Height = 550.0f;
+	testCamera.Width = 550.0f * (WIDTH / HEIGHT);
+	//testCamera.FOV = 45.0f;
 
 	Geometry geoCam;
 
@@ -146,10 +161,11 @@ int main() {
 
 
 		if (i == viewF.splits.size() - 1) {
-			geoCam.line(viewF.position, corners[1]);
-			geoCam.line(viewF.position, corners[3]);
-			geoCam.line(viewF.position, corners[2]);
-			geoCam.line(viewF.position, corners[0]);
+			std::vector<glm::vec3> nearCorners = viewF.splits[0];
+			geoCam.line(nearCorners[1], corners[1]);
+			geoCam.line(nearCorners[3], corners[3]);
+			geoCam.line(nearCorners[2], corners[2]);
+			geoCam.line(nearCorners[0], corners[0]);
 		}
 	}
 
@@ -495,7 +511,7 @@ int main() {
 	//
 	//Geometry
 	//
-	
+	/*
 	GLuint geoPointVBO;
 	GLuint geoPointVAO;
 
@@ -512,7 +528,7 @@ int main() {
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*) (2 * sizeof(GLfloat)));
 	glBindVertexArray(0);
-		
+	*/	
 
 
 
@@ -565,7 +581,12 @@ int main() {
 
 
 	Scene scene_main;
-	scene_main.setCamera(mainCamera);
+	Size camSize{ -1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f };
+	scene_main.addCamera(mainCamera, camSize);
+	camSize = { 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f };
+	scene_main.addCamera(testCamera, camSize);
+	camSize = { -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f };
+	scene_main.addCamera(carCamera, camSize);
 
 	scene_main.addDrawable(geoCam);
 	scene_main.addDrawable(geoLight);
@@ -980,7 +1001,7 @@ int main() {
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		dLight.intensity = std::max(sin(glfwGetTime() * 0.5f), 0.0);
+		dLight.intensity = std::max(sin(glfwGetTime() * 0.5f), 0.7);
 		
 		pLight2.intensity = (sin(glfwGetTime()) * 0.5 + 0.5);    
 		//scene_main.draw(deltaTime);
@@ -992,7 +1013,7 @@ int main() {
 			glm::vec3 carPosition = toVec3(transform.getOrigin());
 
 			frontLight.setPosition(carChassis.getPositionCenter() + glm::vec3(0.0f, 2.0f, 0.0f));
-			frontLight.setDirection(testVehicle->getDirection() + glm::vec3(0.0f, -0.05f, 0.0f));
+			frontLight.setDirection(testVehicle->getFront() + glm::vec3(0.0f, -0.05f, 0.0f));
 
 			pLightLeft.setPosition(carChassis.getPositionCenter() + glm::vec3(-carChassis.getSize().width * 0.5f + 0.25f, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
 			pLightLeft.rotate(carChassis.getRotation());
@@ -1002,15 +1023,20 @@ int main() {
 
 			pLightLeft.intensity = (sin(glfwGetTime() * 10) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
 			pLightRight.intensity = (sin(glfwGetTime() * 11 + glm::pi<GLfloat>()) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
+		
+			carCamera.setPosition(carPosition + glm::vec3(0.0f, 1.5f, 0.0f));
+			glm::vec3 carFront = testVehicle->getFront() * glm::vec3(-1.0f, 1.0f, 1.0f);
+			carCamera.lookAt(carFront);
 		}
 
+		/*
 		glDisable(GL_DEPTH_TEST);
 		Shaders[SHADER_GEOMETRY].use();
 		glBindVertexArray(geoPointVAO);
 		glDrawArrays(GL_POINTS, 0, 4);
 		glBindVertexArray(0);
 		glEnable(GL_DEPTH_TEST);
-
+		*/
 
 		glfwSwapBuffers(window);
 		GLfloat currentTime = glfwGetTime();
@@ -1087,11 +1113,32 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 
 void mouse_callback(GLFWwindow * window, double xpos, double ypos)
 {
+	float mouseSensitivity = 0.2f;
 
 	GLfloat xoffset = (xpos - mouseX);
 	GLfloat yoffset = (mouseY - ypos);
 
-	mainCamera.HandleMouseMove(xoffset, yoffset);
+	if (initialCameraMove) {
+		xoffset = 0;
+		yoffset = 0;
+		initialCameraMove = false;
+	}
+	xoffset *= mouseSensitivity;
+	yoffset *= mouseSensitivity;
+
+	glm::vec3 rotation = mainCamera.getRotation();
+
+	rotation.y += xoffset;
+	rotation.x += yoffset;
+
+	if (rotation.x > 89.0f)
+		rotation.x = 89.0f;
+	if (rotation.x < -89.0f)
+		rotation.x = -89.0f;
+
+	// Update Front, Right and Up Vectors using the updated Eular angles
+	mainCamera.rotate(rotation);
+	mainCamera.updateCameraVectors();
 
 	mouseX = xpos;
 	mouseY = ypos;
@@ -1099,19 +1146,29 @@ void mouse_callback(GLFWwindow * window, double xpos, double ypos)
 
 void mouse_scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
 {
-	mainCamera.HandleMouseScroll(yoffset);
 }
 
 void handle_key()
 {
+	float mouseSpeed = 0.0f;
+	if (keys[GLFW_KEY_LEFT_SHIFT]) {
+		mouseSpeed = 150.0f;
+	}
+	else {
+		mouseSpeed = 30.0f;
+	}
+
+	glm::vec3 camPos = mainCamera.getPosition();
+	glm::vec3 camFront = mainCamera.getFront();
+	glm::vec3 camRight = mainCamera.getRight();
 	if (keys[GLFW_KEY_W])
-		mainCamera.HandleKeyboard(CameraMovement::FORWARD, deltaTime);
+		mainCamera.setPosition(camPos += camFront * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_S])
-		mainCamera.HandleKeyboard(CameraMovement::BACKWARD, deltaTime);
+		mainCamera.setPosition(camPos -= camFront * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_A])
-		mainCamera.HandleKeyboard(CameraMovement::LEFT, deltaTime);
+		mainCamera.setPosition(camPos -= camRight * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_D])
-		mainCamera.HandleKeyboard(CameraMovement::RIGHT, deltaTime);
+		mainCamera.setPosition(camPos += camRight * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_SPACE]) {
 		vehicle->applyEngineForce(0, 0);
 		vehicle->applyEngineForce(0, 1);
@@ -1160,14 +1217,6 @@ void handle_key()
 	}
 	if (keys[GLFW_KEY_R]) {
 		
-	}
-
-
-	if (keys[GLFW_KEY_LEFT_SHIFT]) {
-		mainCamera.MovementSpeed = 150.0f;
-	}
-	else {
-		mainCamera.MovementSpeed = 30.0f;
 	}
 
 }

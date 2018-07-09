@@ -95,7 +95,7 @@ void Vehicle::dispose()
 	delete vehicleRaycaster;
 }
 
-glm::vec3 Vehicle::getDirection()
+glm::vec3 Vehicle::getFront()
 {
 	return direction;
 }

@@ -22,7 +22,7 @@ public:
 
 	void dispose();
 
-	glm::vec3 getDirection();
+	glm::vec3 getFront();
 
 	btRaycastVehicle *getVehicle();
 

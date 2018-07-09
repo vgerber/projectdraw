@@ -19,7 +19,7 @@ void Camera::setPosition(glm::vec3 position)
 
 
 // Constructor with vectors
-Camera::Camera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY)
+Camera::Camera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f))
 {
 	this->position = position;
 	this->world_up_vector = up;
@@ -28,7 +28,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) : f
 	this->updateCameraVectors();
 }
 // Constructor with scalar values
-Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY)
+Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f))
 {
 	this->position = glm::vec3(posX, posY, posZ);
 	this->world_up_vector = glm::vec3(upX, upY, upZ);
@@ -37,8 +37,26 @@ Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat up
 	this->updateCameraVectors();
 }
 
+glm::vec3 Camera::getRotation()
+{
+	return glm::vec3(pitch, yaw, roll);
+}
+
+void Camera::rotate(glm::vec3 rotation)
+{
+	rotate(rotation.x, rotation.y, rotation.z);
+}
+
+void Camera::rotate(float pitch, float yaw, float roll)
+{
+	this->pitch = pitch;
+	this->yaw = yaw;
+	this->roll = roll;
+}
+
+
 // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-glm::mat4 Camera::GetViewMatrix()
+glm::mat4 Camera::getViewMatrix()
 {
 	return glm::lookAt(this->position, this->position + this->front_vector, this->up_vector);
 	//glm::vec3 pos = glm::vec3(10.0f, 5.0f, +10.0f);
@@ -46,56 +64,38 @@ glm::mat4 Camera::GetViewMatrix()
 }
 
 
-glm::vec3 Camera::GetDirection()
+glm::vec3 Camera::getFront()
 {
 	return front_vector;
 }
 
-
-// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void Camera::HandleKeyboard(CameraMovement direction, GLfloat deltaTime)
+glm::vec3 Camera::getRight()
 {
-	GLfloat velocity = this->MovementSpeed * deltaTime;
-	if (direction == FORWARD)
-		this->position += this->front_vector * velocity;
-	if (direction == BACKWARD)
-		this->position -= this->front_vector * velocity;
-	if (direction == LEFT)
-		this->position -= this->right_vector * velocity;
-	if (direction == RIGHT)
-		this->position += this->right_vector * velocity;
+	return right_vector;
 }
 
-// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-void Camera::HandleMouseMove(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch)
+glm::vec3 Camera::getUp()
 {
-	if (initial_move) {
-		xoffset = 0;
-		yoffset = 0;
-		initial_move = false;
-	}
-	xoffset *= this->MouseSensitivity;
-	yoffset *= this->MouseSensitivity;
-
-	this->yaw += xoffset;
-	this->pitch += yoffset;
-
-	// Make sure that when pitch is out of bounds, screen doesn't get flipped
-	if (constrainPitch)
-	{
-		if (this->pitch > 89.0f)
-			this->pitch = 89.0f;
-		if (this->pitch < -89.0f)
-			this->pitch = -89.0f;
-	}
-
-	// Update Front, Right and Up Vectors using the updated Eular angles
-	this->updateCameraVectors();
+	return up_vector;
 }
+
+void Camera::lookAt(glm::vec3 target)
+{
+	glm::vec3 front_default = glm::vec3(0.0f, 0.0f, 0.0f);
+	target.z *= -1.0f;
+	glm::vec3 front_diff = glm::normalize(front_default - target);
+
+	pitch = -glm::degrees(glm::asin(front_diff.y));
+	yaw = glm::degrees(std::atan2(front_diff.z, front_diff.x));
+}
+
+
 
 // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
+/*
 void Camera::Camera::HandleMouseScroll(GLfloat yoffset)
 {
+	
 	yoffset *= MouseSensitivity * 10;
 	if (this->FOV >= 10.0f && this->FOV <= 45.0f)
 		this->FOV -= yoffset;
@@ -103,11 +103,9 @@ void Camera::Camera::HandleMouseScroll(GLfloat yoffset)
 		this->FOV = 10.0f;
 	if (this->FOV >= 45.0f)
 		this->FOV = 45.0f;
+		
 }
-std::shared_ptr<Camera> Camera::GetCamera()
-{
-	return std::make_shared<Camera>(*this);
-}
+*/
 
 void Camera::dispose()
 {

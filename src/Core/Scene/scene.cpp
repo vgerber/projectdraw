@@ -41,9 +41,10 @@ void Scene::addSLight(SpotLight & sLight)
 	spotLights.push_back(&sLight);
 }
 
-void Scene::setCamera(Camera &camera)
+
+void Scene::addCamera(Camera & camera, Size size)
 {
-	this->camera = &camera;
+	cameras.push_back(SceneCamera(camera, size));
 }
 
 void Scene::setDlight(DirectionalLight &dlight)
@@ -57,49 +58,10 @@ btDiscreteDynamicsWorld* Scene::getPhysicsWorld() {
 
 void Scene::draw(GLfloat delta)
 {
-	if (directionalLight) {
-		directionalLight->setViewFrustum(
-			camera->getViewFrustum(directionalLight->getCSMSlices())
-		);
-	}
 	Shader shader_basic = Shaders[SHADER_BASIC];
 	Shader shader_light = Shaders[SHADER_DEFFERED_LIGHT];
 	Shader shader_normals = Shaders[SHADER_DEFFERED_NORMALS];
 	Shader shader_geometry = Shaders[SHADER_DEFFERED_GEOMETRY];
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	if (directionalLight)
-	{
-		Shader shader_depth = Shaders[SHADER_DEPTH];
-		for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
-			directionalLight->begin_shadow_mapping(i);
-			for (auto drawable : objects)
-			{
-				glUniformMatrix4fv(glGetUniformLocation(shader_depth.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
-				drawable->draw(shader_depth);
-			}
-			directionalLight->end_shadow_mapping();
-		}
-	}	
-
-
-	//Point Light Shader is deactivated
-	/*
-	if (point_lights.size() > 0)
-	{
-		Shader shader_depth_cube = Shaders[SHADER_DEPTH_CUBE];
-		for (auto plight : point_lights)
-		{
-			plight->begin_shadow_mapping();
-			for (auto drawable : objects)
-			{
-				glUniformMatrix4fv(glGetUniformLocation(shader_depth_cube.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
-				drawable->draw(shader_depth_cube);
-			}
-			plight->end_shadow_mapping();
-		}
-	}
-	*/
-
 
 	if (spotLights.size() > 0) {
 		Shader shader_depth = Shaders[SHADER_DEPTH_PERSP];
@@ -115,141 +77,191 @@ void Scene::draw(GLfloat delta)
 	}
 
 
-	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
-	glViewport(0, 0, width, height);
-	glClearColor(0.001f, 0.001f, 0.001f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	for (auto sceneCamera : cameras) {
+		if (directionalLight) {
+			directionalLight->setViewFrustum(
+				sceneCamera.camera->getViewFrustum(directionalLight->getCSMSlices())
+			);
+		}
 
-	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(camera->GetViewMatrix()));
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera->GetCameraMatrix(width, height)));
-	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(GLfloat), &camera->FarZ);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	//glDisable(GL_CULL_FACE);
-
-
-	shader_light.use();
-	for (auto plight : pointLights)
-	{
-		glUniform1f(glGetUniformLocation(shader_light.getId(), "intensity"), plight->intensity);
-		glUniform3f(glGetUniformLocation(shader_light.getId(), "color"), plight->diffuse.r, plight->diffuse.g, plight->diffuse.b);
-		plight->draw(shader_light);
-	}
-	
-	for (auto pg : particleGenerators) {
-		pg->update(delta);
-		pg->draw(delta, shader_basic);
-	}
-
-	for (auto drawable : objects)
-	{
-		drawable->draw();
-	}
-
-	shader_normals.use();
-	for (auto drawable : objects)
-	{
-		if (drawable->visibleNormal)
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		if (directionalLight)
 		{
-			drawable->drawNormals(shader_normals);
+			Shader shader_depth = Shaders[SHADER_DEPTH];
+			for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
+				directionalLight->begin_shadow_mapping(i);
+				for (auto drawable : objects)
+				{
+					glUniformMatrix4fv(glGetUniformLocation(shader_depth.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
+					drawable->draw(shader_depth);
+				}
+				directionalLight->end_shadow_mapping();
+			}
 		}
-	}
-	for (auto drawable : objects) {	
-		if (drawable->visibleBox) {
-			drawable->drawBox();
+
+
+		//Point Light Shader is deactivated
+		/*
+		if (point_lights.size() > 0)
+		{
+			Shader shader_depth_cube = Shaders[SHADER_DEPTH_CUBE];
+			for (auto plight : point_lights)
+			{
+				plight->begin_shadow_mapping();
+				for (auto drawable : objects)
+				{
+					glUniformMatrix4fv(glGetUniformLocation(shader_depth_cube.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
+					drawable->draw(shader_depth_cube);
+				}
+				plight->end_shadow_mapping();
+			}
 		}
+		*/
+
+
+		glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
+		glViewport(0, 0, width, height);
+		glClearColor(0.001f, 0.001f, 0.001f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(sceneCamera.camera->getViewMatrix()));
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(sceneCamera.camera->getCameraMatrix()));
+		glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(GLfloat), &sceneCamera.camera->FarZ);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		//glDisable(GL_CULL_FACE);
+
+
+		shader_light.use();
+		for (auto plight : pointLights)
+		{
+			glUniform1f(glGetUniformLocation(shader_light.getId(), "intensity"), plight->intensity);
+			glUniform3f(glGetUniformLocation(shader_light.getId(), "color"), plight->diffuse.r, plight->diffuse.g, plight->diffuse.b);
+			plight->draw(shader_light);
+		}
+
+		for (auto pg : particleGenerators) {
+			pg->update(delta);
+			pg->draw(delta, shader_basic);
+		}
+
+		for (auto drawable : objects)
+		{
+			drawable->draw();
+		}
+
+		shader_normals.use();
+		for (auto drawable : objects)
+		{
+			if (drawable->visibleNormal)
+			{
+				drawable->drawNormals(shader_normals);
+			}
+		}
+		for (auto drawable : objects) {
+			if (drawable->visibleBox) {
+				drawable->drawBox();
+			}
+		}
+
+		shader_geometry.use();
+		glUniform4f(glGetUniformLocation(shader_geometry.getId(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
+		glUniformMatrix4fv(glGetUniformLocation(shader_geometry.getId(), "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		for (auto body : rigidBodys) {
+			if (body->visibleAABB)
+				body->drawAABB(shader_geometry);
+		}
+
+		//
+		// begin drawing to current camera
+		//
+
+		Shader shader_deferred = Shaders[SHADER_DEFERRED];
+		sceneCamera.beginDrawing(shader_deferred);
+		glViewport(0, 0, width, height);
+		glm::vec3 viewPos = glm::vec3(sceneCamera.camera->getPosition().x, sceneCamera.camera->getPosition().y, sceneCamera.camera->getPosition().z);
+		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gUseLight"), 3);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, gBufferNormal);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, gBufferUseLight);
+
+		if (directionalLight)
+		{
+			directionalLight->apply(shader_deferred, "dirLight");
+			for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
+				glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 4 + i);
+				glActiveTexture(GL_TEXTURE4 + i);
+				glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
+			}
+		}
+
+		GLint plight_count = 0;
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "pointLights"), pointLights.size());
+		for (auto plight : pointLights)
+		{
+
+			plight->apply(shader_deferred, "pointLight[" + std::to_string(plight_count) + "]");
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("pointLight[" + std::to_string(plight_count) + "].shadowCubeMap").c_str()), 8 + plight_count);
+			glActiveTexture(GL_TEXTURE8 + plight_count);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
+			plight_count++;
+
+		}
+		//Point Light Shadow is deactivated
+		/*
+		for (int i = plight_count; i < 5; i++)
+		{
+			PointLight *plight = point_lights[plight_count - 1];
+			plight->apply(shader_deferred, "pointLight[" + std::to_string(i) + "]");
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("pointLight[" + std::to_string(i) + "].shadowCubeMap").c_str()), 5 + i);
+			glActiveTexture(GL_TEXTURE5 + (plight_count - 1));
+			glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
+		}
+		*/
+
+
+		for (auto sLight : spotLights) {
+			sLight->apply(shader_deferred, "spotLight");
+
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "spotLight.shadowMap"), 10);
+			glActiveTexture(GL_TEXTURE10);
+			glBindTexture(GL_TEXTURE_2D, sLight->getShadowMap());
+		}
+
+		glBindVertexArray(screenRectVAO);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindVertexArray(0);
+
+		sceneCamera.endDrawing();
 	}
 
-	shader_geometry.use();
-	glUniform4f(glGetUniformLocation(shader_geometry.getId(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(shader_geometry.getId(), "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-	for(auto body : rigidBodys) {
-		if(body->visibleAABB)
-			body->drawAABB(shader_geometry);
-	}
-
-	//render to window frame
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	Shader shader_deferred = Shaders[SHADER_DEFERRED];
-	shader_deferred.use();
 
-	glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
-
-	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "gPosition"), 0);
-	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "gNormal"), 1);
-	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "gAlbedo"), 2);
-	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "gUseLight"), 3);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, gBufferPosition);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, gBufferNormal);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, gBufferUseLight);
-	
-	if (directionalLight)
-	{
-		directionalLight->apply(shader_deferred, "dirLight");
-		for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
-			glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("dirLight.shadowMap["+ std::to_string(i) +"]").c_str()), 4 + i);
-			glActiveTexture(GL_TEXTURE4 + i);
-			glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
-		}
-	}
-	
-	GLint plight_count = 0;
-	glUniform1i(glGetUniformLocation(shader_deferred.getId(), "pointLights"), pointLights.size());
-	for (auto plight : pointLights)
-	{
-		
-		plight->apply(shader_deferred, "pointLight[" + std::to_string(plight_count) + "]");
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("pointLight[" + std::to_string(plight_count) + "].shadowCubeMap").c_str()), 8 + plight_count);
-		glActiveTexture(GL_TEXTURE8 + plight_count);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
-		plight_count++;
-		
-	}
-	//Point Light Shadow is deactivated
-	/*
-	for (int i = plight_count; i < 5; i++)
-	{
-		PointLight *plight = point_lights[plight_count - 1];
-		plight->apply(shader_deferred, "pointLight[" + std::to_string(i) + "]");
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("pointLight[" + std::to_string(i) + "].shadowCubeMap").c_str()), 5 + i);
-		glActiveTexture(GL_TEXTURE5 + (plight_count - 1));
-		glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
-	}
-	*/
-
-
-	for (auto sLight : spotLights) {
-		sLight->apply(shader_deferred, "spotLight");
-
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "spotLight.shadowMap"), 10);
-		glActiveTexture(GL_TEXTURE10);
-		glBindTexture(GL_TEXTURE_2D, sLight->getShadowMap());
-	}
-
-
-	glBindVertexArray(screenRectVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-	
 	glDisable(GL_DEPTH_TEST);
 	Shaders[SHADER_TEXTURE].use();
-	glUniform1i(glGetUniformLocation(Shaders[SHADER_DEFERRED].getId(), "screenTexture"), 0);
+	glUniform1i(glGetUniformLocation(Shaders[SHADER_TEXTURE].getId(), "screenTexture"), 0);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, spotLights[0]->getShadowMap());
-	/*
-	glBindVertexArray(screenShadowVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-	*/
+
+	for (auto sceneCamera : cameras) {
+		glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
+
+		glBindVertexArray(sceneCamera.getFrameVerticesVAO());
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindVertexArray(0);
+	}
 	glEnable(GL_DEPTH_TEST);
 	
 }
@@ -288,6 +300,12 @@ void Scene::dispose()
 	delete dispatcher;
 	delete collisionConfiguration;
 	delete overlappingPairCache;
+
+
+	for (auto camera : cameras) {
+		camera.dispose();
+	}
+
 
 	glDeleteFramebuffers(1, &gBufferFBO);
 	glDeleteRenderbuffers(1, &rboGDepth);
@@ -361,26 +379,10 @@ void Scene::setup(int width, int height)
 
 
 	GLfloat vertices_rect[] = {
-		-1.0f,
-		1.0f,
-		0.0f,
-		0.0f,
-		1.0f,
-		-1.0f,
-		-1.0f,
-		0.0f,
-		0.0f,
-		0.0f,
-		1.0f,
-		1.0f,
-		0.0f,
-		1.0f,
-		1.0f,
-		1.0f,
-		-1.0f,
-		0.0f,
-		1.0f,
-		0.0f,
+		-1.0f,	1.0f,	0.0f,	0.0f,	1.0f,
+		-1.0f,	-1.0f,	0.0f,	0.0f,	0.0f,
+		1.0f,	1.0f,	0.0f,	1.0f,	1.0f,
+		1.0f,	-1.0f,	0.0f,	1.0f,	0.0f,
 	};
 
 
@@ -399,8 +401,8 @@ void Scene::setup(int width, int height)
 
 
 	GLfloat shadow_vertices_rect[] = {
-		0.0f,  0.0f,  0.0f,  0.0f,  1.0f, 
-		0.0f, -1.0f,  0.0f,  0.0f,  0.0f,	
+		-1.0f,  -1.0f,  0.0f,  0.0f,  1.0f, 
+		-1.0f, 0.0f,  0.0f,  0.0f,  0.0f,	
 		1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
 		1.0f, -1.0f,  0.0f,  1.0f,	 0.0f,
 	};
