@@ -27,6 +27,8 @@ public:
 
 	void removePoint(Point point);
 	std::vector<Point> getPoints();
+
+	void clear();
 private:
 	std::vector<Point> points;
 	int size = 0;

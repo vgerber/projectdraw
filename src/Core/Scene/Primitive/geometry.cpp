@@ -104,3 +104,7 @@ std::vector<Point> Geometry::getPoints()
 {
 	return points;
 }
+
+void Geometry::clear() {
+	points.clear();
+}

@@ -33,10 +33,10 @@ const GLfloat SENSITIVTY = 0.07f;
 class Camera : public SceneObject
 {
 public:
-
+	float Width = 10.0f;
+	float Height = 10.0f;
 	float NearZ = 0.1f;
 	float FarZ = 700.0f;
-	float FOV = 45.0f;
 
 	Camera(glm::vec3 position);
 	~Camera();
@@ -56,7 +56,7 @@ public:
 	// Returns the view matrix calculated using Eular Angles and the LookAt Matrix
 	glm::mat4 GetViewMatrix();
 
-	glm::mat4 GetCameraMatrix(GLfloat width, GLfloat height);
+	virtual glm::mat4 GetCameraMatrix() = 0;
 
 	glm::vec3 GetDirection();
 
@@ -76,15 +76,17 @@ public:
 	virtual void dispose();
 private:
 	bool initial_move = true;
+
+	void updateCameraVectors();
+
+protected:
 	glm::vec3 front_vector;
 	glm::vec3 up_vector;
 	glm::vec3 right_vector;
 	glm::vec3 world_up_vector;
-	// Eular Angles
+
 	GLfloat yaw;
 	GLfloat pitch;
 	GLfloat roll;
-
-	void updateCameraVectors();
 };
 

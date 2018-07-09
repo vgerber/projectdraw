@@ -961,7 +961,7 @@ int main() {
 		
 
 		btVector3 rayStart(0.0f, 15.0f, 0.0f);
-		btVector3 rayEnd(0.0f, -5.0f, 2.0f);
+		btVector3 rayEnd(10.0f, -5.0f, 2.0f);
 		btCollisionWorld::ClosestRayResultCallback RayCallback(rayStart, rayEnd);
 		scene_main.getPhysicsWorld()->rayTest(rayStart, rayEnd, RayCallback);
 		if(RayCallback.hasHit()) {
@@ -970,6 +970,9 @@ int main() {
 			//std::cout << rayEnd.getY() << std::endl;
 			pLight2.setPosition(glm::vec3(rayEnd.getX(), rayEnd.getY(), rayEnd.getZ()));
 			//std::cout << pLight2.getPosition().y << std::endl;
+
+			testGeometry.clear();
+			testGeometry.line(toVec3(rayStart), toVec3(rayEnd));
 		}
 
 		//pgTest.setPosition(carChassis.getPositionCenter());
