@@ -33,7 +33,7 @@ void Vehicle::addWheel(Wheel wheel, glm::vec3 connectionPoint, bool isFrontWheel
 	wheelInfo.m_suspensionStiffness = 100;
 	wheelInfo.m_wheelsDampingCompression = btScalar(0.3) * 2 * btSqrt(wheelInfo.m_suspensionStiffness);
 	wheelInfo.m_wheelsDampingRelaxation = btScalar(0.3) * 2 * btSqrt(wheelInfo.m_suspensionStiffness);
-	wheelInfo.m_frictionSlip = btScalar(0.7);
+	wheelInfo.m_frictionSlip = btScalar(1.7);
 	wheelInfo.m_rollInfluence = 1;
 }
 

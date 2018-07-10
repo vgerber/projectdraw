@@ -2,7 +2,14 @@
 
 Scene::Scene()
 {
-	setup(800, 600);
+	setup();
+	reload(width, height);
+}
+
+Scene::Scene(int width, int height)
+{
+	setup();
+	reload(width, height);
 }
 
 Scene::~Scene()
@@ -324,44 +331,39 @@ void Scene::dispose()
 	
 }
 
-void Scene::setup(int width, int height)
+void Scene::reload(int width, int height)
 {
 	this->width = width;
 	this->height = height;
-	glGenFramebuffers(1, &gBufferFBO);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
-	glGenTextures(1, &gBufferPosition);
 	glBindTexture(GL_TEXTURE_2D, gBufferPosition);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBufferPosition, 0);
 
-	glGenTextures(1, &gBufferNormal);
 	glBindTexture(GL_TEXTURE_2D, gBufferNormal);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gBufferNormal, 0);
 
-	glGenTextures(1, &gBufferAlbedo);
 	glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gBufferAlbedo, 0);
 
-	glGenTextures(1, &gBufferUseLight);
 	glBindTexture(GL_TEXTURE_2D, gBufferUseLight);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gBufferUseLight, 0);
 
-	GLuint gAttachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
+	GLuint gAttachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 	glDrawBuffers(4, gAttachments);
 
-	glGenRenderbuffers(1, &rboGDepth);
 	glBindRenderbuffer(GL_RENDERBUFFER, rboGDepth);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 	// - Attach buffers
@@ -370,6 +372,17 @@ void Scene::setup(int width, int height)
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer not complete!" << std::endl;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Scene::setup()
+{
+	glGenFramebuffers(1, &gBufferFBO);
+	glGenTextures(1, &gBufferPosition);
+	glGenTextures(1, &gBufferNormal);
+	glGenTextures(1, &gBufferAlbedo);
+	glGenTextures(1, &gBufferUseLight);
+
+	glGenRenderbuffers(1, &rboGDepth);
 
 	glGenBuffers(1, &uboMatrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
@@ -399,27 +412,7 @@ void Scene::setup(int width, int height)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
 	glBindVertexArray(0);
 
-
-	GLfloat shadow_vertices_rect[] = {
-		-1.0f,  -1.0f,  0.0f,  0.0f,  1.0f, 
-		-1.0f, 0.0f,  0.0f,  0.0f,  0.0f,	
-		1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-		1.0f, -1.0f,  0.0f,  1.0f,	 0.0f,
-	};
-
-	glGenVertexArrays(1, &screenShadowVAO);
-	glGenBuffers(1, &screenShadowVBO);
-
-	glBindVertexArray(screenShadowVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, screenShadowVBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(shadow_vertices_rect), &shadow_vertices_rect, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
-	glBindVertexArray(0);
-
+	
 
 	collisionConfiguration = new btDefaultCollisionConfiguration();
 	dispatcher = new btCollisionDispatcher(collisionConfiguration);

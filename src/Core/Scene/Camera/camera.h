@@ -21,12 +21,6 @@ struct ViewFrustum {
 	std::vector<std::vector<glm::vec3>> splits;
 };
 
-enum CameraMovement {
-	FORWARD,
-	BACKWARD,
-	LEFT,
-	RIGHT
-};
 
 // Default camera values
 const GLfloat YAW = 90.0f;
@@ -53,10 +47,6 @@ public:
 	// Constructor with scalar values
 	Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch);
 
-	//returns pitch, yaw and roll
-	glm::vec3 getRotation();
-	void rotate(glm::vec3 rotation);
-	void rotate(float pitch, float yaw, float roll);
 
 	// Returns the view matrix calculated using Eular Angles and the LookAt Matrix
 	glm::mat4 getViewMatrix();	
@@ -80,9 +70,5 @@ protected:
 	glm::vec3 up_vector;
 	glm::vec3 right_vector;
 	glm::vec3 world_up_vector;
-
-	GLfloat yaw;
-	GLfloat pitch;
-	GLfloat roll;
 };
 

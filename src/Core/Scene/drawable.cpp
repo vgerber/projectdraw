@@ -272,9 +272,9 @@ void Drawable::setCenter(glm::vec3 center)
 void Drawable::setCenterInWorld(glm::vec3 point)
 {
 	glm::vec3 dPoint = point - position;
-	vcenter.x = dPoint.x / size.width;
-	vcenter.y = dPoint.y / size.height;
-	vcenter.z = dPoint.z / size.depth;
+	vcenter.x = dPoint.x / (size.width != 0.0f ? size.width : 1.0f);
+	vcenter.y = dPoint.y / (size.height != 0.0f ? size.height : 1.0f);
+	vcenter.z = dPoint.z / (size.depth != 0.0f ? size.depth : 1.0f);
 	loadBox();
 }
 

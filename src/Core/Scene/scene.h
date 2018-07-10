@@ -16,8 +16,10 @@
 
 class Scene
 {
-public:
+public:	
+
 	Scene();
+	Scene(int width, int height);
 	~Scene();
 
 	void addDrawable(Drawable &drawable);
@@ -38,7 +40,12 @@ public:
 	virtual void updatePhysics(GLfloat delta);
 
 	void dispose();
+
+	void reload(int width, int height);
+
 private:
+	int width = 100, height = 100;
+
 	//Physics
 	btDiscreteDynamicsWorld *dynamicsWorld					= nullptr;
 	btDefaultCollisionConfiguration* collisionConfiguration = nullptr;
@@ -52,7 +59,7 @@ private:
 	std::vector<Vehicle*> vehicles;
 	//Meta
 
-	int width = 100, height = 100;
+	
 
 	GLuint gBufferFBO;
 	GLuint rboGDepth;
@@ -75,7 +82,9 @@ private:
 	//particles
 	std::vector<ParticleGenerator*> particleGenerators;
 
-	void setup(int width, int height);
+	void setup();
+
+
 };
 
 

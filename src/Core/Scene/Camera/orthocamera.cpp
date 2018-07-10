@@ -5,9 +5,6 @@ OrthographicCamera::OrthographicCamera()
 	position = glm::vec3(0.0f, 0.0f, 0.0f);
 	world_up_vector = glm::vec3(0.0f, 1.0f, 0.0f);
 	front_vector = glm::vec3(0.0f, 0.0f, -1.0f);
-	pitch = 0.0f;
-	yaw = 0.0f;
-	roll = 0.0f;
 	updateCameraVectors();
 }
 
@@ -17,7 +14,6 @@ OrthographicCamera::OrthographicCamera(glm::vec3 position, glm::vec3 up, glm::ve
 	this->world_up_vector = up;
 	this->front_vector = front;
 
-	lookAt(front);
 	
 	updateCameraVectors();
 }

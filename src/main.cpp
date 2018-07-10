@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include "Core/core.h"
+#include "Core/Window/window.h"
 #include "Core/Scene/scene.h"
 #include "Core/Scene/Camera/camera.h"
 #include "Core/Scene/Primitive/primitives.h"
@@ -32,7 +33,7 @@ std::string path_obj_mountain = "/home/vincent/Development/Cpp/opengl/basic_moun
 
 
 GLfloat deltaTime = 0.0f, mouseX = 0, mouseY = 0, mousePitch = 0, mouseYaw = 0, mouseRoll = 0;
-GLfloat WIDTH = 800.0f, HEIGHT = 600.0f;
+int WIDTH = 800, HEIGHT = 600;
 
 bool initialCameraMove = true;
 PerspectiveCamera mainCamera;
@@ -47,37 +48,28 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void mouse_scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void handle_key();
 
+bool emergencyBrake = false;
+
 int main() {
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_MAXIMIZED, GL_FALSE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Test", nullptr, nullptr);
-    
-	if (window == nullptr) {
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(window);
+	WindowInfo wInfo;
+	wInfo.maximized = true;
+	Window window(wInfo, 800, 600, "Test123");
 
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK) {
-		std::cout << "Failed to initialize GLEW" << std::endl;
-		return -1;
-	}
+	Size windowSize = window.getSize();
+	WIDTH = windowSize.width;
+	HEIGHT = windowSize.height;
+
+
 
 	glViewport(0, 0, WIDTH, HEIGHT);
-	glfwSetKeyCallback(window, key_callback);
-    std::cout << glGetString(GL_VERSION) << std::endl;
+	glfwSetKeyCallback(window.getWindow(), key_callback);
+    
 
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, mouse_scroll_callback);
+	glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window.getWindow(), mouse_callback);
+	glfwSetScrollCallback(window.getWindow(), mouse_scroll_callback);
 
 	init_core();
 	//
@@ -102,21 +94,6 @@ int main() {
 		
 
 	std::vector<std::string> skybox_faces;
-	/*skybox_faces.push_back(Loader::GetPath("/Textures/Skybox/right.jpg"));
-	skybox_faces.push_back(Loader::GetPath("/Textures/Skybox/left.jpg"));
-	skybox_faces.push_back(Loader::GetPath("/Textures/Skybox/top.jpg"));
-	skybox_faces.push_back(Loader::GetPath("/Textures/Skybox/bottom.jpg"));
-	skybox_faces.push_back(Loader::GetPath("/Textures/Skybox/back.jpg"));
-	skybox_faces.push_back(Loader::GetPath("/Textures/Skybox/front.jpg"));
-	*/
-	/*skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
-	skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
-	skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
-	skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
-	skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
-	skybox_faces.push_back(Loader::GetPath("/Textures/bubble.png"));
-	GLuint cubemapTexture = Loader::LoadCubemap(skybox_faces);
-	*/
 	//create camera
 	mainCamera.setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
 	mainCamera.FarZ = 500.0f;
@@ -129,12 +106,12 @@ int main() {
 	carCamera.Height = HEIGHT;
 
 
-	testCamera = OrthographicCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+	testCamera = OrthographicCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
 	testCamera.setPosition(glm::vec3(1.0f, 50.0f, 0.0f));
-	testCamera.FarZ = 55.0f;
+	testCamera.FarZ = 51.0f;
 	testCamera.NearZ = 0.1f;
-	testCamera.Height = 550.0f;
-	testCamera.Width = 550.0f * (WIDTH / HEIGHT);
+	testCamera.Height = HEIGHT;
+	testCamera.Width = WIDTH;
 	//testCamera.FOV = 45.0f;
 
 	Geometry geoCam;
@@ -457,116 +434,6 @@ int main() {
 		}
 	}
 	
-	float skyboxSize = 50.0f;
-	/*Cube skyboxCube = Cube(2 * skyboxSize, 2 * skyboxSize, 2 * skyboxSize, glm::vec4(0.0f));
-	skyboxCube.setPosition(glm::vec3(-skyboxSize, -skyboxSize, -skyboxSize));
-
-	GLuint screenRectVBO;
-	GLuint screenRectVAO;
-
-	glGenVertexArrays(1, &screenRectVAO);
-	glGenBuffers(1, &screenRectVBO);
-
-	glBindVertexArray(screenRectVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, screenRectVBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_rect), &vertices_rect, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*) (3 * sizeof(GLfloat)));
-	glBindVertexArray(0);*/
-
-	//
-	//Instancing
-	//
-	/*
-	glm::vec2 translations[100];
-	int index = 0;
-	GLfloat offset = 0.1f;
-	for (GLint y = -10; y < 10; y += 2) {
-		for (GLint x = -10; x < 10; x += 2) {
-			glm::vec2 transaltion;
-			transaltion.x = (GLfloat)x / 10.0f + offset;
-			transaltion.y = (GLfloat)y / 10.0f + offset;
-			translations[index++] = transaltion;
-		}
-	}
-	GLuint instanceVBO;
-	glGenBuffers(1, &instanceVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glVertexAttribDivisor(2, 1);
-
-	glBindVertexArray(0);
-	*/
-
-	//
-	//Geometry
-	//
-	/*
-	GLuint geoPointVBO;
-	GLuint geoPointVAO;
-
-	glGenVertexArrays(1, &geoPointVAO);
-	glGenBuffers(1, &geoPointVBO);
-
-	glBindVertexArray(geoPointVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, geoPointVBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*) (2 * sizeof(GLfloat)));
-	glBindVertexArray(0);
-	*/	
-
-
-
-
-	//
-	// HDR
-	//
-	/*GLuint hdrFBO;
-	glGenFramebuffers(1, &hdrFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
-	// - Create floating point color buffer
-	GLuint hdrColorBuffers[2];
-	glGenTextures(2, hdrColorBuffers);
-	
-	for (GLuint i = 0; i < 2; i++) {
-		glBindTexture(GL_TEXTURE_2D, hdrColorBuffers[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, hdrColorBuffers[i], 0);
-	}
-	GLuint attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	glDrawBuffers(2, attachments);
-	// - Create depth buffer (renderbuffer)
-	GLuint rboDepth;
-	glGenRenderbuffers(1, &rboDepth);
-	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WIDTH, HEIGHT);
-	// - Attach buffers
-
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Framebuffer not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	*/
-
 	//
 	// TEXT FreeType
 	//
@@ -580,8 +447,10 @@ int main() {
 	//
 
 
-	Scene scene_main;
-	Size camSize{ -1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f };
+	Scene scene_main(WIDTH, HEIGHT);
+
+
+	Size camSize{ -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f };
 	scene_main.addCamera(mainCamera, camSize);
 	camSize = { 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f };
 	scene_main.addCamera(testCamera, camSize);
@@ -735,6 +604,18 @@ int main() {
 
 	pLightRight.setPosition(carChassis.getPositionCenter() + glm::vec3(carChassis.getSize().width * 0.5f - 0.75f, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
 	pLightRight.setCenterInWorld(carChassis.getPositionCenter());
+
+	Geometry carDistanceLine;
+	{
+		Size carSize = carChassis.getSize();
+		glm::vec3 carFront(0.0f, 0.0f, -carSize.depth * 0.5f);
+		carDistanceLine.line(carFront, carFront + glm::vec3(0.0f, 0.0f, -20.0f));
+		
+		carDistanceLine.drawType = DrawType::LINE;
+		carDistanceLine.setCenterInWorld(carAnchor.getPosition());
+	}
+
+	scene_main.addDrawable(carDistanceLine);
 
 	scene_main.addDrawable(carChassis);
 	for (auto wheel : carWheels) {
@@ -925,7 +806,7 @@ int main() {
 
 
 	GLfloat lastTime = glfwGetTime();
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(window.getWindow()))
 	{
 		glfwPollEvents();
 		handle_key();
@@ -955,20 +836,6 @@ int main() {
 		borderRight.rotate(borderGround.getRotation());
 
 		
-		scene_main.draw(deltaTime);
-
-
-
-
-		test_rect.rotate(glm::vec3(0.0f, glm::radians(90.0f), 0.0f));
-
-		//test_obj.rotate(glm::vec3(0.0f, sin(glfwGetTime()) * glm::radians(30.0f), 0.0f));
-		
-		//cube.setPosition(glm::vec3(0.0f, 1.0f, 0.0f));
-		//cube.rotate(cube.getRotation() + glm::vec3(0.0, 10.0f, 0.0f) * deltaTime);
-		//text_fps.rotate(text_fps.getRotation() + glm::vec3(0.0f, 0.0f, 0.0f) * deltaTime);
-		
-		//testGeometry.lineTo(mainCamera.getPosition() * glm::vec3(0.0f, 1.0f, 1.0f));
 
 		text_description.scale(glm::vec3(1.0f, 1.0f, 0.01f));
 		text_description.scaleToHeight(1.0f);
@@ -1025,8 +892,37 @@ int main() {
 			pLightRight.intensity = (sin(glfwGetTime() * 11 + glm::pi<GLfloat>()) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
 		
 			carCamera.setPosition(carPosition + glm::vec3(0.0f, 1.5f, 0.0f));
-			glm::vec3 carFront = testVehicle->getFront() * glm::vec3(-1.0f, 1.0f, 1.0f);
-			carCamera.lookAt(carFront);
+			glm::vec3 carFront = testVehicle->getFront() * glm::vec3(1.0f, 1.0f, 1.0f);
+			carCamera.lookAt(carCamera.getPosition() + carFront);
+			mainCamera.lookAt(carPosition);
+
+			carDistanceLine.setPosition(carPosition);
+			carDistanceLine.rotate(carChassis.getRotation());
+
+			{
+				std::vector<Point> points = carDistanceLine.getPoints();
+				btVector3 rayStartc = toBtVec3(carDistanceLine.getModelMatrix() * glm::vec4(points[0].position,1.0f));
+				btVector3 rayEnd = toBtVec3(carDistanceLine.getModelMatrix() * glm::vec4(points[1].position, 1.0f));
+				btCollisionWorld::ClosestRayResultCallback RayCallback(rayStart, rayEnd);
+				scene_main.getPhysicsWorld()->rayTest(rayStart, rayEnd, RayCallback);
+				if (RayCallback.hasHit()) {
+					rayEnd = RayCallback.m_hitPointWorld;
+					btVector3 normal = RayCallback.m_hitNormalWorld;
+					//std::cout << rayEnd.getY() << std::endl;
+					pLight2.setPosition(glm::vec3(rayEnd.getX(), rayEnd.getY(), rayEnd.getZ()));
+					std::cout << "to close!!" << std::endl;
+					
+					vehicle->setBrake(200, 0);
+					vehicle->setBrake(200, 1);
+					vehicle->setBrake(200, 2);
+					vehicle->setBrake(200, 3);
+
+					emergencyBrake = true;
+				}
+				else {
+					emergencyBrake = false;
+				}
+			}
 		}
 
 		/*
@@ -1038,7 +934,10 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 		*/
 
-		glfwSwapBuffers(window);
+
+		scene_main.draw(deltaTime);
+
+		glfwSwapBuffers(window.getWindow());
 		GLfloat currentTime = glfwGetTime();
 		deltaTime = currentTime - lastTime;
 		lastTime = currentTime;
@@ -1113,35 +1012,6 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 
 void mouse_callback(GLFWwindow * window, double xpos, double ypos)
 {
-	float mouseSensitivity = 0.2f;
-
-	GLfloat xoffset = (xpos - mouseX);
-	GLfloat yoffset = (mouseY - ypos);
-
-	if (initialCameraMove) {
-		xoffset = 0;
-		yoffset = 0;
-		initialCameraMove = false;
-	}
-	xoffset *= mouseSensitivity;
-	yoffset *= mouseSensitivity;
-
-	glm::vec3 rotation = mainCamera.getRotation();
-
-	rotation.y += xoffset;
-	rotation.x += yoffset;
-
-	if (rotation.x > 89.0f)
-		rotation.x = 89.0f;
-	if (rotation.x < -89.0f)
-		rotation.x = -89.0f;
-
-	// Update Front, Right and Up Vectors using the updated Eular angles
-	mainCamera.rotate(rotation);
-	mainCamera.updateCameraVectors();
-
-	mouseX = xpos;
-	mouseY = ypos;
 }
 
 void mouse_scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
@@ -1162,13 +1032,17 @@ void handle_key()
 	glm::vec3 camFront = mainCamera.getFront();
 	glm::vec3 camRight = mainCamera.getRight();
 	if (keys[GLFW_KEY_W])
-		mainCamera.setPosition(camPos += camFront * mouseSpeed * deltaTime);
+		mainCamera.setPosition(camPos -= glm::vec3(0.0f, 0.0f, 1.0f) * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_S])
-		mainCamera.setPosition(camPos -= camFront * mouseSpeed * deltaTime);
+		mainCamera.setPosition(camPos += glm::vec3(0.0f, 0.0f, 1.0f) * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_A])
-		mainCamera.setPosition(camPos -= camRight * mouseSpeed * deltaTime);
+		mainCamera.setPosition(camPos -= glm::vec3(1.0f, 0.0f, 0.0f) * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_D])
-		mainCamera.setPosition(camPos += camRight * mouseSpeed * deltaTime);
+		mainCamera.setPosition(camPos += glm::vec3(1.0f, 0.0f, 0.0f) * mouseSpeed * deltaTime);
+	if (keys[GLFW_KEY_E])
+		mainCamera.setPosition(camPos -= glm::vec3(0.0f, 1.0f, 0.0f) * mouseSpeed * deltaTime);
+	if (keys[GLFW_KEY_Q])
+		mainCamera.setPosition(camPos += glm::vec3(0.0f, 1.0f, 0.0f) * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_SPACE]) {
 		vehicle->applyEngineForce(0, 0);
 		vehicle->applyEngineForce(0, 1);
@@ -1179,13 +1053,13 @@ void handle_key()
 		vehicle->setBrake(200, 2);
 		vehicle->setBrake(200, 3);
 	}
-	else {
+	else if(!emergencyBrake) {
 		vehicle->setBrake(0, 0);
 		vehicle->setBrake(0, 1);
 		vehicle->setBrake(0, 2);
 		vehicle->setBrake(0, 3);
 	}
-	if (keys[GLFW_KEY_UP]) {
+	if (keys[GLFW_KEY_UP] && !emergencyBrake) {
 		vehicle->applyEngineForce(500, 0);
 		vehicle->applyEngineForce(500, 1);
 		vehicle->applyEngineForce(3500, 2);
@@ -1216,7 +1090,6 @@ void handle_key()
 		vehicle->setSteeringValue(btScalar(-0.7), 3);
 	}
 	if (keys[GLFW_KEY_R]) {
-		
 	}
 
 }
