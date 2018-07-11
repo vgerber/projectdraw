@@ -8,7 +8,7 @@ Vehicle::Vehicle(RigidBody *rigidBody, btDiscreteDynamicsWorld *world)
 	this->rigidBody->visibleAABB = true;
 
 	vehicleRaycaster = new btDefaultVehicleRaycaster(world);
-
+	
 	btVehicle = new btRaycastVehicle(tuning, rigidBody->getBody(), vehicleRaycaster);
 }
 
@@ -22,7 +22,7 @@ void Vehicle::addWheel(Wheel wheel, glm::vec3 connectionPoint, bool isFrontWheel
 	btVector3 wheelDirectionCS0(0, -1, 0);
 	//rotating axis
 	btVector3 wheelAxleCS(1, 0, 0);
-	btScalar suspensionRestLength(0.7f);
+	btScalar suspensionRestLength(0.5f);
 	btScalar wheelWidth(wheel.drawable->getSize().width);
 	btScalar wheelRadius(wheel.drawable->getSize().depth * 0.5);
 
@@ -31,10 +31,10 @@ void Vehicle::addWheel(Wheel wheel, glm::vec3 connectionPoint, bool isFrontWheel
 
 	btWheelInfo &wheelInfo = btVehicle->getWheelInfo(wheels.size()-1);
 	wheelInfo.m_suspensionStiffness = 100;
-	wheelInfo.m_wheelsDampingCompression = btScalar(0.3) * 2 * btSqrt(wheelInfo.m_suspensionStiffness);
+	wheelInfo.m_wheelsDampingCompression = btScalar(0.2) * 2 * btSqrt(wheelInfo.m_suspensionStiffness);
 	wheelInfo.m_wheelsDampingRelaxation = btScalar(0.3) * 2 * btSqrt(wheelInfo.m_suspensionStiffness);
-	wheelInfo.m_frictionSlip = btScalar(1.7);
-	wheelInfo.m_rollInfluence = 1;
+	wheelInfo.m_frictionSlip = btScalar(3.0f);
+	wheelInfo.m_rollInfluence = 1.0;
 }
 
 void Vehicle::sync()

@@ -450,12 +450,12 @@ int main() {
 	Scene scene_main(WIDTH, HEIGHT);
 
 
-	Size camSize{ -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f };
+	Size camSize{ -1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f };
 	scene_main.addCamera(mainCamera, camSize);
 	camSize = { 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f };
-	scene_main.addCamera(testCamera, camSize);
+	//scene_main.addCamera(testCamera, camSize);
 	camSize = { -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f };
-	scene_main.addCamera(carCamera, camSize);
+	//scene_main.addCamera(carCamera, camSize);
 
 	scene_main.addDrawable(geoCam);
 	scene_main.addDrawable(geoLight);
@@ -578,7 +578,7 @@ int main() {
 	Drawable carAnchor;
 	carAnchor.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
 	Drawable carChassis;
-	carChassis.setModel(primitves::generate_quad(4.0f, 1.25f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
+	carChassis.setModel(primitves::generate_quad(4.0f, 0.2f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
 	carChassis.setPositionCenter(carAnchor.getPositionCenter());
 
 	std::vector<Drawable*> carWheels;
@@ -714,7 +714,7 @@ int main() {
 		collision::CollisionShape borderCompoundShape(borderCompound);
 
 		RigidBody rbody(borderCompoundShape, borderAnchor.getPositionCenter(), borderAnchor.getRotation(), 0.0f);
-		rbody.getBody()->setFriction(btScalar(10.0f));
+		rbody.getBody()->setFriction(btScalar(1.0f));
 		rbody.setDrawable(borderAnchor);
 		rbody.getBody()->setCollisionFlags(rbody.getBody()->getCollisionFlags() | btRigidBody::CF_KINEMATIC_OBJECT);
 		rbody.getBody()->setActivationState(DISABLE_DEACTIVATION);
@@ -747,17 +747,27 @@ int main() {
 	//set vehicle physics
 	collision::CollisionShape carChassisShape = collision::CollisionShape(collision::generateCube(carChassis.getSize()));
 	
+
 	Vehicle *testVehicle;
 	{
 		btTransform transform;
+		transform.setIdentity();
 
-		RigidBody rbody(carChassisShape, carAnchor.getPositionCenter(), carAnchor.getRotation(), carMass);
+		btCompoundShape *compoundShape = new btCompoundShape();
+		transform.setOrigin(toBtVec3(carAnchor.getPosition() + glm::vec3(0.0f, 0.5f * carChassis.getSize().height, 0.0f)));
+		compoundShape->addChildShape(transform, carChassisShape.getShape());
+		collision::CollisionShape carHullShape(compoundShape);
+		
+		RigidBody rbody(carHullShape, carAnchor.getPositionCenter(), carAnchor.getRotation(), carMass);
 		rbody.setDrawable(carAnchor);
+		//transform.setOrigin(btVector3(0.01f, -0.5f * carChassis.getSize().height, 0.01f));
+		//rbody.getBody()->setCenterOfMassTransform(transform);
+		rbody.visibleAABB = true;
 		rigidBodys.push_back(new RigidBody(rbody));
 		
 		testVehicle = new Vehicle(new RigidBody(rbody), scene_main.getPhysicsWorld());
 
-		btScalar connectionHeight(0.0);
+		btScalar connectionHeight(0.2f);
 		btVector3 wheelConnectionPoint(carChassis.getSize().width * 0.5, connectionHeight, carChassis.getSize().depth * 0.3);
 		btVector3 wheelConnectionPoints[] = {
 			btVector3( 1, 1,  1),
@@ -868,7 +878,7 @@ int main() {
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		dLight.intensity = std::max(sin(glfwGetTime() * 0.5f), 0.7);
+		dLight.intensity = std::max(sin(glfwGetTime() * 0.5f), 1.0);
 		
 		pLight2.intensity = (sin(glfwGetTime()) * 0.5 + 0.5);    
 		//scene_main.draw(deltaTime);
@@ -905,7 +915,7 @@ int main() {
 				btVector3 rayEnd = toBtVec3(carDistanceLine.getModelMatrix() * glm::vec4(points[1].position, 1.0f));
 				btCollisionWorld::ClosestRayResultCallback RayCallback(rayStart, rayEnd);
 				scene_main.getPhysicsWorld()->rayTest(rayStart, rayEnd, RayCallback);
-				if (RayCallback.hasHit()) {
+				if (false && RayCallback.hasHit()) {
 					rayEnd = RayCallback.m_hitPointWorld;
 					btVector3 normal = RayCallback.m_hitNormalWorld;
 					//std::cout << rayEnd.getY() << std::endl;
@@ -926,15 +936,6 @@ int main() {
 				}
 			}
 		}
-
-		/*
-		glDisable(GL_DEPTH_TEST);
-		Shaders[SHADER_GEOMETRY].use();
-		glBindVertexArray(geoPointVAO);
-		glDrawArrays(GL_POINTS, 0, 4);
-		glBindVertexArray(0);
-		glEnable(GL_DEPTH_TEST);
-		*/
 
 
 		scene_main.draw(deltaTime);
@@ -1033,18 +1034,19 @@ void handle_key()
 	glm::vec3 camPos = mainCamera.getPosition();
 	glm::vec3 camFront = mainCamera.getFront();
 	glm::vec3 camRight = mainCamera.getRight();
+	glm::vec3 camUp = mainCamera.getUp();
 	if (keys[GLFW_KEY_W])
-		mainCamera.setPosition(camPos -= glm::vec3(0.0f, 0.0f, 1.0f) * mouseSpeed * deltaTime);
+		mainCamera.setPosition(camPos += camFront * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_S])
-		mainCamera.setPosition(camPos += glm::vec3(0.0f, 0.0f, 1.0f) * mouseSpeed * deltaTime);
+		mainCamera.setPosition(camPos -= camFront * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_A])
-		mainCamera.setPosition(camPos -= glm::vec3(1.0f, 0.0f, 0.0f) * mouseSpeed * deltaTime);
+		mainCamera.setPosition(camPos -= camRight * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_D])
-		mainCamera.setPosition(camPos += glm::vec3(1.0f, 0.0f, 0.0f) * mouseSpeed * deltaTime);
+		mainCamera.setPosition(camPos += camRight * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_E])
-		mainCamera.setPosition(camPos -= glm::vec3(0.0f, 1.0f, 0.0f) * mouseSpeed * deltaTime);
+		mainCamera.setPosition(camPos -= camUp * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_Q])
-		mainCamera.setPosition(camPos += glm::vec3(0.0f, 1.0f, 0.0f) * mouseSpeed * deltaTime);
+		mainCamera.setPosition(camPos += camUp * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_SPACE]) {
 		vehicle->applyEngineForce(0, 0);
 		vehicle->applyEngineForce(0, 1);
@@ -1064,8 +1066,8 @@ void handle_key()
 	if (keys[GLFW_KEY_UP] && !emergencyBrake) {
 		vehicle->applyEngineForce(500, 0);
 		vehicle->applyEngineForce(500, 1);
-		vehicle->applyEngineForce(3500, 2);
-		vehicle->applyEngineForce(3500, 3);
+		vehicle->applyEngineForce(10000, 2);
+		vehicle->applyEngineForce(10000, 3);
 	}
 	else {
 		if (!keys[GLFW_KEY_DOWN]) {
@@ -1076,20 +1078,20 @@ void handle_key()
 		}
 	}
 	if (keys[GLFW_KEY_DOWN]) {
-		vehicle->applyEngineForce(-3500, 0);
-		vehicle->applyEngineForce(-3500, 1);
+		vehicle->applyEngineForce(-5000, 0);
+		vehicle->applyEngineForce(-5000, 1);
 		vehicle->applyEngineForce(-500, 2);
 		vehicle->applyEngineForce(-500, 3);
 	}
 	vehicle->setSteeringValue(btScalar(0.0), 2);
 	vehicle->setSteeringValue(btScalar(0.0), 3);
 	if (keys[GLFW_KEY_LEFT]) {
-		vehicle->setSteeringValue(btScalar(0.7), 2);
-		vehicle->setSteeringValue(btScalar(0.7), 3);
+		vehicle->setSteeringValue(btScalar(0.11), 2);
+		vehicle->setSteeringValue(btScalar(0.11), 3);
 	}
 	if (keys[GLFW_KEY_RIGHT]) {
-		vehicle->setSteeringValue(btScalar(-0.7), 2);
-		vehicle->setSteeringValue(btScalar(-0.7), 3);
+		vehicle->setSteeringValue(btScalar(-0.11), 2);
+		vehicle->setSteeringValue(btScalar(-0.11), 3);
 	}
 	if (keys[GLFW_KEY_R]) {
 	}
