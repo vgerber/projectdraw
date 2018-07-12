@@ -2,6 +2,8 @@
 
 #include "../core.h"
 #include "../Model/box.h"
+#include "../Scene/Primitive/geometry.h"
+
 
 struct WindowInfo {
 	int major = 3;
@@ -9,6 +11,8 @@ struct WindowInfo {
 
 	bool maximized = false;
 	bool resizable = false;
+
+	bool cursorLeave = false;
 
 	int samples = 4;
 };
@@ -20,7 +24,13 @@ public:
 
 	GLFWwindow *getWindow();
 	Size getSize();
+	
+	Point getCursorPosition();
+
+
+	void update();
 
 private:
+	WindowInfo wInfo;
 	GLFWwindow *window;
 };

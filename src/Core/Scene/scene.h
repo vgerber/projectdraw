@@ -30,6 +30,16 @@ public:
 	void addPlight(PointLight &plight);
 	void addSLight(SpotLight &sLight);
 
+
+	void removeDrawable(Drawable &drawable);
+	void removeRigidBody(RigidBody &rigidBody);
+	void removeVehicle(Vehicle &vehicle);
+	void removeParticleGenerator(ParticleGenerator &particleGenerator);
+
+	void removeCamera(Camera &camera);
+	void enableCamera(Camera &camera, bool enable);
+
+
 	//camera with size from -1.0 - 1.0
 	void addCamera(Camera &camera, Size size);
 	void setDlight(DirectionalLight &dlight);
@@ -58,6 +68,12 @@ private:
 	std::vector<RigidBody*> rigidBodys;
 	std::vector<Vehicle*> vehicles;
 	//Meta
+
+
+	Shader shader_basic;
+	Shader shader_light;
+	Shader shader_normals;
+	Shader shader_geometry;
 
 	
 

@@ -23,6 +23,11 @@ Window::Window(WindowInfo info, int width, int height, std::string title)
 		std::cout << "Failed to initialize GLEW" << std::endl;
 	}
 	std::cout << glGetString(GL_VERSION) << std::endl;
+
+	glViewport(0, 0, width, height);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+	this->wInfo = info;
 }
 
 void Window::activate()
@@ -45,4 +50,38 @@ Size Window::getSize()
 	size.width = width;
 	size.height = height;
 	return size;
+}
+
+Point Window::getCursorPosition()
+{
+	double x, y;
+	glfwGetCursorPos(window, &x, &y);
+	return Point{ glm::vec3(x, y, 0.0) };
+}
+
+void Window::update()
+{
+	
+	if (!wInfo.cursorLeave) {
+		Size windowSize = getSize();
+		glm::vec3 mousePos = getCursorPosition().position;
+		
+		glm::vec2 newCursorPos(0.0f, 0.0f);
+		if (mousePos.x < 0.0f) {
+			mousePos.x = 0.0f;
+		}
+		if (mousePos.y < 0.0f) {
+			mousePos.y = 0.0f;
+		}
+
+		if (mousePos.x > windowSize.width) {
+			mousePos.x = windowSize.width;
+		}
+		if (mousePos.y > windowSize.height) {
+			mousePos.y = windowSize.height;
+		}
+		glfwSetCursorPos(window, mousePos.x, mousePos.y);
+
+	}
+	glfwPollEvents();
 }

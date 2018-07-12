@@ -18,9 +18,11 @@ struct DirLight {
 	mat4[DIR_SPLITS] lightSpaceMatrix;
 };
 
+float gaussian[] = float[7](0.01, 0.2, 0.8, 1.0, 0.8, 0.2, 0.01);
 
 //fragPos [xyz] coordinates
 float ShadowDirCalculation(DirLight light, vec3 fragPos, float depth, float bias);
+float SamplerVDirLight(sampler2D shadowMap, vec2 coords, float compare);
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, float depth, vec3 color) {
 	vec3 lightDir = normalize(-light.direction);
@@ -72,114 +74,78 @@ float ShadowDirCalculation(DirLight light, vec3 fragPos, float depth, float bias
 	else {
 		shadowMapIndex = 2;
 	}
-	shadowMapIndex = 0;
-
+	
 	if(shadowMapIndex == 0) {
 		vec4 fragPosLightSpace = light.lightSpaceMatrix[0] * vec4(fragPos, 1.0);
-
-		//perspective divide
 		vec3 projCoords = fragPosLightSpace.xyz;
-
-		//Transform from [-1,1] to [0,1]
 		projCoords = projCoords * 0.5f + 0.5f;
-
-		//Get closest depth value from lights perspective
 		float closestDepth = texture(light.shadowMap[0], projCoords.xy).r;
-
-		//get depth of current fragment from lights perspective
 		float currentDepth = projCoords.z;
-
-		//check wether current frag pos is in shadow
-		//float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
 		float shadow = 0.0;
-
-		//texel attempt (pcf)
-		vec2 texelSize = 1.0 / textureSize(light.shadowMap[0], 0);
-				
-		for(int x = -1; x <= 1; ++x) {
-			for(int y = -1; y <= 1; ++y) {
-				float pcfDepth = texture(light.shadowMap[0], projCoords.xy + vec2(x, y) * texelSize).r;
-				shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+		vec2 texelSize = 1.0 / textureSize(light.shadowMap[0], 0);				
+		for(int x = -3; x <= 3; ++x) {
+			for(int y = -3; y <= 3; ++y) {
+				shadow += (1.0 - SamplerVDirLight(light.shadowMap[0], projCoords.xy + vec2(x, y) * texelSize, projCoords.z)) * gaussian[x + 3] * gaussian[y + 3];
 			}
 		}
-		shadow /= (9.0f) ;
+		shadow /= (13.0f) ;
 		if(projCoords.z > 1.0)
 			shadow = 0.0;
-
 		if(shadow > 0.0)
 			return shadow;
 	}
-
-	shadowMapIndex = 1;
 	if(shadowMapIndex == 1) {
 		vec4 fragPosLightSpace = light.lightSpaceMatrix[1] * vec4(fragPos, 1.0);
-
-		//perspective divide
 		vec3 projCoords = fragPosLightSpace.xyz;
-
-		//Transform from [-1,1] to [0,1]
 		projCoords = projCoords * 0.5f + 0.5f;
-
-		//Get closest depth value from lights perspective
 		float closestDepth = texture(light.shadowMap[1], projCoords.xy).r;
-
-		//get depth of current fragment from lights perspective
 		float currentDepth = projCoords.z;
-
-		//check wether current frag pos is in shadow
-		//float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
 		float shadow = 0.0;
-
-		//texel attempt (pcf)
-		vec2 texelSize = 1.0 / textureSize(light.shadowMap[1], 0);
-				
-		for(int x = -1; x <= 1; ++x) {
-			for(int y = -1; y <= 1; ++y) {
-				float pcfDepth = texture(light.shadowMap[1], projCoords.xy + vec2(x, y) * texelSize).r;
-				shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+		vec2 texelSize = 1.0 / textureSize(light.shadowMap[1], 0);				
+		for(int x = -3; x <= 3; ++x) {
+			for(int y = -3; y <= 3; ++y) {
+				shadow += (1.0 - SamplerVDirLight(light.shadowMap[1], projCoords.xy + vec2(x, y) * texelSize, projCoords.z)) * gaussian[x + 3] * gaussian[y + 3];
 			}
 		}
-		shadow /= (9.0f) ;
+		shadow /= (13.0f) ;
 		if(projCoords.z > 1.0)
 			shadow = 0.0;
-
 		if(shadow > 0.0)
 			return shadow;
 	}
-
-	shadowMapIndex = 2;
 	if(shadowMapIndex == 2) {
 		vec4 fragPosLightSpace = light.lightSpaceMatrix[2] * vec4(fragPos, 1.0);
-
-		//perspective divide
 		vec3 projCoords = fragPosLightSpace.xyz;
-
-		//Transform from [-1,1] to [0,1]
 		projCoords = projCoords * 0.5f + 0.5f;
-
-		//Get closest depth value from lights perspective
 		float closestDepth = texture(light.shadowMap[2], projCoords.xy).r;
-
-		//get depth of current fragment from lights perspective
 		float currentDepth = projCoords.z;
-
-		//check wether current frag pos is in shadow
-		//float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
 		float shadow = 0.0;
-
-		//texel attempt (pcf)
-		vec2 texelSize = 1.0 / textureSize(light.shadowMap[2], 0);
-				
-		for(int x = -1; x <= 1; ++x) {
-			for(int y = -1; y <= 1; ++y) {
-				float pcfDepth = texture(light.shadowMap[2], projCoords.xy + vec2(x, y) * texelSize).r;
-				shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+		vec2 texelSize = 1.0 / textureSize(light.shadowMap[2], 0);				
+		for(int x = -3; x <= 3; ++x) {
+			for(int y = -3; y <= 3; ++y) {
+				shadow += (1.0 - SamplerVDirLight(light.shadowMap[2], projCoords.xy + vec2(x, y) * texelSize, projCoords.z)) * gaussian[x + 3] * gaussian[y + 3];
 			}
 		}
-		shadow /= (9.0f) ;
+		shadow /= (13.0f) ;
 		if(projCoords.z > 1.0)
 			shadow = 0.0;
-
-		return shadow;
+		if(shadow > 0.0)
+			return shadow;
 	}
+}
+
+float linestep(float low, float high, float v) {
+	return clamp((v - low) / (high - low), 0.0, 1.0);
+} 
+
+float SamplerVDirLight(sampler2D shadowMap, vec2 coords, float compare) {
+	
+	vec2 moments = texture2D(shadowMap, coords.xy).xy;
+	float p = step(compare, moments.x);
+	float variance = max(moments.y - moments.x * moments.x, 0.000002);
+
+	float d = compare - moments.x;
+	float pMax = linestep(0.2, 1.0, variance / (variance + d * d));
+
+	return min(max(p, pMax), 1.0);
 }

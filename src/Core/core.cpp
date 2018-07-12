@@ -73,7 +73,7 @@ void init_core() {
 		{ Loader::GetPath("/Shaders/deferred.fragment").c_str(), ShaderType::FRAGMENT },
 		{ Loader::GetPath("/Shaders/Light/dlight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
 		{ Loader::GetPath("/Shaders/Light/plight.fragment").c_str(), ShaderType::FRAGMENT },
-		{ Loader::GetPath("/Shaders/Light/slight_shadow.fragment").c_str(), ShaderType::FRAGMENT }
+		{ Loader::GetPath("/Shaders/Light/slight.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shader_deferred.load();
 	Shaders[SHADER_DEFERRED] = shader_deferred;

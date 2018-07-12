@@ -107,4 +107,5 @@ std::vector<Point> Geometry::getPoints()
 
 void Geometry::clear() {
 	points.clear();
+	size = 0;
 }

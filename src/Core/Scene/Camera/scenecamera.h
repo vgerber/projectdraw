@@ -8,6 +8,8 @@ public:
 	bool pLight = true;
 	bool Particle = true;
 
+	bool active = true;
+
 
 	SceneCamera(Camera &camera, Size frame);
 

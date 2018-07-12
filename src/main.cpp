@@ -11,6 +11,7 @@
 
 
 #include <iostream>
+#include <ctime>
 
 #include "Core/core.h"
 #include "Core/Window/window.h"
@@ -21,6 +22,7 @@
 #include "Core/Scene/Light/plight.h"
 #include "Core/Scene/Text/text.h"
 #include "Core/Util/Debug/vector.h"
+#include "Core/Util/Mouse/mouse.h"
 #include "Core/Scene/Camera/perspcamera.h"
 #include "Core/Scene/Camera/orthocamera.h"
 
@@ -33,7 +35,7 @@ std::string path_obj_mountain = "/home/vincent/Development/Cpp/opengl/basic_moun
 
 
 GLfloat deltaTime = 0.0f, mouseX = 0, mouseY = 0, mousePitch = 0, mouseYaw = 0, mouseRoll = 0;
-int WIDTH = 800, HEIGHT = 600;
+
 
 bool initialCameraMove = true;
 PerspectiveCamera mainCamera;
@@ -54,64 +56,43 @@ int main() {
 	glfwInit();
 
 	WindowInfo wInfo;
-	wInfo.maximized = true;
+	wInfo.maximized = false;
+	wInfo.cursorLeave = true;
 	Window window(wInfo, 800, 600, "Test123");
 
 	Size windowSize = window.getSize();
-	WIDTH = windowSize.width;
-	HEIGHT = windowSize.height;
 
 
 
-	glViewport(0, 0, WIDTH, HEIGHT);
 	glfwSetKeyCallback(window.getWindow(), key_callback);
     
 
-	glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	glfwSetCursorPosCallback(window.getWindow(), mouse_callback);
 	glfwSetScrollCallback(window.getWindow(), mouse_scroll_callback);
 
 	init_core();
-	//
-	// Handle Vertex Objects
-	//
-
-
-
-	GLfloat vertices_rect[] = {
-		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-	};
-
-	GLfloat points[] = {
-		-1.0f,  1.0f, 0.0f, 0.0f, 0.0f,
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		 1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		 1.0f,  1.0f, 0.0f, 0.0f, 0.0f
-	};
 		
 
 	std::vector<std::string> skybox_faces;
 	//create camera
-	mainCamera.setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
+	mainCamera.setPosition(glm::vec3(5.0f, 15.0f, 5.0f));
 	mainCamera.FarZ = 500.0f;
-	mainCamera.Width = WIDTH;
-	mainCamera.Height = HEIGHT;
+	mainCamera.Width = windowSize.width;
+	mainCamera.Height = windowSize.height;
 
 	PerspectiveCamera carCamera;
 	carCamera.FarZ = 100.0f;
-	carCamera.Width = WIDTH;
-	carCamera.Height = HEIGHT;
+	carCamera.Width = windowSize.width;
+	carCamera.Height = windowSize.height;
 
 
 	testCamera = OrthographicCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
 	testCamera.setPosition(glm::vec3(1.0f, 50.0f, 0.0f));
 	testCamera.FarZ = 51.0f;
 	testCamera.NearZ = 0.1f;
-	testCamera.Height = HEIGHT;
-	testCamera.Width = WIDTH;
+	testCamera.Height = windowSize.width;
+	testCamera.Width = windowSize.height;
 	//testCamera.FOV = 45.0f;
 
 	Geometry geoCam;
@@ -156,9 +137,9 @@ int main() {
 	//
 	DirectionalLight dLight = DirectionalLight();
 	//dLight.direction = glm::vec3(-2.0f, -2.0f, -2.0f);
-	dLight.ambient = glm::vec3(0.001f, 0.001f, 0.001f);
+	dLight.ambient = glm::vec3(0.3f, 0.3f, 0.3f);
 	dLight.diffuse = glm::vec3(1.0f, 0.7f, 0.5f);
-	dLight.specular = glm::vec3(0.03f, 0.03f, 0.03f);
+	dLight.specular = dLight.diffuse;
 	dLight.intensity = 1.0;
 	dLight.change_direction(glm::vec3(-1.0f, -0.4f, -1.0f));
 
@@ -447,7 +428,7 @@ int main() {
 	//
 
 
-	Scene scene_main(WIDTH, HEIGHT);
+	Scene scene_main(windowSize.width, windowSize.height);
 
 
 	Size camSize{ -1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f };
@@ -535,11 +516,17 @@ int main() {
 	
 	glm::vec3 cubes_position(0.0f, 0.5f, 15.0f);
 
+	srand(static_cast <unsigned> (time(0)));
 	for(size_t x = 0; x < 5; x++) {
 		for(size_t y = 0;  y < 5; y++) {
 			for(size_t z = 0; z < 5; z++) {
 				Drawable cube;
-				cube.setModel(primitves::generate_quad(1.f, 1.0f, 1.0f, glm::vec4(1.0f, 0.3f, 0.8f, 1.0f)));
+				glm::vec4 cubeColor(
+					static_cast<float>(rand() / static_cast<float>(RAND_MAX)), 
+					static_cast<float>(rand() / static_cast<float>(RAND_MAX)), 
+					static_cast<float>(rand() / static_cast<float>(RAND_MAX)), 
+					1.0f);
+				cube.setModel(primitves::generate_quad(1.f, 1.0f, 1.0f, cubeColor));
 				cube.setPosition(cubes_position + glm::vec3(x * 1.0f, y * 1.0f, z * 1.0f));
 				cubes.push_back(new Drawable(cube));
 				scene_main.addDrawable(*cubes[cubes.size()-1]);
@@ -573,7 +560,7 @@ int main() {
 	// Vehicle
 	//
 	GLfloat carMass = 1000.0f;
-	GLfloat carWheelThickness = 0.2f;
+	GLfloat carWheelThickness = 0.5f;
 
 	Drawable carAnchor;
 	carAnchor.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -598,6 +585,9 @@ int main() {
 		carWheels[3]->setPositionCenter(glm::vec3(carCenter.x - (carSize.width * 0.5f + carWheelThickness * 0.5f), carCenter.y - carSize.height * 0.5f, carCenter.z - carSize.depth * 0.3f));
 	}
 
+	text_fps.setPositionCenter(carChassis.getPositionCenter() + glm::vec3(0.0f, 2.0f, 0.0f));
+	text_fps.setCenterInWorld(carChassis.getPositionCenter());
+	text_fps.visibleBox = true;
 
 	pLightLeft.setPosition(carChassis.getPositionCenter() + glm::vec3(-carChassis.getSize().width * 0.5f + 0.25, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
 	pLightLeft.setCenterInWorld(carChassis.getPositionCenter());
@@ -762,7 +752,7 @@ int main() {
 		rbody.setDrawable(carAnchor);
 		//transform.setOrigin(btVector3(0.01f, -0.5f * carChassis.getSize().height, 0.01f));
 		//rbody.getBody()->setCenterOfMassTransform(transform);
-		rbody.visibleAABB = true;
+		rbody.visibleAABB = false;
 		rigidBodys.push_back(new RigidBody(rbody));
 		
 		testVehicle = new Vehicle(new RigidBody(rbody), scene_main.getPhysicsWorld());
@@ -812,15 +802,19 @@ int main() {
 	ParticleGenerator pgTest(particle, 30);
 	scene_main.addParticleGenerator(pgTest);
 
+	scene_main.enableCamera(mainCamera, false);
+	scene_main.enableCamera(mainCamera, true);
 
 
 
 	GLfloat lastTime = glfwGetTime();
 	while (!glfwWindowShouldClose(window.getWindow()))
 	{
-		glfwPollEvents();
+		window.update();
+		
 		handle_key();
 		
+
 		
 		
 		//borderGround.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -845,35 +839,37 @@ int main() {
 		borderLeft.rotate(borderGround.getRotation());
 		borderRight.rotate(borderGround.getRotation());
 
+
+		Point mousePos = window.getCursorPosition();
+		//printf("%f,%f \n", mousePos.position.x, mousePos.position.y);
 		
 
 		text_description.scale(glm::vec3(1.0f, 1.0f, 0.01f));
 		text_description.scaleToHeight(1.0f);
 		text_description.rotate(text_description.getRotation() + glm::vec3(0.0f, 0.0f, 0.0f));
 
-		
-		text_fps.setPosition(carChassis.getPosition() - glm::vec3(carChassis.getSize().width * 0.5f, 0.0f, -carChassis.getSize().depth * 0.5f)  + glm::vec3(0.0f, 2.0f, 0.0f));
-		text_fps.rotate(carChassis.getRotation());
-		//text_fps.scaleToWidth(test_rect.getSize().width);
-		text_fps.setText(std::to_string((int)abs(vehicle->getCurrentSpeedKmHour())) + " km/h");
-		
-
-		btVector3 rayStart(0.0f, 15.0f, 0.0f);
-		btVector3 rayEnd(10.0f, -5.0f, 2.0f);
+		glm::vec3 camPos = mainCamera.getPosition();
+		std::pair<Point, Point> mouseRay = getCameraMousePosition(window, mainCamera);
+		btVector3 rayStart = toBtVec3(camPos);
+		btVector3 rayEnd = toBtVec3(camPos + mouseRay.second.position * mainCamera.FarZ);
 		btCollisionWorld::ClosestRayResultCallback RayCallback(rayStart, rayEnd);
 		scene_main.getPhysicsWorld()->rayTest(rayStart, rayEnd, RayCallback);
 		if(RayCallback.hasHit()) {
+			RigidBody *rBody = nullptr;
+			for (auto body : rigidBodys) {
+				if (body->getBody() == RayCallback.m_collisionObject) {
+					rBody = body;
+					break;
+				}
+			}
+			rBody->getBody()->applyCentralImpulse(btVector3(0.0f, 100.0f, 0.0f));
+
 			rayEnd = RayCallback.m_hitPointWorld;
 			btVector3 normal = RayCallback.m_hitNormalWorld;
-			//std::cout << rayEnd.getY() << std::endl;
 			pLight2.setPosition(glm::vec3(rayEnd.getX(), rayEnd.getY(), rayEnd.getZ()));
-			//std::cout << pLight2.getPosition().y << std::endl;
-
-			testGeometry.clear();
-			testGeometry.line(toVec3(rayStart), toVec3(rayEnd));
 		}
 
-		//pgTest.setPosition(carChassis.getPositionCenter());
+		pgTest.setPosition(carChassis.getPositionCenter());
 
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -904,10 +900,18 @@ int main() {
 			carCamera.setPosition(carPosition + glm::vec3(0.0f, 1.5f, 0.0f));
 			glm::vec3 carFront = testVehicle->getFront() * glm::vec3(1.0f, 1.0f, 1.0f);
 			carCamera.lookAt(carCamera.getPosition() + carFront);
-			mainCamera.lookAt(carPosition);
+			mainCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 
 			carDistanceLine.setPosition(carPosition);
 			carDistanceLine.rotate(carChassis.getRotation());
+
+
+			text_fps.setPosition(carChassis.getPositionCenter() + glm::vec3(0.0f, 2.0f, 0.0f));
+			text_fps.rotate(carChassis.getRotation());
+			//text_fps.scaleToWidth(test_rect.getSize().width);
+			//text_fps.setText(std::to_string((int)abs(vehicle->getCurrentSpeedKmHour())) + " km/h");
+			text_fps.setText(std::to_string((int)(1.0f / deltaTime)));
+
 
 			{
 				std::vector<Point> points = carDistanceLine.getPoints();

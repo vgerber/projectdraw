@@ -66,6 +66,9 @@ private:
 	bool initial_move = true;	
 
 protected:
+	glm::mat4 viewMatrix;
+	glm::mat4 projMatrix;
+
 	glm::vec3 front_vector;
 	glm::vec3 up_vector;
 	glm::vec3 right_vector;
