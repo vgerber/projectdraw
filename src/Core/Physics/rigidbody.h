@@ -35,17 +35,3 @@ private:
 
     GLuint aabbVAO, aabbVBO;
 };
-
-
-
-
-class PhysicsObject {
-public:	
-    uint addRigidBody(RigidBody rigidBody);
-    RigidBody getRigidBody(uint id);
-    std::map<uint, class RigidBody> getRigidBodys();
-
-private:
-    uint id_counter = 0;
-    std::map<uint, class RigidBody> rigidBodys;
-};

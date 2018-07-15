@@ -1,4 +1,4 @@
-#include "physicsobject.h"
+#include "rigidbody.h"
 
 RigidBody::RigidBody() {
     rigidBody = nullptr;
@@ -64,17 +64,19 @@ void RigidBody::syncBody()
 
 void RigidBody::syncDrawable()
 {
-	btTransform transform;
-	drawable->setCenter(glm::vec3(0.5f, 0.5f, 0.5f));
-	if (false && rigidBody && rigidBody->getMotionState()) {
-		rigidBody->getMotionState()->getWorldTransform(transform);
+	if (drawable) {
+		btTransform transform;
+		drawable->setCenter(glm::vec3(0.5f, 0.5f, 0.5f));
+		if (false && rigidBody && rigidBody->getMotionState()) {
+			rigidBody->getMotionState()->getWorldTransform(transform);
+		}
+		else {
+			transform = rigidBody->getWorldTransform();
+		}
+		if (drawable->getScale() - glm::vec3(1.0f) != glm::vec3(0.0))
+			transform.setOrigin(transform.getOrigin() + btVector3(drawable->getSize().width, drawable->getSize().height, drawable->getSize().depth) * btVector3(0.5f, 0.5f, 0.5f));
+		drawable->transform(transform);
 	}
-	else {
-		transform = rigidBody->getWorldTransform();
-	}
-	if(drawable->getScale() - glm::vec3(1.0f) != glm::vec3(0.0))
-		transform.setOrigin(transform.getOrigin() + btVector3(drawable->getSize().width, drawable->getSize().height, drawable->getSize().depth) * btVector3(0.5f, 0.5f, 0.5f));
-	drawable->transform(transform);
 }
 
 void RigidBody::drawAABB(Shader shader) {
@@ -143,19 +145,4 @@ btRigidBody* RigidBody::getBody() {
 Drawable * RigidBody::getDrawable()
 {
 	return drawable;
-}
-
-
-
-uint PhysicsObject::addRigidBody(RigidBody rigidBody) {
-    rigidBodys[id_counter] = rigidBody;
-    return id_counter++;
-}
-
-RigidBody PhysicsObject::getRigidBody(uint id) {
-    return rigidBodys[id];
-}
-
-std::map<uint, class RigidBody> PhysicsObject::getRigidBodys() {
-    return rigidBodys;
 }

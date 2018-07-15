@@ -1,20 +1,16 @@
 #include "vehicle.h"
 
-Vehicle::Vehicle(RigidBody *rigidBody, btDiscreteDynamicsWorld *world)
+Vehicle::Vehicle(RigidBody *chassis, btDiscreteDynamicsWorld *world)
 {
-
-	this->rigidBody = rigidBody;
+	chassis->getBody()->setLinearFactor(btVector3(1.0f, 1.0f, 1.0f));
+	chassis->getBody()->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
+	this->rigidBody = chassis;
 	this->rigidBody->getBody()->setActivationState(DISABLE_DEACTIVATION);
 	this->rigidBody->visibleAABB = true;
 
 	vehicleRaycaster = new btDefaultVehicleRaycaster(world);
 	
-	btVehicle = new btRaycastVehicle(tuning, rigidBody->getBody(), vehicleRaycaster);
-}
-
-void Vehicle::setChassis(Drawable * chassis)
-{
-	this->chassis = chassis;
+	btVehicle = new btRaycastVehicle(tuning, chassis->getBody(), vehicleRaycaster);
 }
 
 void Vehicle::addWheel(Wheel wheel, glm::vec3 connectionPoint, bool isFrontWheel)
@@ -22,7 +18,7 @@ void Vehicle::addWheel(Wheel wheel, glm::vec3 connectionPoint, bool isFrontWheel
 	btVector3 wheelDirectionCS0(0, -1, 0);
 	//rotating axis
 	btVector3 wheelAxleCS(1, 0, 0);
-	btScalar suspensionRestLength(0.5f);
+	btScalar suspensionRestLength(wheel.suspensionRestLength);
 	btScalar wheelWidth(wheel.drawable->getSize().width);
 	btScalar wheelRadius(wheel.drawable->getSize().depth * 0.5);
 
@@ -30,25 +26,23 @@ void Vehicle::addWheel(Wheel wheel, glm::vec3 connectionPoint, bool isFrontWheel
 	wheels.push_back(wheel);
 
 	btWheelInfo &wheelInfo = btVehicle->getWheelInfo(wheels.size()-1);
-	wheelInfo.m_suspensionStiffness = 100;
-	wheelInfo.m_wheelsDampingCompression = btScalar(0.2) * 2 * btSqrt(wheelInfo.m_suspensionStiffness);
-	wheelInfo.m_wheelsDampingRelaxation = btScalar(0.3) * 2 * btSqrt(wheelInfo.m_suspensionStiffness);
-	wheelInfo.m_frictionSlip = btScalar(3.0f);
-	wheelInfo.m_rollInfluence = 1.0;
+	wheelInfo.m_suspensionStiffness = wheel.suspensionStiffness;
+	wheelInfo.m_wheelsDampingCompression = wheel.dampingCompression * 2 * btSqrt(wheelInfo.m_suspensionStiffness);
+	wheelInfo.m_wheelsDampingRelaxation = wheel.dampingRelaxation * 2 * btSqrt(wheelInfo.m_suspensionStiffness);
+	wheelInfo.m_frictionSlip = wheel.frictionSlip;
+	wheelInfo.m_rollInfluence = wheel.rollInfluence;
 }
 
 void Vehicle::sync()
 {
-	if (chassis) {
-		chassis->transform(rigidBody->getBody()->getWorldTransform());
-	}
+	rigidBody->syncDrawable();
 	glm::vec4 carDirection = glm::vec4(toVec3(btVehicle->getForwardVector().cross(btVector3(1.0f, 0.0f, 0.0f))), 0.0f);
-	direction = glm::normalize(chassis->getModelMatrix() * carDirection);
+	direction = glm::normalize(rigidBody->getDrawable()->getModelMatrix() * carDirection);
 
 	btTransform transform;
 
 	//get length of movement
-	glm::vec3 pos = chassis->getPositionCenter() - position;
+	glm::vec3 pos = rigidBody->getDrawable()->getPositionCenter() - position;
 	float length = sqrtf(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z);
 	// get driving direction (back or front)
 	length *= (glm::dot(pos, direction) >= 0.0f ? 1.0f : -1.0f);
@@ -78,12 +72,12 @@ void Vehicle::sync()
 		}
 	}
 
-	position = chassis->getPositionCenter();	
+	position = rigidBody->getDrawable()->getPositionCenter();
 }
 
 void Vehicle::draw()
 {
-	chassis->draw();
+	rigidBody->getDrawable()->draw();
 	for (auto wheel : wheels) {
 		wheel.drawable->draw();
 	}
@@ -103,4 +97,9 @@ glm::vec3 Vehicle::getFront()
 btRaycastVehicle * Vehicle::getVehicle()
 {
 	return btVehicle;
+}
+
+RigidBody * Vehicle::getChassis()
+{
+	return rigidBody;
 }

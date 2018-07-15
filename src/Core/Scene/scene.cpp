@@ -341,7 +341,7 @@ void Scene::draw(GLfloat delta)
 void Scene::updatePhysics(GLfloat delta)
 {
 	//Physics
-	dynamicsWorld->stepSimulation(delta, 1);
+	dynamicsWorld->stepSimulation(delta, 10);
 
 	for (auto body : rigidBodys) {
 		body->syncDrawable();

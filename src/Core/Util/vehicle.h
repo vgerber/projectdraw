@@ -7,14 +7,20 @@
 struct Wheel {
 	Drawable *drawable = nullptr;
 	float wheelRotation = 0.0f;
+
+	float suspensionRestLength = 0.5f;
+	float suspensionStiffness = 100.0f;
+	float dampingCompression = 0.2f;
+	float dampingRelaxation = 0.3f;
+	float frictionSlip = 10.0f;
+	float rollInfluence = 1.0f;
 };
 
 
 class Vehicle {
 public:
-	Vehicle(RigidBody *rigidBody, btDiscreteDynamicsWorld *world);
+	Vehicle(RigidBody *chassis, btDiscreteDynamicsWorld *world);
 
-	void setChassis(Drawable *chassis);
 	void addWheel(Wheel wheel, glm::vec3 connectionPoint, bool isFrontWheel);
 
 	void sync();
@@ -26,13 +32,14 @@ public:
 
 	btRaycastVehicle *getVehicle();
 
+	RigidBody *getChassis();
+
 private:
 	btRaycastVehicle *btVehicle = nullptr;
 	btVehicleRaycaster *vehicleRaycaster = nullptr;
 	btRaycastVehicle::btVehicleTuning tuning;
 	RigidBody *rigidBody = nullptr;
 	std::vector<Wheel> wheels;
-	Drawable* chassis = nullptr;
 	glm::vec3 direction;
 	glm::vec3 position;
 

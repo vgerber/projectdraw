@@ -41,7 +41,11 @@ bool initialCameraMove = true;
 PerspectiveCamera mainCamera;
 OrthographicCamera testCamera;
 
+Geometry *carTrace = nullptr;
+
 btRaycastVehicle *vehicle = nullptr;
+Vehicle *testVehicle = nullptr;
+
 
 bool keys[1024];
 
@@ -56,7 +60,7 @@ int main() {
 	glfwInit();
 
 	WindowInfo wInfo;
-	wInfo.maximized = false;
+	wInfo.maximized = true;
 	wInfo.cursorLeave = true;
 	Window window(wInfo, 800, 600, "Test123");
 
@@ -495,8 +499,8 @@ int main() {
 	scene_main.addDrawable(test_rect);
 
 
-	Geometry testGeometry = Geometry();
-	scene_main.addDrawable(testGeometry);
+	carTrace = new Geometry();
+	scene_main.addDrawable(*carTrace);
 
 
 	scene_main.addDrawable(text_fps);
@@ -536,10 +540,10 @@ int main() {
 
 
 	Drawable borderGround = Drawable();
-	borderGround.setModel(primitves::generate_quad(500.0f, 1.0f, 500.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderGround.setModel(primitves::generate_quad(500.0f, 5.0f, 500.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	Size sizeGround = borderGround.getSize();
-	GLfloat heightScale = 20.0f;
+	GLfloat heightScale = 2.0f;
 
 	Drawable borderAnchor, borderBack, borderFront, borderLeft, borderRight;
 	borderBack.setModel(primitves::generate_quad(sizeGround.width + 6.0f, sizeGround.height * heightScale, 5.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
@@ -560,12 +564,12 @@ int main() {
 	// Vehicle
 	//
 	GLfloat carMass = 1000.0f;
-	GLfloat carWheelThickness = 0.5f;
+	GLfloat carWheelThickness = 0.2f;
 
 	Drawable carAnchor;
 	carAnchor.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
 	Drawable carChassis;
-	carChassis.setModel(primitves::generate_quad(4.0f, 0.2f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
+	carChassis.setModel(primitves::generate_quad(4.0f, 0.1f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
 	carChassis.setPositionCenter(carAnchor.getPositionCenter());
 
 	std::vector<Drawable*> carWheels;
@@ -628,7 +632,7 @@ int main() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glEnable(GL_MULTISAMPLE);
+	//glEnable(GL_MULTISAMPLE);
 
 	glEnable(GL_FRAMEBUFFER_SRGB);
 
@@ -640,7 +644,7 @@ int main() {
 	glLineWidth(1);
 	glPointSize(2);
 
-	testGeometry.drawType = DrawType::LINE;
+	carTrace->drawType = DrawType::LINE;
 
 	//cube.setPosition(glm::vec3(0.0f, 3.0f, 0.0f));
 	
@@ -735,30 +739,33 @@ int main() {
 	}
 
 	//set vehicle physics
-	collision::CollisionShape carChassisShape = collision::CollisionShape(collision::generateCube(carChassis.getSize()));
+	Size carSize = carChassis.getSize();
+	carSize.height = 0.1f;
+	collision::CollisionShape carChassisShape = collision::CollisionShape(collision::generateCube(carSize));
 	
 
-	Vehicle *testVehicle;
+	
 	{
 		btTransform transform;
 		transform.setIdentity();
 
-		btCompoundShape *compoundShape = new btCompoundShape();
-		transform.setOrigin(toBtVec3(carAnchor.getPosition() + glm::vec3(0.0f, 0.5f * carChassis.getSize().height, 0.0f)));
-		compoundShape->addChildShape(transform, carChassisShape.getShape());
-		collision::CollisionShape carHullShape(compoundShape);
+		//btCompoundShape *compoundShape = new btCompoundShape();
+		//transform.setOrigin(toBtVec3(carAnchor.getPosition() + glm::vec3(0.0f, 0.5f * carChassis.getSize().height, 0.0f)));
+		//compoundShape->addChildShape(transform, carChassisShape.getShape());
+		//collision::CollisionShape carHullShape(compoundShape);
 		
-		RigidBody rbody(carHullShape, carAnchor.getPositionCenter(), carAnchor.getRotation(), carMass);
+		RigidBody rbody(carChassisShape, carAnchor.getPositionCenter(), carAnchor.getRotation(), carMass);
 		rbody.setDrawable(carAnchor);
 		//transform.setOrigin(btVector3(0.01f, -0.5f * carChassis.getSize().height, 0.01f));
 		//rbody.getBody()->setCenterOfMassTransform(transform);
-		rbody.visibleAABB = false;
+		rbody.visibleAABB = true;
+		rbody.setDrawable(carChassis);
 		rigidBodys.push_back(new RigidBody(rbody));
 		
 		testVehicle = new Vehicle(new RigidBody(rbody), scene_main.getPhysicsWorld());
 
-		btScalar connectionHeight(0.2f);
-		btVector3 wheelConnectionPoint(carChassis.getSize().width * 0.5, connectionHeight, carChassis.getSize().depth * 0.3);
+		btScalar connectionHeight(0.5f);
+		btVector3 wheelConnectionPoint(carChassis.getSize().width * 0.6, connectionHeight, carChassis.getSize().depth * 0.3);
 		btVector3 wheelConnectionPoints[] = {
 			btVector3( 1, 1,  1),
 			btVector3(-1, 1,  1),
@@ -771,7 +778,6 @@ int main() {
 			wheel.drawable = carWheels[i];
 			testVehicle->addWheel(wheel, toVec3(wheelConnectionPoint * wheelConnectionPoints[i]), (i > 1));
 		}
-		testVehicle->setChassis(&carChassis);
 
 		scene_main.addVehicle(*testVehicle);
 		vehicle = testVehicle->getVehicle();
@@ -862,7 +868,7 @@ int main() {
 					break;
 				}
 			}
-			rBody->getBody()->applyCentralImpulse(btVector3(0.0f, 100.0f, 0.0f));
+			rBody->getBody()->applyCentralImpulse(btVector3(0.0f, 500.0f, 0.0f));
 
 			rayEnd = RayCallback.m_hitPointWorld;
 			btVector3 normal = RayCallback.m_hitNormalWorld;
@@ -939,6 +945,8 @@ int main() {
 					carDistanceLine.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
 				}
 			}
+			carTrace->color = glm::vec4(glm::min(abs(vehicle->getCurrentSpeedKmHour() / 300.0f), 1.0f), 0.0f, 0.0f, 1.0f);
+			carTrace->lineTo(carPosition);
 		}
 
 
@@ -1056,10 +1064,10 @@ void handle_key()
 		vehicle->applyEngineForce(0, 1);
 		vehicle->applyEngineForce(0, 2);
 		vehicle->applyEngineForce(0, 3);
-		vehicle->setBrake(200, 0);
-		vehicle->setBrake(200, 1);
-		vehicle->setBrake(200, 2);
-		vehicle->setBrake(200, 3);
+		vehicle->setBrake(400, 0);
+		vehicle->setBrake(400, 1);
+		vehicle->setBrake(400, 2);
+		vehicle->setBrake(400, 3);
 	}
 	else if(!emergencyBrake) {
 		vehicle->setBrake(0, 0);
@@ -1090,14 +1098,22 @@ void handle_key()
 	vehicle->setSteeringValue(btScalar(0.0), 2);
 	vehicle->setSteeringValue(btScalar(0.0), 3);
 	if (keys[GLFW_KEY_LEFT]) {
-		vehicle->setSteeringValue(btScalar(0.11), 2);
-		vehicle->setSteeringValue(btScalar(0.11), 3);
+		vehicle->setSteeringValue(btScalar(0.07), 2);
+		vehicle->setSteeringValue(btScalar(0.07), 3);
 	}
 	if (keys[GLFW_KEY_RIGHT]) {
-		vehicle->setSteeringValue(btScalar(-0.11), 2);
-		vehicle->setSteeringValue(btScalar(-0.11), 3);
+		vehicle->setSteeringValue(btScalar(-0.07), 2);
+		vehicle->setSteeringValue(btScalar(-0.07), 3);
 	}
-	if (keys[GLFW_KEY_R]) {
+	if (keys[GLFW_KEY_F]) {
+		RigidBody *chassis = testVehicle->getChassis();
+		chassis->getBody()->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
+		chassis->getBody()->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
+		Drawable *dchassis = chassis->getDrawable();
+		dchassis->setPositionCenter(glm::vec3(0.0f, 2.0f, 0.0f));
+		dchassis->rotate(0.0f, 0.0f, 0.0f);
+		chassis->syncBody();
+		carTrace->clear();
 	}
 
 }
