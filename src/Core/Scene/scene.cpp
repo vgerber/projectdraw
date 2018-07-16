@@ -486,7 +486,7 @@ void Scene::setup()
 
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 
-	dynamicsWorld->setGravity(btVector3(0, -9.81, 0));
+	dynamicsWorld->setGravity(btVector3(0, -10.0, 0));
 
 	shader_basic = Shaders[SHADER_BASIC];
 	shader_light = Shaders[SHADER_DEFFERED_LIGHT];

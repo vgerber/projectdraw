@@ -211,6 +211,7 @@ void DirectionalLight::setViewFrustum(ViewFrustum viewFrustum)
 
 void DirectionalLight::begin_shadow_mapping(int slice)
 {
+	//glCullFace(GL_FRONT);
 	Shaders[SHADER_DEPTH].use();
 
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
@@ -226,6 +227,7 @@ void DirectionalLight::begin_shadow_mapping(int slice)
 
 void DirectionalLight::end_shadow_mapping()
 {
+	glCullFace(GL_BACK);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

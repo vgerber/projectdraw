@@ -9,13 +9,24 @@ RigidBody::RigidBody(collision::CollisionShape shape, glm::vec3 center, glm::vec
 	this->shape = new collision::CollisionShape(shape);
 	btTransform transform;
 	transform.setIdentity();
-	btVector3 shapeScale = shape.getShape()->getLocalScaling();
 	transform.setOrigin(btVector3(center.x , center.y, center.z));
 	transform.setRotation(btQuaternion(rotation.y, rotation.x, rotation.z));
 	
 	btScalar bt_mass(mass);
 
 	bool isDynamic = (bt_mass != 0.0f) || isKinematic;
+
+	if (isDynamic) {
+		if (isKinematic && bt_mass == 0.0f) {
+			rType = RigidType::KINEMAITC;
+		}
+		else {
+			rType = RigidType::DYNAMIC;
+		}
+	}
+	else {
+		rType = RigidType::STATIC;
+	}
 
 	btVector3 localInertia(0, 0, 0);
 	if (isDynamic) {
@@ -33,7 +44,11 @@ RigidBody::RigidBody(collision::CollisionShape shape, glm::vec3 center, glm::vec
 void RigidBody::setDrawable(Drawable &drawable)
 {
 	this->drawable = &drawable;
-	shape->getShape()->setLocalScaling(toBtVec3(drawable.getScale()));
+	oldScale = drawable.getScale();
+
+	scaleShape(drawable.getScale());
+
+
 	btTransform transform = rigidBody->getWorldTransform();
 
 	transform.setOrigin(transform.getOrigin() - btVector3(drawable.getSize().width, drawable.getSize().height, drawable.getSize().depth) * btVector3(0.5f, 0.5f, 0.5f));
@@ -46,20 +61,13 @@ void RigidBody::syncBody()
 	glm::vec3 center = drawable->getPositionCenter();
 	glm::vec3 rotation = drawable->getRotation();
 
-	shape->getShape()->setLocalScaling(toBtVec3(drawable->getScale()));
-
+	scaleShape(drawable->getScale());
 
 	transform.setIdentity();
 	transform.setOrigin(btVector3(center.x, center.y, center.z));
 	transform.setRotation(btQuaternion(rotation.y, rotation.x, rotation.z));
 	rigidBody->setWorldTransform(transform);	
 	rigidBody->getMotionState()->setWorldTransform(transform);
-	
-	/*transform.setFromOpenGLMatrix(glm::value_ptr(drawable->getModelMatrix()));
-	transform.setOrigin(btVector3(center.x, center.y, center.z));
-	rigidBody->setWorldTransform(transform);
-	*/
-
 }
 
 void RigidBody::syncDrawable()
@@ -67,13 +75,8 @@ void RigidBody::syncDrawable()
 	if (drawable) {
 		btTransform transform;
 		drawable->setCenter(glm::vec3(0.5f, 0.5f, 0.5f));
-		if (false && rigidBody && rigidBody->getMotionState()) {
-			rigidBody->getMotionState()->getWorldTransform(transform);
-		}
-		else {
-			transform = rigidBody->getWorldTransform();
-		}
-		if (drawable->getScale() - glm::vec3(1.0f) != glm::vec3(0.0))
+		transform = rigidBody->getWorldTransform();
+		if(rType != RigidType::DYNAMIC)
 			transform.setOrigin(transform.getOrigin() + btVector3(drawable->getSize().width, drawable->getSize().height, drawable->getSize().depth) * btVector3(0.5f, 0.5f, 0.5f));
 		drawable->transform(transform);
 	}
@@ -138,6 +141,11 @@ void RigidBody::dispose()
 	delete rigidBody;
 }
 
+RigidType RigidBody::getRigidType()
+{
+	return rType;
+}
+
 btRigidBody* RigidBody::getBody() {
     return rigidBody;
 }
@@ -145,4 +153,17 @@ btRigidBody* RigidBody::getBody() {
 Drawable * RigidBody::getDrawable()
 {
 	return drawable;
+}
+
+void RigidBody::scaleShape(glm::vec3 scale)
+{
+	if (rType == RigidType::DYNAMIC) {
+		oldScale = scale / oldScale;
+		shape->getShape()->setLocalScaling(toBtVec3(oldScale));
+		oldScale = drawable->getScale();
+	}
+	else {
+		oldScale = drawable->getScale();
+		shape->getShape()->setLocalScaling(toBtVec3(drawable->getScale()));
+	}
 }

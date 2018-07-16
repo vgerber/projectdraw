@@ -10,6 +10,12 @@
 
 typedef  unsigned int (uint);
 
+enum RigidType
+{
+	STATIC,
+	KINEMAITC,
+	DYNAMIC
+};
 
 class RigidBody {
 public:
@@ -26,12 +32,18 @@ public:
 
 	void dispose();
 
+	RigidType getRigidType();
+
 	btRigidBody* getBody();
 	Drawable* getDrawable();
 private:
+	glm::vec3 oldScale;
+	RigidType rType;
     collision::CollisionShape *shape = nullptr;
     btRigidBody* rigidBody = nullptr;
 	Drawable *drawable = nullptr;
 
     GLuint aabbVAO, aabbVBO;
+
+	void scaleShape(glm::vec3 scale);
 };

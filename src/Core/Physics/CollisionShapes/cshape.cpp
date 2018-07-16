@@ -44,3 +44,34 @@ btCollisionShape * collision::generateTriangleMesh(Model model)
 
 	return new btBvhTriangleMeshShape(triangleMesh, true);
 }
+
+btCollisionShape * collision::generateHeightField(std::vector<float> data, int width, int length)
+{
+	float min, max;
+	bool isFirst = true;
+	for (auto d : data) {
+		if (isFirst) {
+			min = d;
+			max = d;
+			isFirst = false;
+		}
+		if (d < min) {
+			min = d;
+		}
+		if (d > max) {
+			max = d;
+		}
+	}
+
+	return new btHeightfieldTerrainShape(
+		width,
+		length,
+		&data[0],
+		1.0f,
+		min,
+		max,
+		1,
+		PHY_FLOAT,
+		false
+	);
+}

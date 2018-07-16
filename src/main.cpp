@@ -61,7 +61,7 @@ int main() {
 
 	WindowInfo wInfo;
 	wInfo.maximized = true;
-	wInfo.cursorLeave = true;
+	wInfo.cursorLeave = false;
 	Window window(wInfo, 800, 600, "Test123");
 
 	Size windowSize = window.getSize();
@@ -492,20 +492,21 @@ int main() {
 
 	std::vector<float> heightData = {
 		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 1.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 3.0f, 6.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.1f, 0.3f, 0.7f, 1.2f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+		0.0f, 0.1f, 0.3f, 0.7f, 1.2f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+		0.0f, 0.1f, 0.3f, 0.7f, 1.2f, 1.0f, 2.0f, 1.0f, 1.0f, 0.0f,
+		0.0f, 0.1f, 0.3f, 0.7f, 1.2f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 4.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		0.0f, 3.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 	};
 
 	Drawable testHeightField;
 	testHeightField.setModel(primitives::generate_hightfield(10, 10, heightData));
 	testHeightField.setPosition(glm::vec3(20.0f, 0.01f, 20.0f));
+	testHeightField.visibleNormal = true;
 	scene_main.addDrawable(testHeightField);
 
 
@@ -740,7 +741,9 @@ int main() {
 
 	//set cube as sceond item
 	{
+		
 		for(auto cube : cubes) {
+			cube->scaleToHeight(1.0f);
 			collision::CollisionShape cube_shape(collision::generateCube(cube->getSize()));
 			RigidBody rbodyCube(cube_shape, cube->getPositionCenter(), cube->getRotation(), 80.0f);
 			rbodyCube.setDrawable(*cube);
@@ -748,6 +751,9 @@ int main() {
 			rigidBodys.push_back(new RigidBody(rbodyCube));
 		}
 	}
+
+	cubes[cubes.size() - 1]->scaleToHeight(0.5f);
+	rigidBodys[rigidBodys.size() - 1]->syncBody();
 
 	{
 		collision::CollisionShape text_shape(collision::generateSphere(test_rect.getSize().width * 0.5));
@@ -776,7 +782,7 @@ int main() {
 		rbody.setDrawable(carAnchor);
 		//transform.setOrigin(btVector3(0.01f, -0.5f * carChassis.getSize().height, 0.01f));
 		//rbody.getBody()->setCenterOfMassTransform(transform);
-		rbody.visibleAABB = true;
+		rbody.visibleAABB = false;
 		rbody.setDrawable(carChassis);
 		rigidBodys.push_back(new RigidBody(rbody));
 		
@@ -815,6 +821,20 @@ int main() {
 		rigidBodys.push_back(new RigidBody(rbody));
 	}
 
+	testHeightField.scaleToHeight(40.0f);
+	collision::CollisionShape heightShape = collision::CollisionShape(collision::generateTriangleMesh(testHeightField.getModel()));
+	{
+		RigidBody rbody(heightShape, testHeightField.getPositionCenter(), testHeightField.getRotation(), 0.0f);
+		rbody.setDrawable(testHeightField);
+		rbody.syncBody();
+		rbody.visibleAABB = true;
+		rigidBodys.push_back(new RigidBody(rbody));
+
+		testHeightField.setPositionCenter(glm::vec3(40.0f, 0.01f, 40.0f));
+		rbody.syncBody();
+	}
+
+	
 
 
 	for (auto body : rigidBodys) {
@@ -924,7 +944,7 @@ int main() {
 			carCamera.setPosition(carPosition + glm::vec3(0.0f, 1.5f, 0.0f));
 			glm::vec3 carFront = testVehicle->getFront() * glm::vec3(1.0f, 1.0f, 1.0f);
 			carCamera.lookAt(carCamera.getPosition() + carFront);
-			mainCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+			mainCamera.lookAt(cubes[cubes.size()-1]->getPositionCenter());
 
 			carDistanceLine.setPosition(carPosition);
 			carDistanceLine.rotate(carChassis.getRotation());
@@ -1077,16 +1097,6 @@ void handle_key()
 		mainCamera.setPosition(camPos -= camUp * mouseSpeed * deltaTime);
 	if (keys[GLFW_KEY_Q])
 		mainCamera.setPosition(camPos += camUp * mouseSpeed * deltaTime);
-	if (keys[GLFW_KEY_SPACE]) {
-		vehicle->applyEngineForce(0, 0);
-		vehicle->applyEngineForce(0, 1);
-		vehicle->applyEngineForce(0, 2);
-		vehicle->applyEngineForce(0, 3);
-		vehicle->setBrake(400, 0);
-		vehicle->setBrake(400, 1);
-		vehicle->setBrake(400, 2);
-		vehicle->setBrake(400, 3);
-	}
 	else if(!emergencyBrake) {
 		vehicle->setBrake(0, 0);
 		vehicle->setBrake(0, 1);
@@ -1115,13 +1125,24 @@ void handle_key()
 	}
 	vehicle->setSteeringValue(btScalar(0.0), 2);
 	vehicle->setSteeringValue(btScalar(0.0), 3);
+	float steering = (1.0f - std::fminf(std::fabsf(testVehicle->getVehicle()->getCurrentSpeedKmHour()) / 150.0f, 0.93f)) * 1.0f;
 	if (keys[GLFW_KEY_LEFT]) {
-		vehicle->setSteeringValue(btScalar(0.07), 2);
-		vehicle->setSteeringValue(btScalar(0.07), 3);
+		vehicle->setSteeringValue(steering, 2);
+		vehicle->setSteeringValue(steering, 3);
 	}
 	if (keys[GLFW_KEY_RIGHT]) {
-		vehicle->setSteeringValue(btScalar(-0.07), 2);
-		vehicle->setSteeringValue(btScalar(-0.07), 3);
+		vehicle->setSteeringValue(-steering, 2);
+		vehicle->setSteeringValue(-steering, 3);
+	}
+	if (keys[GLFW_KEY_SPACE]) {
+		vehicle->applyEngineForce(0, 0);
+		vehicle->applyEngineForce(0, 1);
+		vehicle->applyEngineForce(0, 2);
+		vehicle->applyEngineForce(0, 3);
+		vehicle->setBrake(400, 0);
+		vehicle->setBrake(400, 1);
+		vehicle->setBrake(400, 2);
+		vehicle->setBrake(400, 3);
 	}
 	if (keys[GLFW_KEY_F]) {
 		RigidBody *chassis = testVehicle->getChassis();

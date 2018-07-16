@@ -203,24 +203,51 @@ Model primitives::generate_hightfield(int width, int length, std::vector<float> 
 		for(int z = 0; z < length-1; z++) {
 
 			int offset = vertices.size() / 8;
+
+			//normals
+			glm::vec3 normalTri1 = glm::vec3(1.0f, 0.0f, 0.0f);
+			glm::vec3 normalTri2 = glm::vec3(1.0f, 0.0f, 0.0f);
+
+			//first triangle
+			{
+				glm::vec3 triVec1 = glm::vec3(
+					x + iXMap[1],
+					data[(x + iXMap[1]) + (z + iZMap[1]) * length],
+					z + iZMap[1]
+				);
+				glm::vec3 triVec2 = glm::vec3(
+					x + iXMap[2],
+					data[(x + iXMap[2]) + (z + iZMap[2]) * length],
+					z + iZMap[2]
+				);
+				glm::vec3 originVert = glm::vec3(x, data[x + z * length], z);
+
+				normalTri1 = glm::normalize(glm::cross((triVec1 - originVert), (triVec2 - originVert)));
+			}
+			//second triangle
+			{
+				glm::vec3 triVec1 = glm::vec3(
+					x + iXMap[4],
+					data[(x + iXMap[4]) + (z + iZMap[4]) * length],
+					z + iZMap[4]
+				);
+				glm::vec3 triVec2 = glm::vec3(
+					x + iXMap[5],
+					data[(x + iXMap[5]) + (z + iZMap[5]) * length],
+					z + iZMap[5]
+				);
+				glm::vec3 originVert = glm::vec3(x, data[x + z * length], z);
+
+				normalTri2 = glm::normalize(glm::cross((triVec1 - originVert), (triVec2 - originVert)));
+			}
+
 			for(int i = 0; i < 6; i++) {
 				vertices.push_back(x + iXMap[i]);
 				vertices.push_back(data[(x + iXMap[i]) + (z + iZMap[i]) * length]);
 				vertices.push_back(z + iZMap[i]);
 
 
-				//normals
-				glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
-				
-				glm::vec3 prevVert = glm::vec3(
-					x + iXMap[i], 
-					data[(x + iXMap[i]) + (z + iZMap[i]) * length],
-					z + iZMap[i]
-				);
-				glm::vec3 originVert = glm::vec3(x, data[x + z * length], z);
-
-				normal = glm::normalize(glm::cross((prevVert - originVert), normal));
-
+				glm::vec3 normal = (i < 3) ? normalTri1 : normalTri2;
 				
 
 				vertices.push_back(normal.x);
@@ -228,8 +255,8 @@ Model primitives::generate_hightfield(int width, int length, std::vector<float> 
 				vertices.push_back(normal.z);
 
 				//texcoords
-				vertices.push_back(0.0f);
-				vertices.push_back(0.0f);
+				vertices.push_back((float)x / width);
+				vertices.push_back((float)z / length);
 
 				indices.push_back(offset + i);
 			}
@@ -242,8 +269,8 @@ Model primitives::generate_hightfield(int width, int length, std::vector<float> 
 		Vertex vertex;
 		vertex.Position = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
 		vertex.Normal = glm::vec3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
-		vertex.TexCoords = glm::vec2(0.0f);//glm::vec2(vertices[i + 6], vertices[i + 7]);
-		vertex.Color = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
+		vertex.TexCoords = glm::vec2(vertices[i + 6], vertices[i + 7]);
+		vertex.Color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
 		vertices_vertex.push_back(vertex);
 	}
 
