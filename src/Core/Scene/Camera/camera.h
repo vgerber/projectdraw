@@ -1,6 +1,5 @@
 #pragma once
 
-#include <glm/gtx/vector_angle.hpp>
 
 #include "../sceneobject.h"
 #include "../../Model/box.h"

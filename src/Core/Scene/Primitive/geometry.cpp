@@ -24,14 +24,15 @@ void Geometry::draw()
 void Geometry::draw(Shader shader)
 {
 	shader.use();
-	glUniform4f(glGetUniformLocation(shader.getId(), "color"), color.r, color.g, color.b, color.a);
 	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 	glBindVertexArray(VAO);
 	if (size != points.size()) {		
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, points.size() * sizeof(Point), &points[0], GL_STATIC_DRAW);	
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Point), (GLvoid*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Point), (GLvoid*)0); 
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Point), (GLvoid*)offsetof(Point, color));
 		size = points.size();
 	}
 	if (points.size() > 0) {
@@ -63,7 +64,7 @@ void Geometry::lineTo(Point point)
 
 void Geometry::lineTo(glm::vec3 point)
 {
-	lineTo(Point { point });
+	lineTo(Point { point, color });
 }
 
 void Geometry::line(Point p1, Point p2)
@@ -77,7 +78,7 @@ void Geometry::line(Point p1, Point p2)
 
 void Geometry::line(glm::vec3 p1, glm::vec3 p2)
 {
-	line(Point{ p1 }, Point{ p2 });
+	line(Point{ p1, color }, Point{ p2, color });
 }
 
 void Geometry::addPoint(Point point)
@@ -87,7 +88,7 @@ void Geometry::addPoint(Point point)
 
 void Geometry::addPoint(glm::vec3 point)
 {
-	addPoint(Point { point });
+	addPoint(Point { point, color });
 }
 
 void Geometry::removePoint(Point point)

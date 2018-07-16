@@ -1,6 +1,6 @@
 #include "pgenerator.h"
 
-Model primitves::generate_rectangle(GLfloat width, GLfloat height, glm::vec4 color = glm::vec4(0.0f))
+Model primitives::generate_rectangle(GLfloat width, GLfloat height, glm::vec4 color = glm::vec4(0.0f))
 {
 	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
 	std::vector<GLfloat> vertices = {
@@ -43,7 +43,7 @@ Model primitves::generate_rectangle(GLfloat width, GLfloat height, glm::vec4 col
 	return Model(meshes, std::vector<Texture>());
 }
 
-Model primitves::generate_circle(GLfloat radius, GLfloat quality, glm::vec4 color)
+Model primitives::generate_circle(GLfloat radius, GLfloat quality, glm::vec4 color)
 {
 	if (quality < 3.0f) {
 		quality = 3.0f;
@@ -117,7 +117,7 @@ Model primitves::generate_circle(GLfloat radius, GLfloat quality, glm::vec4 colo
 	return Model(meshes, std::vector<Texture>());
 }
 
-Model primitves::generate_quad(GLfloat width, GLfloat height, GLfloat depth, glm::vec4 color)
+Model primitives::generate_quad(GLfloat width, GLfloat height, GLfloat depth, glm::vec4 color)
 {
 	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
 	std::vector<GLfloat> vertices = {
@@ -182,6 +182,68 @@ Model primitves::generate_quad(GLfloat width, GLfloat height, GLfloat depth, glm
 		vertex.Normal = glm::vec3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
 		vertex.TexCoords = glm::vec2(0.0f);//glm::vec2(vertices[i + 6], vertices[i + 7]);
 		vertex.Color = color;
+		vertices_vertex.push_back(vertex);
+	}
+
+	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
+
+	std::vector<BasicMesh> meshes = { mesh };
+
+	return Model(meshes, std::vector<Texture>());
+}
+
+Model primitives::generate_hightfield(int width, int length, std::vector<float> data) {
+	std::vector<GLfloat> vertices;
+	std::vector<GLuint> indices;
+
+	int iZMap[6] = {0, 1, 1, 0, 1, 0};
+	int iXMap[6] = {0, 0, 1, 0, 1, 1};
+
+	for(int x = 0; x < width-1; x++) {
+		for(int z = 0; z < length-1; z++) {
+
+			int offset = vertices.size() / 8;
+			for(int i = 0; i < 6; i++) {
+				vertices.push_back(x + iXMap[i]);
+				vertices.push_back(data[(x + iXMap[i]) + (z + iZMap[i]) * length]);
+				vertices.push_back(z + iZMap[i]);
+
+
+				//normals
+				glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
+				
+				glm::vec3 prevVert = glm::vec3(
+					x + iXMap[i], 
+					data[(x + iXMap[i]) + (z + iZMap[i]) * length],
+					z + iZMap[i]
+				);
+				glm::vec3 originVert = glm::vec3(x, data[x + z * length], z);
+
+				normal = glm::normalize(glm::cross((prevVert - originVert), normal));
+
+				
+
+				vertices.push_back(normal.x);
+				vertices.push_back(normal.y);
+				vertices.push_back(normal.z);
+
+				//texcoords
+				vertices.push_back(0.0f);
+				vertices.push_back(0.0f);
+
+				indices.push_back(offset + i);
+			}
+		}
+	}
+
+	std::vector<Vertex> vertices_vertex;
+
+	for (GLuint i = 0; i < vertices.size(); i += 8) {
+		Vertex vertex;
+		vertex.Position = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
+		vertex.Normal = glm::vec3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
+		vertex.TexCoords = glm::vec2(0.0f);//glm::vec2(vertices[i + 6], vertices[i + 7]);
+		vertex.Color = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
 		vertices_vertex.push_back(vertex);
 	}
 

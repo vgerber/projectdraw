@@ -1,6 +1,7 @@
 #version 330 core
 
 layout (location = 0) in vec3 position;
+layout (location = 1) in vec4 color;
 
 layout (std140) uniform Matrices {
 	uniform mat4 view;
@@ -14,12 +15,11 @@ out VS_OUT {
 	float Depth;
 } vs_out;
 
-uniform vec4 color;
 uniform mat4 model;
 
 void main() {
 	gl_Position = projection * view * model * vec4(position.xyz, 1.0);
 	vs_out.Depth = -(view * model * vec4(position.xyz, 1.0)).z / farPlane;
-	vs_out.Color = color;
+	vs_out.Color =  color;
 	vs_out.FragPos = vec3(model * vec4(position.xyz, 1.0));
 }

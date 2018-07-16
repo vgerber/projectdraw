@@ -482,17 +482,35 @@ int main() {
 	test_obj.visibleBox =  false;
 	test_obj.drawType = DrawType::TRIANGLE;
 
-	pLightLeft.setModel(primitves::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
-	pLightRight.setModel(primitves::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
+	pLightLeft.setModel(primitives::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
+	pLightRight.setModel(primitives::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
 	pLight2.setModel(pLightLeft.getModel());
 
 	//cube.scaleToSize(size_medium);
 	//cube.setPosition(glm::vec3(1.0f, 5.0f, 0.0f));	
 	//cube.visibleNormal = true;
 
+	std::vector<float> heightData = {
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 1.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 3.0f, 6.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+	};
+
+	Drawable testHeightField;
+	testHeightField.setModel(primitives::generate_hightfield(10, 10, heightData));
+	testHeightField.setPosition(glm::vec3(20.0f, 0.01f, 20.0f));
+	scene_main.addDrawable(testHeightField);
+
 
 	Drawable test_rect = Drawable();
-	test_rect.setModel(primitves::generate_circle(1.0f, 30.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	test_rect.setModel(primitives::generate_circle(1.0f, 30.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	test_rect.setPosition(glm::vec3(0.0f, 5.0f, -2.0f));
 	
 	test_rect.drawType = DrawType::TRIANGLE;
@@ -530,7 +548,7 @@ int main() {
 					static_cast<float>(rand() / static_cast<float>(RAND_MAX)), 
 					static_cast<float>(rand() / static_cast<float>(RAND_MAX)), 
 					1.0f);
-				cube.setModel(primitves::generate_quad(1.f, 1.0f, 1.0f, cubeColor));
+				cube.setModel(primitives::generate_quad(1.f, 1.0f, 1.0f, cubeColor));
 				cube.setPosition(cubes_position + glm::vec3(x * 1.0f, y * 1.0f, z * 1.0f));
 				cubes.push_back(new Drawable(cube));
 				scene_main.addDrawable(*cubes[cubes.size()-1]);
@@ -540,16 +558,16 @@ int main() {
 
 
 	Drawable borderGround = Drawable();
-	borderGround.setModel(primitves::generate_quad(500.0f, 5.0f, 500.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderGround.setModel(primitives::generate_quad(500.0f, 5.0f, 500.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	Size sizeGround = borderGround.getSize();
 	GLfloat heightScale = 2.0f;
 
 	Drawable borderAnchor, borderBack, borderFront, borderLeft, borderRight;
-	borderBack.setModel(primitves::generate_quad(sizeGround.width + 6.0f, sizeGround.height * heightScale, 5.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderFront.setModel(primitves::generate_quad(sizeGround.width + 6.0f, sizeGround.height * heightScale, 5.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderLeft.setModel(primitves::generate_quad(5.0f , sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderRight.setModel(primitves::generate_quad(5.0f, sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderBack.setModel(primitives::generate_quad(sizeGround.width + 6.0f, sizeGround.height * heightScale, 5.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderFront.setModel(primitives::generate_quad(sizeGround.width + 6.0f, sizeGround.height * heightScale, 5.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderLeft.setModel(primitives::generate_quad(5.0f , sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderRight.setModel(primitives::generate_quad(5.0f, sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	scene_main.addDrawable(borderGround);
 	scene_main.addDrawable(borderBack);
@@ -569,13 +587,13 @@ int main() {
 	Drawable carAnchor;
 	carAnchor.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
 	Drawable carChassis;
-	carChassis.setModel(primitves::generate_quad(4.0f, 0.1f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
+	carChassis.setModel(primitives::generate_quad(4.0f, 0.1f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
 	carChassis.setPositionCenter(carAnchor.getPositionCenter());
 
 	std::vector<Drawable*> carWheels;
 	for (int i = 0; i < 4; i++) {
 		Drawable *wheel = new Drawable();
-		wheel->setModel(primitves::generate_quad(carWheelThickness, 0.5, 0.5, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)));
+		wheel->setModel(primitives::generate_quad(carWheelThickness, 0.5, 0.5, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)));
 		carWheels.push_back(wheel);
 	}
 
@@ -804,7 +822,7 @@ int main() {
 	}
 
 	Drawable particle;
-	particle.setModel(primitves::generate_quad(1.0f, 1.0f, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	particle.setModel(primitives::generate_quad(1.0f, 1.0f, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 	ParticleGenerator pgTest(particle, 30);
 	scene_main.addParticleGenerator(pgTest);
 

@@ -17,6 +17,11 @@
         "ratio": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "cctype": "cpp",
+        "cwctype": "cpp",
+        "condition_variable": "cpp",
+        "mutex": "cpp",
+        "system_error": "cpp"
     }
 }

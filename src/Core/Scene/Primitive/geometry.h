@@ -4,6 +4,7 @@
 
 struct Point {
 	glm::vec3 position;
+	glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 };
 
 class Geometry : public Drawable
