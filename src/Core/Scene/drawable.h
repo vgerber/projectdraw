@@ -18,6 +18,33 @@ struct Material {
 	GLfloat shininess;
 };
 
+struct DrawableInfo {
+	//Drawing
+	DrawType drawType = DrawType::TRIANGLEG;
+
+	//Normals
+	bool normalVisible = false;
+	float normalSize = 1.0f;
+	float normalThickness = 1.0f;
+	glm::vec4 normalColor = glm::vec4(1.0f);
+	
+	//Box
+	bool boxVisible = false;
+	float boxThickness = 1.0f;
+	glm::vec4 boxColor = glm::vec4(1.0f);
+
+	//XRay
+	bool xrayVisible = false;
+	bool xrayUseLight = false;
+	bool xrayCustomColor = true;
+	glm::vec4 xrayColor = glm::vec4(1.0f);
+
+	//Outline
+	bool outlineVisible = false;
+	float outlineThickness = 1.0f;
+	glm::vec4 outlineColor = glm::vec4(1.0f);
+};
+
 class Drawable : public SceneObject, public BoundingBox
 {
 public:
@@ -25,9 +52,8 @@ public:
 	Drawable(GLchar* mmodel);
 	~Drawable();
 
-	bool visibleNormal = false;
-	bool visibleBox = false;
-	DrawType drawType = DrawType::TRIANGLE;
+
+	DrawableInfo dInfo;
 
 	glm::mat4 mmodel = glm::mat4(1.0f);
 
@@ -71,7 +97,7 @@ public:
 	glm::vec3 getCenter();
 	glm::vec3 getCenterPoint();
 
-	void transform(btTransform transform);
+	void transform(const btTransform &transform);
 
 
 	Model getModel();

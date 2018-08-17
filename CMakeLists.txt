@@ -1,5 +1,7 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8)
 project (ProjectDraw)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 file(GLOB_RECURSE ENGINE_SRC 
     "src/*.h"
@@ -42,50 +44,74 @@ find_package(Freetype REQUIRED)
 find_package(Bullet REQUIRED)
 
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} ${BULLET_INCLUDE_DIRS})
-include_directories(~/Development/Lib/Cpp/reactphysics3d-0.7.0/src)
+
 
 target_link_libraries(engine assimp glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${SOIL_LIBRARIES} ${FREETYPE_LIBRARIES} Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath)
 endif()
 
 if(WIN32)
+
+find_package(assimp REQUIRED)
+find_package(Bullet REQUIRED)
+find_package(SOIL REQUIRED)
+
 #add_subdirectory(C:/Users/Vincent/Documents/Projects/Lib/C++)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glfw-3.2.1/include)
+include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SFML-2.5.0/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glew-2.0.0/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glm)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/src)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/include)
-include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/reactphysics3d-0.7.0/src)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/src)
 
-link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glew-2.0.0/lib/Release/Win32)
-link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glfw-3.2.1/lib-vc2015)
-link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/)
-link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/code/Debug)
-link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Debug)
-link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/objs/Win32/Debug)
-link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/reactphysics3d-0.7.0/build/lib/Debug)
-link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug)
+include_directories(${BULLET_INCLUDE_DIR})
+
+#link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glew-2.0.0/lib/Release/Win32)
+#link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glfw-3.2.1/lib-vc2015)
+#link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SFML-2.5.0/lib)
+#link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/code/Debug)
+#link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Debug)
+#link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/objs/Win32/Debug)
+#link_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug)
+
+
 
 add_executable(engine src/main.cpp ${ENGINE_SRC})
 target_link_libraries(engine 
-	assimp-vc140-mt 
-	glfw3 
-	glew32s 
-	SOIL
+#ASSIMP
+	debug 	  C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/code/Debug/assimp-vc140-mt.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/code/Release/assimp-vc140-mt.lib
+#GLEW
+	C:/Users/Vincent/Documents/Projects/Lib/C++/glew-2.0.0/lib/Release/Win32/glew32s.lib 
+#SFML
+	debug     C:/Users/Vincent/Documents/Projects/Lib/C++/SFML-2.5.0/lib/sfml-graphics-d.lib
+	debug     C:/Users/Vincent/Documents/Projects/Lib/C++/SFML-2.5.0/lib/sfml-window-d.lib
+	debug     C:/Users/Vincent/Documents/Projects/Lib/C++/SFML-2.5.0/lib/sfml-system-d.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/SFML-2.5.0/lib/sfml-graphics.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/SFML-2.5.0/lib/sfml-window.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/SFML-2.5.0/lib/sfml-system.lib
+#SOIL
+	debug 	  C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Debug/SOIL.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Release/SOIL.lib	
+#OpenGL
 	OpenGL32 
-	freetype 
-	BulletSoftBody_Debug
-	BulletInverseDynamics_Debug
-	BulletInverseDynamicsUtils_Debug
-	BulletDynamics_Debug
-	BulletCollision_Debug
-	Bullet3Geometry_Debug
-	Bullet3Common_Debug
-	Bullet3Dynamics_Debug
-	Bullet3Collision_Debug
-	LinearMath_Debug
+#FreeType
+	debug 	  C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/objs/Win32/Debug/freetype.lib 
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/objs/Win32/Release/freetype.lib 
+#Bullet
+	${BULLET_LIBRARIES}
+#	BulletSoftBody_Debug
+#	BulletInverseDynamics_Debug
+#	BulletInverseDynamicsUtils_Debug
+#	BulletDynamics_Debug
+#	BulletCollision_Debug
+#	Bullet3Geometry_Debug
+#	Bullet3Common_Debug
+#	Bullet3Dynamics_Debug
+#	Bullet3Collision_Debug
+#	LinearMath_Debug
 )
 endif()
 

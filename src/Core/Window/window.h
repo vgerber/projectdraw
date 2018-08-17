@@ -17,12 +17,14 @@ struct WindowInfo {
 	int samples = 4;
 };
 
+
 class Window {
 public:
 	Window(WindowInfo info, int width, int height, std::string title);
 	void activate();
 
-	GLFWwindow *getWindow();
+
+	sf::Window* getWindow();
 	Size getSize();
 	
 	Point getCursorPosition();
@@ -32,5 +34,6 @@ public:
 
 private:
 	WindowInfo wInfo;
-	GLFWwindow *window;
+	sf::Window *window;
+	Point oldMousePosition;
 };

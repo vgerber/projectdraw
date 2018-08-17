@@ -75,9 +75,12 @@ void RigidBody::syncDrawable()
 	if (drawable) {
 		btTransform transform;
 		drawable->setCenter(glm::vec3(0.5f, 0.5f, 0.5f));
+		
 		transform = rigidBody->getWorldTransform();
+		glm::vec3 position = toVec3(transform.getOrigin());
 		if(rType != RigidType::DYNAMIC)
 			transform.setOrigin(transform.getOrigin() + btVector3(drawable->getSize().width, drawable->getSize().height, drawable->getSize().depth) * btVector3(0.5f, 0.5f, 0.5f));
+		position = toVec3(transform.getOrigin());
 		drawable->transform(transform);
 	}
 }

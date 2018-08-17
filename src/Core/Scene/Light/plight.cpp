@@ -11,7 +11,7 @@ void PointLight::apply(Shader shader, std::string target)
 	glm::vec4 Mpos = mmodel * glm::vec4(size.width * 0.5f, size.height * 0.5f, size.depth * 0.5f, 1.0f);
 	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".position").c_str()), Mpos.x, Mpos.y, Mpos.z);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".radius").c_str()), radius);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".far_plane").c_str()), far);
+	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".far_plane").c_str()), farPlane);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".constant").c_str()), attenuationConstant);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".linear").c_str()), attenuationLinear);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".quadratic").c_str()), attenuationQuadratic);
@@ -31,7 +31,7 @@ void PointLight::begin_shadow_mapping()
 	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "shadowMatrices[3]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[3]));
 	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "shadowMatrices[4]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[4]));
 	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "shadowMatrices[5]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[5]));
-	glUniform1f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "far_plane"), far);
+	glUniform1f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "far_plane"), farPlane);
 	glUniform3f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "lightPos"), position.x, position.y, position.z);
 }
 
@@ -73,9 +73,9 @@ void PointLight::setup()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	aspect = (GLfloat)SHADOW_C_WIDTH / (GLfloat)SHADOW_C_HEIGHT;
-	near = 1.0f;
-	far = 100.0f;
-	shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
+	nearPlane = 1.0f;
+	farPlane = 100.0f;
+	shadowProj = glm::perspective(glm::radians(90.0f), aspect, nearPlane, farPlane);
 
 	setup_shadow_cube();
 }

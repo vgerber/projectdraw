@@ -70,13 +70,29 @@ void init_core() {
 	Shader shader_deferred;
 	shader_deferred.layers = {
 		{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX },
-		{ Loader::GetPath("/Shaders/deferred.fragment").c_str(), ShaderType::FRAGMENT },
+		{ Loader::GetPath("/Shaders/Deferred/deferred.fragment").c_str(), ShaderType::FRAGMENT },
 		{ Loader::GetPath("/Shaders/Light/dlight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
-		{ Loader::GetPath("/Shaders/Light/plight.fragment").c_str(), ShaderType::FRAGMENT },
-		{ Loader::GetPath("/Shaders/Light/slight.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shader_deferred.load();
 	Shaders[SHADER_DEFERRED] = shader_deferred;
+
+	Shader shader_deferred_plight_nos;
+	shader_deferred_plight_nos.layers = {
+		{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ Loader::GetPath("/Shaders/Deferred/deferred_plight_nos.fragment").c_str(), ShaderType::FRAGMENT },
+		{ Loader::GetPath("/Shaders/Light/plight.fragment").c_str(), ShaderType::FRAGMENT },
+	};
+	shader_deferred_plight_nos.load();
+	Shaders[SHADER_DEFFERED_PLIGHT_NOS] = shader_deferred_plight_nos;
+
+	Shader shader_deferred_slight_nos;
+	shader_deferred_slight_nos.layers = {
+		{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ Loader::GetPath("/Shaders/Deferred/deferred_slight_nos.fragment").c_str(), ShaderType::FRAGMENT },
+		{ Loader::GetPath("/Shaders/Light/slight.fragment").c_str(), ShaderType::FRAGMENT },
+	};
+	shader_deferred_slight_nos.load();
+	Shaders[SHADER_DEFFERED_SLIGHT_NOS] = shader_deferred_slight_nos;
 
 
 	Shader shader_font;
@@ -121,6 +137,14 @@ void init_core() {
 	};
 	shader_perspective_depth.load();
 	Shaders[SHADER_DEPTH_PERSP] = shader_perspective_depth;
+
+	Shader shader_filter_blur;
+	shader_filter_blur.layers = {
+		{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ Loader::GetPath("/Shaders/Filter/blur.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shader_filter_blur.load();
+	Shaders[SHADER_FILTER_BLUR] = shader_filter_blur;
 
 
 	glUniformBlockBinding(Shaders[SHADER_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].getId(), "Matrices"), 0);

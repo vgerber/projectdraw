@@ -7,6 +7,7 @@
 #include <memory>
 #include <cmath>
 
+
 struct ViewFrustum {
 	GLfloat nearZ = 0.0f;
 	GLfloat farZ = 0.0f;

@@ -19,9 +19,9 @@ private:
 	const GLuint SHADOW_C_WIDTH = 1024, SHADOW_C_HEIGHT = 1024;
 	GLuint depthCubemapFBO;
 	GLfloat aspect = (GLfloat)SHADOW_C_WIDTH / (GLfloat)SHADOW_C_HEIGHT;
-	GLfloat near = 1.0f;
-	GLfloat far = 100.0f;
-	glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
+	GLfloat nearPlane = 1.0f;
+	GLfloat farPlane = 100.0f;
+	glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, nearPlane, farPlane);
 
 	std::vector<glm::mat4> shadowTransforms;
 	void setup();

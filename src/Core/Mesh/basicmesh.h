@@ -1,7 +1,7 @@
 #pragma once
 #define GLEW_STATIC
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include <SFML/Graphics.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -14,9 +14,9 @@
 #include <vector>
 
 enum DrawType {
-	TRIANGLE,
-	POINT,
-	LINE,
+	TRIANGLEG,
+	POINTG,
+	LINEG,
 };
 
 struct Vertex {

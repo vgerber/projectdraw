@@ -26,14 +26,68 @@ void Drawable::dispose()
 void Drawable::draw()
 {
 	shader.use();
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-	objModel.draw(shader, drawType);
+	draw(shader);
 }
 
 void Drawable::draw(Shader shader)
 {
+	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 1.0f);
+	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
 	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-	objModel.draw(shader, drawType);
+	
+	if (dInfo.xrayVisible || dInfo.outlineVisible) {
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
+	}
+	else {
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0x00);
+	}
+	objModel.draw(shader, dInfo.drawType);
+
+	if (dInfo.xrayVisible) {
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		glDisable(GL_DEPTH_TEST);
+		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), dInfo.xrayUseLight);
+		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), dInfo.xrayCustomColor);
+		glm::vec4 color = dInfo.xrayColor;
+		glUniform4f(glGetUniformLocation(shader.getId(), "customColor"), color.r, color.g, color.b, color.a);
+		objModel.draw(shader, dInfo.drawType);
+		glEnable(GL_DEPTH_TEST);
+	}
+	
+
+	if (dInfo.outlineVisible) {
+		Size outlineSize;
+		Size size = getSize();
+
+		float thickness = dInfo.outlineThickness;
+		outlineSize.width = (size.width + thickness) / size.width;
+		outlineSize.height = (size.height + thickness) / size.height;
+		outlineSize.depth = (size.depth + thickness) / size.depth;
+
+		glm::vec3 oldScale = getScale();
+		glm::vec3 oldPosition = getPosition();
+
+		scale(outlineSize.width, outlineSize.height, outlineSize.depth);
+		
+		
+		setPosition(getPosition() + glm::vec3(-0.5f * thickness));
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 0.0f);
+		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 1);
+		glm::vec4 color = dInfo.outlineColor;
+		glUniform4f(glGetUniformLocation(shader.getId(), "customColor"), color.r, color.g, color.b, color.a);
+		objModel.draw(shader, dInfo.drawType);
+		setPosition(oldPosition);
+		scale(oldScale);
+	}
+
+	glStencilMask(0xFF);
+	
 }
 
 void Drawable::drawNormals()
@@ -288,12 +342,13 @@ glm::vec3 Drawable::getCenterPoint()
 	return position + glm::vec3(size.width, size.height, size.depth) * vcenter;
 }
 
-void Drawable::transform(btTransform transform)
+void Drawable::transform(const btTransform &transform)
 {
 	btScalar rot_x, rot_y, rot_z;
 	transform.getRotation().getEulerZYX(rot_z, rot_y, rot_x);
 	rotate(rot_x, rot_y, rot_z);
 	btVector3 pos = transform.getOrigin();
+	glm::vec3 position = toVec3(transform.getOrigin());
 	setPositionCenter(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
 }
 

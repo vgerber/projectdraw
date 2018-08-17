@@ -280,3 +280,157 @@ Model primitives::generate_hightfield(int width, int length, std::vector<float> 
 
 	return Model(meshes, std::vector<Texture>());
 }
+
+Model primitives::generateHeightfieldStep(int width, int length, std::vector<float> data) {
+	std::vector<GLfloat> vertices;
+	std::vector<GLuint> indices;
+
+	int iZMap[30] = { 
+		0, 1, 1, 0, 1, 0,
+		0, 1, 1, 0, 1, 0,
+		0, 1, 1, 0, 1, 0,
+		0, 0, 0, 0, 0, 0,
+		1, 1, 1, 1, 1, 1,
+	};
+	int iXMap[30] = { 
+		0, 0, 1, 0, 1, 1, 
+		0, 0, 0, 0, 0, 0,
+		1, 1, 1, 1, 1, 1,
+		0, 1, 1, 0, 1, 0,
+		0, 1, 1, 0, 1, 0
+	};
+	int iYMap[6] = {
+		0, 0, 1, 0, 1, 1,
+	};
+
+
+	for (int x = 0; x < width; x++) {
+		for (int z = 0; z < length; z++) {
+
+			int offset = vertices.size() / 8;
+
+
+			float y = data[x + z * length];
+
+			float bordersDelta[4] = {
+				0.0f, 0.0f, 0.0f, 0.0f
+			};
+
+
+
+			/*
+			x-> 2
+			--|---|---
+			0 |   | 1
+			  |   |
+			--|---|---
+			z   3
+			|
+			v
+			*/
+
+			//check height difference for neighbor cells (always go back to zero at edges of field)
+			if (x == 0) {
+				bordersDelta[0] = -y;
+			}
+			if (x == width-1) {
+				bordersDelta[1] = -y;
+			}
+			else {
+				bordersDelta[1] = data[(x+1) + z * length] - y;
+			}
+			if (z == 0) {
+				bordersDelta[2] = -y;
+			}
+			if (z == length - 1) {
+				bordersDelta[3] = -y;
+			}
+			else {
+				bordersDelta[3] = data[x + (z+1) * length] - y;
+			}
+
+			for (int i = 0; i < 4; i++) {
+				float deltaHeight = bordersDelta[i];
+				float dY = deltaHeight;
+				if (deltaHeight == 0.0f) {
+					continue;
+				}
+				offset = vertices.size() / 8;
+				deltaHeight += y;
+				for (int j = 0; j < 6; j++) {
+					vertices.push_back(x + iXMap[(i + 1) * 6 + j]);
+
+					if (iYMap[j] == 0) {
+						vertices.push_back(deltaHeight);
+					}
+					else {
+						vertices.push_back(y);
+					}
+					vertices.push_back(z + iZMap[(i + 1) * 6 + j]);
+
+
+					glm::vec3 normal = glm::vec3(1.0f);
+					if (i == 0) {
+						normal = glm::vec3(dY < 0.0f ? -1.0f : 1.0f, 0.0f, 0.0f);
+					}
+					if (i == 1) {
+						normal = glm::vec3(dY < 0.0f ? 1.0f : -1.0f, 0.0f, 0.0f);
+					}
+					if (i == 2) {
+						normal = glm::vec3(0.0f, 0.0f, dY < 0.0f ? -1.0f : 1.0f);
+					}
+					if (i == 3) {
+						normal = glm::vec3(0.0f, 0.0f, dY < 0.0f ? 1.0f : -1.0f);
+					}
+
+
+					vertices.push_back(normal.x);
+					vertices.push_back(normal.y);
+					vertices.push_back(normal.z);
+
+					//texcoords
+					vertices.push_back((float)x / width);
+					vertices.push_back((float)z / length);
+
+					indices.push_back(offset + j);
+				}
+			}
+			offset = vertices.size() / 8;
+			for (int i = 0; i < 6; i++) {
+				vertices.push_back(x + iXMap[i]);
+				vertices.push_back(y);
+				vertices.push_back(z + iZMap[i]);
+
+
+
+
+				vertices.push_back(0.0f);
+				vertices.push_back(1.0f);
+				vertices.push_back(0.0f);
+
+				//texcoords
+				vertices.push_back((float)x / width);
+				vertices.push_back((float)z / length);
+
+				indices.push_back(offset + i);
+			}
+		}
+	}
+
+	std::vector<Vertex> vertices_vertex;
+
+	for (GLuint i = 0; i < vertices.size(); i += 8) {
+		Vertex vertex;
+		vertex.Position = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
+		vertex.Normal = glm::vec3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
+		vertex.TexCoords = glm::vec2(vertices[i + 6], vertices[i + 7]);
+		vertex.Color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
+		vertices_vertex.push_back(vertex);
+	}
+
+	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
+
+	std::vector<BasicMesh> meshes = { mesh };
+
+	return Model(meshes, std::vector<Texture>());
+}

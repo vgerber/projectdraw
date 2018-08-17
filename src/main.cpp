@@ -1,6 +1,7 @@
+#define NOMINMAX
 #define GLEW_STATIC
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include <SFML/Graphics.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -39,41 +40,33 @@ GLfloat deltaTime = 0.0f, mouseX = 0, mouseY = 0, mousePitch = 0, mouseYaw = 0, 
 
 bool initialCameraMove = true;
 PerspectiveCamera mainCamera;
-OrthographicCamera testCamera;
+PerspectiveCamera testCamera;
 
 Geometry *carTrace = nullptr;
 
 btRaycastVehicle *vehicle = nullptr;
 Vehicle *testVehicle = nullptr;
 
+Scene *mainScenePtr;
 
-bool keys[1024];
+int sceneCamera = 0;
 
-void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
-void mouse_callback(GLFWwindow *window, double xpos, double ypos);
-void mouse_scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-void handle_key();
+/*
+void key_callback(sf::Window *window, int key, int scancode, int action, int mode);
+void mouse_callback(sf::Window *window, double xpos, double ypos);
+void mouse_scroll_callback(sf::Window *window, double xoffset, double yoffset);*/
+void handle_key(Window &window);
 
 bool emergencyBrake = false;
 
 int main() {
-	glfwInit();
 
 	WindowInfo wInfo;
-	wInfo.maximized = true;
+	wInfo.maximized = false;
 	wInfo.cursorLeave = false;
 	Window window(wInfo, 800, 600, "Test123");
 
 	Size windowSize = window.getSize();
-
-
-
-	glfwSetKeyCallback(window.getWindow(), key_callback);
-    
-
-	glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	glfwSetCursorPosCallback(window.getWindow(), mouse_callback);
-	glfwSetScrollCallback(window.getWindow(), mouse_scroll_callback);
 
 	init_core();
 		
@@ -91,45 +84,14 @@ int main() {
 	carCamera.Height = windowSize.height;
 
 
-	testCamera = OrthographicCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-	testCamera.setPosition(glm::vec3(1.0f, 50.0f, 0.0f));
-	testCamera.FarZ = 51.0f;
+	//testCamera = OrthographicCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+	testCamera.setPosition(glm::vec3(1.0f, 20.0f, 1.0f));
+	testCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+	testCamera.FarZ = 300.0f;
 	testCamera.NearZ = 0.1f;
-	testCamera.Height = windowSize.width;
-	testCamera.Width = windowSize.height;
-	//testCamera.FOV = 45.0f;
+	testCamera.Height = windowSize.height;
+	testCamera.Width = windowSize.width;
 
-	Geometry geoCam;
-
-	int testCamSplits = 3;
-	ViewFrustum viewF = testCamera.getViewFrustum(testCamSplits);
-
-	geoCam.color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
-	geoCam.line(viewF.position, viewF.position + viewF.up);
-	geoCam.line(viewF.position, viewF.position + viewF.front);
-	geoCam.line(viewF.position, viewF.position + viewF.right);
-
-
-	geoCam.drawType = DrawType::LINE;
-
-
-	for (int i = 0; i < viewF.splits.size(); i++) {
-		std::vector<glm::vec3> corners = viewF.splits[i];
-
-		geoCam.line(corners[0], corners[1]);
-		geoCam.line(corners[1], corners[3]);
-		geoCam.line(corners[3], corners[2]);
-		geoCam.line(corners[2], corners[0]);
-
-
-		if (i == viewF.splits.size() - 1) {
-			std::vector<glm::vec3> nearCorners = viewF.splits[0];
-			geoCam.line(nearCorners[1], corners[1]);
-			geoCam.line(nearCorners[3], corners[3]);
-			geoCam.line(nearCorners[2], corners[2]);
-			geoCam.line(nearCorners[0], corners[0]);
-		}
-	}
 
 	/*
 	for (glm::vec3 point : localViewFrustum.nearCorners) {
@@ -144,7 +106,7 @@ int main() {
 	dLight.ambient = glm::vec3(0.3f, 0.3f, 0.3f);
 	dLight.diffuse = glm::vec3(1.0f, 0.7f, 0.5f);
 	dLight.specular = dLight.diffuse;
-	dLight.intensity = 1.0;
+	dLight.intensity = .3f;
 	dLight.change_direction(glm::vec3(-1.0f, -0.4f, -1.0f));
 
 	glm::vec3 light_color(0.0f, 0.0f, 1.0f);
@@ -167,257 +129,25 @@ int main() {
 	pLightRight.specular = light_spec;
 	pLightRight.radius = 200.0f;
 
-	light_color = glm::vec3(1.0f, 0.2f, 0.0f);
-	light_spec  = glm::vec3(1.0f, 0.2f, 0.0f);
+	light_color = glm::vec3(1.0f, 1.0f, 1.0f);
+	light_spec  = glm::vec3(1.0f, 1.0f, 1.0f);
 	PointLight pLight2;
+	pLight2.intensity = 1.f;
 	pLight2.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	pLight2.ambient = glm::vec3(0.001f, 0.01f, 0.001f);
 	pLight2.diffuse = light_color;
 	pLight2.specular = light_spec;
+	pLight2.radius = 300.0f;
 	
 	SpotLight frontLight;
-	frontLight.intensity = 1.0;
+	frontLight.intensity = 0.6f;
 	frontLight.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
 	frontLight.setDistance(200.0f);
-	frontLight.setCutOff(6.1, 12.0);
+	frontLight.setCutOff(12.0, 20.0);
 
 
     Drawable test_obj = Drawable(&path_obj_mountain[0]);
 
-
-	dLight.setViewFrustum(testCamera.getViewFrustum(dLight.getCSMSlices()));
-
-	Geometry geoLight;
-	{
-		float minX = dLight.minVec.x;
-		float minY = dLight.minVec.y;
-		float minZ = dLight.minVec.z;
-		float maxX = dLight.maxVec.x;
-		float maxY = dLight.maxVec.y;
-		float maxZ = dLight.maxVec.z;
-
-		ViewFrustum viewFrustum = testCamera.getViewFrustum(testCamSplits);
-
-		for (int i = 0; i < viewFrustum.splits.size()-1; i++) {
-			bool isInit = true;
-			for (auto corner : viewFrustum.splits[i])
-			{
-				
-				if (isInit)
-				{
-					maxX = corner.x;
-					minX = corner.x;
-					maxY = corner.y;
-					minY = corner.y;
-					maxZ = corner.z;
-					minZ = corner.z;
-					isInit = false;
-					continue;
-				}
-				if (corner.x < minX)
-				{
-					minX = corner.x;
-				}
-				if (corner.x > maxX)
-				{
-					maxX = corner.x;
-				}
-				if (corner.y < minY)
-				{
-					minY = corner.y;
-				}
-				if (corner.y > maxY)
-				{
-					maxY = corner.y;
-				}
-				if (corner.z < minZ)
-				{
-					minZ = corner.z;
-				}
-				if (corner.z > maxZ)
-				{
-					maxZ = corner.z;
-				}
-			}
-
-			for (auto corner : viewFrustum.splits[i+1])
-			{
-				if (isInit)
-				{
-					maxX = corner.x;
-					minX = corner.x;
-					maxY = corner.y;
-					minY = corner.y;
-					maxZ = corner.z;
-					minZ = corner.z;
-					isInit = false;
-					continue;
-				}
-				if (corner.x < minX)
-				{
-					minX = corner.x;
-				}
-				if (corner.x > maxX)
-				{
-					maxX = corner.x;
-				}
-				if (corner.y < minY)
-				{
-					minY = corner.y;
-				}
-				if (corner.y > maxY)
-				{
-					maxY = corner.y;
-				}
-				if (corner.z < minZ)
-				{
-					minZ = corner.z;
-				}
-				if (corner.z > maxZ)
-				{
-					maxZ = corner.z;
-				}
-			}
-
-			glm::vec3 maxVec(maxX, maxY, maxZ);
-			glm::vec3 minVec(minX, minY, minZ);
-
-			glm::vec3 center = (maxVec + minVec) * glm::vec3(0.5f);
-
-			glm::mat4 lightView = glm::lookAt(center, center + dLight.get_direction(), glm::vec3(0.0f, 1.0f, 0.0f));
-
-
-
-			isInit = true;
-			for (auto corner : viewFrustum.splits[i]) {
-				corner = lightView * glm::vec4(corner, 1.0f);
-				if (isInit) {
-					maxX = corner.x;
-					minX = corner.x;
-					maxY = corner.y;
-					minY = corner.y;
-					maxZ = corner.z;
-					minZ = corner.z;
-					isInit = false;
-					continue;
-				}
-				if (corner.x < minX) {
-					minX = corner.x;
-				}
-				if (corner.x > maxX) {
-					maxX = corner.x;
-				}
-				if (corner.y < minY) {
-					minY = corner.y;
-				}
-				if (corner.y > maxY) {
-					maxY = corner.y;
-				}
-				if (corner.z < minZ) {
-					minZ = corner.z;
-				}
-				if (corner.z > maxZ) {
-					maxZ = corner.z;
-				}
-			}
-
-			for (auto corner : viewFrustum.splits[i+1]) {
-				corner = lightView * glm::vec4(corner, 1.0f);
-				if (isInit) {
-					maxX = corner.x;
-					minX = corner.x;
-					maxY = corner.y;
-					minY = corner.y;
-					maxZ = corner.z;
-					minZ = corner.z;
-					isInit = false;
-					continue;
-				}
-				if (corner.x < minX) {
-					minX = corner.x;
-				}
-				if (corner.x > maxX) {
-					maxX = corner.x;
-				}
-				if (corner.y < minY) {
-					minY = corner.y;
-				}
-				if (corner.y > maxY) {
-					maxY = corner.y;
-				}
-				if (corner.z < minZ) {
-					minZ = corner.z;
-				}
-				if (corner.z > maxZ) {
-					maxZ = corner.z;
-				}
-			}
-
-
-
-			glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
-
-			glm::vec3 front_vector = glm::vec3(lightView[0][2], lightView[1][2], lightView[2][2]);
-			glm::vec3 up_vector = glm::vec3(lightView[0][1], lightView[1][1], lightView[2][1]);
-			glm::vec3 right_vector = glm::vec3(lightView[0][0], lightView[1][0], lightView[2][0]);
-			glm::vec3 position = center;
-
-			ViewFrustum localViewFrustum;
-			glm::vec3 nearCenter = position - (front_vector * minZ);
-			glm::vec3 farCenter = position - (front_vector *  maxZ);
-
-			Size sizeFar;
-			sizeFar.height = maxY - minY;
-			sizeFar.width = maxX - minX;
-
-			Size sizeNear;
-			sizeNear.height = sizeFar.height;
-			sizeNear.width = sizeFar.width;
-
-			localViewFrustum.position = position;
-			localViewFrustum.front = front_vector;
-			localViewFrustum.up = up_vector;
-			localViewFrustum.right = right_vector;
-
-
-			geoLight.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-			geoLight.line(localViewFrustum.position, localViewFrustum.position + localViewFrustum.up);
-			geoLight.line(localViewFrustum.position, localViewFrustum.position + localViewFrustum.front);
-			geoLight.line(localViewFrustum.position, localViewFrustum.position + localViewFrustum.right);
-
-
-			geoLight.drawType = DrawType::LINE;
-
-
-
-			std::vector<glm::vec3> corners;
-			corners.push_back(glm::vec3(maxX, maxY, minZ));
-			corners.push_back(glm::vec3(minX, maxY, minZ));
-			corners.push_back(glm::vec3(maxX, minY, minZ));
-			corners.push_back(glm::vec3(minX, minY, minZ));
-
-			corners.push_back(glm::vec3(maxX, maxY, maxZ));
-			corners.push_back(glm::vec3(minX, maxY, maxZ));
-			corners.push_back(glm::vec3(maxX, minY, maxZ));
-			corners.push_back(glm::vec3(minX, minY, maxZ));
-
-			glm::mat4 inv_view = glm::inverse(lightView);
-
-			for (auto &corner : corners) {
-				corner = inv_view * glm::vec4(corner, 1.0);
-			}
-
-			geoLight.line(corners[0], corners[1]);
-			geoLight.line(corners[1], corners[3]);
-			geoLight.line(corners[3], corners[2]);
-			geoLight.line(corners[2], corners[0]);
-
-			geoLight.line(corners[4], corners[5]);
-			geoLight.line(corners[5], corners[7]);
-			geoLight.line(corners[7], corners[6]);
-			geoLight.line(corners[6], corners[4]);
-		}
-	}
 	
 	//
 	// TEXT FreeType
@@ -433,17 +163,16 @@ int main() {
 
 
 	Scene scene_main(windowSize.width, windowSize.height);
+	mainScenePtr = &scene_main;
 
 
 	Size camSize{ -1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f };
 	scene_main.addCamera(mainCamera, camSize);
-	camSize = { 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f };
-	//scene_main.addCamera(testCamera, camSize);
+	//camSize = { -1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f };
+	scene_main.addCamera(testCamera, camSize);
 	camSize = { -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f };
 	//scene_main.addCamera(carCamera, camSize);
 
-	scene_main.addDrawable(geoCam);
-	scene_main.addDrawable(geoLight);
 
 	scene_main.setDlight(dLight);
 	//dLight.change_direction(glm::vec3(-1.0f, 0.0f, 0.0f));
@@ -479,8 +208,8 @@ int main() {
 	Size size = test_obj.getSize();
 	test_obj.setPosition(glm::vec3(-250.0, -4.0f, -250.0f));
 	//test_obj.setCenter(glm::vec3(0.5f, 0.5f, 1.7f));
-	test_obj.visibleBox =  false;
-	test_obj.drawType = DrawType::TRIANGLE;
+	test_obj.dInfo.boxVisible =  false;
+	test_obj.dInfo.drawType = DrawType::TRIANGLEG;
 
 	pLightLeft.setModel(primitives::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
 	pLightRight.setModel(primitives::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
@@ -491,22 +220,22 @@ int main() {
 	//cube.visibleNormal = true;
 
 	std::vector<float> heightData = {
+		1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 3.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.1f, 0.3f, 0.7f, 1.2f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-		0.0f, 0.1f, 0.3f, 0.7f, 1.2f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-		0.0f, 0.1f, 0.3f, 0.7f, 1.2f, 1.0f, 2.0f, 1.0f, 1.0f, 0.0f,
-		0.0f, 0.1f, 0.3f, 0.7f, 1.2f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-		0.0f, 1.0f, 4.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-		0.0f, 3.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 	};
 
 	Drawable testHeightField;
-	testHeightField.setModel(primitives::generate_hightfield(10, 10, heightData));
-	testHeightField.setPosition(glm::vec3(20.0f, 0.01f, 20.0f));
-	testHeightField.visibleNormal = true;
+	testHeightField.setModel(primitives::generateHeightfieldStep(10, 10, heightData));
+	testHeightField.setPosition(glm::vec3(20.0f, 0.1f, 20.0f));
+	testHeightField.dInfo.normalVisible = true;
 	scene_main.addDrawable(testHeightField);
 
 
@@ -514,7 +243,7 @@ int main() {
 	test_rect.setModel(primitives::generate_circle(1.0f, 30.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	test_rect.setPosition(glm::vec3(0.0f, 5.0f, -2.0f));
 	
-	test_rect.drawType = DrawType::TRIANGLE;
+	test_rect.dInfo.drawType = DrawType::TRIANGLEG;
 	scene_main.addDrawable(test_rect);
 
 
@@ -540,9 +269,9 @@ int main() {
 	glm::vec3 cubes_position(0.0f, 0.5f, 15.0f);
 
 	srand(static_cast <unsigned> (time(0)));
-	for(size_t x = 0; x < 5; x++) {
+	for(size_t x = 0; x < 1; x++) {
 		for(size_t y = 0;  y < 5; y++) {
-			for(size_t z = 0; z < 5; z++) {
+			for(size_t z = 0; z < 100; z++) {
 				Drawable cube;
 				glm::vec4 cubeColor(
 					static_cast<float>(rand() / static_cast<float>(RAND_MAX)), 
@@ -588,7 +317,11 @@ int main() {
 	Drawable carAnchor;
 	carAnchor.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
 	Drawable carChassis;
-	carChassis.setModel(primitives::generate_quad(4.0f, 0.1f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
+	carChassis.dInfo.xrayVisible = false;
+	carChassis.dInfo.xrayColor = glm::vec4(1.0f, 0.1f, 0.0f, 1.0f);
+	carChassis.dInfo.outlineVisible = true;
+	carChassis.dInfo.outlineThickness = 0.1f;
+	carChassis.setModel(primitives::generate_quad(4.0f, 0.2f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
 	carChassis.setPositionCenter(carAnchor.getPositionCenter());
 
 	std::vector<Drawable*> carWheels;
@@ -610,7 +343,7 @@ int main() {
 
 	text_fps.setPositionCenter(carChassis.getPositionCenter() + glm::vec3(0.0f, 2.0f, 0.0f));
 	text_fps.setCenterInWorld(carChassis.getPositionCenter());
-	text_fps.visibleBox = true;
+	text_fps.dInfo.boxVisible = true;
 
 	pLightLeft.setPosition(carChassis.getPositionCenter() + glm::vec3(-carChassis.getSize().width * 0.5f + 0.25, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
 	pLightLeft.setCenterInWorld(carChassis.getPositionCenter());
@@ -622,9 +355,10 @@ int main() {
 	{
 		Size carSize = carChassis.getSize();
 		glm::vec3 carFront(0.0f, 0.0f, -carSize.depth * 0.5f);
+		carDistanceLine.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		carDistanceLine.line(carFront, carFront + glm::vec3(0.0f, 0.0f, -20.0f));
 		
-		carDistanceLine.drawType = DrawType::LINE;
+		carDistanceLine.dInfo.drawType = DrawType::LINEG;
 		carDistanceLine.setCenterInWorld(carAnchor.getPosition());
 	}
 
@@ -642,8 +376,7 @@ int main() {
 	glEnable(GL_DEPTH_TEST);	
 	glDepthFunc(GL_LESS);
 
-	//glEnable(GL_STENCIL_TEST);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
 
 	glEnable(GL_CULL_FACE);
 	
@@ -663,7 +396,7 @@ int main() {
 	glLineWidth(1);
 	glPointSize(2);
 
-	carTrace->drawType = DrawType::LINE;
+	carTrace->dInfo.drawType = DrawType::LINEG;
 
 	//cube.setPosition(glm::vec3(0.0f, 3.0f, 0.0f));
 	
@@ -675,7 +408,7 @@ int main() {
 
 	borderGround.setPositionCenter(borderAnchor.getPositionCenter());
 	borderGround.rotate(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
-	borderGround.visibleBox = false;
+	borderGround.dInfo.boxVisible = false;
 
 	//calc positions in compound
 	borderBack.setPosition(borderGround.getPosition() - glm::vec3(1.0f, 0.0f, 1.0f));
@@ -821,7 +554,9 @@ int main() {
 		rigidBodys.push_back(new RigidBody(rbody));
 	}
 
+	
 	testHeightField.scaleToHeight(40.0f);
+	
 	collision::CollisionShape heightShape = collision::CollisionShape(collision::generateTriangleMesh(testHeightField.getModel()));
 	{
 		RigidBody rbody(heightShape, testHeightField.getPositionCenter(), testHeightField.getRotation(), 0.0f);
@@ -830,10 +565,10 @@ int main() {
 		rbody.visibleAABB = true;
 		rigidBodys.push_back(new RigidBody(rbody));
 
-		testHeightField.setPositionCenter(glm::vec3(40.0f, 0.01f, 40.0f));
+		testHeightField.setPositionCenter(glm::vec3(40.0f, 0.07f, 40.0f));
 		rbody.syncBody();
 	}
-
+	
 	
 
 
@@ -846,31 +581,40 @@ int main() {
 	ParticleGenerator pgTest(particle, 30);
 	scene_main.addParticleGenerator(pgTest);
 
-	scene_main.enableCamera(mainCamera, false);
-	scene_main.enableCamera(mainCamera, true);
+	//window.getWindow()->setFramerateLimit(60);
 
-
-
-	GLfloat lastTime = glfwGetTime();
-	while (!glfwWindowShouldClose(window.getWindow()))
+	sf::Clock clock;
+	GLfloat lastTime = 0.00f;
+	deltaTime = 0.0f;
+	while (window.getWindow()->isOpen())
 	{
+		if (sceneCamera == 0) {
+			scene_main.enableCamera(mainCamera, true);
+			scene_main.enableCamera(testCamera, false);
+		}
+		else {
+			scene_main.enableCamera(mainCamera, false);
+			scene_main.enableCamera(testCamera, true);
+		}
+
+		lastTime = clock.getElapsedTime().asMilliseconds();
 		window.update();
 		
-		handle_key();
+		handle_key(window);
 		
-
+		
 		
 		
 		//borderGround.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
-		if(glfwGetTime() > 0.0f) { 
-			borderAnchor.rotate(glm::radians(glm::vec3(cos((glfwGetTime()) * 1.5f) * 0.0f, glfwGetTime() * 00.0f, cos((glfwGetTime()) * 1.0f) * 0.0f)));
+		/*if(lastTime > 0.0f) { 
+			borderAnchor.rotate(glm::radians(glm::vec3(cos((lastTime) * 1.5f) * 0.0f, lastTime * 00.0f, cos((lastTime) * 1.0f) * 0.0f)));
 			rigidBodys[0]->syncBody();
-		}
+		}*/
 
 		scene_main.updatePhysics(deltaTime);
 
 		//synchronize walls to ground
-
+		
 		borderGround.setPositionCenter(borderAnchor.getPosition());
 		borderBack.setPosition(borderGround.getPosition() - glm::vec3(1.0f, 0.0f, 1.0f));
 		borderFront.setPosition(borderGround.getPosition() - glm::vec3(1.0f, 0.0f, -sizeGround.depth));
@@ -882,7 +626,7 @@ int main() {
 		borderFront.rotate(borderGround.getRotation());
 		borderLeft.rotate(borderGround.getRotation());
 		borderRight.rotate(borderGround.getRotation());
-
+		
 
 		Point mousePos = window.getCursorPosition();
 		//printf("%f,%f \n", mousePos.position.x, mousePos.position.y);
@@ -895,7 +639,7 @@ int main() {
 		glm::vec3 camPos = mainCamera.getPosition();
 		std::pair<Point, Point> mouseRay = getCameraMousePosition(window, mainCamera);
 		btVector3 rayStart = toBtVec3(camPos);
-		btVector3 rayEnd = toBtVec3(camPos + mouseRay.second.position * mainCamera.FarZ);
+		btVector3 rayEnd = toBtVec3(camPos + mouseRay.second.position * 2.0f * mainCamera.FarZ);
 		btCollisionWorld::ClosestRayResultCallback RayCallback(rayStart, rayEnd);
 		scene_main.getPhysicsWorld()->rayTest(rayStart, rayEnd, RayCallback);
 		if(RayCallback.hasHit()) {
@@ -910,17 +654,16 @@ int main() {
 
 			rayEnd = RayCallback.m_hitPointWorld;
 			btVector3 normal = RayCallback.m_hitNormalWorld;
-			pLight2.setPosition(glm::vec3(rayEnd.getX(), rayEnd.getY(), rayEnd.getZ()));
+			pLight2.setPosition(toVec3(rayEnd) + glm::vec3(0.0f, 1.0f, 0.0f));
 		}
-
-		pgTest.setPosition(carChassis.getPositionCenter());
+		
+		pgTest.setPosition(carChassis.getPositionCenter() - testVehicle->getFront() * 4.0f);
 
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		dLight.intensity = std::max(sin(glfwGetTime() * 0.5f), 1.0);
 		
-		pLight2.intensity = (sin(glfwGetTime()) * 0.5 + 0.5);    
+		//pLight2.intensity = (sin(glfwGetTime()) * 0.5 + 0.5);    
 		//scene_main.draw(deltaTime);
 		
 		//update vehicle lights
@@ -938,13 +681,13 @@ int main() {
 			pLightRight.setPosition(carChassis.getPositionCenter() + glm::vec3(carChassis.getSize().width * 0.5f - 0.75f, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
 			pLightRight.rotate(carChassis.getRotation());
 
-			pLightLeft.intensity = (sin(glfwGetTime() * 10) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
-			pLightRight.intensity = (sin(glfwGetTime() * 11 + glm::pi<GLfloat>()) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
+			pLightLeft.intensity = (sin(lastTime * 0.1 * deltaTime) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
+			pLightRight.intensity = (sin(lastTime * 0.1 * deltaTime + glm::pi<GLfloat>()) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
 		
 			carCamera.setPosition(carPosition + glm::vec3(0.0f, 1.5f, 0.0f));
 			glm::vec3 carFront = testVehicle->getFront() * glm::vec3(1.0f, 1.0f, 1.0f);
 			carCamera.lookAt(carCamera.getPosition() + carFront);
-			mainCamera.lookAt(cubes[cubes.size()-1]->getPositionCenter());
+			mainCamera.lookAt(carPosition);
 
 			carDistanceLine.setPosition(carPosition);
 			carDistanceLine.rotate(carChassis.getRotation());
@@ -985,14 +728,17 @@ int main() {
 			}
 			carTrace->color = glm::vec4(glm::min(abs(vehicle->getCurrentSpeedKmHour() / 300.0f), 1.0f), 0.0f, 0.0f, 1.0f);
 			carTrace->lineTo(carPosition);
+			testCamera.setPosition(carChassis.getPositionCenter() - testVehicle->getFront() + glm::vec3(0.0f, 1.0f, 0.0f));
+			testCamera.lookAt(carPosition + testVehicle->getFront() + glm::vec3(0.0f, 1.0f, 0.0f));
 		}
-
+		
 
 		scene_main.draw(deltaTime);
+		
 
-		glfwSwapBuffers(window.getWindow());
-		GLfloat currentTime = glfwGetTime();
-		deltaTime = currentTime - lastTime;
+		window.getWindow()->display();
+		GLfloat currentTime = clock.getElapsedTime().asMilliseconds();
+		deltaTime = 0.001f * (currentTime - lastTime);
 		lastTime = currentTime;
 	}
 
@@ -1005,7 +751,6 @@ int main() {
 	}
 
 	scene_main.dispose();
-	//glDeleteFramebuffers(1, &fbo_texture);
 
 	dLight.dispose();
 
@@ -1046,11 +791,125 @@ int main() {
 
 	terrainShape.dispose();
 
-	glfwTerminate();
 	return 0;
 }
 
-void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode)
+
+void handle_key(Window &window) {
+
+	float mouseSpeed = 0.0f;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) {
+		mouseSpeed = 150.0f;
+	}
+	else {
+		mouseSpeed = 30.0f;
+	}
+
+	glm::vec3 camPos = mainCamera.getPosition();
+	glm::vec3 camFront = mainCamera.getFront();
+	glm::vec3 camRight = mainCamera.getRight();
+	glm::vec3 camUp = mainCamera.getUp();
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		mainCamera.setPosition(camPos += camFront * mouseSpeed * deltaTime);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		mainCamera.setPosition(camPos -= camFront * mouseSpeed * deltaTime);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		mainCamera.setPosition(camPos -= camRight * mouseSpeed * deltaTime);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		mainCamera.setPosition(camPos += camRight * mouseSpeed * deltaTime);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+		mainCamera.setPosition(camPos -= camUp * mouseSpeed * deltaTime);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+		mainCamera.setPosition(camPos += camUp * mouseSpeed * deltaTime);
+
+	sf::Event e;
+	while (window.getWindow()->pollEvent(e))
+	{
+		if (e.type == sf::Event::Closed) {
+			window.getWindow()->close();
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+			window.getWindow()->close();
+		}
+
+
+		vehicle->setBrake(0, 0);
+		vehicle->setBrake(0, 1);
+		vehicle->setBrake(0, 2);
+		vehicle->setBrake(0, 3);
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !emergencyBrake) {
+			vehicle->applyEngineForce(500, 0);
+			vehicle->applyEngineForce(500, 1);
+			vehicle->applyEngineForce(10000, 2);
+			vehicle->applyEngineForce(10000, 3);
+		}
+		else {
+			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+				vehicle->applyEngineForce(0, 0);
+				vehicle->applyEngineForce(0, 1);
+				vehicle->applyEngineForce(0, 2);
+				vehicle->applyEngineForce(0, 3);
+			}
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+			vehicle->applyEngineForce(-5000, 0);
+			vehicle->applyEngineForce(-5000, 1);
+			vehicle->applyEngineForce(-500, 2);
+			vehicle->applyEngineForce(-500, 3);
+		}
+		vehicle->setSteeringValue(btScalar(0.0), 2);
+		vehicle->setSteeringValue(btScalar(0.0), 3);
+		float steering = (1.0f - std::fminf(std::fabsf(testVehicle->getVehicle()->getCurrentSpeedKmHour()) / 150.0f, 0.93f)) * 1.0f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+			vehicle->setSteeringValue(steering, 2);
+			vehicle->setSteeringValue(steering, 3);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+			vehicle->setSteeringValue(-steering, 2);
+			vehicle->setSteeringValue(-steering, 3);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+			vehicle->applyEngineForce(0, 0);
+			vehicle->applyEngineForce(0, 1);
+			vehicle->applyEngineForce(0, 2);
+			vehicle->applyEngineForce(0, 3);
+			vehicle->setBrake(400, 0);
+			vehicle->setBrake(400, 1);
+			vehicle->setBrake(400, 2);
+			vehicle->setBrake(400, 3);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
+			RigidBody *chassis = testVehicle->getChassis();
+			chassis->getBody()->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
+			chassis->getBody()->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
+			Drawable *dchassis = chassis->getDrawable();
+			dchassis->setPositionCenter(glm::vec3(0.0f, 2.0f, 0.0f));
+			dchassis->rotate(0.0f, 0.0f, 0.0f);
+			chassis->syncBody();
+			carTrace->clear();
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+			mainScenePtr->renderMode = RenderMode::LINER;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::N)) {
+			mainScenePtr->renderMode = RenderMode::FILLR;
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) {
+			sceneCamera = 0;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2)) {
+			sceneCamera = 1;
+		}
+	}
+}
+
+
+/*
+void key_callback(sf::Window * window, int key, int scancode, int action, int mode)
 {
 	if (action == GLFW_PRESS) {
 		keys[key] = true;
@@ -1063,11 +922,11 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-void mouse_callback(GLFWwindow * window, double xpos, double ypos)
+void mouse_callback(sf::Window * window, double xpos, double ypos)
 {
 }
 
-void mouse_scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
+void mouse_scroll_callback(sf::Window * window, double xoffset, double yoffset)
 {
 }
 
@@ -1155,4 +1014,14 @@ void handle_key()
 		carTrace->clear();
 	}
 
+	if (keys[GLFW_KEY_M]) {
+		if (mainScenePtr->renderMode == RenderMode::FILLR) {
+			mainScenePtr->renderMode = RenderMode::LINER;
+		}
+		else {
+			mainScenePtr->renderMode = RenderMode::FILLR;
+		}
+	}
+
 }
+*/

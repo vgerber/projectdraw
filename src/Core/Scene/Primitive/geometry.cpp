@@ -36,7 +36,7 @@ void Geometry::draw(Shader shader)
 		size = points.size();
 	}
 	if (points.size() > 0) {
-		if (drawType == DrawType::LINE) {
+		if (dInfo.drawType == DrawType::LINEG) {
 			glDrawArrays(GL_LINES, 0, points.size());
 		}
 		else {

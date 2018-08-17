@@ -41,7 +41,7 @@ private:
 	RigidType rType;
     collision::CollisionShape *shape = nullptr;
     btRigidBody* rigidBody = nullptr;
-	Drawable *drawable = nullptr;
+	Drawable* drawable = nullptr;
 
     GLuint aabbVAO, aabbVBO;
 

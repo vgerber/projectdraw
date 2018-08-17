@@ -120,6 +120,7 @@ btDiscreteDynamicsWorld* Scene::getPhysicsWorld() {
 
 void Scene::draw(GLfloat delta)
 {
+	glDisable(GL_CULL_FACE);
 	//Point and Spotlights not supported
 
 	//if (spotLights.size() > 0) {
@@ -134,9 +135,18 @@ void Scene::draw(GLfloat delta)
 	//		sLight->endShadadowMapping();
 	//	}
 	//}
-
-
+	std::sort(objects.begin(), objects.end(), SortDrawable());
+	
 	for (auto sceneCamera : cameras) {
+
+
+		if(renderMode == RenderMode::POINTR)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		if (renderMode == RenderMode::LINER)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 		//only draw active cameras
 		if (!sceneCamera.active) {
 			continue;
@@ -182,11 +192,16 @@ void Scene::draw(GLfloat delta)
 		//}
 		
 
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
 		glViewport(0, 0, width, height);
 		glClearColor(0.001f, 0.001f, 0.001f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glStencilMask(0x00);
+		
 
 		glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(sceneCamera.camera->getViewMatrix()));
@@ -209,24 +224,35 @@ void Scene::draw(GLfloat delta)
 			pg->draw(delta, shader_basic);
 		}
 
+		
 		for (auto drawable : objects)
 		{
 			drawable->draw();
 		}
 
+		for (auto scam : cameras) {
+			if (scam.debugVisible) {
+				Geometry geoCam = scam.getDebugViewFrustum(directionalLight->getCSMSlices());
+				geoCam.draw();
+				geoCam.dispose();
+			}
+		}
+
 		shader_normals.use();
 		for (auto drawable : objects)
 		{
-			if (drawable->visibleNormal)
+			if (drawable->dInfo.normalVisible)
 			{
 				drawable->drawNormals(shader_normals);
 			}
 		}
 		for (auto drawable : objects) {
-			if (drawable->visibleBox) {
+			if (drawable->dInfo.boxVisible) {
 				drawable->drawBox();
 			}
 		}
+
+
 
 		shader_geometry.use();
 		glUniform4f(glGetUniformLocation(shader_geometry.getId(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
@@ -236,12 +262,35 @@ void Scene::draw(GLfloat delta)
 				body->drawAABB(shader_geometry);
 		}
 
+		glDisable(GL_STENCIL_TEST);
+
+		//bloom effect
+		Shader blur = Shaders[SHADER_FILTER_BLUR];
+
+		glBindFramebuffer(GL_FRAMEBUFFER, bloomFBO);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		blur.use();
+
+		glUniform1i(glGetUniformLocation(blur.getId(), "targetTexture"), 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gBloom);
+
+		glBindVertexArray(screenRectVAO);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindVertexArray(0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
 		//
 		// begin drawing to current camera
 		//
 
 		Shader shader_deferred = Shaders[SHADER_DEFERRED];
 		sceneCamera.beginDrawing(shader_deferred);
+		sceneCamera.clear();
 		glViewport(0, 0, width, height);
 		glm::vec3 viewPos = glm::vec3(sceneCamera.camera->getPosition().x, sceneCamera.camera->getPosition().y, sceneCamera.camera->getPosition().z);
 		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
@@ -249,7 +298,8 @@ void Scene::draw(GLfloat delta)
 		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
 		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
 		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gUseLight"), 3);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gBloom"), 4);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
@@ -258,63 +308,106 @@ void Scene::draw(GLfloat delta)
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
 		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, gBufferUseLight);
+		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, bloomTexture);
 
 		if (directionalLight)
 		{
 			directionalLight->apply(shader_deferred, "dirLight");
 			for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
-				glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 4 + i);
-				glActiveTexture(GL_TEXTURE4 + i);
+				glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 5 + i);
+				glActiveTexture(GL_TEXTURE5 + i);
 				glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
 			}
 		}
-
-
-		///
-		/// For simplicity point and spotlights have been disabled
-		/// 
 		
-		//GLint plight_count = 0;
-		//glUniform1i(glGetUniformLocation(shader_deferred.getId(), "pointLights"), pointLights.size());
-		//for (auto plight : pointLights)
-		//{
-		//	plight->apply(shader_deferred, "pointLight[" + std::to_string(plight_count) + "]");
-		//	glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("pointLight[" + std::to_string(plight_count) + "].shadowCubeMap").c_str()), 8 + plight_count);
-		//	glActiveTexture(GL_TEXTURE8 + plight_count);
-		//	glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
-		//	plight_count++;
-		//}
-
-		//Point Light Shadow is deactivated
-
-		//
-		//for (int i = plight_count; i < 5; i++)
-		//{
-		//	PointLight *plight = point_lights[plight_count - 1];
-		//	plight->apply(shader_deferred, "pointLight[" + std::to_string(i) + "]");
-		//	glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("pointLight[" + std::to_string(i) + "].shadowCubeMap").c_str()), 5 + i);
-		//	glActiveTexture(GL_TEXTURE5 + (plight_count - 1));
-		//	glBindTexture(GL_TEXTURE_CUBE_MAP, plight->get_shadow_cube_map());
-		//}
-		//
-
-
-		//for (auto sLight : spotLights) {
-		//	sLight->apply(shader_deferred, "spotLight");
-		//	glUniform1i(glGetUniformLocation(shader_deferred.getId(), "spotLight.shadowMap"), 10);
-		//	glActiveTexture(GL_TEXTURE10);
-		//	glBindTexture(GL_TEXTURE_2D, sLight->getShadowMap());
-		//}
-		
-
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glBindVertexArray(screenRectVAO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
 
 		sceneCamera.endDrawing();
-	}
 
+		
+		shader_deferred = Shaders[SHADER_DEFFERED_PLIGHT_NOS];
+		sceneCamera.beginDrawing(shader_deferred);
+		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "prevTexture"), 4);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, gBufferNormal);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
+		
+
+		///
+		/// For simplicity point and spotlight shadows have been disabled
+		/// 
+		
+		GLint plight_count = 0;
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "pointLights"), pointLights.size());
+		for (auto plight : pointLights)
+		{
+			plight->apply(shader_deferred, "pointLight[" + std::to_string(plight_count) + "]");
+			plight_count++;
+		}
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glBindVertexArray(screenRectVAO);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindVertexArray(0);
+
+		sceneCamera.endDrawing();
+
+		shader_deferred = Shaders[SHADER_DEFFERED_SLIGHT_NOS];
+		sceneCamera.beginDrawing(shader_deferred);
+		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "prevTexture"), 4);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, gBufferNormal);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
+
+		GLuint slightCount = 0;
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "spotLights"), spotLights.size());
+		for (auto sLight : spotLights) {
+			sLight->apply(shader_deferred, "spotLight[" + std::to_string(slightCount) + "]");
+		}
+		
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glBindVertexArray(screenRectVAO);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindVertexArray(0);
+		
+		sceneCamera.endDrawing();		
+	}
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glViewport(0, 0, width, height);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -335,19 +428,19 @@ void Scene::draw(GLfloat delta)
 		glBindVertexArray(0);
 	}
 	glEnable(GL_DEPTH_TEST);
-	
 }
 
 void Scene::updatePhysics(GLfloat delta)
 {
 	//Physics
-	dynamicsWorld->stepSimulation(delta, 10);
+	dynamicsWorld->stepSimulation(delta, 1);
 
 	for (auto body : rigidBodys) {
 		body->syncDrawable();
 	}
 
 	for (auto vehicle : vehicles) {
+
 		vehicle->sync();
 	}
 }
@@ -380,11 +473,18 @@ void Scene::dispose()
 
 
 	glDeleteFramebuffers(1, &gBufferFBO);
+	glDeleteFramebuffers(1, &bloomFBO);
+	glDeleteFramebuffers(1, &lightFBO);
+
 	glDeleteRenderbuffers(1, &rboGDepth);
 	glDeleteTextures(1, &gBufferAlbedo);
 	glDeleteTextures(1, &gBufferNormal);
 	glDeleteTextures(1, &gBufferPosition);
-	glDeleteTextures(1, &gBufferUseLight);
+	glDeleteTextures(1, &gBufferOption1);
+	glDeleteTextures(1, &gBloom);
+
+	glDeleteTextures(1, &lightTexture);
+
 	glDeleteBuffers(1, &uboMatrices);
 
 	glDeleteBuffers(1, &screenRectVBO);
@@ -420,32 +520,82 @@ void Scene::reload(int width, int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gBufferAlbedo, 0);
 
-	glBindTexture(GL_TEXTURE_2D, gBufferUseLight);
+	glBindTexture(GL_TEXTURE_2D, gBufferOption1);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gBufferUseLight, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gBufferOption1, 0);
 
-	GLuint gAttachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
-	glDrawBuffers(4, gAttachments);
+	glBindTexture(GL_TEXTURE_2D, gBloom);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gBloom, 0);
 
+	GLuint gAttachments[5] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
+	glDrawBuffers(5, gAttachments);
+	
 	glBindRenderbuffer(GL_RENDERBUFFER, rboGDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 	// - Attach buffers
 
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboGDepth);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboGDepth);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	
+
+
+	glBindFramebuffer(GL_FRAMEBUFFER, bloomFBO);
+	glBindTexture(GL_TEXTURE_2D, bloomTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTexture, 0);
+	GLuint attachments[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, attachments);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+	glBindFramebuffer(GL_FRAMEBUFFER, lightFBO);
+	glBindTexture(GL_TEXTURE_2D, lightTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightTexture, 0);
+	GLuint lightAttachments[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, lightAttachments);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Scene::setup()
 {
+	renderMode == RenderMode::FILLR;
+
 	glGenFramebuffers(1, &gBufferFBO);
+	glGenFramebuffers(1, &bloomFBO);
+	glGenFramebuffers(1, &lightFBO);
+
 	glGenTextures(1, &gBufferPosition);
 	glGenTextures(1, &gBufferNormal);
 	glGenTextures(1, &gBufferAlbedo);
-	glGenTextures(1, &gBufferUseLight);
+	glGenTextures(1, &gBufferOption1);
+	glGenTextures(1, &gBloom);
+	glGenTextures(1, &bloomTexture);
+	glGenTextures(1, &lightTexture);
 
 	glGenRenderbuffers(1, &rboGDepth);
 

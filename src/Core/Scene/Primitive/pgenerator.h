@@ -13,4 +13,6 @@ namespace primitives {
 	Model generate_quad(GLfloat width, GLfloat height, GLfloat depth, glm::vec4 color);
 
 	Model generate_hightfield(int width, int length, std::vector<float> data);
+
+	Model generateHeightfieldStep(int width, int length, std::vector<float> data);
 }

@@ -47,10 +47,10 @@ void BasicMesh::draw(Shader shader, DrawType drawType)
 
 	// Draw mesh
 	glBindVertexArray(this->VAO);
-	if (drawType == DrawType::LINE) {
+	if (drawType == DrawType::LINEG) {
 		glDrawElements(GL_LINE_STRIP, this->indices.size(), GL_UNSIGNED_INT, 0);
 	}
-	else if (drawType == DrawType::POINT) {
+	else if (drawType == DrawType::POINTG) {
 		glDrawElements(GL_POINTS, this->indices.size(), GL_UNSIGNED_INT, 0);
 	}
 	else {

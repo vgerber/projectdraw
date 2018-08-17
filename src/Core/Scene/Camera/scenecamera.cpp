@@ -14,17 +14,54 @@ void SceneCamera::beginDrawing(Shader shader)
 		Width = camera->Width;
 		Height = camera->Height;
 	}
-
-
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shader.use();
+	glDisable(GL_DEPTH_TEST);
+}
+
+Geometry SceneCamera::getDebugViewFrustum(int splits) {
+	Geometry geoCam;
+
+	ViewFrustum viewF = camera->getViewFrustum(splits);
+
+	geoCam.color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+	geoCam.line(viewF.position, viewF.position + viewF.up);
+	geoCam.line(viewF.position, viewF.position + viewF.front);
+	geoCam.line(viewF.position, viewF.position + viewF.right);
+
+
+	geoCam.dInfo.drawType = DrawType::LINEG;
+
+
+	for (int i = 0; i < viewF.splits.size(); i++) {
+		std::vector<glm::vec3> corners = viewF.splits[i];
+
+		geoCam.line(corners[0], corners[1]);
+		geoCam.line(corners[1], corners[3]);
+		geoCam.line(corners[3], corners[2]);
+		geoCam.line(corners[2], corners[0]);
+
+
+		if (i == viewF.splits.size() - 1) {
+			std::vector<glm::vec3> nearCorners = viewF.splits[0];
+			geoCam.line(nearCorners[1], corners[1]);
+			geoCam.line(nearCorners[3], corners[3]);
+			geoCam.line(nearCorners[2], corners[2]);
+			geoCam.line(nearCorners[0], corners[0]);
+		}
+	}
+	return geoCam;
+}
+
+void SceneCamera::clear() {	
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void SceneCamera::endDrawing()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glEnable(GL_DEPTH_TEST);
 }
 
 GLuint SceneCamera::getTexture()

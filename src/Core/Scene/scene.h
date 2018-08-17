@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "../core.h"
 #include "Camera/camera.h"
 #include "Camera/scenecamera.h"
@@ -12,11 +13,26 @@
 #include <map>
 #include <memory>
 
+struct SortDrawable {
+	inline bool operator() (const Drawable *d1, const Drawable *d2) {
+		if (!d1->dInfo.xrayVisible && d2->dInfo.xrayVisible) {
+			return true;
+		}
+		return false;
+	}
+};
 
+
+enum RenderMode {
+	POINTR = 0,
+	LINER = 1,
+	FILLR = 2
+};
 
 class Scene
 {
-public:	
+public:
+	RenderMode renderMode;
 
 	Scene();
 	Scene(int width, int height);
@@ -79,7 +95,17 @@ private:
 
 	GLuint gBufferFBO;
 	GLuint rboGDepth;
-	GLuint gBufferPosition, gBufferNormal, gBufferAlbedo, gBufferUseLight;
+	GLuint gBufferPosition, gBufferNormal, gBufferAlbedo, gBufferOption1, gBloom, gDepthStencil;
+
+	GLuint bloomFBO;
+	GLuint bloomTexture;
+
+	GLuint plightFBO;
+	GLuint plightTexture;
+
+	GLuint lightFBO;
+	GLuint lightTexture;
+
 	GLuint uboMatrices;
 	GLuint screenRectVBO;
 	GLuint screenRectVAO;

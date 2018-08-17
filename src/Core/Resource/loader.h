@@ -2,7 +2,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include <GLFW/glfw3.h>
+#include <SFML/Graphics.hpp>
 
 #include "SOIL.h"
 
@@ -35,8 +35,11 @@ const std::string SHADER_DEPTH_PERSP = "depth_persp";
 const std::string SHADER_DEFERRED = "deferred";
 const std::string SHADER_GEOMETRY = "geometry";
 const std::string SHADER_DEFFERED_LIGHT = "ligth";
+const std::string SHADER_DEFFERED_PLIGHT_NOS = "deferred_pligth_nos";
+const std::string SHADER_DEFFERED_SLIGHT_NOS = "deferred_sligth_nos";
 const std::string SHADER_DEFFERED_NORMALS = "normals";
 const std::string SHADER_DEFFERED_GEOMETRY = "deferred_geometry";
+const std::string SHADER_FILTER_BLUR = "filter_blur";
 
 extern std::map<std::string, class Shader> Shaders;
 

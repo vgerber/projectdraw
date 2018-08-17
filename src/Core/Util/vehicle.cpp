@@ -43,6 +43,9 @@ void Vehicle::sync()
 
 	//get length of movement
 	glm::vec3 pos = rigidBody->getDrawable()->getPositionCenter() - position;
+
+	//std::cout << "Position Vehicle (" << position.x << "," << position.y << "," << position.z << ")" << std::endl;
+
 	float length = sqrtf(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z);
 	// get driving direction (back or front)
 	length *= (glm::dot(pos, direction) >= 0.0f ? 1.0f : -1.0f);
