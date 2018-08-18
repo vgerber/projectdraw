@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 project (ProjectDraw)
 
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 file(GLOB_RECURSE ENGINE_SRC 
@@ -42,11 +43,44 @@ find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(Bullet REQUIRED)
+find_package(SFML 2.5 REQUIRED)
 
-include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} ${BULLET_INCLUDE_DIRS})
+include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} 
+	#${BULLET_INCLUDE_DIRS}
+	/home/vincent/Development/Lib/Cpp/bullet3/src/
+)
 
 
-target_link_libraries(engine assimp glfw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${SOIL_LIBRARIES} ${FREETYPE_LIBRARIES} Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath)
+target_link_libraries(engine 
+#SFML
+	sfml-graphics
+	sfml-window
+	sfml-system
+#Assimp
+	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/code/libassimp.so 
+	optimized /home/vincent/Development/Lib/Cpp/assimp-master/Release/code/libassimp.so 
+#GLFW
+	glfw 
+
+	${OPENGL_LIBRARIES} 
+	${GLEW_LIBRARIES} 
+	${SOIL_LIBRARIES} 
+	${FREETYPE_LIBRARIES} 
+#Bullet
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/Bullet3Common/libBullet3Common.so
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletSoftBody/libBulletSoftBody.so
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletDynamics/libBulletDynamics.so
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletCollision/libBulletCollision.so
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletInverseDynamics/libBulletInverseDynamics.so
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/LinearMath/libLinearMath.so
+
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/Bullet3Common/libBullet3Common.so
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletSoftBody/libBulletSoftBody.so
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletDynamics/libBulletDynamics.so
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletCollision/libBulletCollision.so
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletInverseDynamics/libBulletInverseDynamics.so
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/LinearMath/libLinearMath.so
+)
 endif()
 
 if(WIN32)

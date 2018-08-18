@@ -120,7 +120,7 @@ btDiscreteDynamicsWorld* Scene::getPhysicsWorld() {
 
 void Scene::draw(GLfloat delta)
 {
-	glDisable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
 	//Point and Spotlights not supported
 
 	//if (spotLights.size() > 0) {

@@ -1,4 +1,4 @@
-#define NOMINMAX
+
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <SFML/Graphics.hpp>
@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <ctime>
+#include <math.h>
 
 #include "Core/core.h"
 #include "Core/Window/window.h"
@@ -681,8 +682,8 @@ int main() {
 			pLightRight.setPosition(carChassis.getPositionCenter() + glm::vec3(carChassis.getSize().width * 0.5f - 0.75f, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
 			pLightRight.rotate(carChassis.getRotation());
 
-			pLightLeft.intensity = (sin(lastTime * 0.1 * deltaTime) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
-			pLightRight.intensity = (sin(lastTime * 0.1 * deltaTime + glm::pi<GLfloat>()) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
+			pLightLeft.intensity = (sin(lastTime * 0.001f * 18) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
+			pLightRight.intensity = (sin(lastTime * 0.001f * 19 + glm::pi<GLfloat>()) * 0.5 + 0.5 < 0.5 ? 0.0f : 1.0f);
 		
 			carCamera.setPosition(carPosition + glm::vec3(0.0f, 1.5f, 0.0f));
 			glm::vec3 carFront = testVehicle->getFront() * glm::vec3(1.0f, 1.0f, 1.0f);
@@ -861,7 +862,8 @@ void handle_key(Window &window) {
 		}
 		vehicle->setSteeringValue(btScalar(0.0), 2);
 		vehicle->setSteeringValue(btScalar(0.0), 3);
-		float steering = (1.0f - std::fminf(std::fabsf(testVehicle->getVehicle()->getCurrentSpeedKmHour()) / 150.0f, 0.93f)) * 1.0f;
+		
+		float steering = (1.0f - std::fminf(fabs(testVehicle->getVehicle()->getCurrentSpeedKmHour()) / 150.0f, 0.93f)) * 1.0f;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
 			vehicle->setSteeringValue(steering, 2);
 			vehicle->setSteeringValue(steering, 3);
@@ -871,14 +873,14 @@ void handle_key(Window &window) {
 			vehicle->setSteeringValue(-steering, 3);
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-			vehicle->applyEngineForce(0, 0);
-			vehicle->applyEngineForce(0, 1);
-			vehicle->applyEngineForce(0, 2);
-			vehicle->applyEngineForce(0, 3);
-			vehicle->setBrake(400, 0);
-			vehicle->setBrake(400, 1);
-			vehicle->setBrake(400, 2);
-			vehicle->setBrake(400, 3);
+			vehicle->applyEngineForce(btScalar(0), 0);
+			vehicle->applyEngineForce(btScalar(0), 1);
+			vehicle->applyEngineForce(btScalar(0), 2);
+			vehicle->applyEngineForce(btScalar(0), 3);
+			vehicle->setBrake(btScalar(400), 0);
+			vehicle->setBrake(btScalar(400), 1);
+			vehicle->setBrake(btScalar(400), 2);
+			vehicle->setBrake(btScalar(400), 3);
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
 			RigidBody *chassis = testVehicle->getChassis();

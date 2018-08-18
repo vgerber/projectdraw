@@ -287,16 +287,16 @@ Model primitives::generateHeightfieldStep(int width, int length, std::vector<flo
 
 	int iZMap[30] = { 
 		0, 1, 1, 0, 1, 0,
-		0, 1, 1, 0, 1, 0,
-		0, 1, 1, 0, 1, 0,
-		0, 0, 0, 0, 0, 0,
-		1, 1, 1, 1, 1, 1,
+		0, 1, 1, 0, 1, 0, //X Front
+		1, 0, 1, 0, 0, 1, //X Back
+		0, 0, 0, 0, 0, 0, //Z Front
+		1, 1, 1, 1, 1, 1, //Z Back
 	};
 	int iXMap[30] = { 
 		0, 0, 1, 0, 1, 1, 
 		0, 0, 0, 0, 0, 0,
 		1, 1, 1, 1, 1, 1,
-		0, 1, 1, 0, 1, 0,
+		1, 0, 1, 0, 0, 1,
 		0, 1, 1, 0, 1, 0
 	};
 	int iYMap[6] = {
