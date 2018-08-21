@@ -54,7 +54,8 @@ public:
 
 	void removeCamera(Camera &camera);
 	void enableCamera(Camera &camera, bool enable);
-
+	void configureCamera(Camera &camera, SceneCameraConfig config);
+	SceneCameraConfig getCameraConfig(Camera &camera);
 
 	//camera with size from -1.0 - 1.0
 	void addCamera(Camera &camera, Size size);

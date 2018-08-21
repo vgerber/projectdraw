@@ -27,10 +27,14 @@ F  -Alpha Testing (Probably only Sorting)
 F  -Bullet3 Debug Mode
 P  -preallocate Uniforms
 F  -polish engine setup
-F  -polish vehicle classp
+F  -polish vehicle class
 F  -texture wrapper (load/animate/manage)
 P  -Better Memory Management (Automatic Allocate/Free), SmartPointer
 F  -SceneCamera lighting options
+F  -Rotate to axis
+F  -Animator
+F  -Rings (2D), Half Ring
+F  -Cylinder, Spheres
 
 V0.1
 ===Release

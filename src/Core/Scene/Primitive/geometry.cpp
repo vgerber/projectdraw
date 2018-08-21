@@ -1,5 +1,7 @@
 #include "geometry.h"
 
+
+
 Geometry::Geometry()
 {
 	shader = Shaders[SHADER_DEFFERED_GEOMETRY];
@@ -23,6 +25,9 @@ void Geometry::draw()
 
 void Geometry::draw(Shader shader)
 {
+	glLineWidth(lineThickness);
+	glPointSize(pointThickness);
+
 	shader.use();
 	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 	glBindVertexArray(VAO);
@@ -65,6 +70,13 @@ void Geometry::lineTo(Point point)
 void Geometry::lineTo(glm::vec3 point)
 {
 	lineTo(Point { point, color });
+}
+
+void Geometry::lineTo(std::vector<Point> points)
+{
+	for (Point p : points) {
+		lineTo(p);
+	}
 }
 
 void Geometry::line(Point p1, Point p2)

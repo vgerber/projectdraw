@@ -1,6 +1,6 @@
 #include "pgenerator.h"
 
-Model primitives::generate_rectangle(GLfloat width, GLfloat height, glm::vec4 color = glm::vec4(0.0f))
+Model primitives::generateRectangle(GLfloat width, GLfloat height, glm::vec4 color = glm::vec4(0.0f))
 {
 	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
 	std::vector<GLfloat> vertices = {
@@ -43,7 +43,7 @@ Model primitives::generate_rectangle(GLfloat width, GLfloat height, glm::vec4 co
 	return Model(meshes, std::vector<Texture>());
 }
 
-Model primitives::generate_circle(GLfloat radius, GLfloat quality, glm::vec4 color)
+Model primitives::generateCircle(GLfloat radius, GLfloat quality, glm::vec4 color)
 {
 	if (quality < 3.0f) {
 		quality = 3.0f;
@@ -54,22 +54,45 @@ Model primitives::generate_circle(GLfloat radius, GLfloat quality, glm::vec4 col
 
 	std::vector<GLfloat> vertices;
 
-	
+	{
+		GLfloat x_tex = 0.0f;
+		GLfloat y_tex = 0.0f;
 
-	for (GLfloat theta = 0; theta < 2 * glm::pi<GLfloat>(); theta += step) {
+		GLfloat x = x_tex * radius;
+		GLfloat y = y_tex * radius;
+		vertices.push_back(x);					//X
+		vertices.push_back(y);					//Y
+		vertices.push_back(0.0f);				//Z
+		vertices.push_back(0.0f);				//Normal x
+		vertices.push_back(0.0f);				//Normal y
+		vertices.push_back(1.0f);				//Normal z
+		vertices.push_back(x_tex * 0.5f + 0.5f);//Tex x
+		vertices.push_back(y_tex * 0.5f + 0.5f);//Tex y
+	}
+
+	for (GLfloat theta = 0; theta <= 2.5 * glm::pi<GLfloat>(); theta += step) {
 		GLfloat x_tex = cos(theta);
 		GLfloat y_tex = sin(theta);
+
 		GLfloat x = x_tex * radius;
 		GLfloat y = y_tex * radius;
 
-		vertices.push_back(x);
-		vertices.push_back(y);
-		vertices.push_back(0.0f);
-		vertices.push_back(0.0f);
-		vertices.push_back(0.0f);
-		vertices.push_back(1.0f);
-		vertices.push_back(x_tex * 0.5f + 0.5f);
-		vertices.push_back(y_tex * 0.5f + 0.5f);
+		/*if (theta == 0.0f) {
+			x_tex = radius * 0.f;
+			y_tex = radius * 0.f;
+			x = x_tex;
+			y = y_tex;
+		}*/
+
+
+		vertices.push_back(x);					//X
+		vertices.push_back(y);					//Y
+		vertices.push_back(0.0f);				//Z
+		vertices.push_back(0.0f);				//Normal x
+		vertices.push_back(0.0f);				//Normal y
+		vertices.push_back(1.0f);				//Normal z
+		vertices.push_back(x_tex * 0.5f + 0.5f);//Tex x
+		vertices.push_back(y_tex * 0.5f + 0.5f);//Tex y
 	}
 	size_t size_back = vertices.size();
 
@@ -281,7 +304,7 @@ Model primitives::generate_hightfield(int width, int length, std::vector<float> 
 	return Model(meshes, std::vector<Texture>());
 }
 
-Model primitives::generateHeightfieldStep(int width, int length, std::vector<float> data) {
+Model primitives::generateHeightfieldStep(int width, int length, std::vector<float> data, glm::vec4 color) {
 	std::vector<GLfloat> vertices;
 	std::vector<GLuint> indices;
 
@@ -424,7 +447,7 @@ Model primitives::generateHeightfieldStep(int width, int length, std::vector<flo
 		vertex.Position = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
 		vertex.Normal = glm::vec3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
 		vertex.TexCoords = glm::vec2(vertices[i + 6], vertices[i + 7]);
-		vertex.Color = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
+		vertex.Color = color;
 		vertices_vertex.push_back(vertex);
 	}
 
@@ -433,4 +456,32 @@ Model primitives::generateHeightfieldStep(int width, int length, std::vector<flo
 	std::vector<BasicMesh> meshes = { mesh };
 
 	return Model(meshes, std::vector<Texture>());
+}
+
+std::vector<Point> primitives::geometryCircle(float radius, float quality, glm::vec4 color)
+{
+	if (quality < 3.0f) {
+		quality = 3.0f;
+	}
+	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
+
+	GLfloat step = 2 * glm::pi<GLfloat>() / quality;
+
+	std::vector<Point> vertices;
+
+	for (GLfloat theta = 0; theta <= 2.0f * glm::pi<GLfloat>() + step; theta += step) {
+		GLfloat x_tex = cos(theta);
+		GLfloat y_tex = sin(theta);
+
+		GLfloat x = x_tex * radius;
+		GLfloat y = y_tex * radius;
+
+		Point p;
+		p.position = glm::vec3(x, y, 0.0f);
+		p.color = color;
+
+		vertices.push_back(p);
+	}
+
+	return vertices;
 }

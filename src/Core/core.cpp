@@ -23,9 +23,9 @@ void init_core() {
 
 	Shader shader_depth_cube;
 	shader_depth_cube.layers = {
-		{ Loader::GetPath("/Shaders/cube_depth.vertex").c_str(), ShaderType::VERTEX },
-		{ Loader::GetPath("/Shaders/cube_depth.fragment").c_str(), ShaderType::FRAGMENT },
-		{ Loader::GetPath("/Shaders/cube_depth.geometry").c_str(), ShaderType::GEOMETRY }
+		{ Loader::GetPath("/Shaders/Depth/cube_depth.vertex").c_str(), ShaderType::VERTEX },
+		{ Loader::GetPath("/Shaders/Depth/cube_depth.fragment").c_str(), ShaderType::FRAGMENT },
+		{ Loader::GetPath("/Shaders/Depth/cube_depth.geometry").c_str(), ShaderType::GEOMETRY }
 	};
 	shader_depth_cube.load();
 	Shaders[SHADER_DEPTH_CUBE] = shader_depth_cube;
@@ -33,20 +33,21 @@ void init_core() {
 
 	Shader shader_depth;
 	shader_depth.layers = {
-		{ Loader::GetPath("/Shaders/depth.vertex").c_str(), ShaderType::VERTEX },
-		{ Loader::GetPath("/Shaders/depth.fragment").c_str(), ShaderType::FRAGMENT }
+		{ Loader::GetPath("/Shaders/Depth/depth.vertex").c_str(), ShaderType::VERTEX },
+		{ Loader::GetPath("/Shaders/Depth/depth.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shader_depth.load();
 	Shaders[SHADER_DEPTH] = shader_depth;
 
 
-	Shader shader_instancing;
+	/*Shader shader_instancing;
 	shader_instancing.layers = {
 		{ Loader::GetPath("/Shaders/instancing.vertex").c_str(), ShaderType::VERTEX},
 		{ Loader::GetPath("/Shaders/instancing.fragment").c_str(), ShaderType::FRAGMENT}
 	};
 	shader_instancing.load();
 	Shaders["instancing"] = shader_instancing;
+	*/
 
 
 	Shader shader_basic;

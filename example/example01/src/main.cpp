@@ -41,7 +41,7 @@ GLfloat deltaTime = 0.0f, mouseX = 0, mouseY = 0, mousePitch = 0, mouseYaw = 0, 
 
 bool initialCameraMove = true;
 PerspectiveCamera mainCamera;
-PerspectiveCamera testCamera;
+OrthographicCamera testCamera;
 
 Geometry *carTrace = nullptr;
 
@@ -65,7 +65,7 @@ int main() {
 	WindowInfo wInfo;
 	wInfo.maximized = false;
 	wInfo.cursorLeave = false;
-	Window window(wInfo, 800, 600, "Test123");
+	Window window(wInfo, 1920, 1080, "Test123");
 
 	Size windowSize = window.getSize();
 
@@ -78,20 +78,20 @@ int main() {
 	mainCamera.FarZ = 500.0f;
 	mainCamera.Width = windowSize.width;
 	mainCamera.Height = windowSize.height;
-
+	
 	PerspectiveCamera carCamera;
 	carCamera.FarZ = 100.0f;
 	carCamera.Width = windowSize.width;
 	carCamera.Height = windowSize.height;
 
 
-	//testCamera = OrthographicCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+	testCamera = OrthographicCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
 	testCamera.setPosition(glm::vec3(1.0f, 20.0f, 1.0f));
-	testCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-	testCamera.FarZ = 300.0f;
+	testCamera.lookAt(glm::vec3(1.0f, 0.0f, 1.0f));
+	testCamera.FarZ = 65.0f;
 	testCamera.NearZ = 0.1f;
-	testCamera.Height = windowSize.height;
-	testCamera.Width = windowSize.width;
+	testCamera.Height = 200 * (windowSize.height / windowSize.width);
+	testCamera.Width = 200;
 
 
 	/*
@@ -171,8 +171,12 @@ int main() {
 	scene_main.addCamera(mainCamera, camSize);
 	//camSize = { -1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f };
 	scene_main.addCamera(testCamera, camSize);
-	camSize = { -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f };
-	//scene_main.addCamera(carCamera, camSize);
+	SceneCameraConfig testCamConfig = scene_main.getCameraConfig(testCamera);
+	testCamConfig.dLightVisible = false;
+	testCamConfig.pLightVisible = false;
+	testCamConfig.slightVisible = false;
+	testCamConfig.ParticleVisible = false;
+	scene_main.configureCamera(testCamera, testCamConfig);
 
 
 	scene_main.setDlight(dLight);
@@ -234,14 +238,29 @@ int main() {
 	};
 
 	Drawable testHeightField;
-	testHeightField.setModel(primitives::generateHeightfieldStep(10, 10, heightData));
+	testHeightField.setModel(primitives::generateHeightfieldStep(10, 10, heightData, glm::vec4(0.7f, 0.7f, 0.7f, 1.0f)));
 	testHeightField.setPosition(glm::vec3(20.0f, 0.1f, 20.0f));
 	testHeightField.dInfo.normalVisible = true;
+
+	{
+		Model *thfPtr = testHeightField.getModelInstance();
+		BasicMesh mesh = thfPtr->getMeshes()[0];
+
+		std::vector<Vertex> vertices = mesh.getVertices();
+		for (Vertex &v : vertices) {
+			v.Color = v.Position.y > 0.2f ? glm::vec4(0.5f, 0.1f, 0.1f, 1.0f) : glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
+		}
+		mesh.setVertices(vertices);
+		thfPtr->setMesh(0, mesh);
+	}
+
 	scene_main.addDrawable(testHeightField);
 
 
+
+
 	Drawable test_rect = Drawable();
-	test_rect.setModel(primitives::generate_circle(1.0f, 30.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	test_rect.setModel(primitives::generateCircle(1.0f, 10.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	test_rect.setPosition(glm::vec3(0.0f, 5.0f, -2.0f));
 	
 	test_rect.dInfo.drawType = DrawType::TRIANGLEG;
@@ -270,9 +289,9 @@ int main() {
 	glm::vec3 cubes_position(0.0f, 0.5f, 15.0f);
 
 	srand(static_cast <unsigned> (time(0)));
-	for(size_t x = 0; x < 1; x++) {
-		for(size_t y = 0;  y < 5; y++) {
-			for(size_t z = 0; z < 100; z++) {
+	for(size_t x = 0; x < 3; x++) {
+		for(size_t y = 0;  y < 3; y++) {
+			for(size_t z = 0; z < 3; z++) {
 				Drawable cube;
 				glm::vec4 cubeColor(
 					static_cast<float>(rand() / static_cast<float>(RAND_MAX)), 
@@ -363,7 +382,18 @@ int main() {
 		carDistanceLine.setCenterInWorld(carAnchor.getPosition());
 	}
 
+	Geometry carSelectedCircle;
+	{
+		Size carSize = carChassis.getSize();
+		carSelectedCircle.lineTo(primitives::geometryCircle(carSize.depth * 0.6f, 30.0f, glm::vec4(0.2f, 1.0f, 0.2f, 1.0f)));
+		carSelectedCircle.dInfo.drawType = DrawType::LINEG;
+		carSelectedCircle.lineThickness = 5.0f;
+		carSelectedCircle.rotate(glm::radians(90.0f), 0.0f, 0.0f);
+	}
+
+
 	scene_main.addDrawable(carDistanceLine);
+	scene_main.addDrawable(carSelectedCircle);
 
 	scene_main.addDrawable(carChassis);
 	for (auto wheel : carWheels) {
@@ -392,12 +422,11 @@ int main() {
 	
 	glEnable(GL_LINE_SMOOTH);
 	
-	glEnable(GL_LINE_STIPPLE);	
-	glLineStipple(1, 0xAAAA);
-	glLineWidth(1);
-	glPointSize(2);
+	//glEnable(GL_LINE_STIPPLE);	
+	//glLineStipple(1, 0xAAAA);
 
 	carTrace->dInfo.drawType = DrawType::LINEG;
+	carTrace->lineThickness = 3;
 
 	//cube.setPosition(glm::vec3(0.0f, 3.0f, 0.0f));
 	
@@ -491,7 +520,7 @@ int main() {
 
 	{
 		collision::CollisionShape text_shape(collision::generateSphere(test_rect.getSize().width * 0.5));
-		RigidBody rbody(text_shape, test_rect.getPositionCenter(), test_rect.getRotation(), 1.0f);
+		RigidBody rbody(text_shape, test_rect.getPositionCenter(), test_rect.getRotation(), 100.0f);
 		rbody.setDrawable(test_rect);
 		rigidBodys.push_back(new RigidBody(rbody));
 	}
@@ -714,10 +743,10 @@ int main() {
 					pLight2.setPosition(glm::vec3(rayEnd.getX(), rayEnd.getY(), rayEnd.getZ()));
 					std::cout << "to close!!" << std::endl;
 					
-					vehicle->setBrake(200, 0);
-					vehicle->setBrake(200, 1);
-					vehicle->setBrake(200, 2);
-					vehicle->setBrake(200, 3);
+					vehicle->setBrake(500, 0);
+					vehicle->setBrake(500, 1);
+					vehicle->setBrake(500, 2);
+					vehicle->setBrake(500, 3);
 
 					emergencyBrake = true;
 					carDistanceLine.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
@@ -729,8 +758,13 @@ int main() {
 			}
 			carTrace->color = glm::vec4(glm::min(abs(vehicle->getCurrentSpeedKmHour() / 300.0f), 1.0f), 0.0f, 0.0f, 1.0f);
 			carTrace->lineTo(carPosition);
-			testCamera.setPosition(carChassis.getPositionCenter() - testVehicle->getFront() + glm::vec3(0.0f, 1.0f, 0.0f));
-			testCamera.lookAt(carPosition + testVehicle->getFront() + glm::vec3(0.0f, 1.0f, 0.0f));
+			carSelectedCircle.rotate(glm::vec3(glm::radians(90.0f), carChassis.getRotation().y, carChassis.getRotation().z));
+			carSelectedCircle.scale(glm::vec3(1.0f, glm::min(abs(vehicle->getCurrentSpeedKmHour() / 300.0f), 1.0f) * 2.0f + 1.0f, 1.0f));
+			carSelectedCircle.setPositionCenter(glm::vec3(carPosition.x, 0.1f, carPosition.z));
+			//testCamera.setPosition(carChassis.getPositionCenter() - testVehicle->getFront() + glm::vec3(0.0f, 1.0f, 0.0f));
+			//testCamera.lookAt(carPosition + testVehicle->getFront() + glm::vec3(0.0f, 1.0f, 0.0f));
+
+			testCamera.setPosition(carChassis.getPositionCenter() + glm::vec3(0.0f, 60.0f, 0.0f));
 		}
 		
 

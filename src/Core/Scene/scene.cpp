@@ -99,14 +99,33 @@ void Scene::enableCamera(Camera & camera, bool enable)
 {
 	for (int i = 0; i < cameras.size(); i++) {
 		if (cameras[i].camera == &camera) {
-			cameras[i].active = enable;
+			cameras[i].config.Active = enable;
 		}
 	}
 }
 
+void Scene::configureCamera(Camera & camera, SceneCameraConfig config)
+{
+	for (int i = 0; i < cameras.size(); i++) {
+		if (cameras[i].camera == &camera) {
+			cameras[i].config = config;
+		}
+	}
+}
+
+SceneCameraConfig Scene::getCameraConfig(Camera & camera)
+{
+	for (int i = 0; i < cameras.size(); i++) {
+		if (cameras[i].camera == &camera) {
+			return cameras[i].config;
+		}
+	}
+	throw std::invalid_argument("Camera not found");
+}
+
 void Scene::addCamera(Camera & camera, Size size)
 {
-	cameras.push_back(SceneCamera(camera, size));
+	cameras.push_back(SceneCamera(camera, size, width, height));
 }
 
 void Scene::setDlight(DirectionalLight &dlight)
@@ -137,10 +156,10 @@ void Scene::draw(GLfloat delta)
 	//}
 	std::sort(objects.begin(), objects.end(), SortDrawable());
 	
-	for (auto sceneCamera : cameras) {
+	for (auto &sceneCamera : cameras) {
 
 
-		if(renderMode == RenderMode::POINTR)
+		if (renderMode == RenderMode::POINTR)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 		if (renderMode == RenderMode::LINER)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -148,34 +167,38 @@ void Scene::draw(GLfloat delta)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		//only draw active cameras
-		if (!sceneCamera.active) {
+		if (!sceneCamera.config.Active) {
 			continue;
 		}
 
-		if (directionalLight) {
-			directionalLight->setViewFrustum(
-				sceneCamera.camera->getViewFrustum(directionalLight->getCSMSlices())
-			);
-		}
+		if (sceneCamera.config.dLightVisible) {
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		if (directionalLight)
-		{
-			Shader shader_depth = Shaders[SHADER_DEPTH];
-			for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
-				directionalLight->begin_shadow_mapping(i);
-				for (auto drawable : objects)
-				{
-					glUniformMatrix4fv(glGetUniformLocation(shader_depth.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
-					drawable->draw(shader_depth);
+			//set viewfrustum fro directional light (fro cascaded shadow mapping)
+			if (directionalLight) {
+				directionalLight->setViewFrustum(
+					sceneCamera.camera->getViewFrustum(directionalLight->getCSMSlices())
+				);
+			}
+
+			//render csm directionLight
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			if (directionalLight)
+			{
+				Shader shader_depth = Shaders[SHADER_DEPTH];
+				for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
+					directionalLight->begin_shadow_mapping(i);
+					for (auto drawable : objects)
+					{
+						glUniformMatrix4fv(glGetUniformLocation(shader_depth.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
+						drawable->draw(shader_depth);
+					}
+					directionalLight->end_shadow_mapping();
 				}
-				directionalLight->end_shadow_mapping();
 			}
 		}
 
-
 		//Point Light Shader is deactivated
-		
+
 		//if (point_lights.size() > 0)
 		//{
 		//	Shader shader_depth_cube = Shaders[SHADER_DEPTH_CUBE];
@@ -190,7 +213,7 @@ void Scene::draw(GLfloat delta)
 		//		plight->end_shadow_mapping();
 		//	}
 		//}
-		
+
 
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -201,8 +224,8 @@ void Scene::draw(GLfloat delta)
 		glClearColor(0.001f, 0.001f, 0.001f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		glStencilMask(0x00);
-		
 
+		//bind global camera matrices and properties
 		glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(sceneCamera.camera->getViewMatrix()));
 		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(sceneCamera.camera->getCameraMatrix()));
@@ -210,7 +233,7 @@ void Scene::draw(GLfloat delta)
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 
-
+		//draw 3d pointlight object
 		shader_light.use();
 		for (auto plight : pointLights)
 		{
@@ -219,25 +242,28 @@ void Scene::draw(GLfloat delta)
 			plight->draw(shader_light);
 		}
 
+		//draw particles
 		for (auto pg : particleGenerators) {
 			pg->update(delta);
 			pg->draw(delta, shader_basic);
 		}
 
-		
+		//draw all drawables
 		for (auto drawable : objects)
 		{
 			drawable->draw();
 		}
 
-		for (auto scam : cameras) {
-			if (scam.debugVisible) {
+		//draw viewfrustums from cameras
+		for (auto &scam : cameras) {
+			if (&scam != &sceneCamera && scam.config.debugVisible) {
 				Geometry geoCam = scam.getDebugViewFrustum(directionalLight->getCSMSlices());
 				geoCam.draw();
 				geoCam.dispose();
 			}
 		}
 
+		//draw debug normals of drawables
 		shader_normals.use();
 		for (auto drawable : objects)
 		{
@@ -246,6 +272,7 @@ void Scene::draw(GLfloat delta)
 				drawable->drawNormals(shader_normals);
 			}
 		}
+		//draw bounding box of drawable (not aabb)
 		for (auto drawable : objects) {
 			if (drawable->dInfo.boxVisible) {
 				drawable->drawBox();
@@ -253,7 +280,7 @@ void Scene::draw(GLfloat delta)
 		}
 
 
-
+		//draw aabb from drawables
 		shader_geometry.use();
 		glUniform4f(glGetUniformLocation(shader_geometry.getId(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
 		glUniformMatrix4fv(glGetUniformLocation(shader_geometry.getId(), "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
@@ -289,124 +316,154 @@ void Scene::draw(GLfloat delta)
 		//
 
 		Shader shader_deferred = Shaders[SHADER_DEFERRED];
-		sceneCamera.beginDrawing(shader_deferred);
-		sceneCamera.clear();
 		glViewport(0, 0, width, height);
+		sceneCamera.clear();
 		glm::vec3 viewPos = glm::vec3(sceneCamera.camera->getPosition().x, sceneCamera.camera->getPosition().y, sceneCamera.camera->getPosition().z);
-		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gBloom"), 4);
+		if (sceneCamera.config.dLightVisible) {
+			sceneCamera.beginDrawing(shader_deferred);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, gBufferNormal);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, bloomTexture);
+			
+			glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
-		if (directionalLight)
-		{
-			directionalLight->apply(shader_deferred, "dirLight");
-			for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
-				glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 5 + i);
-				glActiveTexture(GL_TEXTURE5 + i);
-				glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gBloom"), 4);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, gBufferPosition);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, gBufferNormal);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, gBufferOption1);
+			glActiveTexture(GL_TEXTURE4);
+			glBindTexture(GL_TEXTURE_2D, bloomTexture);
+
+			if (directionalLight)
+			{
+				directionalLight->apply(shader_deferred, "dirLight");
+				for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
+					glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 5 + i);
+					glActiveTexture(GL_TEXTURE5 + i);
+					glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
+				}
 			}
-		}
-		
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBindVertexArray(screenRectVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);
 
-		sceneCamera.endDrawing();
+			//set back to fill mode for texture rendering
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glBindVertexArray(screenRectVAO);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glBindVertexArray(0);
 
-		
-		shader_deferred = Shaders[SHADER_DEFFERED_PLIGHT_NOS];
-		sceneCamera.beginDrawing(shader_deferred);
-		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
-
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "prevTexture"), 4);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, gBufferNormal);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
-		
-
-		///
-		/// For simplicity point and spotlight shadows have been disabled
-		/// 
-		
-		GLint plight_count = 0;
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "pointLights"), pointLights.size());
-		for (auto plight : pointLights)
-		{
-			plight->apply(shader_deferred, "pointLight[" + std::to_string(plight_count) + "]");
-			plight_count++;
+			sceneCamera.endDrawing();
 		}
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBindVertexArray(screenRectVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);
+		if (sceneCamera.config.pLightVisible) {
 
-		sceneCamera.endDrawing();
+			shader_deferred = Shaders[SHADER_DEFFERED_PLIGHT_NOS];
+			sceneCamera.beginDrawing(shader_deferred);
+			glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
-		shader_deferred = Shaders[SHADER_DEFFERED_SLIGHT_NOS];
-		sceneCamera.beginDrawing(shader_deferred);
-		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "prevTexture"), 4);
 
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "prevTexture"), 4);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, gBufferPosition);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, gBufferNormal);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, gBufferOption1);
+			glActiveTexture(GL_TEXTURE4);
+			glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, gBufferNormal);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
-		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
 
-		GLuint slightCount = 0;
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "spotLights"), spotLights.size());
-		for (auto sLight : spotLights) {
-			sLight->apply(shader_deferred, "spotLight[" + std::to_string(slightCount) + "]");
+			///
+			/// For simplicity point and spotlight shadows have been disabled
+			/// 
+
+
+
+			GLint plight_count = 0;
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "pointLights"), pointLights.size());
+			for (auto plight : pointLights)
+			{
+				plight->apply(shader_deferred, "pointLight[" + std::to_string(plight_count) + "]");
+				plight_count++;
+			}
+
+			glBindVertexArray(screenRectVAO);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glBindVertexArray(0);
+			sceneCamera.endDrawing();
 		}
-		
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBindVertexArray(screenRectVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);
-		
-		sceneCamera.endDrawing();		
+		//begin sport light rendering
+		if (sceneCamera.config.slightVisible) {
+			shader_deferred = Shaders[SHADER_DEFFERED_SLIGHT_NOS];
+			sceneCamera.beginDrawing(shader_deferred);
+			glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "prevTexture"), 4);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, gBufferPosition);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, gBufferNormal);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, gBufferOption1);
+			glActiveTexture(GL_TEXTURE4);
+			glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
+
+
+			GLuint slightCount = 0;
+			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "spotLights"), spotLights.size());
+			for (auto sLight : spotLights) {
+				sLight->apply(shader_deferred, "spotLight[" + std::to_string(slightCount) + "]");
+			}
+
+			//merge sportlight scene + old scene
+			glBindVertexArray(screenRectVAO);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glBindVertexArray(0);
+
+			sceneCamera.endDrawing();
+		}
+
+		//render just on camera textrue if no lights active
+		if (!sceneCamera.config.dLightVisible && !sceneCamera.config.pLightVisible && !sceneCamera.config.slightVisible) {
+			
+			shader_deferred = Shaders[SHADER_TEXTURE];
+			sceneCamera.beginDrawing(shader_deferred);
+
+			glUniform1i(glGetUniformLocation(Shaders[SHADER_TEXTURE].getId(), "screenTexture"), 0);
+			glActiveTexture(GL_TEXTURE0);
+
+			glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+
+			glBindVertexArray(screenRectVAO);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glBindVertexArray(0);
+
+			sceneCamera.endDrawing();
+		}
+
 	}
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glViewport(0, 0, width, height);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -418,7 +475,7 @@ void Scene::draw(GLfloat delta)
 
 	for (auto sceneCamera : cameras) {
 		//only draw active cameras
-		if (!sceneCamera.active) {
+		if (!sceneCamera.config.Active) {
 			continue;
 		}
 		glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());

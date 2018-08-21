@@ -101,6 +101,7 @@ public:
 
 
 	Model getModel();
+	Model* getModelInstance();
 	void setModel(Model model);
 
 	void setShader(Shader shader);

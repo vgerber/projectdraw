@@ -1,19 +1,14 @@
 #include "scenecamera.h"
 
-SceneCamera::SceneCamera(Camera & camera, Size frame)
+SceneCamera::SceneCamera(Camera & camera, Size frame, int sceneWidth, int sceneHeight)
 {
 	this->camera = &camera;
 	this->frame = frame;
-	setup();
+	setup(sceneWidth, sceneHeight);
 }
 
 void SceneCamera::beginDrawing(Shader shader)
 {
-	if (Width != camera->Width || Height != camera->Height) {
-		reload();
-		Width = camera->Width;
-		Height = camera->Height;
-	}
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 	shader.use();
 	glDisable(GL_DEPTH_TEST);
@@ -77,7 +72,6 @@ GLuint SceneCamera::getFrameVerticesVAO()
 void SceneCamera::setFrame(Size frame)
 {
 	this->frame = frame;
-	reload();
 }
 
 void SceneCamera::dispose()
@@ -91,7 +85,7 @@ void SceneCamera::dispose()
 	glGenBuffers(1, &VBO);
 }
 
-void SceneCamera::setup()
+void SceneCamera::setup(int sceneWidth, int sceneHeight)
 {
 	glGenFramebuffers(1, &FBO);
 	glGenTextures(1, &sceneTexture);
@@ -99,15 +93,15 @@ void SceneCamera::setup()
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
-	reload();
+	reload(sceneWidth, sceneHeight);
 	
 }
 
-void SceneCamera::reload()
+void SceneCamera::reload(int sceneWidth, int sceneHeight)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 	glBindTexture(GL_TEXTURE_2D, sceneTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, camera->Width, camera->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, sceneWidth, sceneHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);

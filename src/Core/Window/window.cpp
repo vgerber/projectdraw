@@ -11,8 +11,19 @@ Window::Window(WindowInfo info, int width, int height, std::string title)
 	settings.majorVersion = info.major;
 	settings.minorVersion = info.minor;
 
+	sf::Uint32 style = sf::Style::None;
+	if (info.resizable)
+		style |= sf::Style::Resize;
+	if (info.maximized)
+		style |= sf::Style::Fullscreen;
+	if (info.titlebar)
+		style |= sf::Style::Titlebar;
+	if (info.closeButton)
+		style |= sf::Style::Close;
 
-	window = new sf::Window(sf::VideoMode(width, height), title, sf::Style::Default, settings);
+
+
+	window = new sf::Window(sf::VideoMode(width, height), title, style, settings);
 	
 	activate();
 

@@ -21,13 +21,19 @@ Model::~Model()
 {
 }
 
+void Model::setMesh(int meshIndex, BasicMesh mesh)
+{
+	meshes[meshIndex] = mesh;
+	meshes[meshIndex].reload();
+}
+
 Size Model::getSize()
 {
 	Size size;
 	GLfloat x, y, z;
 	bool is_first = true;
 	for (BasicMesh mesh : meshes) {
-		for (Vertex vertex : mesh.get_vertices()) {
+		for (Vertex vertex : mesh.getVertices()) {
 			x = vertex.Position.x;
 			y = vertex.Position.y;
 			z = vertex.Position.z;

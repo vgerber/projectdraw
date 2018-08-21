@@ -1,13 +1,9 @@
 cmake_minimum_required (VERSION 2.8)
-project (ProjectDraw)
+project (Example01)
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
-file(GLOB_RECURSE ENGINE_SRC 
-    "src/*.h"
-    "src/*.cpp"
-)
 
 if (UNIX)
 add_executable(engine src/main.cpp ${ENGINE_SRC})
@@ -85,8 +81,6 @@ endif()
 
 if(WIN32)
 
-
-#add_subdirectory(C:/Users/Vincent/Documents/Projects/Lib/C++)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glfw-3.2.1/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SFML-2.5.0/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glew-2.0.0/include)
@@ -96,12 +90,12 @@ include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/bui
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/src)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/src)
+include_directories(C:/Users/Vincent/Documents/Projects/C++/projectdraw/src)
 
 
 
-#add_executable(engine src/main.cpp ${ENGINE_SRC})
-add_library(projectdraw STATIC  ${ENGINE_SRC})
-target_link_libraries(projectdraw
+add_executable(example01 src/main.cpp)
+target_link_libraries(example01
 #ASSIMP
 	debug 	  C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/code/Debug/assimp-vc140-mt.lib
 	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/code/Release/assimp-vc140-mt.lib
@@ -144,6 +138,9 @@ target_link_libraries(projectdraw
 	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/Bullet3Dynamics.lib
 	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/Bullet3Collision.lib
 	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/LinearMath.lib
+#Project Draw
+	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw/build/Debug/projectdraw.lib
+	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw/build/Release/projectdraw.lib
 )
 endif()
 

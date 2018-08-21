@@ -357,6 +357,11 @@ Model Drawable::getModel()
 	return objModel;
 }
 
+Model * Drawable::getModelInstance()
+{
+	return &objModel;
+}
+
 void Drawable::setModel(Model model)
 {
 	vscale = glm::vec3(1.0f);

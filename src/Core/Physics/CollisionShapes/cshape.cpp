@@ -29,8 +29,8 @@ btCollisionShape * collision::generateTriangleMesh(Model model)
 	btTriangleMesh *triangleMesh = new btTriangleMesh();
 
 	for (BasicMesh mesh : meshes) {
-		std::vector<Vertex> vertices = mesh.get_vertices();
-		std::vector<GLuint> indices = mesh.get_indices();
+		std::vector<Vertex> vertices = mesh.getVertices();
+		std::vector<GLuint> indices = mesh.getIndices();
 
 		for (int i = 0; i < indices.size(); i += 3) {
 			triangleMesh->addTriangle(

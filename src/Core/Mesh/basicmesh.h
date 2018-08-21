@@ -48,11 +48,14 @@ public:
 	void drawNormals(Shader normalShader);
 	void add_offset(glm::vec3 offset);
 
+	void reload();
 	void dispose();
 
-	std::vector<Vertex> get_vertices();
-	std::vector<GLuint> get_indices();
-	std::vector<Texture> get_textures();
+	void setVertices(std::vector<Vertex> vertices);
+
+	std::vector<Vertex> getVertices();
+	std::vector<GLuint> getIndices();
+	std::vector<Texture> getTextures();
 protected:
 	GLuint VAO, VBO, EBO;
 

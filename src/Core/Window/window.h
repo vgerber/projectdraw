@@ -1,5 +1,3 @@
-#pragma once
-
 #include "../core.h"
 #include "../Model/box.h"
 #include "../Scene/Primitive/geometry.h"
@@ -11,6 +9,8 @@ struct WindowInfo {
 
 	bool maximized = false;
 	bool resizable = false;
+	bool titlebar = false;
+	bool closeButton = false;
 
 	bool cursorLeave = false;
 

@@ -16,7 +16,7 @@ public:
 	Model(std::vector<BasicMesh> meshes, std::vector<Texture> textures);
 	~Model();
 
-	
+	void setMesh(int meshIndex, BasicMesh mesh);
 
 	Size getSize();
 	std::vector<BasicMesh> getMeshes();

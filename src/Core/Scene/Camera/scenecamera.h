@@ -2,18 +2,21 @@
 #include "camera.h"
 #include "../Primitive/primitives.h"
 
+struct SceneCameraConfig {
+	bool debugVisible = true;
+	bool dLightVisible = true;
+	bool slightVisible = true;
+	bool pLightVisible = true;
+	bool ParticleVisible = true;
+	bool Active = true;
+};
+
+
 class SceneCamera {
 public:
-	bool debugVisible = true;
-	bool dLight = true;
-	bool slight = true;
-	bool pLight = true;
-	bool Particle = true;
+	SceneCameraConfig config;
 
-	bool active = true;
-
-
-	SceneCamera(Camera &camera, Size frame);
+	SceneCamera(Camera &camera, Size frame, int sceneWidth, int sceneHeight);
 
 	Camera * camera;
 	Size frame;
@@ -34,7 +37,7 @@ private:
 	float Width = 0.0f, Height = 0.0f;
 	GLuint sceneTexture, VBO, VAO, FBO;
 
-	void setup();
-	void reload();
+	void setup(int sceneWidth, int sceneHeight);
+	void reload(int sceneWidth, int sceneHeight);
 
 };

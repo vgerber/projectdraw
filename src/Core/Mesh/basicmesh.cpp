@@ -82,23 +82,48 @@ void BasicMesh::add_offset(glm::vec3 offset)
 	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
 }
 
+void BasicMesh::reload()
+{
+	glBindVertexArray(this->VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+
+	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(GLuint), &this->indices[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Color));
+	glBindVertexArray(0);
+}
+
 void BasicMesh::dispose() {
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
 	glDeleteVertexArrays(1, &VAO);
 }
 
-std::vector<Vertex> BasicMesh::get_vertices()
+void BasicMesh::setVertices(std::vector<Vertex> vertices)
+{
+	this->vertices = vertices;
+}
+
+std::vector<Vertex> BasicMesh::getVertices()
 {
 	return vertices;
 }
 
-std::vector<GLuint> BasicMesh::get_indices()
+std::vector<GLuint> BasicMesh::getIndices()
 {
 	return indices;
 }
 
-std::vector<Texture> BasicMesh::get_textures()
+std::vector<Texture> BasicMesh::getTextures()
 {
 	return textures;
 }
