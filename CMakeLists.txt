@@ -10,7 +10,7 @@ file(GLOB_RECURSE ENGINE_SRC
 )
 
 if (UNIX)
-add_executable(engine src/main.cpp ${ENGINE_SRC})
+add_library(projectdraw ${ENGINE_SRC})
 
 IF (SOIL_INCLUDE_DIR)
   # Already in cache, be silent
@@ -51,7 +51,7 @@ include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_D
 )
 
 
-target_link_libraries(engine 
+target_link_libraries(projectdraw
 #SFML
 	sfml-graphics
 	sfml-window

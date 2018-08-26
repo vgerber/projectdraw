@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 
 if (UNIX)
-add_executable(engine src/main.cpp ${ENGINE_SRC})
+add_executable(example01 src/main.cpp)
 
 IF (SOIL_INCLUDE_DIR)
   # Already in cache, be silent
@@ -44,10 +44,11 @@ find_package(SFML 2.5 REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} 
 	#${BULLET_INCLUDE_DIRS}
 	/home/vincent/Development/Lib/Cpp/bullet3/src/
+	/home/vincent/Development/Cpp/opengl/projectdraw/src/
 )
 
 
-target_link_libraries(engine 
+target_link_libraries(example01
 #SFML
 	sfml-graphics
 	sfml-window
@@ -76,6 +77,8 @@ target_link_libraries(engine
 	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletCollision/libBulletCollision.so
 	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletInverseDynamics/libBulletInverseDynamics.so
 	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/LinearMath/libLinearMath.so
+#Project Draw
+	/home/vincent/Development/Cpp/opengl/projectdraw/build/libprojectdraw.a
 )
 endif()
 

@@ -37,7 +37,7 @@ Window::Window(WindowInfo info, int width, int height, std::string title)
 
 	int winX, winY;
 
-	window->setMouseCursorGrabbed(!wInfo.cursorLeave);
+	//window->setMouseCursorGrabbed(!wInfo.cursorLeave);
 
 	this->wInfo = info;
 

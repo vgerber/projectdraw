@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../core.h"
 #include "../Model/box.h"
 #include "../Scene/Primitive/geometry.h"

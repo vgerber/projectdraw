@@ -13,8 +13,8 @@ Camera::~Camera()
 
 void Camera::setPosition(glm::vec3 position)
 {	
-	updateCameraVectors();
 	this->position = position;
+	updateCameraVectors();	
 }
 
 

@@ -1,32 +1,9 @@
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <SFML/Graphics.hpp>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <SOIL.h>
-
-#include <btBulletDynamicsCommon.h>
-
-
 #include <iostream>
 #include <ctime>
 #include <math.h>
 
-#include "Core/core.h"
-#include "Core/Window/window.h"
-#include "Core/Scene/scene.h"
-#include "Core/Scene/Camera/camera.h"
-#include "Core/Scene/Primitive/primitives.h"
-#include "Core/Scene/Light/dlight.h"
-#include "Core/Scene/Light/plight.h"
-#include "Core/Scene/Text/text.h"
-#include "Core/Util/Debug/vector.h"
-#include "Core/Util/Mouse/mouse.h"
-#include "Core/Scene/Camera/perspcamera.h"
-#include "Core/Scene/Camera/orthocamera.h"
+#include "Core/common.h"
 
 #ifdef _WIN32
 std::string path_obj_mountain = "C:/Users/Vincent/Documents/Projects/Blender/TriFace/basic_mountain.obj";
@@ -65,7 +42,7 @@ int main() {
 	WindowInfo wInfo;
 	wInfo.maximized = false;
 	wInfo.cursorLeave = false;
-	Window window(wInfo, 1920, 1080, "Test123");
+	Window window(wInfo, 800, 600, "Test123");
 
 	Size windowSize = window.getSize();
 
