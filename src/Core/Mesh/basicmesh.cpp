@@ -65,6 +65,19 @@ void BasicMesh::draw(Shader shader, DrawType drawType)
 	}
 }
 
+void BasicMesh::drawInstancing(Shader shader, DrawType drawType, int amount) {
+	glBindVertexArray(this->VAO);
+	if (drawType == DrawType::LINEG) {
+		glDrawElementsInstanced(GL_LINE_STRIP, this->indices.size(), GL_UNSIGNED_INT, 0, amount);
+	}
+	else if (drawType == DrawType::POINTG) {
+		glDrawElementsInstanced(GL_POINTS, this->indices.size(), GL_UNSIGNED_INT, 0, amount);
+	}
+	else {
+		glDrawElementsInstanced(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0, amount);
+	}
+}
+
 void BasicMesh::drawNormals(Shader normalShader)
 {
 	glBindVertexArray(this->VAO);
@@ -80,6 +93,10 @@ void BasicMesh::add_offset(glm::vec3 offset)
 	glBindVertexArray(this->VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
 	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
+}
+
+GLuint BasicMesh::getVAO() {
+	return VAO;
 }
 
 void BasicMesh::reload()
@@ -99,6 +116,9 @@ void BasicMesh::reload()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Color));
+
+
+
 	glBindVertexArray(0);
 }
 

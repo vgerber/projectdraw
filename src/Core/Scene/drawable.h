@@ -1,10 +1,8 @@
 #pragma once
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 
-#include <btBulletDynamicsCommon.h>
+
+
 
 #include "sceneobject.h"
 #include "../Model/model.h"
@@ -45,7 +43,7 @@ struct DrawableInfo {
 	glm::vec4 outlineColor = glm::vec4(1.0f);
 };
 
-class Drawable : public SceneObject, public BoundingBox
+class Drawable : public SceneObject
 {
 public:
 	Drawable();
@@ -53,9 +51,9 @@ public:
 	~Drawable();
 
 
-	DrawableInfo dInfo;
+	DrawableInfo settings;
 
-	glm::mat4 mmodel = glm::mat4(1.0f);
+	
 
 	virtual void dispose();
 	virtual void draw();
@@ -64,65 +62,52 @@ public:
 	virtual void drawNormals(Shader shader);
 	virtual void drawBox();
 	virtual void drawBox(Shader shader);
+	virtual void setModel(Model model);
+	virtual void setShader(Shader shader);
+
+
+
+	
+	Size getAABBBox();				   
+
+
+	
+	void setCenter(glm::vec3 center) override;
+	void setCenterInWorld(glm::vec3 point) override;
+
+
+
+	
 	
 
-	glm::mat4 getModelMatrix();
+	
+	
 
-	void rotate(GLfloat x, GLfloat y, GLfloat z);
-	void rotate(glm::vec3 vrotation);
-	void translate(GLfloat x, GLfloat y, GLfloat z);
-	void translate(glm::vec3 vtranslation);
-	void scale(GLfloat x, GLfloat y, GLfloat z);
-	void scale(glm::vec3 vscale);
+	
+	
 
-	Size getSize();
-	Size getAABBBox();
-	void scaleToSize(Size size);
-	void scaleToWidth(GLfloat width);
-	void scaleToHeight(GLfloat height);
-	void scaleToLength(GLfloat depth);
 
-	glm::vec3 getPosition();
-	glm::vec3 getPositionCenter();
-
-	glm::vec3 getScale();
-	glm::vec3 getRotation();	
-
-	void setPosition(glm::vec3 position);
-	void setPositionCenter(glm::vec3 position);
-
-	void setCenter(glm::vec3 center);
-	void setCenterInWorld(glm::vec3 point);
-
-	glm::vec3 getCenter();
-	glm::vec3 getCenterPoint();
-
-	void transform(const btTransform &transform);
 
 
 	Model getModel();
-	Model* getModelInstance();
-	void setModel(Model model);
+	Model* getModelPtr();
+	
 
-	void setShader(Shader shader);
+	
 	unsigned int getDimension();
 protected:
 	GLuint boxVBO, boxVAO;
-	Size size;
 	Model objModel;
 	Shader shader;
 	Shader shader_normals;
 	Shader shader_box;
 
-	glm::vec3 vcenter = glm::vec3(0.5f);
-	glm::vec3 vrotation = glm::vec3(0.0f);
-	glm::vec3 vscale = glm::vec3(1.0f);
 	
 
+
 	virtual void setup();
-	virtual void updateModel();
+	
 	virtual void loadBox();
 private:
-	bool size_changed = true;
 	unsigned int dimension = 0;
 };

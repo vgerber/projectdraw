@@ -38,17 +38,7 @@ void init_core() {
 	};
 	shader_depth.load();
 	Shaders[SHADER_DEPTH] = shader_depth;
-
-
-	/*Shader shader_instancing;
-	shader_instancing.layers = {
-		{ Loader::GetPath("/Shaders/instancing.vertex").c_str(), ShaderType::VERTEX},
-		{ Loader::GetPath("/Shaders/instancing.fragment").c_str(), ShaderType::FRAGMENT}
-	};
-	shader_instancing.load();
-	Shaders["instancing"] = shader_instancing;
-	*/
-
+	
 
 	Shader shader_basic;
 	shader_basic.layers = {
@@ -147,20 +137,20 @@ void init_core() {
 	shader_filter_blur.load();
 	Shaders[SHADER_FILTER_BLUR] = shader_filter_blur;
 
+	Shader shader_instancing_basic;
+	shader_instancing_basic.layers = {
+		{ Loader::GetPath("/Shaders/Instancing/instancing_basic.vertex").c_str(), ShaderType::VERTEX },
+		{ Loader::GetPath("/Shaders/Instancing/instancing_basic.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shader_instancing_basic.load();
+	Shaders[SHADER_INSTANCING_BASIC] = shader_instancing_basic;
+
 
 	glUniformBlockBinding(Shaders[SHADER_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].getId(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_FONT].getId(), glGetUniformBlockIndex(Shaders[SHADER_FONT].getId(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_SKYBOX].getId(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].getId(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_DEFFERED_LIGHT].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_LIGHT].getId(), "Matrices"), 0);
 	glUniformBlockBinding(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), "Matrices"), 0);
+	glUniformBlockBinding(Shaders[SHADER_INSTANCING_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_INSTANCING_BASIC].getId(), "Matrices"), 0);
 }
 
-glm::vec3 toVec3(btVector3 vec)
-{
-	return glm::vec3(vec.getX(), vec.getY(), vec.getZ());
-}
-
-btVector3 toBtVec3(glm::vec3 vec)
-{
-	return btVector3(vec.x, vec.y, vec.z);
-}

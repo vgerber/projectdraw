@@ -9,13 +9,21 @@
 #include "../Physics/physics.h"
 #include "../Util/vehicle.h"
 #include "Particle/particlegenerator.h"
+#include "Instancing/instancer.h"
 
 #include <map>
 #include <memory>
 
 struct SortDrawable {
-	inline bool operator() (const Drawable *d1, const Drawable *d2) {
-		if (!d1->dInfo.xrayVisible && d2->dInfo.xrayVisible) {
+	glm::vec3 cameraPosition;
+
+	SortDrawable(glm::vec3 cameraPosition) { this->cameraPosition = cameraPosition; }
+
+	inline bool operator() (Drawable *d1, Drawable *d2) {
+		if (!d1->settings.xrayVisible && d2->settings.xrayVisible) {
+			return true;
+		}
+		if (glm::distance2(d1->getPositionCenter(), cameraPosition) > glm::distance2(d2->getPositionCenter(), cameraPosition)) {
 			return true;
 		}
 		return false;
@@ -42,6 +50,7 @@ public:
 	void addRigidBody(RigidBody &rigidBody);
 	void addVehicle(Vehicle &vehicle);
 	void addParticleGenerator(ParticleGenerator &pg);
+	void addInstancer(Instancer &instancer);
 
 	void addPlight(PointLight &plight);
 	void addSLight(SpotLight &sLight);
@@ -124,6 +133,9 @@ private:
 
 	//particles
 	std::vector<ParticleGenerator*> particleGenerators;
+
+	//Instancer
+	std::vector<Instancer*> instancers;
 
 	void setup();
 

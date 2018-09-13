@@ -1,17 +1,6 @@
 #pragma once
 
 //base libs
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <SFML/Graphics.hpp>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <SOIL.h>
-
-#include <btBulletDynamicsCommon.h>
-#include <btBulletDynamicsCommon.h>
 
 
 //Resources
@@ -23,6 +12,7 @@
 #include "Window/window.h"
 
 #include "Scene/scene.h"
+
 
 //camera
 #include "Scene/Camera/camera.h"

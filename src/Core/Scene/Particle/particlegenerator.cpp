@@ -4,19 +4,27 @@ ParticleGenerator::ParticleGenerator(Drawable drawable, int particleCount)
 {
 	this->drawableParticle = drawable;
 	particles = std::vector<Particle>(particleCount);
+	instancer = new Instancer(this->drawableParticle.getModel(), particleCount);
 }
 
-void ParticleGenerator::draw(GLfloat deltaTime, Shader shader)
+void ParticleGenerator::draw(Shader shader) {
+}
+
+void ParticleGenerator::draw()
 {
-	for (Particle part : particles) {
+	std::vector<glm::mat4> matrices = instancer->getModelMatrices();
+	for (int i = 0; i < particles.size(); i++) {
+		Particle part = particles[i];
 		if (part.alive) {
 			drawableParticle.setPosition(part.position);
 			drawableParticle.rotate(part.rotation);
 			drawableParticle.scale(part.scale);
 
-			drawableParticle.draw();
+			matrices[i] = drawableParticle.getModelMatrix();
 		}
 	}
+	instancer->setModelMatrices(matrices);
+	instancer->draw();
 }
 
 void ParticleGenerator::update(GLfloat deltaTime)
@@ -55,5 +63,10 @@ void ParticleGenerator::update(GLfloat deltaTime)
 
 void ParticleGenerator::dispose()
 {
+	drawableParticle.dispose();
+}
 
+ParticleGenerator::~ParticleGenerator()
+{
+	delete instancer;
 }

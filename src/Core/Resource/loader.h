@@ -40,6 +40,7 @@ const std::string SHADER_DEFFERED_SLIGHT_NOS = "deferred_sligth_nos";
 const std::string SHADER_DEFFERED_NORMALS = "normals";
 const std::string SHADER_DEFFERED_GEOMETRY = "deferred_geometry";
 const std::string SHADER_FILTER_BLUR = "filter_blur";
+const std::string SHADER_INSTANCING_BASIC = "instancing_basic";
 
 extern std::map<std::string, class Shader> Shaders;
 

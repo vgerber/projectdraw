@@ -48,6 +48,10 @@ void Scene::addSLight(SpotLight & sLight)
 	spotLights.push_back(&sLight);
 }
 
+void Scene::addInstancer(Instancer &instancer) {
+	instancers.push_back(&instancer);
+}
+
 
 void Scene::removeDrawable(Drawable & drawable)
 {
@@ -154,10 +158,10 @@ void Scene::draw(GLfloat delta)
 	//		sLight->endShadadowMapping();
 	//	}
 	//}
-	std::sort(objects.begin(), objects.end(), SortDrawable());
+	
 	
 	for (auto &sceneCamera : cameras) {
-
+		std::sort(objects.begin(), objects.end(), SortDrawable(sceneCamera.camera->getPosition()));
 
 		if (renderMode == RenderMode::POINTR)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
@@ -242,11 +246,11 @@ void Scene::draw(GLfloat delta)
 			plight->draw(shader_light);
 		}
 
-		//draw particles
-		for (auto pg : particleGenerators) {
-			pg->update(delta);
-			pg->draw(delta, shader_basic);
+		for (auto instancer : instancers) {
+			instancer->draw();
 		}
+
+		//draw particles
 
 		//draw all drawables
 		for (auto drawable : objects)
@@ -267,14 +271,14 @@ void Scene::draw(GLfloat delta)
 		shader_normals.use();
 		for (auto drawable : objects)
 		{
-			if (drawable->dInfo.normalVisible)
+			if (drawable->settings.normalVisible)
 			{
 				drawable->drawNormals(shader_normals);
 			}
 		}
 		//draw bounding box of drawable (not aabb)
 		for (auto drawable : objects) {
-			if (drawable->dInfo.boxVisible) {
+			if (drawable->settings.boxVisible) {
 				drawable->drawBox();
 			}
 		}

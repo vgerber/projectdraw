@@ -22,6 +22,7 @@ public:
 	std::vector<BasicMesh> getMeshes();
 
 	void draw(Shader shader, DrawType drawType);
+	void drawInstancing(Shader shader, DrawType drawType, int amount);
 	void drawNormals(Shader shader);
 	void dispose();
 private:

@@ -97,6 +97,13 @@ void Model::draw(Shader shader, DrawType drawType)
 	}
 }
 
+void Model::drawInstancing(Shader shader, DrawType drawType, int amount)
+{
+	for (GLuint i = 0; i < this->meshes.size(); i++) {
+		this->meshes[i].drawInstancing(shader, drawType, amount);
+	}
+}
+
 void Model::drawNormals(Shader shader)
 {
 	for (GLuint i = 0; i < this->meshes.size(); i++) {

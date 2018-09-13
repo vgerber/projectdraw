@@ -2,6 +2,7 @@
 
 #include "../../Model/box.h"
 #include "../../Model/model.h"
+#include "../../Util/conversion.h"
 
 #include <btBulletCollisionCommon.h>
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>

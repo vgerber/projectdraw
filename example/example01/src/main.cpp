@@ -190,8 +190,8 @@ int main() {
 	Size size = test_obj.getSize();
 	test_obj.setPosition(glm::vec3(-250.0, -4.0f, -250.0f));
 	//test_obj.setCenter(glm::vec3(0.5f, 0.5f, 1.7f));
-	test_obj.dInfo.boxVisible =  false;
-	test_obj.dInfo.drawType = DrawType::TRIANGLEG;
+	test_obj.settings.boxVisible =  false;
+	test_obj.settings.drawType = DrawType::TRIANGLEG;
 
 	pLightLeft.setModel(primitives::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
 	pLightRight.setModel(primitives::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
@@ -217,10 +217,10 @@ int main() {
 	Drawable testHeightField;
 	testHeightField.setModel(primitives::generateHeightfieldStep(10, 10, heightData, glm::vec4(0.7f, 0.7f, 0.7f, 1.0f)));
 	testHeightField.setPosition(glm::vec3(20.0f, 0.1f, 20.0f));
-	testHeightField.dInfo.normalVisible = true;
+	testHeightField.settings.normalVisible = true;
 
 	{
-		Model *thfPtr = testHeightField.getModelInstance();
+		Model *thfPtr = testHeightField.getModelPtr();
 		BasicMesh mesh = thfPtr->getMeshes()[0];
 
 		std::vector<Vertex> vertices = mesh.getVertices();
@@ -234,13 +234,30 @@ int main() {
 	scene_main.addDrawable(testHeightField);
 
 
+	//Instancing 
+	
+	Model instancerModel = primitives::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
+	Instancer instancer(instancerModel, 1000);
+
+	for (int i = 0; i < instancer.getModelMatrices().size(); i++) {
+
+		glm::vec3 position;
+		position.x += (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 20.0f;
+		position.y += (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 20.0f;
+		position.z += (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 200.0f;
+
+		glm::mat4 mmatrix = glm::translate(glm::mat4(1.0f), position);
+		instancer.setModelMatrix(mmatrix, i);
+	}
+
+	scene_main.addInstancer(instancer);
 
 
 	Drawable test_rect = Drawable();
 	test_rect.setModel(primitives::generateCircle(1.0f, 10.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	test_rect.setPosition(glm::vec3(0.0f, 5.0f, -2.0f));
 	
-	test_rect.dInfo.drawType = DrawType::TRIANGLEG;
+	test_rect.settings.drawType = DrawType::TRIANGLEG;
 	scene_main.addDrawable(test_rect);
 
 
@@ -314,11 +331,11 @@ int main() {
 	Drawable carAnchor;
 	carAnchor.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
 	Drawable carChassis;
-	carChassis.dInfo.xrayVisible = false;
-	carChassis.dInfo.xrayColor = glm::vec4(1.0f, 0.1f, 0.0f, 1.0f);
-	carChassis.dInfo.outlineVisible = true;
-	carChassis.dInfo.outlineThickness = 0.1f;
-	carChassis.setModel(primitives::generate_quad(4.0f, 0.2f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 1.0f)));
+	carChassis.settings.xrayVisible = false;
+	carChassis.settings.xrayColor = glm::vec4(1.0f, 0.1f, 0.0f, 1.0f);
+	carChassis.settings.outlineVisible = true;
+	carChassis.settings.outlineThickness = 0.1f;
+	carChassis.setModel(primitives::generate_quad(4.0f, 2.0f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 0.7f)));
 	carChassis.setPositionCenter(carAnchor.getPositionCenter());
 
 	std::vector<Drawable*> carWheels;
@@ -340,7 +357,7 @@ int main() {
 
 	text_fps.setPositionCenter(carChassis.getPositionCenter() + glm::vec3(0.0f, 2.0f, 0.0f));
 	text_fps.setCenterInWorld(carChassis.getPositionCenter());
-	text_fps.dInfo.boxVisible = true;
+	text_fps.settings.boxVisible = true;
 
 	pLightLeft.setPosition(carChassis.getPositionCenter() + glm::vec3(-carChassis.getSize().width * 0.5f + 0.25, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
 	pLightLeft.setCenterInWorld(carChassis.getPositionCenter());
@@ -355,7 +372,7 @@ int main() {
 		carDistanceLine.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		carDistanceLine.line(carFront, carFront + glm::vec3(0.0f, 0.0f, -20.0f));
 		
-		carDistanceLine.dInfo.drawType = DrawType::LINEG;
+		carDistanceLine.settings.drawType = DrawType::LINEG;
 		carDistanceLine.setCenterInWorld(carAnchor.getPosition());
 	}
 
@@ -363,7 +380,7 @@ int main() {
 	{
 		Size carSize = carChassis.getSize();
 		carSelectedCircle.lineTo(primitives::geometryCircle(carSize.depth * 0.6f, 30.0f, glm::vec4(0.2f, 1.0f, 0.2f, 1.0f)));
-		carSelectedCircle.dInfo.drawType = DrawType::LINEG;
+		carSelectedCircle.settings.drawType = DrawType::LINEG;
 		carSelectedCircle.lineThickness = 5.0f;
 		carSelectedCircle.rotate(glm::radians(90.0f), 0.0f, 0.0f);
 	}
@@ -402,7 +419,7 @@ int main() {
 	//glEnable(GL_LINE_STIPPLE);	
 	//glLineStipple(1, 0xAAAA);
 
-	carTrace->dInfo.drawType = DrawType::LINEG;
+	carTrace->settings.drawType = DrawType::LINEG;
 	carTrace->lineThickness = 3;
 
 	//cube.setPosition(glm::vec3(0.0f, 3.0f, 0.0f));
@@ -415,7 +432,7 @@ int main() {
 
 	borderGround.setPositionCenter(borderAnchor.getPositionCenter());
 	borderGround.rotate(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
-	borderGround.dInfo.boxVisible = false;
+	borderGround.settings.boxVisible = false;
 
 	//calc positions in compound
 	borderBack.setPosition(borderGround.getPosition() - glm::vec3(1.0f, 0.0f, 1.0f));
@@ -585,7 +602,7 @@ int main() {
 
 	Drawable particle;
 	particle.setModel(primitives::generate_quad(1.0f, 1.0f, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	ParticleGenerator pgTest(particle, 30);
+	ParticleGenerator pgTest(particle, 1000);
 	scene_main.addParticleGenerator(pgTest);
 
 	//window.getWindow()->setFramerateLimit(60);
@@ -802,6 +819,8 @@ int main() {
 	delete vehicle;
 
 	terrainShape.dispose();
+
+	instancer.dispose();
 
 	return 0;
 }

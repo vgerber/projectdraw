@@ -25,7 +25,7 @@ Geometry SceneCamera::getDebugViewFrustum(int splits) {
 	geoCam.line(viewF.position, viewF.position + viewF.right);
 
 
-	geoCam.dInfo.drawType = DrawType::LINEG;
+	geoCam.settings.drawType = DrawType::LINEG;
 
 
 	for (int i = 0; i < viewF.splits.size(); i++) {

@@ -45,6 +45,7 @@ public:
 	~BasicMesh();
 
 	void draw(Shader shader, DrawType drawType);
+	void drawInstancing(Shader shader, DrawType drawType, int amount);
 	void drawNormals(Shader normalShader);
 	void add_offset(glm::vec3 offset);
 
@@ -52,6 +53,8 @@ public:
 	void dispose();
 
 	void setVertices(std::vector<Vertex> vertices);
+
+	GLuint getVAO();
 
 	std::vector<Vertex> getVertices();
 	std::vector<GLuint> getIndices();

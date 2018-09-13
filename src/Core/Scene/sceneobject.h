@@ -1,13 +1,10 @@
 #pragma once
 
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <string>
 
-class SceneObject
+#include "Util/moveable.h"
+
+class SceneObject : public Moveable
 {
 public:
 	SceneObject();
@@ -22,7 +19,6 @@ public:
 
 
 protected:
-	glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 	std::string id;
 };
 

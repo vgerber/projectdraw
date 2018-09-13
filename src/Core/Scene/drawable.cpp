@@ -35,7 +35,7 @@ void Drawable::draw(Shader shader)
 	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
 	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 	
-	if (dInfo.xrayVisible || dInfo.outlineVisible) {
+	if (settings.xrayVisible || settings.outlineVisible) {
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 		glStencilMask(0xFF);
 	}
@@ -43,26 +43,26 @@ void Drawable::draw(Shader shader)
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 		glStencilMask(0x00);
 	}
-	objModel.draw(shader, dInfo.drawType);
+	objModel.draw(shader, settings.drawType);
 
-	if (dInfo.xrayVisible) {
+	if (settings.xrayVisible) {
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilMask(0x00);
 		glDisable(GL_DEPTH_TEST);
-		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), dInfo.xrayUseLight);
-		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), dInfo.xrayCustomColor);
-		glm::vec4 color = dInfo.xrayColor;
+		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), settings.xrayUseLight);
+		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), settings.xrayCustomColor);
+		glm::vec4 color = settings.xrayColor;
 		glUniform4f(glGetUniformLocation(shader.getId(), "customColor"), color.r, color.g, color.b, color.a);
-		objModel.draw(shader, dInfo.drawType);
+		objModel.draw(shader, settings.drawType);
 		glEnable(GL_DEPTH_TEST);
 	}
 	
 
-	if (dInfo.outlineVisible) {
+	if (settings.outlineVisible) {
 		Size outlineSize;
 		Size size = getSize();
 
-		float thickness = dInfo.outlineThickness;
+		float thickness = settings.outlineThickness;
 		outlineSize.width = (size.width + thickness) / size.width;
 		outlineSize.height = (size.height + thickness) / size.height;
 		outlineSize.depth = (size.depth + thickness) / size.depth;
@@ -79,13 +79,13 @@ void Drawable::draw(Shader shader)
 		glStencilMask(0x00);
 		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 0.0f);
 		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 1);
-		glm::vec4 color = dInfo.outlineColor;
+		glm::vec4 color = settings.outlineColor;
 		glUniform4f(glGetUniformLocation(shader.getId(), "customColor"), color.r, color.g, color.b, color.a);
-		objModel.draw(shader, dInfo.drawType);
+		objModel.draw(shader, settings.drawType);
 		setPosition(oldPosition);
 		scale(oldScale);
 	}
-
+	
 	glStencilMask(0xFF);
 	
 }
@@ -131,56 +131,7 @@ void Drawable::setup()
 	loadBox();
 }
 
-glm::mat4 Drawable::getModelMatrix()
-{
-	return mmodel;
-}
 
-void Drawable::rotate(GLfloat x, GLfloat y, GLfloat z)
-{
-	vrotation = glm::vec3(x, y, z);
-	updateModel();
-}
-
-void Drawable::rotate(glm::vec3 vrotation)
-{
-	this->vrotation = vrotation;
-	updateModel();
-}
-
-void Drawable::translate(GLfloat x, GLfloat y, GLfloat z)
-{	
-	position += glm::vec3(x, y, z);
-	updateModel();
-}
-
-void Drawable::translate(glm::vec3 vtranslation)
-{
-	position += vtranslation;
-	updateModel();
-}
-
-void Drawable::scale(GLfloat x, GLfloat y, GLfloat z) {
-	vscale = glm::vec3(x, y, z);
-	updateModel();
-
-}
-
-void Drawable::scale(glm::vec3 vscale)
-{
-	this->vscale = vscale;
-	updateModel();
-}
-
-Size Drawable::getSize()
-{
-	Size scaled_size;
-	scaled_size = size;
-	scaled_size.width *= vscale.x;
-	scaled_size.height *= vscale.y;
-	scaled_size.depth *= vscale.z;
-	return scaled_size;
-}
 
 Size Drawable::getAABBBox()
 {
@@ -238,126 +189,39 @@ Size Drawable::getAABBBox()
 	return box_size;
 }
 
-void Drawable::scaleToSize(Size size)
-{
-	if (std::isnan(size.width)) {
-		size.width = 1.0f;
-	}
-	if (std::isnan(size.height)) {
-		size.height = 1.0f;
-	}
-	if (std::isnan(size.depth)) {
-		size.depth = 1.0f;
-	}
-	if(this->size.width > 0.0f)
-		vscale.x = (size.width / this->size.width);
-	if(this->size.height > 0.0f)
-		vscale.y = (size.height / this->size.height);
-	if(this->size.depth > 0.0f)
-		vscale.z = (size.depth / this->size.depth);
-	updateModel();
-}
-
-void Drawable::scaleToWidth(GLfloat width)
-{
-	GLfloat scale_size = width / size.width;
-	Size new_size;
-	new_size.width = size.width * scale_size;
-	new_size.height = size.height * scale_size;
-	new_size.depth = size.depth * scale_size;
-	scaleToSize(new_size);
-}
-
-void Drawable::scaleToHeight(GLfloat height)
-{
-	GLfloat scale_size = height / size.height;
-	Size new_size;
-	new_size.width = size.width * scale_size;
-	new_size.height = size.height * scale_size;
-	new_size.depth = size.depth * scale_size;
-	scaleToSize(new_size);
-}
-
-void Drawable::scaleToLength(GLfloat depth)
-{
-	GLfloat scale_size = depth / size.depth;
-	Size new_size;
-	new_size.width = size.width * scale_size;
-	new_size.height = size.height * scale_size;
-	new_size.depth = size.depth * scale_size;
-	scaleToSize(new_size);
-}
-
-glm::vec3 Drawable::getPosition()
-{
-	return position;
-}
-
-glm::vec3 Drawable::getPositionCenter() {
-	return position + glm::vec3(size.width, size.height, size.depth) * glm::vec3(0.5f, 0.5f, 0.5f) * vscale;
-}
-
-glm::vec3 Drawable::getScale()
-{
-	return vscale;
-}
-
-glm::vec3 Drawable::getRotation()
-{
-	return vrotation;
-}
-
-void Drawable::setPosition(glm::vec3 position)
-{
-	translate(position - this->position);
-}
-
-void Drawable::setPositionCenter(glm::vec3 position)
-{
-	setPosition(position - glm::vec3(size.width, size.height, size.depth) * glm::vec3(0.5f, 0.5f, 0.5f) * vscale);
-}
-
 void Drawable::setCenter(glm::vec3 center)
 {
-	this->vcenter = center;
+	Moveable::setCenter(center);
 	loadBox();
 }
 
 void Drawable::setCenterInWorld(glm::vec3 point)
 {
-	glm::vec3 dPoint = point - position;
-	vcenter.x = dPoint.x / (size.width != 0.0f ? size.width : 1.0f);
-	vcenter.y = dPoint.y / (size.height != 0.0f ? size.height : 1.0f);
-	vcenter.z = dPoint.z / (size.depth != 0.0f ? size.depth : 1.0f);
+	Moveable::setCenterInWorld(point);
 	loadBox();
 }
 
-glm::vec3 Drawable::getCenter()
-{
-	return vcenter;
-}
 
-glm::vec3 Drawable::getCenterPoint()
-{
-	return position + glm::vec3(size.width, size.height, size.depth) * vcenter;
-}
 
-void Drawable::transform(const btTransform &transform)
-{
-	btScalar rot_x, rot_y, rot_z;
-	transform.getRotation().getEulerZYX(rot_z, rot_y, rot_x);
-	rotate(rot_x, rot_y, rot_z);
-	btVector3 pos = transform.getOrigin();
-	glm::vec3 position = toVec3(transform.getOrigin());
-	setPositionCenter(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
-}
+
+
+
+
+
+
+
+
+
+
+
+
 
 Model Drawable::getModel()
 {
 	return objModel;
 }
 
-Model * Drawable::getModelInstance()
+Model * Drawable::getModelPtr()
 {
 	return &objModel;
 }
@@ -381,43 +245,7 @@ unsigned int Drawable::getDimension()
 	return dimension;
 }
 
-void Drawable::updateModel()
-{
-	mmodel = glm::mat4(1.0f);
 
-	glm::vec3 center_translation = glm::vec3(
-		vcenter.x * size.width * vscale.x, 
-		vcenter.y * size.height * vscale.y,
-		vcenter.z * size.depth * vscale.z);
-	
-	
-	glm::quat rot_quat = glm::quat(vrotation);
-	glm::mat4 rotation = glm::toMat4(rot_quat);
-
-	rotation = glm::translate(glm::mat4(1.0f), center_translation) 
-		* rotation 
-		* glm::translate(glm::mat4(1.0f), -center_translation);
-
-	
-/*
-	glm::mat4 rotation = glm::mat4(1.0f);
-	rotation = glm::rotate(rotation, vrotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-	rotation = glm::rotate(rotation, vrotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-	rotation = glm::rotate(rotation, vrotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-*/
-	mmodel = glm::translate(glm::mat4(1.0f), position) * rotation * glm::scale(glm::mat4(1.0f), vscale);
-
-	dimension = 3;
-	if (size.width * vscale.x == 0.0f) {
-		dimension--;
-	}
-	if (size.height * vscale.y == 0.0f) {
-		dimension--;
-	}
-	if (size.depth * vscale.z == 0.0f) {
-		dimension--;
-	}
-}
 
 void Drawable::loadBox()
 {
