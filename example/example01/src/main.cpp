@@ -19,6 +19,7 @@ GLfloat deltaTime = 0.0f, mouseX = 0, mouseY = 0, mousePitch = 0, mouseYaw = 0, 
 bool initialCameraMove = true;
 PerspectiveCamera mainCamera;
 OrthographicCamera testCamera;
+OrthographicCamera overlayCamera;
 
 Geometry *carTrace = nullptr;
 
@@ -70,6 +71,11 @@ int main() {
 	testCamera.Height = 200 * (windowSize.height / windowSize.width);
 	testCamera.Width = 200;
 
+	overlayCamera = OrthographicCamera(glm::vec3(0.01f, 0.01f, 0.01f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+	overlayCamera.FarZ = 10.0f;
+	overlayCamera.NearZ = 0.0f;
+	overlayCamera.Height = 200 * (windowSize.height / windowSize.width);
+	overlayCamera.Width = 200.0f;
 
 	/*
 	for (glm::vec3 point : localViewFrustum.nearCorners) {
@@ -237,7 +243,7 @@ int main() {
 	//Instancing 
 	
 	Model instancerModel = primitives::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
-	Instancer instancer(instancerModel, 1000);
+	Instancer instancer(instancerModel, 100);
 
 	for (int i = 0; i < instancer.getModelMatrices().size(); i++) {
 
@@ -594,7 +600,15 @@ int main() {
 	}
 	
 	
+	Scene sceneOverlay(windowSize.width, windowSize.height);
+	//sceneOverlay.addCamera(overlayCamera, camSize);
+/*
+	Drawable overlayRect;
+	overlayRect.setModel(primitives::generateRectangle(50.0f, 50.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+	overlayRect.setPositionCenter(glm::vec3(0.0f, 0.0f, -1.0f));
 
+	sceneOverlay.addDrawable(overlayRect);
+	*/
 
 	for (auto body : rigidBodys) {
 		scene_main.addRigidBody((*body));
@@ -602,8 +616,9 @@ int main() {
 
 	Drawable particle;
 	particle.setModel(primitives::generate_quad(1.0f, 1.0f, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	ParticleGenerator pgTest(particle, 1000);
-	scene_main.addParticleGenerator(pgTest);
+	ParticleGenerator pgTest(particle, 500);
+	scene_main.addDrawable(pgTest);
+	scene_main.addAnimatable(pgTest);
 
 	//window.getWindow()->setFramerateLimit(60);
 
@@ -763,6 +778,7 @@ int main() {
 		
 
 		scene_main.draw(deltaTime);
+		//sceneOverlay.draw(deltaTime);
 		
 
 		window.getWindow()->display();
@@ -780,6 +796,7 @@ int main() {
 	}
 
 	scene_main.dispose();
+	sceneOverlay.dispose();
 
 	dLight.dispose();
 

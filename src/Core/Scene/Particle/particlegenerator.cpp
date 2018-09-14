@@ -22,6 +22,9 @@ void ParticleGenerator::draw()
 
 			matrices[i] = drawableParticle.getModelMatrix();
 		}
+		else {
+			matrices[i] = glm::mat4(0);
+		}
 	}
 	instancer->setModelMatrices(matrices);
 	instancer->draw();
@@ -29,9 +32,8 @@ void ParticleGenerator::draw()
 
 void ParticleGenerator::update(GLfloat deltaTime)
 {
-	bool cycle_revive = false;
+	int cycle_revive = std::floor(deltaTime / (5.0f / particles.size()));
 	respawnTimer -= deltaTime;
-
 	for (Particle &part : particles) {
 		if (part.alive) {
 			part.timer -= deltaTime;
@@ -40,22 +42,22 @@ void ParticleGenerator::update(GLfloat deltaTime)
 				part.cycle_count++;
 			}
 
-			part.position.x += ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 2.0f - 1.0f) * 1.0f * deltaTime * 3.0f;
+			part.position.x += ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 20.0f - 10.0f) * 1.0f * deltaTime * 6.0f;
 			part.position.y += (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * part.timer * deltaTime * 6.f;
-			part.position.z += ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 2.0f - 1.0f) * 1.0f * deltaTime * 3.0f;
+			part.position.z += ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * 20.0f - 10.0f) * 1.0f * deltaTime * 6.0f;
 
 			part.scale.x += (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * part.timer * deltaTime * 0.5f;
 			part.scale.y += (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * part.timer * deltaTime * 0.5f;
 			part.scale.z += (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * part.timer * deltaTime * 0.5f;
 		}
 		else {
-			if (!cycle_revive && respawnTimer <= 0.0f) {
+			if (cycle_revive > 0) {
 				part.alive = true;
 				part.timer = 5.0f;
-				cycle_revive = true;
+				cycle_revive--;
 				part.position = position;
 				part.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-				respawnTimer = part.timer / particles.size();
+				//respawnTimer = part.timer / particles.size();
 			}
 		}
 	}

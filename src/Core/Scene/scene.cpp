@@ -33,9 +33,9 @@ void Scene::addVehicle(Vehicle & vehicle)
 	dynamicsWorld->addVehicle(vehicle.getVehicle());
 }
 
-void Scene::addParticleGenerator(ParticleGenerator &pg)
+void Scene::addAnimatable(Animatable &animatable)
 {
-	particleGenerators.push_back(&pg);
+	animatables.push_back(&animatable);
 }
 
 void Scene::addPlight(PointLight &plight)
@@ -79,11 +79,11 @@ void Scene::removeVehicle(Vehicle & vehicle)
 	}
 }
 
-void Scene::removeParticleGenerator(ParticleGenerator & particleGenerator)
+void Scene::removeAnimatable(Animatable &animatable)
 {
-	for (int i = 0; i < particleGenerators.size(); i++) {
-		if (particleGenerators[i] == &particleGenerator) {
-			particleGenerators.erase(particleGenerators.begin() + i);
+	for (int i = 0; i < animatables.size(); i++) {
+		if (animatables[i] == &animatable) {
+			animatables.erase(animatables.begin() + i);
 			i--;
 		}
 	}
@@ -159,7 +159,12 @@ void Scene::draw(GLfloat delta)
 	//	}
 	//}
 	
-	
+	//update animatables
+	for(auto animatable : animatables) {
+		animatable->update(delta);
+	}
+
+
 	for (auto &sceneCamera : cameras) {
 		std::sort(objects.begin(), objects.end(), SortDrawable(sceneCamera.camera->getPosition()));
 

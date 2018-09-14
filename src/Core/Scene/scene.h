@@ -10,6 +10,7 @@
 #include "../Util/vehicle.h"
 #include "Particle/particlegenerator.h"
 #include "Instancing/instancer.h"
+#include "Animation/animatable.h"
 
 #include <map>
 #include <memory>
@@ -49,7 +50,7 @@ public:
 	void addDrawable(Drawable &drawable);
 	void addRigidBody(RigidBody &rigidBody);
 	void addVehicle(Vehicle &vehicle);
-	void addParticleGenerator(ParticleGenerator &pg);
+	void addAnimatable(Animatable &animatable);
 	void addInstancer(Instancer &instancer);
 
 	void addPlight(PointLight &plight);
@@ -59,7 +60,7 @@ public:
 	void removeDrawable(Drawable &drawable);
 	void removeRigidBody(RigidBody &rigidBody);
 	void removeVehicle(Vehicle &vehicle);
-	void removeParticleGenerator(ParticleGenerator &particleGenerator);
+	void removeAnimatable(Animatable &animatable);
 
 	void removeCamera(Camera &camera);
 	void enableCamera(Camera &camera, bool enable);
@@ -131,8 +132,7 @@ private:
 	std::vector<PointLight*> pointLights;
 	std::vector<SpotLight*> spotLights;
 
-	//particles
-	std::vector<ParticleGenerator*> particleGenerators;
+	std::vector<Animatable*> animatables;
 
 	//Instancer
 	std::vector<Instancer*> instancers;
