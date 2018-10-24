@@ -10,7 +10,8 @@
                     "/home/vincent/Development/Lib/Cpp/glfw-3.2.1/include/",
                     "/home/vincent/Development/Lib/Cpp/assimp-master/include/",
                     "/home/vincent/Development/Lib/Cpp/freetype-2.9/include/",
-                    "/home/vincent/Development/Lib/Cpp/bullet3/src"
+                    "/home/vincent/Development/Lib/Cpp/bullet3/src",
+                    "/home/vincent/Development/Lib/Cpp/stb-master"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             },
@@ -21,7 +22,8 @@
                 "/home/vincent/Development/Lib/Cpp/glfw-3.2.1/include/",
                 "/home/vincent/Development/Lib/Cpp/assimp-master/include/",
                 "/home/vincent/Development/Lib/Cpp/freetype-2.9/include/",
-                "/home/vincent/Development/Lib/Cpp/bullet3/src"
+                "/home/vincent/Development/Lib/Cpp/bullet3/src",
+                "/home/vincent/Development/Lib/Cpp/stb-master"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

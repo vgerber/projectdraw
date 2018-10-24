@@ -237,6 +237,7 @@ std::vector<sTexture> Model::load_material_textures(aiMaterial * mat, aiTextureT
 
 GLint TextureFromFile(const char* path, std::string directory)
 {
+	/*
 	//Generate texture ID and load texture data 
 	std::string filename = std::string(path);
 	filename = directory + '/' + filename;
@@ -257,4 +258,6 @@ GLint TextureFromFile(const char* path, std::string directory)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	SOIL_free_image_data(image);
 	return textureID;
+	*/
+	return -1;
 }

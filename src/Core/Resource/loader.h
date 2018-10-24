@@ -2,8 +2,6 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include "SOIL.h"
-
 #include "../Shader/shader.h"
 
 #include <iostream>
@@ -52,5 +50,5 @@ public:
 
 	static std::string GetPath(const GLchar* path);
 
-	static GLuint LoadCubemap(std::vector<std::string> faces);
+	//static GLuint LoadCubemap(std::vector<std::string> faces);
 };

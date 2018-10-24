@@ -18,7 +18,7 @@ std::string Loader::GetPath(const GLchar * path)
 	return complete_path;
 }
 
-
+/*
 GLuint Loader::LoadCubemap(std::vector<std::string> faces)
 {
 
@@ -41,4 +41,6 @@ GLuint Loader::LoadCubemap(std::vector<std::string> faces)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R,	GL_CLAMP_TO_EDGE);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	return textureID;
+	
 }
+*/

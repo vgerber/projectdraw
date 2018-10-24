@@ -1,5 +1,7 @@
 #include "texture.h"
 
+#define STB_IMAGE_IMPLEMENTION
+
 Texture::Texture(const char * path)
 {
 	unsigned char * m_imageData = stbi_load(path, &m_width, &m_height, &m_nrChannels, 0);
