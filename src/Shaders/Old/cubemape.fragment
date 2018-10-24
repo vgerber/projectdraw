@@ -1,0 +1,9 @@
+#version 330 core
+
+in vec3 textureDir;
+
+unifrom samplerCube cubemap;
+
+void main() {
+	color = texture(cubemap, textureDir);
+}

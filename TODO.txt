@@ -1,0 +1,50 @@
+TODO-File for ProjectDraw Draw/Physics Lib
+
+
+[LIBS]
+Drawing			=OpenGL		[v3.3+]
+Window			=SFML		[v2.5] (old GLFW)
+Physics			=Bullet3	[v3]
+Objects-Loading	=Assimp		[v4.1]
+Font			=FreeType	[v2.9.1]
+Texture			=SOIL		[15.08.2018]
+
+
+--------------------------------------------------------------------
+
+[TODO]
+
+[F=Feature, B=Bug, BF=BestFriend the buggy feature, P=Performance]
+
+Priority: [B1..high, -, B6..low]
+
+B2		-Objects on other rigidbody cant be raytraced (clicked whatever..)
+B3		-Light draw limit exception unhandled
+F		-Drawing Groups  e.g. for grouped stencil test
+F(90%)	-Particle Instancing
+F		-Variance SHadow Mapping (at the moment CSM/PCF)
+F(70%)  -Bullet3 Debug Mode
+P		-preallocate Uniforms
+F		-polish engine setup
+F		-polish vehicle class
+F		-texture wrapper (load/animate/manage)
+P		-Better Memory Management (Automatic Allocate/Free), SmartPointer
+F		-Rotate to axis
+F		-Animator
+F(20%)	-Rings (2D), Half Ring
+F		-Cylinder, Spheres
+
+V0.1
+===Release
+-Build Release Libs (Done for Windows)
+
+===Debug
+--#--
+
+
+====Windows
+-improve cmake build setup
+	->done for debug and release
+	->dynamic loading required (or libs + project files?)
+====Linux
+-integrate SFML
