@@ -1,6 +1,12 @@
 #include "core.h"
 
+
 void initCore() {
+	GLenum err = glewInit();
+
+	if (GLEW_OK != err) {
+		printf("[CORE] [ERROR] Init failed :: %s", glewGetErrorString(err));
+	}
 
 	//depth
 	glEnable(GL_DEPTH_TEST);

@@ -14,6 +14,11 @@ file(GLOB_RECURSE CUDARENDER_SRC
 	"src/CudaRender/*.cpp"
 )
 
+file(GLOB_RECURSE RECORDER_SRC
+	"src/Recorder/*.h"
+	"src/Recorder/*.cpp"
+)
+
 if (UNIX)
 add_library(projectdraw_slim ${ENGINE_SRC})
 
@@ -70,14 +75,7 @@ endif()
 if(WIN32)
 
 
-#add_subdirectory(C:/Users/Vincent/Documents/Projects/Lib/C++)
-include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glfw-3.2.1/include)
-include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glew-2.0.0/include)
-include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/glm)
-include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/include)
-include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/include)
-include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/src)
-include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/include)
+include_directories(C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/stb)
 
 
@@ -86,24 +84,41 @@ include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/stb)
 add_library(projectdraw_slim STATIC  ${ENGINE_SRC})
 target_link_libraries(projectdraw_slim
 #ASSIMP
-	debug 	  C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/code/Debug/assimp-vc140-mt.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/assimp-4.1.0/build/code/Release/assimp-vc140-mt.lib
+	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/assimp-vc140-mtd.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/assimp-vc140-mt.lib
 #GLEW
-	C:/Users/Vincent/Documents/Projects/Lib/C++/glew-2.0.0/lib/Release/Win32/glew32s.lib 
+	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/glew32d.lib 
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/glew32.lib 
 #SOIL
-	debug 	  C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Debug/SOIL.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Release/SOIL.lib	
+	#debug 	  C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Debug/SOIL.lib
+	#optimized C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Release/SOIL.lib	
 #OpenGL
-	OpenGL32 
+	debug	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/debug/OpenGL32.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/OpenGL32.lib 
 #FreeType
-	debug 	  C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/objs/Win32/Debug/freetype.lib 
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/freetype-2.9.1/objs/Win32/Release/freetype.lib 
+	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/freetyped.lib 
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/freetype.lib 
 )
 
-add_library(cuda_render STATIC ${CUDARENDER_SRC})
+
+include_directories(C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src)
+find_package(CUDA QUIET REQUIRED)
+
+cuda_add_library(cuda_render STATIC ${CUDARENDER_SRC})
 target_link_libraries(cuda_render
+	#C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Cuda/curender.lib
 	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw.lib
 	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw.lib
+)
+
+include_directories(C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src)
+add_library(projectdraw_recorder ${RECORDER_SRC})
+target_link_libraries(projectdraw_recorder
+	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw.lib
+	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw.lib
+#ffmpeg
+	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/debug/avcodec.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/avcodec.lib
 )
 
 endif()

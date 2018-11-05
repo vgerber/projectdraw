@@ -1,5 +1,5 @@
 #pragma once
-#define GLEW_STATIC
+//#define GLEW_STATIC
 #include <GL/glew.h>
 
 #include <glm/glm.hpp>
@@ -10,7 +10,6 @@
 #include "Resource/loader.h"
 #include "Resource/resourcemanager.h"
 #include "Shader/shader.h"
-
 
 void initCore();
 

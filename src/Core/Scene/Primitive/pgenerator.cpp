@@ -31,7 +31,7 @@ Model primitives::generateRectangle(GLfloat width, GLfloat height, glm::vec4 col
 		Vertex vertex;
 		vertex.Position = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
 		vertex.Normal = glm::vec3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
-		vertex.TexCoords = glm::vec2(0.0f);
+		vertex.TexCoords = glm::vec2(vertices[i + 6], vertices[i + 7]);
 		vertex.Color = color;
 		vertices_vertex.push_back(vertex);
 	}

@@ -43,7 +43,7 @@ void main() {
 	float UseLight = texture(gOption1, TexCoords).r;     
 	float Depth = texture(gOption1, TexCoords).g;	
 		
-	color = vec4(prevColor, 1.0);
+	color = vec4(prevColor.rgb, 1.0);
 	if(UseLight == 1.0) {				
 		vec3 result = vec3(0.0);
 		if(spotLights != 0) {

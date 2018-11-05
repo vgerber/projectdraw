@@ -10,10 +10,10 @@ public:
 	virtual void draw(float delta) override;
 	virtual void reload(int width, int height) override;
 
-	void setTexture(Texture &texture);
+	void setTexture(Texture *texture);
 
 private:
-	Texture * texture;
+	Texture * texture = nullptr;
 	Drawable textureHolder;
 
 	OrthographicCamera * camera = nullptr;
@@ -25,4 +25,6 @@ private:
 	Shader shader;
 
 	virtual void setup() override;
+
+
 };

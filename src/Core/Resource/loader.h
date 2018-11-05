@@ -1,5 +1,5 @@
 #pragma once
-#define GLEW_STATIC
+//#define GLEW_STATIC
 #include <GL/glew.h>
 
 #include "../Shader/shader.h"
@@ -14,7 +14,7 @@
 
 
 #ifdef _WIN32
-const std::string ROOT_DIR = "C:/Users/Vincent/Documents/Projects/C++/ProjectDraw/src";
+const std::string ROOT_DIR = "C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src";
 #endif
 
 #ifdef linux

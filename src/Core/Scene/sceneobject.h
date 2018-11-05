@@ -14,7 +14,7 @@ public:
 
 	virtual void dispose() = 0;
 	void setId(std::string id);
-
+	
 
 protected:
 	std::string id;
