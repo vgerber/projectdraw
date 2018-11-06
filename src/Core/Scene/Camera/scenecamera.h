@@ -32,12 +32,13 @@ public:
 	void setFrame(Size frame);
 
 	void dispose();
+	void resize(int sceneWidth, int sceneHeight);
 
 private:
 	float Width = 0.0f, Height = 0.0f;
 	GLuint sceneTexture, VBO, VAO, FBO;
 
 	void setup(int sceneWidth, int sceneHeight);
-	void reload(int sceneWidth, int sceneHeight);
+	
 
 };

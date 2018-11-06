@@ -11,8 +11,8 @@ CudaTexture::CudaTexture(int width, int height)
 
 	printf("Creating GL texture...\n");
 	glEnable(GL_TEXTURE_2D);
-	glGenTextures(1, &m_texture);
-	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -26,9 +26,9 @@ CudaTexture::CudaTexture(int width, int height)
 	//8bit x 4 channels
 	glBufferData(GL_PIXEL_UNPACK_BUFFER, width * height * 4, buffer_data, GL_STREAM_COPY);
 
-	m_width = width;
-	m_height = height;
-	m_nrChannels = 4;
+	this->width = width;
+	this->height = height;
+	nrChannels = 4;
 
 	
 	cudaError result = cudaGraphicsGLRegisterBuffer(&cuda_pbo_resource, bufferID, cudaGraphicsMapFlagsWriteDiscard);
@@ -63,12 +63,12 @@ void CudaTexture::unmap()
 void CudaTexture::activate(int tex_id)
 {
 	Texture::activate(tex_id);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 }
 
 GLuint CudaTexture::getGLTexture()
 {
-	return m_texture;
+	return texture;
 }
 
 uchar4 * CudaTexture::getCudaTexture()

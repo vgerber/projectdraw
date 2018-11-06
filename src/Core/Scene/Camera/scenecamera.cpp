@@ -95,12 +95,14 @@ void SceneCamera::setup(int sceneWidth, int sceneHeight)
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
-	reload(sceneWidth, sceneHeight);
+	resize(sceneWidth, sceneHeight);
 	
 }
 
-void SceneCamera::reload(int sceneWidth, int sceneHeight)
+void SceneCamera::resize(int sceneWidth, int sceneHeight)
 {
+	Width = sceneWidth;
+	Height = sceneHeight;
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 	glBindTexture(GL_TEXTURE_2D, sceneTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, sceneWidth, sceneHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);

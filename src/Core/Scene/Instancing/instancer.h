@@ -24,5 +24,5 @@ private:
 	std::vector<glm::mat4> modelMatrices;
 	Shader shader;
 
-	void reload();
+	void resize();
 };

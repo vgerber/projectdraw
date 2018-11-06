@@ -99,7 +99,7 @@ GLuint BasicMesh::getVAO() {
 	return VAO;
 }
 
-void BasicMesh::reload()
+void BasicMesh::resize()
 {
 	glBindVertexArray(this->VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);

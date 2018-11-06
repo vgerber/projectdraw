@@ -9,7 +9,7 @@ Instancer::Instancer(Model model, int count)
 	}
 	glGenBuffers(1, &matrixBuffer);
 
-	reload();
+	resize();
 }
 
 void Instancer::draw() {
@@ -32,12 +32,12 @@ std::vector<glm::mat4> Instancer::getModelMatrices()
 void Instancer::setModelMatrix(glm::mat4 model, int index)
 {
 	modelMatrices[index] = model;
-	reload();
+	resize();
 }
 
 void Instancer::setModelMatrices(std::vector<glm::mat4> models) {
 	modelMatrices = models;
-	reload();
+	resize();
 }
 
 void Instancer::dispose()
@@ -45,7 +45,7 @@ void Instancer::dispose()
 	glDeleteBuffers(1, &matrixBuffer);
 }
 
-void Instancer::reload() {
+void Instancer::resize() {
 	glBindBuffer(GL_ARRAY_BUFFER, matrixBuffer);
  	glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
 

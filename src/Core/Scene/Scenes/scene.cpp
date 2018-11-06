@@ -504,15 +504,16 @@ void Scene::resize(int width, int height)
 		std::cout << "Framebuffer not complete!" << std::endl;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	
+	for (SceneCamera &camera : cameras) {
+		camera.resize(width, height);
+	}
 }
 
 void Scene::addObject(SceneObject & object)
 {
-	if (Drawable * drawable = dynamic_cast<Drawable*>(&object)) {
-		objects.push_back(drawable);
-		return;
-	}
-
+	//sorted by baseclass and polymorphism
 	if (DirectionalLight * dLight = dynamic_cast<DirectionalLight*>(&object)) {
 		directionalLight = dLight;
 		return;
@@ -523,7 +524,7 @@ void Scene::addObject(SceneObject & object)
 		return;
 	}
 
-	if (Instancer * instancer = dynamic_cast<Instancer*>(instancer)) {
+	if (Instancer * instancer = dynamic_cast<Instancer*>(&object)) {
 		instancers.push_back(instancer);
 		return;
 	}
@@ -535,6 +536,11 @@ void Scene::addObject(SceneObject & object)
 	
 	if (PointLight * pLight = dynamic_cast<PointLight*>(&object)) {
 		pointLights.push_back(pLight);
+		return;
+	}
+
+	if (Drawable * drawable = dynamic_cast<Drawable*>(&object)) {
+		objects.push_back(drawable);
 		return;
 	}
 

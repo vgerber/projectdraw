@@ -47,8 +47,8 @@ include_directories(C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src
 
 
 #add_executable(engine src/main.cpp ${ENGINE_SRC})
-add_executable(texture_demo ${SRC_FOLDER})
-target_link_libraries(texture_demo
+add_executable(scene_demo ${SRC_FOLDER})
+target_link_libraries(scene_demo
 #ASSIMP
 	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/assimp-vc140-mtd.lib
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/assimp-vc140-mt.lib

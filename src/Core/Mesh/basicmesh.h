@@ -48,7 +48,7 @@ public:
 	void drawNormals(Shader normalShader);
 	void add_offset(glm::vec3 offset);
 
-	void reload();
+	void resize();
 	void dispose();
 
 	void setVertices(std::vector<Vertex> vertices);

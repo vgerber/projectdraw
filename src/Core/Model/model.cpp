@@ -24,7 +24,7 @@ Model::~Model()
 void Model::setMesh(int meshIndex, BasicMesh mesh)
 {
 	meshes[meshIndex] = mesh;
-	meshes[meshIndex].reload();
+	meshes[meshIndex].resize();
 }
 
 Size Model::getSize()
