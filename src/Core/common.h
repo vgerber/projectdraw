@@ -9,7 +9,8 @@
 #include "Shader/shader.h"
 
 //basic imports
-#include "Scene/scene.h"
+#include "Scene/Scenes/scene.h"
+#include "Scene/Scenes/scene2d.h"
 
 
 //camera

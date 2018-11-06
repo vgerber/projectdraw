@@ -7,8 +7,14 @@ Scene::Scene(int width, int height) : AbstractScene(width, height)
 	resize(width, height);
 }
 
+void Scene::tick(float delta) {
+	//update animatables
+	for (auto animatable : animatables) {
+		animatable->update(delta);
+	}
+}
 
-void Scene::tick(float delta)
+void Scene::draw(float delta)
 {
 	int width = getWidth();
 	int height = getHeight();
@@ -37,10 +43,6 @@ void Scene::tick(float delta)
 	glUniformBlockBinding(Shaders[SHADER_INSTANCING_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_INSTANCING_BASIC].getId(), "Matrices"), getSceneId());
 
 
-	//update animatables
-	for (auto animatable : animatables) {
-		animatable->update(delta);
-	}
 
 	int polygonMode = GL_FILL;
 	if (renderMode == RenderMode::POINTR)
@@ -375,6 +377,11 @@ void Scene::tick(float delta)
 		glBindVertexArray(0);
 	}
 	glEnable(GL_DEPTH_TEST);
+}
+
+void Scene::update(float delta) {
+	tick(delta);
+	draw(delta);
 }
 
 void Scene::dispose()

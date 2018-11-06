@@ -4,13 +4,34 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build and run engine",
+            "label": "build engine",
             "type": "shell",
-            "command": "cd build/ && make && ./engine",
+            "command": "cd build/ && cmake .. && make",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build and run 3d_demo",
+            "type": "shell",
+            "command": "cd examples/3d_demo/build/ && cmake .. && make && ./3d_demo",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build and run texture_demo",
+            "type": "shell",
+            "command": "cd examples/texture_demo/build/ && cmake .. && make && ./texture_demo",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
         }
     ]
 }

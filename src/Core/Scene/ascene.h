@@ -44,9 +44,19 @@ public:
 	AbstractScene(int width, int height);
 
 	/*
-	draw and update objects
+	update timed objects
 	*/
 	virtual void tick(float delta) = 0;
+
+	/*
+	draw objects
+	*/
+	virtual void draw(float delta) = 0;
+
+	/*
+	update and draw objects
+	*/
+	virtual void update(float delta);
 
 	/*
 	free memory

@@ -11,7 +11,8 @@
                     "/home/vincent/Development/Lib/Cpp/assimp-master/include/",
                     "/home/vincent/Development/Lib/Cpp/freetype-2.9/include/",
                     "/home/vincent/Development/Lib/Cpp/bullet3/src",
-                    "/home/vincent/Development/Lib/Cpp/stb-master"
+                    "/home/vincent/Development/Lib/Cpp/stb-master",
+                    "/home/vincent/Development/Cpp/projectdraw_slim"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             },
@@ -23,7 +24,8 @@
                 "/home/vincent/Development/Lib/Cpp/assimp-master/include/",
                 "/home/vincent/Development/Lib/Cpp/freetype-2.9/include/",
                 "/home/vincent/Development/Lib/Cpp/bullet3/src",
-                "/home/vincent/Development/Lib/Cpp/stb-master"
+                "/home/vincent/Development/Lib/Cpp/stb-master",
+                "/home/vincent/Development/Cpp/projectdraw_slim"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

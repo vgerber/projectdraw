@@ -18,7 +18,7 @@ const std::string ROOT_DIR = "C:/Users/Vincent/Documents/Projects/C++/projectdra
 #endif
 
 #ifdef linux
-const std::string ROOT_DIR = "/home/vincent/Development/Cpp/opengl/projectdraw/src";
+const std::string ROOT_DIR = "/home/vincent/Development/Cpp/projectdraw_slim/src";
 #endif
 
 const std::string SHADER_FONT = "font";

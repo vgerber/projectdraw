@@ -3,19 +3,23 @@
 #include "../ascene.h"
 
 class Scene : public AbstractScene {
-
+public:
 	Scene(int width, int height);
 
-	virtual void tick(float delta);
+	virtual void tick(float delta) override;
 
-	virtual void dispose();
+	virtual void draw(float delta) override;
 
-	virtual void resize(int width, int height);
+	virtual void update(float delta) override;
 
-	virtual void addObject(SceneObject &object);
+	virtual void dispose() override;
+
+	virtual void resize(int width, int height) override;
+
+	virtual void addObject(SceneObject &object) override;
 	virtual void addObject(Camera &camera, Size size);
 
-	virtual void removeObject(SceneObject &object);
+	virtual void removeObject(SceneObject &object) override;
 
 	//Camera utils
 	SceneCameraConfig getCameraConfig(Camera &camera);

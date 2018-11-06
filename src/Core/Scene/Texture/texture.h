@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <string>
 
 class Texture {
 public:
@@ -24,7 +25,8 @@ public:
 
 	void dispose();
 protected:
-	GLuint m_texture;
+	GLuint texture;
+	std::string name;
 
-	int m_width = 0, m_height = 0, m_nrChannels = 0;
+	int width = 0, height = 0, nrChannels = 0;
 };

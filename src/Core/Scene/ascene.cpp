@@ -9,6 +9,11 @@ AbstractScene::AbstractScene(int width, int height)
 	this->sceneID = globalSceneId++;
 }
 
+void AbstractScene::update(float delta) {
+	tick(delta);
+	draw(delta);
+}
+
 void AbstractScene::resize(int width, int height)
 {
 	this->width = width;
@@ -17,7 +22,7 @@ void AbstractScene::resize(int width, int height)
 
 Size AbstractScene::getSize()
 {
-	return Size() = { 0.0f, 0.0f, 0.0f, width, height, 0.0f };
+	return Size() = { 0.0f, 0.0f, 0.0f, (float)width, (float)height, 0.0f };
 }
 
 int AbstractScene::getWidth()
