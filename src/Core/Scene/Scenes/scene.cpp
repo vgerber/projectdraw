@@ -1,15 +1,16 @@
 #include "scene.h"
 
-
 Scene::Scene(int width, int height) : AbstractScene(width, height)
 {
 	setup();
 	resize(width, height);
 }
 
-void Scene::tick(float delta) {
+void Scene::tick(float delta)
+{
 	//update animatables
-	for (auto animatable : animatables) {
+	for (auto animatable : animatables)
+	{
 		animatable->update(delta);
 	}
 }
@@ -42,8 +43,6 @@ void Scene::draw(float delta)
 	glUniformBlockBinding(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), "Matrices"), getSceneId());
 	glUniformBlockBinding(Shaders[SHADER_INSTANCING_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_INSTANCING_BASIC].getId(), "Matrices"), getSceneId());
 
-
-
 	int polygonMode = GL_FILL;
 	if (renderMode == RenderMode::POINTR)
 		polygonMode = GL_POINT;
@@ -52,24 +51,24 @@ void Scene::draw(float delta)
 
 	glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
 
-
-	for (auto &sceneCamera : cameras) {
+	for (auto &sceneCamera : cameras)
+	{
 		std::sort(objects.begin(), objects.end(), SortDrawable(sceneCamera.camera->getPosition()));
 
-
-
 		//only draw active cameras
-		if (!sceneCamera.config.Active) {
+		if (!sceneCamera.config.Active)
+		{
 			continue;
 		}
 
-		if (sceneCamera.config.dLightVisible) {
+		if (sceneCamera.config.dLightVisible)
+		{
 
 			//set viewfrustum fro directional light (fro cascaded shadow mapping)
-			if (directionalLight) {
+			if (directionalLight)
+			{
 				directionalLight->setViewFrustum(
-					sceneCamera.camera->getViewFrustum(directionalLight->getCSMSlices())
-				);
+					sceneCamera.camera->getViewFrustum(directionalLight->getCSMSlices()));
 			}
 
 			//render csm directionLight
@@ -77,7 +76,8 @@ void Scene::draw(float delta)
 			if (directionalLight)
 			{
 				Shader shader_depth = Shaders[SHADER_DEPTH];
-				for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
+				for (int i = 0; i < directionalLight->getCSMSlices(); i++)
+				{
 					directionalLight->begin_shadow_mapping(i);
 					for (auto drawable : objects)
 					{
@@ -106,7 +106,6 @@ void Scene::draw(float delta)
 		//	}
 		//}
 
-
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -126,7 +125,6 @@ void Scene::draw(float delta)
 		glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(GLfloat), &sceneCamera.camera->FarZ);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-
 		//draw 3d pointlight object
 		shader_light.use();
 		for (auto plight : pointLights)
@@ -136,7 +134,8 @@ void Scene::draw(float delta)
 			plight->draw(shader_light);
 		}
 
-		for (auto instancer : instancers) {
+		for (auto instancer : instancers)
+		{
 			instancer->draw();
 		}
 
@@ -149,8 +148,10 @@ void Scene::draw(float delta)
 		}
 
 		//draw viewfrustums from cameras
-		for (auto &scam : cameras) {
-			if (&scam != &sceneCamera && scam.config.debugVisible) {
+		for (auto &scam : cameras)
+		{
+			if (&scam != &sceneCamera && scam.config.debugVisible)
+			{
 				Geometry geoCam = scam.getDebugViewFrustum(directionalLight->getCSMSlices());
 				geoCam.draw();
 				geoCam.dispose();
@@ -167,12 +168,13 @@ void Scene::draw(float delta)
 			}
 		}
 		//draw bounding box of drawable (not aabb)
-		for (auto drawable : objects) {
-			if (drawable->settings.boxVisible) {
+		for (auto drawable : objects)
+		{
+			if (drawable->settings.boxVisible)
+			{
 				drawable->drawBox();
 			}
 		}
-
 
 		//draw aabb from drawables
 		shader_geometry.use();
@@ -200,7 +202,6 @@ void Scene::draw(float delta)
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
 		//
 		// begin drawing to current camera
 		//
@@ -210,9 +211,9 @@ void Scene::draw(float delta)
 		sceneCamera.clear();
 		glm::vec3 viewPos = glm::vec3(sceneCamera.camera->getPosition().x, sceneCamera.camera->getPosition().y, sceneCamera.camera->getPosition().z);
 
-		if (sceneCamera.config.dLightVisible) {
+		if (sceneCamera.config.dLightVisible)
+		{
 			sceneCamera.beginDrawing(shader_deferred);
-
 
 			glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
@@ -236,7 +237,8 @@ void Scene::draw(float delta)
 			if (directionalLight)
 			{
 				directionalLight->apply(shader_deferred, "dirLight");
-				for (int i = 0; i < directionalLight->getCSMSlices(); i++) {
+				for (int i = 0; i < directionalLight->getCSMSlices(); i++)
+				{
 					glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 5 + i);
 					glActiveTexture(GL_TEXTURE5 + i);
 					glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
@@ -252,7 +254,8 @@ void Scene::draw(float delta)
 			sceneCamera.endDrawing();
 		}
 
-		if (sceneCamera.config.pLightVisible) {
+		if (sceneCamera.config.pLightVisible)
+		{
 
 			shader_deferred = Shaders[SHADER_DEFFERED_PLIGHT_NOS];
 			sceneCamera.beginDrawing(shader_deferred);
@@ -275,12 +278,9 @@ void Scene::draw(float delta)
 			glActiveTexture(GL_TEXTURE4);
 			glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
 
-
 			///
 			/// For simplicity point and spotlight shadows have been disabled
-			/// 
-
-
+			///
 
 			GLint plight_count = 0;
 			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "pointLights"), pointLights.size());
@@ -297,7 +297,8 @@ void Scene::draw(float delta)
 		}
 
 		//begin spot light rendering
-		if (sceneCamera.config.sLightVisible) {
+		if (sceneCamera.config.sLightVisible)
+		{
 			shader_deferred = Shaders[SHADER_DEFFERED_SLIGHT_NOS];
 			sceneCamera.beginDrawing(shader_deferred);
 			glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
@@ -319,10 +320,10 @@ void Scene::draw(float delta)
 			glActiveTexture(GL_TEXTURE4);
 			glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
 
-
 			GLuint slightCount = 0;
 			glUniform1i(glGetUniformLocation(shader_deferred.getId(), "spotLights"), spotLights.size());
-			for (auto sLight : spotLights) {
+			for (auto sLight : spotLights)
+			{
 				sLight->apply(shader_deferred, "spotLight[" + std::to_string(slightCount) + "]");
 			}
 
@@ -335,7 +336,8 @@ void Scene::draw(float delta)
 		}
 
 		//render just on camera textrue if no lights active
-		if (!sceneCamera.config.dLightVisible && !sceneCamera.config.pLightVisible && !sceneCamera.config.sLightVisible) {
+		if (!sceneCamera.config.dLightVisible && !sceneCamera.config.pLightVisible && !sceneCamera.config.sLightVisible)
+		{
 
 			shader_deferred = Shaders[SHADER_TEXTURE];
 			sceneCamera.beginDrawing(shader_deferred);
@@ -351,7 +353,6 @@ void Scene::draw(float delta)
 
 			sceneCamera.endDrawing();
 		}
-
 	}
 	//glBindBuffer(GL_FRAMEBUFFER, 0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -364,9 +365,11 @@ void Scene::draw(float delta)
 	glUniform1i(glGetUniformLocation(Shaders[SHADER_TEXTURE].getId(), "screenTexture"), 0);
 	glActiveTexture(GL_TEXTURE0);
 
-	for (auto sceneCamera : cameras) {
+	for (auto sceneCamera : cameras)
+	{
 		//only draw active cameras
-		if (!sceneCamera.config.Active) {
+		if (!sceneCamera.config.Active)
+		{
 			continue;
 		}
 		glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
@@ -379,7 +382,8 @@ void Scene::draw(float delta)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void Scene::update(float delta) {
+void Scene::update(float delta)
+{
 	tick(delta);
 	draw(delta);
 }
@@ -392,11 +396,10 @@ void Scene::dispose()
 		objects.pop_back();
 	}
 
-
-	for (auto camera : cameras) {
+	for (auto camera : cameras)
+	{
 		camera.dispose();
 	}
-
 
 	glDeleteFramebuffers(1, &gBufferFBO);
 	glDeleteFramebuffers(1, &bloomFBO);
@@ -416,10 +419,8 @@ void Scene::dispose()
 	glDeleteBuffers(1, &screenRectVBO);
 	glDeleteVertexArrays(1, &screenRectVAO);
 
-
 	glDeleteBuffers(1, &screenShadowVBO);
 	glDeleteVertexArrays(1, &screenShadowVAO);
-
 }
 
 void Scene::resize(int width, int height)
@@ -457,7 +458,7 @@ void Scene::resize(int width, int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gBloom, 0);
 
-	GLuint gAttachments[5] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
+	GLuint gAttachments[5] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4};
 	glDrawBuffers(5, gAttachments);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, rboGDepth);
@@ -469,9 +470,6 @@ void Scene::resize(int width, int height)
 		std::cout << "Framebuffer not complete!" << std::endl;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-
-
 	glBindFramebuffer(GL_FRAMEBUFFER, bloomFBO);
 	glBindTexture(GL_TEXTURE_2D, bloomTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -480,14 +478,13 @@ void Scene::resize(int width, int height)
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTexture, 0);
-	GLuint attachments[1] = { GL_COLOR_ATTACHMENT0 };
+	GLuint attachments[1] = {GL_COLOR_ATTACHMENT0};
 	glDrawBuffers(1, attachments);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer not complete!" << std::endl;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 
 	glBindFramebuffer(GL_FRAMEBUFFER, lightFBO);
 	glBindTexture(GL_TEXTURE_2D, lightTexture);
@@ -497,7 +494,7 @@ void Scene::resize(int width, int height)
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightTexture, 0);
-	GLuint lightAttachments[1] = { GL_COLOR_ATTACHMENT0 };
+	GLuint lightAttachments[1] = {GL_COLOR_ATTACHMENT0};
 	glDrawBuffers(1, lightAttachments);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -505,41 +502,53 @@ void Scene::resize(int width, int height)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	
-	for (SceneCamera &camera : cameras) {
+	for (SceneCamera &camera : cameras)
+	{
 		camera.resize(width, height);
 	}
 }
 
-void Scene::addObject(SceneObject & object)
+void Scene::addObject(SceneObject &object)
 {
 	//sorted by baseclass and polymorphism
-	if (DirectionalLight * dLight = dynamic_cast<DirectionalLight*>(&object)) {
+
+	if (DirectionalLight *dLight = dynamic_cast<DirectionalLight *>(&object))
+	{
 		directionalLight = dLight;
 		return;
 	}
 
-	if (Animatable * animatable = dynamic_cast<Animatable*>(&object)) {
+	if (Animatable *animatable = dynamic_cast<Animatable *>(&object))
+	{
 		animatables.push_back(animatable);
 		return;
 	}
 
-	if (Instancer * instancer = dynamic_cast<Instancer*>(&object)) {
+	if (Instancer *instancer = dynamic_cast<Instancer *>(&object))
+	{
 		instancers.push_back(instancer);
 		return;
 	}
 
-	if (SpotLight * sLight = dynamic_cast<SpotLight*>(&object)) {
+	if (SpotLight *sLight = dynamic_cast<SpotLight *>(&object))
+	{
 		spotLights.push_back(sLight);
 		return;
 	}
-	
-	if (PointLight * pLight = dynamic_cast<PointLight*>(&object)) {
+
+	if (PointLight *pLight = dynamic_cast<PointLight *>(&object))
+	{
 		pointLights.push_back(pLight);
 		return;
 	}
 
-	if (Drawable * drawable = dynamic_cast<Drawable*>(&object)) {
+	if(Camera *camera = dynamic_cast<Camera*>(&object)) {
+		cameras.push_back(SceneCamera(*camera, Size {-1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f}, getWidth(), getHeight()));
+		return;
+	}
+
+	if (Drawable *drawable = dynamic_cast<Drawable *>(&object))
+	{
 		objects.push_back(drawable);
 		return;
 	}
@@ -554,9 +563,12 @@ void Scene::addObject(Camera &camera, Size size)
 
 void Scene::removeObject(SceneObject &object)
 {
-	if (Drawable * drawable = dynamic_cast<Drawable*>(&object)) {
-		for (size_t i = 0; i < objects.size(); i++) {
-			if (objects[i] == drawable) {
+	if (Drawable *drawable = dynamic_cast<Drawable *>(&object))
+	{
+		for (size_t i = 0; i < objects.size(); i++)
+		{
+			if (objects[i] == drawable)
+			{
 				objects.erase(objects.begin() + i);
 				i--;
 			}
@@ -564,14 +576,18 @@ void Scene::removeObject(SceneObject &object)
 		return;
 	}
 
-	if (DirectionalLight * dLight = dynamic_cast<DirectionalLight*>(&object)) {
+	if (DirectionalLight *dLight = dynamic_cast<DirectionalLight *>(&object))
+	{
 		directionalLight = dLight;
 		return;
 	}
 
-	if (Animatable * animatable = dynamic_cast<Animatable*>(&object)) {
-		for (size_t i = 0; i < animatables.size(); i++) {
-			if (animatables[i] == animatable) {
+	if (Animatable *animatable = dynamic_cast<Animatable *>(&object))
+	{
+		for (size_t i = 0; i < animatables.size(); i++)
+		{
+			if (animatables[i] == animatable)
+			{
 				animatables.erase(animatables.begin() + i);
 				i--;
 			}
@@ -579,24 +595,30 @@ void Scene::removeObject(SceneObject &object)
 		return;
 	}
 
-	if (Instancer * instancer = dynamic_cast<Instancer*>(&object)) {
+	if (Instancer *instancer = dynamic_cast<Instancer *>(&object))
+	{
 		instancers.push_back(instancer);
 		return;
 	}
 
-	if (SpotLight * sLight = dynamic_cast<SpotLight*>(&object)) {
+	if (SpotLight *sLight = dynamic_cast<SpotLight *>(&object))
+	{
 		spotLights.push_back(sLight);
 		return;
 	}
 
-	if (PointLight * pLight = dynamic_cast<PointLight*>(&object)) {
+	if (PointLight *pLight = dynamic_cast<PointLight *>(&object))
+	{
 		pointLights.push_back(pLight);
 		return;
 	}
 
-	if (Camera * camera = dynamic_cast<Camera*>(&object)) {
-		for (size_t i = 0; i < cameras.size(); i++) {
-			if (cameras[i].camera == camera) {
+	if (Camera *camera = dynamic_cast<Camera *>(&object))
+	{
+		for (size_t i = 0; i < cameras.size(); i++)
+		{
+			if (cameras[i].camera == camera)
+			{
 				cameras[i].dispose();
 				cameras.erase(cameras.begin() + i);
 				i--;
@@ -607,29 +629,35 @@ void Scene::removeObject(SceneObject &object)
 	printf("[Engine] [Scene] [Error] Scene doesn't accept %s\n", object.getId());
 }
 
-SceneCameraConfig Scene::getCameraConfig(Camera & camera)
+SceneCameraConfig Scene::getCameraConfig(Camera &camera)
 {
-	for (size_t i = 0; i < cameras.size(); i++) {
-		if (cameras[i].camera == &camera) {
+	for (size_t i = 0; i < cameras.size(); i++)
+	{
+		if (cameras[i].camera == &camera)
+		{
 			return cameras[i].config;
 		}
 	}
 	throw std::invalid_argument("Camera not found");
 }
 
-void Scene::enableCamera(Camera & camera, bool enable)
+void Scene::enableCamera(Camera &camera, bool enable)
 {
-	for (size_t i = 0; i < cameras.size(); i++) {
-		if (cameras[i].camera == &camera) {
+	for (size_t i = 0; i < cameras.size(); i++)
+	{
+		if (cameras[i].camera == &camera)
+		{
 			cameras[i].config.Active = enable;
 		}
 	}
 }
 
-void Scene::configureCamera(Camera & camera, SceneCameraConfig config)
+void Scene::configureCamera(Camera &camera, SceneCameraConfig config)
 {
-	for (size_t i = 0; i < cameras.size(); i++) {
-		if (cameras[i].camera == &camera) {
+	for (size_t i = 0; i < cameras.size(); i++)
+	{
+		if (cameras[i].camera == &camera)
+		{
 			cameras[i].config = config;
 		}
 	}
@@ -659,14 +687,28 @@ void Scene::setup()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBufferRange(GL_UNIFORM_BUFFER, getSceneId(), uboMatrices, 0, 2 * sizeof(glm::mat4) + sizeof(GLfloat));
 
-
 	GLfloat vertices_rect[] = {
-		-1.0f,	1.0f,	0.0f,	0.0f,	1.0f,
-		-1.0f,	-1.0f,	0.0f,	0.0f,	0.0f,
-		1.0f,	1.0f,	0.0f,	1.0f,	1.0f,
-		1.0f,	-1.0f,	0.0f,	1.0f,	0.0f,
+		-1.0f,
+		1.0f,
+		0.0f,
+		0.0f,
+		1.0f,
+		-1.0f,
+		-1.0f,
+		0.0f,
+		0.0f,
+		0.0f,
+		1.0f,
+		1.0f,
+		0.0f,
+		1.0f,
+		1.0f,
+		1.0f,
+		-1.0f,
+		0.0f,
+		1.0f,
+		0.0f,
 	};
-
 
 	glGenVertexArrays(1, &screenRectVAO);
 	glGenBuffers(1, &screenRectVBO);
@@ -680,7 +722,6 @@ void Scene::setup()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
 	glBindVertexArray(0);
-
 
 	shader_basic = Shaders[SHADER_BASIC];
 	shader_light = Shaders[SHADER_DEFFERED_LIGHT];

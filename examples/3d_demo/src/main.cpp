@@ -11,7 +11,7 @@ int main() {
 	sf::ContextSettings settings;
 	settings.majorVersion = 3;
 	settings.minorVersion = 3;
-	settings.antialiasingLevel = 4;
+	settings.depthBits = 24;
 	sf::Window window(sf::VideoMode(WIDTH, HEIGHT), "3D Demo", sf::Style::Default, settings);
 	initCore();
 
@@ -31,10 +31,9 @@ int main() {
 	PerspectiveCamera camera;
 	camera.setPosition(glm::vec3(10.0f, 10.0f, 10.0f));
 	camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-	camera.Width = 10.0f;
-	camera.Height = 10.0f;
+
 	camera.FarZ = 30.0f;
-	scene.addObject(camera, Size{ -1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f });
+	scene.addObject(camera);
 	{
 		SceneCameraConfig scConfig = scene.getCameraConfig(camera);
 		scConfig.dLightVisible = true;
@@ -42,6 +41,22 @@ int main() {
 		scConfig.sLightVisible = false;
 		scene.configureCamera(camera, scConfig);
 	}
+
+	PerspectiveCamera rotatingCamera;
+	rotatingCamera.setPosition(glm::vec3(10.0f, 10.0f, 10.0f));
+	rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+	rotatingCamera.FarZ = 20.0f;
+	rotatingCamera.Width = WIDTH;
+	rotatingCamera.Height = HEIGHT;
+	scene.addObject(rotatingCamera, Size{-1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f });
+	{
+		SceneCameraConfig scConfig = scene.getCameraConfig(rotatingCamera);
+		scConfig.dLightVisible = true;
+		scConfig.pLightVisible = false;
+		scConfig.sLightVisible = false;
+		scene.configureCamera(rotatingCamera, scConfig);
+	}
+
 
 	DirectionalLight sunLight;
 	sunLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -73,10 +88,11 @@ int main() {
 		
 		//rotate camera around scene
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
-		camera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
-		camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-		printf("Camera %f %f %f %f %f\n", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z, millis, delta);
+		rotatingCamera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
+		rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 
+		sunLight.change_direction(glm::vec3(1.0f * cos(millis), -1.0f, 1.0f * sin(millis)));
+		
 		scene.update(delta);
 		window.display();
 

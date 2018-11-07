@@ -74,6 +74,7 @@ GLuint SceneCamera::getFrameVerticesVAO()
 void SceneCamera::setFrame(Size frame)
 {
 	this->frame = frame;
+	resize(Width, Height);
 }
 
 void SceneCamera::dispose()
