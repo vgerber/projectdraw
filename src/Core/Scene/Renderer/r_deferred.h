@@ -1,24 +1,37 @@
 #pragma once
 
+
+#include "../../core.h"
+#include "../Camera/camera.h"
+#include "../Camera/scenecamera.h"
+#include "../drawable.h"
+#include "../Light/lights.h"
+#include "../Particle/particlegenerator.h"
+#include "../Instancing/instancer.h"
+#include "../Animation/animatable.h"
+
 #include "arenderer.h"
-#include "../../Shader/shader.h"
+
+struct DeferredRendererConfig
+{
+	bool visibleDirectionalLight = true;
+	bool visiblePointLight = true;
+	bool visibleSpotLight = true;
+};
 
 class DeferredRenderer : public AbstractRenderer {
 public:
+	DeferredRendererConfig dConfig;
+
     DeferredRenderer(int width, int height, const Camera &camera);    
+
+
 
     virtual void resize(int width, int height) override;
 
     virtual void clearScreen() override;
 
-    virtual void beginScene() override;
-    virtual void endScene() override;
-
-    virtual void beginObjects() override;
-    virtual void endObjects() override;
-
-    virtual void beginLight(int lightType) override;
-    virtual void endLight() override;
+	virtual void render();
 
 protected:
 
@@ -27,7 +40,7 @@ protected:
 	Shader shader_normals;
 	Shader shader_geometry;
 
-
+	GLuint sceneTexture, sceneVBO, sceneVAO, sceneFBO;
 
 	GLuint gBufferFBO = 0;
 	GLuint rboGDepth = 0;
@@ -54,8 +67,25 @@ protected:
 	GLuint screenShadowVBO = 0;
 	GLuint screenShadowVAO = 0;
 
-    void setup();
+
+	std::vector<Drawable*> objects;
+
+	//lights
+	DirectionalLight* directionalLight = nullptr;
+	std::vector<PointLight*> pointLights;
+	std::vector<SpotLight*> spotLights;
+
+	std::vector<Animatable*> animatables;
+
+	//Instancer
+	std::vector<Instancer*> instancers;
 
 
+	virtual void renderObjects() override;
+	virtual void bloom();
+
+	virtual void renderLight() override;
+
+	void setup();
 
 };

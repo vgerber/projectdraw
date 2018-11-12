@@ -28,14 +28,6 @@ public:
     virtual void clearScreen() = 0;
     virtual void setRenderMode(RenderMode rmode);
 
-    virtual void beginScene() = 0;
-    virtual void endScene() = 0;
-
-    virtual void beginObjects() = 0;
-    virtual void endObjects() = 0;
-
-    virtual void beginLight(int lightType) = 0;
-    virtual void endLight() = 0;
 
     virtual void render() = 0;
 
@@ -49,6 +41,9 @@ private:
     int width = 0, height = 0;
 protected:
     RenderMode renderMode;
-    const Camera *camera;
+    Camera *camera;
+
+	virtual void renderObjects() = 0;
+	virtual void renderLight() = 0;
     
 };
