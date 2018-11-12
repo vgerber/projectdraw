@@ -18,8 +18,11 @@ int main() {
 	Scene scene(WIDTH, HEIGHT);
 
 	Drawable cube;
-	cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)));
-	cube.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)));
+	//cube.setModel(primitives::generateSphere(20, 10, glm::vec4(1.0f, 0.0f, 0.0, 1.0f)));
+	cube.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+	cube.setPositionCenter(glm::vec3(0.0f, 2.0f, 0.0f));
+	printf("Size: %f %f %f \n", cube.getSize().width, cube.getSize().height, cube.getSize().depth);
 	scene.addObject(cube);
 	Drawable ground;
 	ground.setModel(primitives::generateQuad(5.0f, 0.5f, 5.0f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f)));
@@ -29,7 +32,7 @@ int main() {
 
 
 	PerspectiveCamera camera;
-	camera.setPosition(glm::vec3(10.0f, 10.0f, 10.0f));
+	camera.setPosition(glm::vec3(5.0f, 5.0f, 5.0f));
 	camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	camera.FarZ = 30.0f;
@@ -41,7 +44,7 @@ int main() {
 		scConfig.sLightVisible = false;
 		scene.configureCamera(camera, scConfig);
 	}
-
+	/*
 	PerspectiveCamera rotatingCamera;
 	rotatingCamera.setPosition(glm::vec3(10.0f, 10.0f, 10.0f));
 	rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -56,6 +59,7 @@ int main() {
 		scConfig.sLightVisible = false;
 		scene.configureCamera(rotatingCamera, scConfig);
 	}
+	*/
 
 
 	DirectionalLight sunLight;
@@ -88,8 +92,8 @@ int main() {
 		
 		//rotate camera around scene
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
-		rotatingCamera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
-		rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+		//camera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
+		//camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 
 		sunLight.change_direction(glm::vec3(1.0f * cos(millis), -1.0f, 1.0f * sin(millis)));
 		

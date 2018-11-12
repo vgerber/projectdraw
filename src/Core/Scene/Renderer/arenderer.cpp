@@ -2,15 +2,20 @@
 
 int AbstractRenderer::globalRendererId = 0;
 
-AbstractRenderer::AbstractRenderer(int width, int height) {
+AbstractRenderer::AbstractRenderer(int width, int height, const Camera &camera) {
     this->width = width;
     this->height = height;
+    this->camera = &camera;
     rendererId = globalRendererId++;
 }
 
 void AbstractRenderer::resize(int width ,int height) {
     this->width = width;
     this->height = height;
+}
+
+void AbstractRenderer::setRenderMode(RenderMode renderMode) {
+    this->renderMode = renderMode;
 }
 
 int AbstractRenderer::getWidth() {

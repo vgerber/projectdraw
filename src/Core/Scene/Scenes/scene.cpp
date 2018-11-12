@@ -17,10 +17,11 @@ void Scene::tick(float delta)
 
 void Scene::draw(float delta)
 {
+
 	int width = getWidth();
 	int height = getHeight();
 
-	//glDisable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 	//Point and Spotlights not supported
 
 	//if (spotLights.size() > 0) {

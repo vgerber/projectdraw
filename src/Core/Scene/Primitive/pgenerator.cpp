@@ -458,31 +458,58 @@ Model primitives::generateHeightfieldStep(int width, int length, std::vector<flo
 	return Model(meshes, std::vector<sTexture>());
 }
 
+glm::vec3 normalize(glm::vec3 a, glm::vec3 b, float length) {
+	glm::vec3 delta = b - a;
+
+	float distance = glm::length(delta);
+
+	delta = delta * length / distance;
+
+	return a + delta;
+}
+
+glm::vec3 getSpherePoint(double lat, double lng, double radius) {
+	double toRad = (glm::pi<double>() / 180.0);
+	lat *= toRad;
+	lng *= toRad;
+	return glm::vec3(
+		radius * cos(lat) * cos(lng),
+		radius * sin(lat),
+		radius * cos(lat) * sin(lng)
+	);
+}
+
 Model primitives::generateSphere(int lats, int longs, glm::vec4 color)
 {
 	int i, j;
 	std::vector<GLfloat> vertices;
 	std::vector<GLuint> indices;
 	int indicator = 0;
-	for (i = 0; i <= lats; i++) {
-		double lat0 = glm::pi<double>() * (-0.5 + (double)(i - 1) / lats);
-		double z0 = sin(lat0);
-		double zr0 = cos(lat0);
+	
+	double stepLong = 180.0 / (double)longs;
+	double stepLat = 360.0 / (double)lats;
+	
 
-		double lat1 = glm::pi<double>() * (-0.5 + (double)i / lats);
-		double z1 = sin(lat1);
-		double zr1 = cos(lat1);
+	double lastLat = 0.0;
+	double lastLong = 0.0;
+	for (double lat = -90; lat <= 90; lat += stepLat) {
+		lastLat = lat + stepLat;
 
-		for (j = 0; j <= longs; j++) {
-			double lng = 2 * glm::pi<double>() * (double)(j - 1) / longs;
-			double x = cos(lng);
-			double y = sin(lng);
+		for (double lng = 0.0; lng <= 360.0; lng += stepLong) {
+			lastLong = lng + stepLong;
 
-			vertices.push_back(x * zr0);
-			vertices.push_back(y * zr0);
-			vertices.push_back(z0);
+			glm::vec3 p1 = getSpherePoint(lat, lng, 0.5);
+			glm::vec3 p2 = getSpherePoint(lastLat, lng, 0.5);
+			glm::vec3 p3 = getSpherePoint(lastLat, lastLong, 0.5);
+			glm::vec3 p4 = getSpherePoint(lat, lastLong, 0.5);
+
+
+			glm::vec3 normal = normalize(p1);
+
+			vertices.push_back(p1.x);
+			vertices.push_back(p1.y);
+			vertices.push_back(p1.z);
 			//normal
-			glm::vec3 normal = glm::normalize(glm::vec3(x, y, z0) - glm::vec3(0.5f));
 			vertices.push_back(normal.x);
 			vertices.push_back(normal.y);
 			vertices.push_back(normal.z);
@@ -490,14 +517,41 @@ Model primitives::generateSphere(int lats, int longs, glm::vec4 color)
 			vertices.push_back(0.0f);
 			vertices.push_back(0.0f);
 
-			indices.push_back(indicator);
-			indicator++;
 
-			vertices.push_back(x * zr1);
-			vertices.push_back(y * zr1);
-			vertices.push_back(z1);
+
+			vertices.push_back(p2.x);
+			vertices.push_back(p2.y);
+			vertices.push_back(p2.z);
 			//normal
-			normal = glm::normalize(glm::vec3(x, y, z1) - glm::vec3(0.5f));
+			normal = normalize(p2);
+			vertices.push_back(normal.x);
+			vertices.push_back(normal.y);
+			vertices.push_back(normal.z);
+			//texture
+			vertices.push_back(0.0f);
+			vertices.push_back(0.0f);			
+
+
+
+			vertices.push_back(p3.x);
+			vertices.push_back(p3.y);
+			vertices.push_back(p3.z);
+			//normal
+			normal = normalize(p3);
+			vertices.push_back(normal.x);
+			vertices.push_back(normal.y);
+			vertices.push_back(normal.z);
+			//texture
+			vertices.push_back(0.0f);
+			vertices.push_back(0.0f);
+		
+
+
+			vertices.push_back(p4.x);
+			vertices.push_back(p4.y);
+			vertices.push_back(p4.z);
+			//normal
+			normal = normalize(p4);
 			vertices.push_back(normal.x);
 			vertices.push_back(normal.y);
 			vertices.push_back(normal.z);
@@ -505,10 +559,24 @@ Model primitives::generateSphere(int lats, int longs, glm::vec4 color)
 			vertices.push_back(0.0f);
 			vertices.push_back(0.0f);
 
-			indices.push_back(indicator);
-			indicator++;
+
+			indices.push_back(indicator + 0);
+			indices.push_back(indicator + 1);
+			indices.push_back(indicator + 2);			
+			
+			indices.push_back(indicator + 0);
+			indices.push_back(indicator + 2);
+			indices.push_back(indicator + 4);	
+
+			indicator += 4;
+			lastLong = lng;
 		}
 		//indices.push_back(GL_PRIMITIVE_RESTART_FIXED_INDEX);
+		lastLat = lat;
+	}
+
+	for(int i = 0; i < lats; i++) {
+
 	}
 	
 	std::vector<Vertex> vertices_vertex;
@@ -669,7 +737,98 @@ Model primitives::generateCone(float radius, float height, float quality, glm::v
 
 Model primitives::generateCylinder(float radius, float height, float quality, glm::vec4 color)
 {
-	return Model();
+		if (quality < 3.0f) {
+		quality = 3.0f;
+	}
+	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
+
+	GLfloat step = 2 * glm::pi<GLfloat>() / quality;
+
+	std::vector<GLfloat> vertices;
+	std::vector<GLuint> indices;
+	int index = 0;
+
+	{
+		GLfloat x_tex = 0.0f;
+		GLfloat y_tex = 0.0f;
+
+		GLfloat x = x_tex * radius;
+		GLfloat y = y_tex * radius;
+		vertices.insert(vertices.end(), {x, 0.0f, y, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f});
+		//index++;
+
+		vertices.insert(vertices.end(), {x, height, y, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f});
+		//set offset to next edge in for loop (for 0 index usage [line 791])
+		index += 2;
+	}
+
+	for (GLfloat theta = 0; theta <= 2.5 * glm::pi<GLfloat>(); theta += step) {
+		GLfloat x_tex = cos(theta);
+		GLfloat y_tex = sin(theta);
+
+
+		GLfloat x = x_tex * radius;
+		GLfloat y = y_tex * radius;
+		GLfloat xNext = cos(theta + step) * radius;
+		GLfloat yNext = sin(theta + step) * radius;
+
+		//bottom face				//   x		y      z     nx    ny     nz    tx    ty
+		vertices.insert(vertices.end(), {x,     0.0f, y,     0.0f ,-1.0f, 0.0f, 0.0f, 0.0f});
+		vertices.insert(vertices.end(), {xNext, 0.0f, yNext, 0.0f ,-1.0f, 0.0f, 0.0f, 0.0f});
+		//top face
+		vertices.insert(vertices.end(), {x, 	height, y,     0.0f ,1.0f, 0.0f, 0.0f, 0.0f});
+		vertices.insert(vertices.end(), {xNext, height, yNext, 0.0f ,1.0f, 0.0f, 0.0f, 0.0f});
+		//side faces
+		
+		glm::vec3 normal = normalize(glm::vec3(x, 0, y));
+		glm::vec3 normalNext = normalize(glm::vec3(xNext, 0, yNext));
+		vertices.insert(vertices.end(), {x,     0.0f,   y,     normal.x,     normal.y,     normal.z,     0.0f, 0.0f});
+		vertices.insert(vertices.end(), {xNext, 0.0f,   yNext, normalNext.x, normalNext.y, normalNext.z, 0.0f, 0.0f});
+		vertices.insert(vertices.end(), {x,     height, y,     normal.x,     normal.y,     normal.z,     0.0f, 0.0f});
+		vertices.insert(vertices.end(), {xNext, height, yNext, normalNext.x, normalNext.y, normalNext.z, 0.0f, 0.0f});
+
+		//botom circle
+		indices.push_back(0);
+		indices.push_back(index + 0);
+		indices.push_back(index + 1);
+		index += 2;
+
+		//top circle
+		indices.push_back(1);
+		indices.push_back(index + 0);
+		indices.push_back(index + 1);
+		index += 2;
+		
+
+		//side quad
+		indices.push_back(index + 0);
+		indices.push_back(index + 1);
+		indices.push_back(index + 2);
+
+		indices.push_back(index + 3);
+		indices.push_back(index + 2);
+		indices.push_back(index + 1);
+
+		index += 4;
+		
+	}
+
+	std::vector<Vertex> vertices_vertex;
+
+	for (GLuint i = 0; i < vertices.size(); i += 8) {
+		Vertex vertex;
+		vertex.Position = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
+		vertex.Normal = glm::vec3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
+		vertex.TexCoords = glm::vec2(0.0f);
+		vertex.Color = color;
+		vertices_vertex.push_back(vertex);
+	}
+
+	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
+
+	std::vector<BasicMesh> meshes = { mesh };
+
+	return Model(meshes, std::vector<sTexture>());
 }
 
 std::vector<Point> primitives::geometryCircle(float radius, float quality, glm::vec4 color)
