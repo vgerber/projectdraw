@@ -16,8 +16,8 @@ public:
 
 	void setViewFrustum(ViewFrustum viewFrustum);
 
-	void begin_shadow_mapping(int slice = 1);
-	void end_shadow_mapping();
+	void beginShadowMapping(int slice = 1);
+	void endShadowMapping();
 
 	GLuint getShadowMap(int slice = 0);
 	const int getCSMSlices();

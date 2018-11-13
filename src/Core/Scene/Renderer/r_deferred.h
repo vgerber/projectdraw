@@ -15,8 +15,8 @@
 struct DeferredRendererConfig
 {
 	bool visibleDirectionalLight = true;
-	bool visiblePointLight = true;
-	bool visibleSpotLight = true;
+	bool visiblePointLight = false;
+	bool visibleSpotLight = false;
 };
 
 class DeferredRenderer : public AbstractRenderer {
@@ -32,6 +32,9 @@ public:
     virtual void clearScreen() override;
 
 	virtual void render();
+
+	virtual void addSceneObject(SceneObject &sceneObject);
+	virtual void removeSceneObject(SceneObject &sceneObject);
 
 	virtual GLuint getTexture() override;
 
@@ -53,9 +56,7 @@ protected:
 
 	GLuint bloomFBO = 0;
 	GLuint bloomTexture = 0;
-
-	GLuint lightFBO = 0;
-	GLuint lightTexture = 0;
+	
 
 	GLuint uboMatrices = 0;
 
@@ -64,8 +65,6 @@ protected:
 	GLuint screenRectVAO = 0;
 	GLuint screenRectTexture = 0;
 
-	GLuint screenShadowVBO = 0;
-	GLuint screenShadowVAO = 0;
 
 
 	std::vector<Drawable*> objects;

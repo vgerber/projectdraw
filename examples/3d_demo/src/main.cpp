@@ -16,19 +16,7 @@ int main() {
 	initCore();
 
 	Scene scene(WIDTH, HEIGHT);
-
-	Drawable cube;
-	//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)));
-	//cube.setModel(primitives::generateSphere(20, 10, glm::vec4(1.0f, 0.0f, 0.0, 1.0f)));
-	cube.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
-	cube.setPositionCenter(glm::vec3(0.0f, 2.0f, 0.0f));
-	printf("Size: %f %f %f \n", cube.getSize().width, cube.getSize().height, cube.getSize().depth);
-	scene.addObject(cube);
-	Drawable ground;
-	ground.setModel(primitives::generateQuad(5.0f, 0.5f, 5.0f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f)));
-	ground.setPosition(glm::vec3(-2.5f, -0.5f, -2.5f));
-	scene.addObject(ground);
-
+	   
 
 
 	PerspectiveCamera camera;
@@ -60,6 +48,19 @@ int main() {
 		scene.configureCamera(rotatingCamera, scConfig);
 	}
 	*/
+
+	Drawable cube;
+	//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)));
+	//cube.setModel(primitives::generateSphere(20, 10, glm::vec4(1.0f, 0.0f, 0.0, 1.0f)));
+	cube.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+	cube.setPositionCenter(glm::vec3(0.0f, 2.0f, 0.0f));
+	printf("Size: %f %f %f \n", cube.getSize().width, cube.getSize().height, cube.getSize().depth);
+	scene.addObject(cube);
+	Drawable ground;
+	ground.setModel(primitives::generateQuad(5.0f, 0.5f, 5.0f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f)));
+	ground.setPosition(glm::vec3(-2.5f, -0.5f, -2.5f));
+	scene.addObject(ground);
+
 
 
 	DirectionalLight sunLight;

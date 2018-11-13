@@ -21,8 +21,6 @@ class AbstractRenderer {
 public:
     AbstractRenderer(int width, int height, Camera &camera);
     
-
-    virtual GLuint getScreenTexture() = 0;
     virtual void resize(int width, int height);
 
     virtual void clearScreen() = 0;
@@ -30,6 +28,9 @@ public:
 
 
     virtual void render() = 0;
+
+	virtual void addSceneObject(SceneObject &sceneObject) = 0;
+	virtual void removeSceneObject(SceneObject &sceneObject) = 0;
 
     virtual GLuint getTexture() = 0;
 

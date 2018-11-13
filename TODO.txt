@@ -14,7 +14,7 @@ Texture			=SOIL		[15.08.2018]
 
 [TODO]
 
-[F=Feature, B=Bug, BF=BestFriend the buggy feature, P=Performance]
+[F=Feature, B=Bug, BF=BestFriend the buggy feature, P=Performance, D=Done]
 
 Priority: [B1..high, -, B6..low]
 
@@ -32,7 +32,9 @@ P		-Better Memory Management (Automatic Allocate/Free), SmartPointer
 F		-Rotate to axis
 F		-Animator
 F(20%)	-Rings (2D), Half Ring
-F		-Cylinder, Spheres
+
+
+D		-Cylinder, Spheres
 
 V0.1
 ===Release

@@ -10,8 +10,8 @@ public:
 
 	PointLight();
 	void apply(Shader shader, std::string target);
-	void begin_shadow_mapping();
-	void end_shadow_mapping();
+	void beginShadowMapping();
+	void endShadowMapping();
 	GLuint get_shadow_cube_map();
 	void setPosition(glm::vec3 position);
 private:

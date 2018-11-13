@@ -1,6 +1,8 @@
 #pragma once
 #include "camera.h"
 #include "../Primitive/primitives.h"
+#include "../Renderer/r_deferred.h"
+#include "../Renderer/arenderer.h"
 
 struct SceneCameraConfig {
 	bool debugVisible = true;
@@ -15,10 +17,15 @@ struct SceneCameraConfig {
 class SceneCamera {
 public:
 	SceneCameraConfig config;
+	Camera * camera;
+	AbstractRenderer * renderer = nullptr;
+
+
 
 	SceneCamera(Camera &camera, Size frame, int sceneWidth, int sceneHeight);
 
-	Camera * camera;
+
+
 	Size frame;
 
 	void beginDrawing(Shader shader);

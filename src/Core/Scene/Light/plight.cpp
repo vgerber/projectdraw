@@ -17,7 +17,7 @@ void PointLight::apply(Shader shader, std::string target)
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".quadratic").c_str()), attenuationQuadratic);
 }
 
-void PointLight::begin_shadow_mapping()
+void PointLight::beginShadowMapping()
 {
 	glCullFace(GL_FRONT);
 	Shaders[SHADER_DEPTH_CUBE].use();
@@ -35,7 +35,7 @@ void PointLight::begin_shadow_mapping()
 	glUniform3f(glGetUniformLocation(Shaders[SHADER_DEPTH_CUBE].getId(), "lightPos"), position.x, position.y, position.z);
 }
 
-void PointLight::end_shadow_mapping()
+void PointLight::endShadowMapping()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);		
 	glCullFace(GL_BACK);		

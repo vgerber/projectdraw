@@ -7,30 +7,120 @@ DeferredRenderer::DeferredRenderer(int width, int height, Camera &camera) : Abst
 }
 
 void DeferredRenderer::clearScreen() {
+	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void DeferredRenderer::render()
 {
+
 	glViewport(0, 0, getWidth(), getHeight());
 	glEnable(GL_DEPTH_TEST);
 
+
+
 	renderObjects();
 
-	//renderLight();
+	renderLight();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
-	Shader shaderTexture = Shaders[SHADER_TEXTURE];
-	shaderTexture.use();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
-	glUniform1i(glGetUniformLocation(shaderTexture.getId(), "screenTexture"), 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+void DeferredRenderer::addSceneObject(SceneObject & sceneObject)
+{
+	if (DirectionalLight *dLight = dynamic_cast<DirectionalLight *>(&sceneObject))
+	{
+		directionalLight = dLight;
+		return;
+	}
 
-	glBindVertexArray(screenRectVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
+	if (Animatable *animatable = dynamic_cast<Animatable *>(&sceneObject))
+	{
+		animatables.push_back(animatable);
+		return;
+	}
+
+	if (Instancer *instancer = dynamic_cast<Instancer *>(&sceneObject))
+	{
+		instancers.push_back(instancer);
+		return;
+	}
+
+	if (SpotLight *sLight = dynamic_cast<SpotLight *>(&sceneObject))
+	{
+		spotLights.push_back(sLight);
+		return;
+	}
+
+	if (PointLight *pLight = dynamic_cast<PointLight *>(&sceneObject))
+	{
+		pointLights.push_back(pLight);
+		return;
+	}
+
+	if (Drawable *drawable = dynamic_cast<Drawable *>(&sceneObject))
+	{
+		objects.push_back(drawable);
+		return;
+	}
+
+	printf("[Engine] [DeferredRenderer] [Error] Scene doesn't accept %s\n", sceneObject.getId());
+}
+
+void DeferredRenderer::removeSceneObject(SceneObject & sceneObject)
+{
+	if (Drawable *drawable = dynamic_cast<Drawable *>(&sceneObject))
+	{
+		for (size_t i = 0; i < objects.size(); i++)
+		{
+			if (objects[i] == drawable)
+			{
+				objects.erase(objects.begin() + i);
+				i--;
+			}
+		}
+		return;
+	}
+
+	if (DirectionalLight *dLight = dynamic_cast<DirectionalLight *>(&sceneObject))
+	{
+		directionalLight = dLight;
+		return;
+	}
+
+	if (Animatable *animatable = dynamic_cast<Animatable *>(&sceneObject))
+	{
+		for (size_t i = 0; i < animatables.size(); i++)
+		{
+			if (animatables[i] == animatable)
+			{
+				animatables.erase(animatables.begin() + i);
+				i--;
+			}
+		}
+		return;
+	}
+
+	if (Instancer *instancer = dynamic_cast<Instancer *>(&sceneObject))
+	{
+		instancers.push_back(instancer);
+		return;
+	}
+
+	if (SpotLight *sLight = dynamic_cast<SpotLight *>(&sceneObject))
+	{
+		spotLights.push_back(sLight);
+		return;
+	}
+
+	if (PointLight *pLight = dynamic_cast<PointLight *>(&sceneObject))
+	{
+		pointLights.push_back(pLight);
+		return;
+	}
+
+	printf("... doesn't accept %s\n", "OBJECT");
 }
 
 GLuint DeferredRenderer::getTexture() {
@@ -41,100 +131,91 @@ void DeferredRenderer::resize(int width, int height) {
 	/*
 	Deferred Rendering Textures
 	*/
-	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
-	glBindTexture(GL_TEXTURE_2D, gBufferPosition);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBufferPosition, 0);
+	//gBuffer
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
+		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBufferPosition, 0);
 
-	glBindTexture(GL_TEXTURE_2D, gBufferNormal);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gBufferNormal, 0);
+		glBindTexture(GL_TEXTURE_2D, gBufferNormal);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gBufferNormal, 0);
 
-	glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gBufferAlbedo, 0);
+		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gBufferAlbedo, 0);
 
-	glBindTexture(GL_TEXTURE_2D, gBufferOption1);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gBufferOption1, 0);
+		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gBufferOption1, 0);
 
-	glBindTexture(GL_TEXTURE_2D, gBloom);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gBloom, 0);
+		glBindTexture(GL_TEXTURE_2D, gBloom);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gBloom, 0);
 
-	GLuint gAttachments[5] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4};
-	glDrawBuffers(5, gAttachments);
+		GLuint gAttachments[5] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
+		glDrawBuffers(5, gAttachments);
 
-	glBindRenderbuffer(GL_RENDERBUFFER, rboGDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	// - Attach buffers
+		glBindRenderbuffer(GL_RENDERBUFFER, rboGDepth);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+		// - Attach buffers
 
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboGDepth);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Framebuffer not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboGDepth);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "Framebuffer not complete!" << std::endl;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, bloomFBO);
-	glBindTexture(GL_TEXTURE_2D, bloomTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//Bloom
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, bloomFBO);
+		glBindTexture(GL_TEXTURE_2D, bloomTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTexture, 0);
-	GLuint attachments[1] = {GL_COLOR_ATTACHMENT0};
-	glDrawBuffers(1, attachments);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTexture, 0);
+		GLuint attachments[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, attachments);
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Framebuffer not complete!" << std::endl;
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "Framebuffer not complete!" << std::endl;
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, lightFBO);
-	glBindTexture(GL_TEXTURE_2D, lightTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightTexture, 0);
-	GLuint lightAttachments[1] = {GL_COLOR_ATTACHMENT0};
-	glDrawBuffers(1, lightAttachments);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Framebuffer not complete!" << std::endl;
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 
 	/*
 	Screen Texture
 	*/
-	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
-	glBindTexture(GL_TEXTURE_2D, screenRectTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, getWidth(), getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
+		glBindTexture(GL_TEXTURE_2D, screenRectTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, getWidth(), getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenRectTexture, 0);
-	GLuint attachments[1] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, attachments);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenRectTexture, 0);
+		GLuint attachments[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, attachments);
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Framebuffer not complete!" << std::endl;
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "Framebuffer not complete!" << std::endl;
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 }
 
 
@@ -253,30 +334,42 @@ void DeferredRenderer::bloom()
 void DeferredRenderer::renderLight()
 {
 	/*
-	//set viewfrustum fro directional light (fro cascaded shadow mapping)
+	Shadowmapping:
+		1. Viewfrustim DirLight fro CSM
+		2. Shadowmapping (SM) DirLight
+		3. SM Point
+		4. SM Spot
+	Rendering:
+		1. Dir
+		2. Point
+		3. Spot
+		4. All off (=Albedo)	
+	*/
+
+
+	//set viewfrustum fro directional light (for cascaded shadow mapping)
 	if (directionalLight)
 	{
-		directionalLight->setViewFrustum(
-			camera->getViewFrustum(directionalLight->getCSMSlices()));
+		directionalLight->setViewFrustum(camera->getViewFrustum(directionalLight->getCSMSlices()));
 	}
 
+
 	//render csm directionLight
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	if (directionalLight)
 	{
 		Shader shader_depth = Shaders[SHADER_DEPTH];
 		for (int i = 0; i < directionalLight->getCSMSlices(); i++)
 		{
-			directionalLight->begin_shadow_mapping(i);
+			directionalLight->beginShadowMapping(i);
 			for (auto drawable : objects)
 			{
 				glUniformMatrix4fv(glGetUniformLocation(shader_depth.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
 				drawable->draw(shader_depth);
 			}
-			directionalLight->end_shadow_mapping();
+			directionalLight->endShadowMapping();
 		}
 	}
-
+	
 	//Point Light Shader is deactivated
 
 	//if (point_lights.size() > 0)
@@ -293,15 +386,17 @@ void DeferredRenderer::renderLight()
 	//		plight->end_shadow_mapping();
 	//	}
 	//}
+	
 	Shader shader_deferred;
 	glm::vec3 viewPos = camera->getPosition();
 
-	Shader shader_deferred = Shaders[SHADER_DEFERRED];
+	shader_deferred = Shaders[SHADER_DEFERRED];
 
 	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
+	glViewport(0, 0, getWidth(), getHeight());
 	shader_deferred.use();
 	glDisable(GL_DEPTH_TEST);
-
+	
 	if (dConfig.visibleDirectionalLight)
 	{
 		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
@@ -333,6 +428,9 @@ void DeferredRenderer::renderLight()
 				glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
 			}
 		}
+		else {
+			printf("Renderer [Warning] Directional Light not set\n");
+		}
 
 		//set back to fill mode for texture rendering
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -340,7 +438,11 @@ void DeferredRenderer::renderLight()
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
 	}
-
+	
+	/*
+	Point Light
+	*/
+	
 	if (dConfig.visiblePointLight)
 	{
 
@@ -363,7 +465,7 @@ void DeferredRenderer::renderLight()
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
 		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
+		glBindTexture(GL_TEXTURE_2D, screenRectTexture);
 
 		///
 		/// For simplicity point and spotlight shadows have been disabled
@@ -380,14 +482,12 @@ void DeferredRenderer::renderLight()
 		glBindVertexArray(screenRectVAO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
-		sceneCamera.endDrawing();
 	}
 
 	//begin spot light rendering
 	if (dConfig.visibleSpotLight)
 	{
 		shader_deferred = Shaders[SHADER_DEFFERED_SLIGHT_NOS];
-		sceneCamera.beginDrawing(shader_deferred);
 		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
 		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
@@ -405,7 +505,7 @@ void DeferredRenderer::renderLight()
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
 		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
+		glBindTexture(GL_TEXTURE_2D, screenRectTexture);
 
 		GLuint slightCount = 0;
 		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "spotLights"), spotLights.size());
@@ -418,29 +518,24 @@ void DeferredRenderer::renderLight()
 		glBindVertexArray(screenRectVAO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
-
-		sceneCamera.endDrawing();
 	}
-
+	
 	//render just on camera textrue if no lights active
-	if (!sceneCamera.config.dLightVisible && !sceneCamera.config.pLightVisible && !sceneCamera.config.sLightVisible)
+	if (!dConfig.visibleDirectionalLight && !dConfig.visiblePointLight && !dConfig.visibleSpotLight)
 	{
 
 		shader_deferred = Shaders[SHADER_TEXTURE];
-		sceneCamera.beginDrawing(shader_deferred);
+		shader_deferred.use();
 
-		glUniform1i(glGetUniformLocation(Shaders[SHADER_TEXTURE].getId(), "screenTexture"), 0);
+		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "screenTexture"), 0);
 		glActiveTexture(GL_TEXTURE0);
-
 		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
 
 		glBindVertexArray(screenRectVAO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
-
-		sceneCamera.endDrawing();
 	}
-	*/
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void DeferredRenderer::setup() {
@@ -448,7 +543,7 @@ void DeferredRenderer::setup() {
 
 	glGenFramebuffers(1, &gBufferFBO);
 	glGenFramebuffers(1, &bloomFBO);
-	glGenFramebuffers(1, &lightFBO);
+	//glGenFramebuffers(1, &lightFBO);
 
 	glGenTextures(1, &gBufferPosition);
 	glGenTextures(1, &gBufferNormal);
@@ -456,7 +551,7 @@ void DeferredRenderer::setup() {
 	glGenTextures(1, &gBufferOption1);
 	glGenTextures(1, &gBloom);
 	glGenTextures(1, &bloomTexture);
-	glGenTextures(1, &screenTexture);
+	glGenTextures(1, &screenRectTexture);
 
 	glGenRenderbuffers(1, &rboGDepth);
 
@@ -467,26 +562,10 @@ void DeferredRenderer::setup() {
 	glBindBufferRange(GL_UNIFORM_BUFFER, getRendererId(), uboMatrices, 0, 2 * sizeof(glm::mat4) + sizeof(GLfloat));
 
 	GLfloat vertices_rect[] = {
-		-1.0f,
-		1.0f,
-		0.0f,
-		0.0f,
-		1.0f,
-		-1.0f,
-		-1.0f,
-		0.0f,
-		0.0f,
-		0.0f,
-		1.0f,
-		1.0f,
-		0.0f,
-		1.0f,
-		1.0f,
-		1.0f,
-		-1.0f,
-		0.0f,
-		1.0f,
-		0.0f,
+		-1.0f,  1.0f,  0.0f, 0.0f, 1.0f, 
+		-1.0f, -1.0f,  0.0f, 0.0f, 0.0f,
+		 1.0f,	1.0f,  0.0f, 1.0f, 1.0f,	
+		 1.0f, -1.0f,  0.0f, 1.0f, 0.0f,
 	};
 
 	glGenVertexArrays(1, &screenRectVAO);

@@ -30,12 +30,6 @@ struct SortDrawable {
 };
 
 
-enum RenderMode {
-	POINTR = 0,
-	LINER = 1,
-	FILLR = 2
-};
-
 class AbstractScene
 {
 public:
@@ -71,13 +65,25 @@ public:
 
 	/*
 	add object to scene
+	object: added object
+	camera: target camera which handles the added object
+	*/
+	virtual void addObject(SceneObject &object, Camera &camera) = 0;
+
+	/*
+	add object to all currently added cameras	
 	*/
 	virtual void addObject(SceneObject &object) = 0;
 
 	/*
-	remove object from scene
+	remove object from scene target camera
 	*/
-	virtual void removeObject(SceneObject &object) = 0;
+	virtual void removeObject(SceneObject &object, Camera &camera) = 0;
+
+	/*
+	remove object from all cameras
+	*/
+	virtual void removeObject(SceneObject &objecta) = 0;
 
 	Size getSize();
 	int getWidth();

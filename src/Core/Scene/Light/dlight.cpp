@@ -209,7 +209,7 @@ void DirectionalLight::setViewFrustum(ViewFrustum viewFrustum)
 	}
 }
 
-void DirectionalLight::begin_shadow_mapping(int slice)
+void DirectionalLight::beginShadowMapping(int slice)
 {
 	//glCullFace(GL_FRONT);
 	Shaders[SHADER_DEPTH].use();
@@ -225,7 +225,7 @@ void DirectionalLight::begin_shadow_mapping(int slice)
 		glm::value_ptr(depthMaps[slice].lightSpaceMatrix));
 }
 
-void DirectionalLight::end_shadow_mapping()
+void DirectionalLight::endShadowMapping()
 {
 	glCullFace(GL_BACK);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
