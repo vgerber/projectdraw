@@ -23,7 +23,7 @@ class DeferredRenderer : public AbstractRenderer {
 public:
 	DeferredRendererConfig dConfig;
 
-    DeferredRenderer(int width, int height, const Camera &camera);    
+    DeferredRenderer(int width, int height, Camera &camera);    
 
 
 
@@ -33,14 +33,14 @@ public:
 
 	virtual void render();
 
+	virtual GLuint getTexture() override;
+
 protected:
 
     Shader shader_basic;
 	Shader shader_light;
 	Shader shader_normals;
 	Shader shader_geometry;
-
-	GLuint sceneTexture, sceneVBO, sceneVAO, sceneFBO;
 
 	GLuint gBufferFBO = 0;
 	GLuint rboGDepth = 0;
@@ -54,15 +54,15 @@ protected:
 	GLuint bloomFBO = 0;
 	GLuint bloomTexture = 0;
 
-	GLuint plightFBO = 0;
-	GLuint plightTexture = 0;
-
 	GLuint lightFBO = 0;
 	GLuint lightTexture = 0;
 
 	GLuint uboMatrices = 0;
+
+	GLuint screenRectFBO = 0;
 	GLuint screenRectVBO = 0;
 	GLuint screenRectVAO = 0;
+	GLuint screenRectTexture = 0;
 
 	GLuint screenShadowVBO = 0;
 	GLuint screenShadowVAO = 0;

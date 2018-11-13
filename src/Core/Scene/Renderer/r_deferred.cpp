@@ -1,6 +1,6 @@
 #include "r_deferred.h"
 
-DeferredRenderer::DeferredRenderer(int width, int height, const Camera &camera) : AbstractRenderer(width, height, camera)
+DeferredRenderer::DeferredRenderer(int width, int height, Camera &camera) : AbstractRenderer(width, height, camera)
 {
     setup();
     resize(width, height);
@@ -18,11 +18,123 @@ void DeferredRenderer::render()
 
 	renderObjects();
 
-	renderLight();
+	//renderLight();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
+	Shader shaderTexture = Shaders[SHADER_TEXTURE];
+	shaderTexture.use();
+
+	glUniform1i(glGetUniformLocation(shaderTexture.getId(), "screenTexture"), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+
+	glBindVertexArray(screenRectVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+}
+
+GLuint DeferredRenderer::getTexture() {
+	return screenRectTexture;
 }
 
 void DeferredRenderer::resize(int width, int height) {
+	/*
+	Deferred Rendering Textures
+	*/
+	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
+	glBindTexture(GL_TEXTURE_2D, gBufferPosition);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBufferPosition, 0);
 
+	glBindTexture(GL_TEXTURE_2D, gBufferNormal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gBufferNormal, 0);
+
+	glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gBufferAlbedo, 0);
+
+	glBindTexture(GL_TEXTURE_2D, gBufferOption1);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gBufferOption1, 0);
+
+	glBindTexture(GL_TEXTURE_2D, gBloom);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gBloom, 0);
+
+	GLuint gAttachments[5] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4};
+	glDrawBuffers(5, gAttachments);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, rboGDepth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	// - Attach buffers
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboGDepth);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, bloomFBO);
+	glBindTexture(GL_TEXTURE_2D, bloomTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTexture, 0);
+	GLuint attachments[1] = {GL_COLOR_ATTACHMENT0};
+	glDrawBuffers(1, attachments);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, lightFBO);
+	glBindTexture(GL_TEXTURE_2D, lightTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, lightTexture, 0);
+	GLuint lightAttachments[1] = {GL_COLOR_ATTACHMENT0};
+	glDrawBuffers(1, lightAttachments);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+	/*
+	Screen Texture
+	*/
+	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
+	glBindTexture(GL_TEXTURE_2D, screenRectTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, getWidth(), getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenRectTexture, 0);
+	GLuint attachments[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, attachments);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 
@@ -140,6 +252,7 @@ void DeferredRenderer::bloom()
 
 void DeferredRenderer::renderLight()
 {
+	/*
 	//set viewfrustum fro directional light (fro cascaded shadow mapping)
 	if (directionalLight)
 	{
@@ -185,10 +298,12 @@ void DeferredRenderer::renderLight()
 
 	Shader shader_deferred = Shaders[SHADER_DEFERRED];
 
-	if (sceneCamera.config.dLightVisible)
-	{
-		sceneCamera.beginDrawing(shader_deferred);
+	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
+	shader_deferred.use();
+	glDisable(GL_DEPTH_TEST);
 
+	if (dConfig.visibleDirectionalLight)
+	{
 		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
 		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
@@ -224,15 +339,13 @@ void DeferredRenderer::renderLight()
 		glBindVertexArray(screenRectVAO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
-
-		sceneCamera.endDrawing();
 	}
 
 	if (dConfig.visiblePointLight)
 	{
 
 		shader_deferred = Shaders[SHADER_DEFFERED_PLIGHT_NOS];
-		sceneCamera.beginDrawing(shader_deferred);
+		shader_deferred.use();
 		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
 		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
@@ -271,7 +384,7 @@ void DeferredRenderer::renderLight()
 	}
 
 	//begin spot light rendering
-	if (sceneCamera.config.sLightVisible)
+	if (dConfig.visibleSpotLight)
 	{
 		shader_deferred = Shaders[SHADER_DEFFERED_SLIGHT_NOS];
 		sceneCamera.beginDrawing(shader_deferred);
@@ -327,6 +440,7 @@ void DeferredRenderer::renderLight()
 
 		sceneCamera.endDrawing();
 	}
+	*/
 }
 
 void DeferredRenderer::setup() {
@@ -342,7 +456,7 @@ void DeferredRenderer::setup() {
 	glGenTextures(1, &gBufferOption1);
 	glGenTextures(1, &gBloom);
 	glGenTextures(1, &bloomTexture);
-	glGenTextures(1, &lightTexture);
+	glGenTextures(1, &screenTexture);
 
 	glGenRenderbuffers(1, &rboGDepth);
 

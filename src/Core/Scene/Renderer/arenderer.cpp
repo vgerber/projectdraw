@@ -2,7 +2,7 @@
 
 int AbstractRenderer::globalRendererId = 0;
 
-AbstractRenderer::AbstractRenderer(int width, int height, const Camera &camera) {
+AbstractRenderer::AbstractRenderer(int width, int height, Camera &camera) {
     this->width = width;
     this->height = height;
     this->camera = &camera;

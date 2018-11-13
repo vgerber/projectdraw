@@ -19,7 +19,7 @@ enum RenderMode {
 
 class AbstractRenderer {
 public:
-    AbstractRenderer(int width, int height, const Camera &camera);
+    AbstractRenderer(int width, int height, Camera &camera);
     
 
     virtual GLuint getScreenTexture() = 0;
@@ -30,6 +30,8 @@ public:
 
 
     virtual void render() = 0;
+
+    virtual GLuint getTexture() = 0;
 
     int getWidth();
     int getHeight();
