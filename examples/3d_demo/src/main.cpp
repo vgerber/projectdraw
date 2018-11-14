@@ -24,7 +24,7 @@ int main() {
 	camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	camera.FarZ = 30.0f;
-	scene.addObject(camera);
+	scene.addObject(camera, Size {-1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f});
 	{
 		SceneCameraConfig scConfig = scene.getCameraConfig(camera);
 		scConfig.dLightVisible = true;
@@ -32,7 +32,7 @@ int main() {
 		scConfig.sLightVisible = false;
 		scene.configureCamera(camera, scConfig);
 	}
-	/*
+	
 	PerspectiveCamera rotatingCamera;
 	rotatingCamera.setPosition(glm::vec3(10.0f, 10.0f, 10.0f));
 	rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -47,12 +47,12 @@ int main() {
 		scConfig.sLightVisible = false;
 		scene.configureCamera(rotatingCamera, scConfig);
 	}
-	*/
+	
 
 	Drawable cube;
 	//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)));
-	//cube.setModel(primitives::generateSphere(20, 10, glm::vec4(1.0f, 0.0f, 0.0, 1.0f)));
-	cube.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+	cube.setModel(primitives::generateSphere(20, 10, glm::vec4(1.0f, 0.0f, 0.0, 1.0f)));
+	//cube.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
 	cube.setPositionCenter(glm::vec3(0.0f, 2.0f, 0.0f));
 	printf("Size: %f %f %f \n", cube.getSize().width, cube.getSize().height, cube.getSize().depth);
 	scene.addObject(cube);
@@ -93,8 +93,8 @@ int main() {
 		
 		//rotate camera around scene
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
-		//camera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
-		//camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+		camera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
+		camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 
 		sunLight.change_direction(glm::vec3(1.0f * cos(millis), -1.0f, 1.0f * sin(millis)));
 		

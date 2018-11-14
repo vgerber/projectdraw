@@ -538,6 +538,10 @@ void DeferredRenderer::renderLight()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void DeferredRenderer::dispose() {
+	
+}
+
 void DeferredRenderer::setup() {
 	renderMode = RenderMode::FILLR;
 

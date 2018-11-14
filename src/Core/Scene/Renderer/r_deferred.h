@@ -38,6 +38,8 @@ public:
 
 	virtual GLuint getTexture() override;
 
+	virtual void dispose() override;
+
 protected:
 
     Shader shader_basic;

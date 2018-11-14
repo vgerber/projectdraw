@@ -34,6 +34,8 @@ public:
 
     virtual GLuint getTexture() = 0;
 
+    virtual void dispose() = 0;
+
     int getWidth();
     int getHeight();
 

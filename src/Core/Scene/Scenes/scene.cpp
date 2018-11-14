@@ -48,11 +48,7 @@ void Scene::draw(float delta)
 		{
 			continue;
 		}
-		glBindTexture(GL_TEXTURE_2D, sceneCamera.renderer->getTexture());
-
-		glBindVertexArray(sceneCamera.getFrameVerticesVAO());
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);
+		sceneCamera.drawFrame(0);
 	}
 	glEnable(GL_DEPTH_TEST);
 }
