@@ -53,6 +53,9 @@ public:
 	// Returns the view matrix calculated using Eular Angles and the LookAt Matrix
 	glm::mat4 getViewMatrix();	
 
+	void setFront(glm::vec3 frontV);
+	void setUp(glm::vec3 upV);
+
 	glm::vec3 getFront();
 	glm::vec3 getRight();
 	glm::vec3 getUp();

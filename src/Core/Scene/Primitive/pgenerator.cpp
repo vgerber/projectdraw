@@ -486,8 +486,8 @@ Model primitives::generateSphere(int lats, int longs, glm::vec4 color)
 	std::vector<GLuint> indices;
 	int indicator = 0;
 	
-	double stepLong = 180.0 / (double)longs;
-	double stepLat = 360.0 / (double)lats;
+	double stepLong = 360.0 / (double)longs;
+	double stepLat = 180.0 / (double)lats;
 	
 
 	double lastLat = 0.0;
@@ -573,10 +573,6 @@ Model primitives::generateSphere(int lats, int longs, glm::vec4 color)
 		}
 		//indices.push_back(GL_PRIMITIVE_RESTART_FIXED_INDEX);
 		lastLat = lat;
-	}
-
-	for(int i = 0; i < lats; i++) {
-
 	}
 	
 	std::vector<Vertex> vertices_vertex;

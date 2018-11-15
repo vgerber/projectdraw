@@ -36,6 +36,8 @@ public:
 
     virtual void dispose() = 0;
 
+	virtual void setOption(std::string option, bool value) = 0;
+
     int getWidth();
     int getHeight();
 

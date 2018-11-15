@@ -18,8 +18,9 @@ Texture			=SOIL		[15.08.2018]
 
 Priority: [B1..high, -, B6..low]
 
-B2		-Objects on other rigidbody cant be raytraced (clicked whatever..)
-B3		-Light draw limit exception unhandled
+B1		-Shader cleanup
+B6		-Objects on other rigidbody cant be raytraced (clicked whatever..)
+B2		-Light draw limit exception unhandled
 F		-Drawing Groups  e.g. for grouped stencil test
 F(90%)	-Particle Instancing
 F		-Variance SHadow Mapping (at the moment CSM/PCF)

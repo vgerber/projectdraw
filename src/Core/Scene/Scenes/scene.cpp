@@ -30,11 +30,12 @@ void Scene::draw(float delta)
 		sceneCamera.renderer->clearScreen();
 		sceneCamera.renderer->render();
 	}
-	//glBindBuffer(GL_FRAMEBUFFER, 0);
+
+	glBindBuffer(GL_FRAMEBUFFER, 0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glViewport(0, 0, width, height);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	glDisable(GL_DEPTH_TEST);
 	Shaders[SHADER_TEXTURE].use();

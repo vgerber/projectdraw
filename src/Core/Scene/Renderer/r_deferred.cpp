@@ -14,17 +14,12 @@ void DeferredRenderer::clearScreen() {
 
 void DeferredRenderer::render()
 {
-
 	glViewport(0, 0, getWidth(), getHeight());
 	glEnable(GL_DEPTH_TEST);
-
-
 
 	renderObjects();
 
 	renderLight();
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void DeferredRenderer::addSceneObject(SceneObject & sceneObject)
@@ -128,6 +123,7 @@ GLuint DeferredRenderer::getTexture() {
 }
 
 void DeferredRenderer::resize(int width, int height) {
+	AbstractRenderer::resize(width, height);
 	/*
 	Deferred Rendering Textures
 	*/
@@ -135,31 +131,31 @@ void DeferredRenderer::resize(int width, int height) {
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
 		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, getWidth(), getHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBufferPosition, 0);
 
 		glBindTexture(GL_TEXTURE_2D, gBufferNormal);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, getWidth(), getHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gBufferNormal, 0);
 
 		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWidth(), getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gBufferAlbedo, 0);
 
 		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWidth(), getHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gBufferOption1, 0);
 
 		glBindTexture(GL_TEXTURE_2D, gBloom);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWidth(), getHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gBloom, 0);
@@ -168,7 +164,7 @@ void DeferredRenderer::resize(int width, int height) {
 		glDrawBuffers(5, gAttachments);
 
 		glBindRenderbuffer(GL_RENDERBUFFER, rboGDepth);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getWidth(), getHeight());
 		// - Attach buffers
 
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboGDepth);
@@ -181,7 +177,7 @@ void DeferredRenderer::resize(int width, int height) {
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, bloomFBO);
 		glBindTexture(GL_TEXTURE_2D, bloomTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, getWidth(), getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -218,10 +214,17 @@ void DeferredRenderer::resize(int width, int height) {
 	}
 }
 
-
-
 void DeferredRenderer::renderObjects()
 {
+
+	glUniformBlockBinding(Shaders[SHADER_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].getId(), "Matrices"), getRendererId());
+	glUniformBlockBinding(Shaders[SHADER_FONT].getId(), glGetUniformBlockIndex(Shaders[SHADER_FONT].getId(), "Matrices"), getRendererId());
+	glUniformBlockBinding(Shaders[SHADER_SKYBOX].getId(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].getId(), "Matrices"), getRendererId());
+	glUniformBlockBinding(Shaders[SHADER_DEFFERED_LIGHT].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_LIGHT].getId(), "Matrices"), getRendererId());
+	glUniformBlockBinding(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), "Matrices"), getRendererId());
+	glUniformBlockBinding(Shaders[SHADER_INSTANCING_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_INSTANCING_BASIC].getId(), "Matrices"), getRendererId());
+
+
 	int polygonMode = GL_FILL;
 	if (renderMode == RenderMode::POINTR)
 		polygonMode = GL_POINT;
@@ -307,7 +310,9 @@ void DeferredRenderer::renderObjects()
 	glUniformMatrix4fv(glGetUniformLocation(shader_geometry.getId(), "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
 
 	glDisable(GL_STENCIL_TEST);
+	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void DeferredRenderer::bloom()
@@ -347,16 +352,13 @@ void DeferredRenderer::renderLight()
 	*/
 
 
-	//set viewfrustum fro directional light (for cascaded shadow mapping)
-	if (directionalLight)
+	
+	if (dConfig.visibleDirectionalLight && directionalLight)
 	{
+		//set viewfrustum for directional light (for cascaded shadow mapping)
 		directionalLight->setViewFrustum(camera->getViewFrustum(directionalLight->getCSMSlices()));
-	}
 
-
-	//render csm directionLight
-	if (directionalLight)
-	{
+		//render csm directionLight
 		Shader shader_depth = Shaders[SHADER_DEPTH];
 		for (int i = 0; i < directionalLight->getCSMSlices(); i++)
 		{
@@ -542,12 +544,16 @@ void DeferredRenderer::dispose() {
 	
 }
 
+void DeferredRenderer::setOption(std::string option, bool value)
+{
+}
+
 void DeferredRenderer::setup() {
 	renderMode = RenderMode::FILLR;
 
 	glGenFramebuffers(1, &gBufferFBO);
 	glGenFramebuffers(1, &bloomFBO);
-	//glGenFramebuffers(1, &lightFBO);
+	glGenFramebuffers(1, &screenRectFBO);
 
 	glGenTextures(1, &gBufferPosition);
 	glGenTextures(1, &gBufferNormal);

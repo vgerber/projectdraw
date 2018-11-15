@@ -211,11 +211,13 @@ void DirectionalLight::setViewFrustum(ViewFrustum viewFrustum)
 
 void DirectionalLight::beginShadowMapping(int slice)
 {
+	glEnable(GL_DEPTH_TEST);
 	//glCullFace(GL_FRONT);
 	Shaders[SHADER_DEPTH].use();
 
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMaps[slice].depthMapFBO);
+	
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	glUniformMatrix4fv(
@@ -229,6 +231,7 @@ void DirectionalLight::endShadowMapping()
 {
 	glCullFace(GL_BACK);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glEnable(GL_DEPTH_TEST);
 }
 
 GLuint DirectionalLight::getShadowMap(int slice)

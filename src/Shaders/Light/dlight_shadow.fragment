@@ -46,7 +46,6 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, float
 		shadow = ShadowDirCalculationPCF(light, fragPos, depth,  bias);
 	}
 
-
 	return (ambient + (1.0 - shadow) * (diffuse + specular));
 
 

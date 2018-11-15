@@ -40,6 +40,18 @@ glm::mat4 Camera::getViewMatrix()
 	return viewMatrix;
 }
 
+void Camera::setFront(glm::vec3 frontV)
+{
+	front_vector = frontV;
+	updateCameraVectors();
+}
+
+void Camera::setUp(glm::vec3 upV)
+{
+	up_vector = upV;
+	updateCameraVectors();
+}
+
 
 glm::vec3 Camera::getFront()
 {

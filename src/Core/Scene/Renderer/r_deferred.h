@@ -40,6 +40,8 @@ public:
 
 	virtual void dispose() override;
 
+	virtual void setOption(std::string option, bool value);
+
 protected:
 
     Shader shader_basic;

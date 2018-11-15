@@ -44,6 +44,11 @@ Geometry SceneCamera::getDebugViewFrustum(int splits) {
 	return geoCam;
 }
 
+void SceneCamera::clear()
+{
+	renderer->clearScreen();
+}
+
 GLuint SceneCamera::getTexture()
 {
 	return renderer->getTexture();
@@ -73,6 +78,11 @@ void SceneCamera::resizeFrame(Size frame)
 	glBindVertexArray(0);
 }
 
+Size SceneCamera::getFrame()
+{
+	return frame;
+}
+
 void SceneCamera::drawFrame(GLuint target) {
 
 	glBindTexture(GL_TEXTURE_2D, getTexture());
@@ -80,6 +90,11 @@ void SceneCamera::drawFrame(GLuint target) {
 	glBindVertexArray(camVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
+}
+
+void SceneCamera::setRendererOption(std::string option, bool value)
+{
+	renderer->setOption(option, value);
 }
 
 void SceneCamera::dispose()
@@ -97,4 +112,5 @@ void SceneCamera::resize(int sceneWidth, int sceneHeight)
 void SceneCamera::setup(int sceneWidth, int sceneHeight) {
 	glGenVertexArrays(1, &camVAO);
 	glGenBuffers(1, &camVBO);
+	resize(sceneWidth, sceneHeight);
 }

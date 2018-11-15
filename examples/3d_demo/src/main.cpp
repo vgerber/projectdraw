@@ -18,13 +18,14 @@ int main() {
 	Scene scene(WIDTH, HEIGHT);
 	   
 
-
+	
 	PerspectiveCamera camera;
 	camera.setPosition(glm::vec3(5.0f, 5.0f, 5.0f));
 	camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-
 	camera.FarZ = 30.0f;
-	scene.addObject(camera, Size {-1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f});
+	camera.Width = WIDTH;
+	camera.Height = HEIGHT;
+	scene.addObject(camera);
 	{
 		SceneCameraConfig scConfig = scene.getCameraConfig(camera);
 		scConfig.dLightVisible = true;
@@ -34,12 +35,12 @@ int main() {
 	}
 	
 	PerspectiveCamera rotatingCamera;
-	rotatingCamera.setPosition(glm::vec3(10.0f, 10.0f, 10.0f));
+	rotatingCamera.setPosition(glm::vec3(0.0f, 5.0f, -5.0f));
 	rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-	rotatingCamera.FarZ = 20.0f;
+	rotatingCamera.FarZ = 30.0f;
 	rotatingCamera.Width = WIDTH;
 	rotatingCamera.Height = HEIGHT;
-	scene.addObject(rotatingCamera, Size{-1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f });
+	scene.addObject(rotatingCamera, Size{ -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f });
 	{
 		SceneCameraConfig scConfig = scene.getCameraConfig(rotatingCamera);
 		scConfig.dLightVisible = true;
@@ -51,16 +52,14 @@ int main() {
 
 	Drawable cube;
 	//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)));
-	cube.setModel(primitives::generateSphere(20, 10, glm::vec4(1.0f, 0.0f, 0.0, 1.0f)));
-	//cube.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
-	cube.setPositionCenter(glm::vec3(0.0f, 2.0f, 0.0f));
-	printf("Size: %f %f %f \n", cube.getSize().width, cube.getSize().height, cube.getSize().depth);
+	//cube.setModel(primitives::generateSphere(10, 10, glm::vec4(1.0f, 0.0f, 0.0, 1.0f)));
+	cube.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+	cube.setPositionCenter(glm::vec3(0.0f, 0.5f, 0.0f));
 	scene.addObject(cube);
 	Drawable ground;
 	ground.setModel(primitives::generateQuad(5.0f, 0.5f, 5.0f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f)));
 	ground.setPosition(glm::vec3(-2.5f, -0.5f, -2.5f));
 	scene.addObject(ground);
-
 
 
 	DirectionalLight sunLight;
@@ -93,8 +92,8 @@ int main() {
 		
 		//rotate camera around scene
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
-		camera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
-		camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+		//rotatingCamera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
+		//rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 
 		sunLight.change_direction(glm::vec3(1.0f * cos(millis), -1.0f, 1.0f * sin(millis)));
 		
