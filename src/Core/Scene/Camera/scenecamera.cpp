@@ -92,11 +92,6 @@ void SceneCamera::drawFrame(GLuint target) {
 	glBindVertexArray(0);
 }
 
-void SceneCamera::setRendererOption(std::string option, bool value)
-{
-	renderer->setOption(option, value);
-}
-
 void SceneCamera::dispose()
 {
 	renderer->dispose();

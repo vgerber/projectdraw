@@ -66,7 +66,7 @@ int main() {
 	sunLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
 	sunLight.change_direction(glm::vec3(1.0f, -1.0f, 1.0f));
-	sunLight.intensity = 4.0f;
+	sunLight.intensity = 1.0f;
 	sunLight.draw_shadow = true;
 	scene.addObject(sunLight);
 

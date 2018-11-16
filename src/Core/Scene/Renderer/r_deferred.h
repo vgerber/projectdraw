@@ -12,16 +12,9 @@
 
 #include "arenderer.h"
 
-struct DeferredRendererConfig
-{
-	bool visibleDirectionalLight = true;
-	bool visiblePointLight = false;
-	bool visibleSpotLight = false;
-};
 
 class DeferredRenderer : public AbstractRenderer {
 public:
-	DeferredRendererConfig dConfig;
 
     DeferredRenderer(int width, int height, Camera &camera);    
 
@@ -39,8 +32,6 @@ public:
 	virtual GLuint getTexture() override;
 
 	virtual void dispose() override;
-
-	virtual void setOption(std::string option, bool value);
 
 protected:
 

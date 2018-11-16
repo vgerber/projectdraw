@@ -54,8 +54,6 @@ public:
 
 	void drawFrame(GLuint target);
 
-	void setRendererOption(std::string option, bool value);
-
 private:
 	Size frame;
 	int width, height;

@@ -353,7 +353,7 @@ void DeferredRenderer::renderLight()
 
 
 	
-	if (dConfig.visibleDirectionalLight && directionalLight)
+	if (directionalLight && directionalLight->draw_shadow)
 	{
 		//set viewfrustum for directional light (for cascaded shadow mapping)
 		directionalLight->setViewFrustum(camera->getViewFrustum(directionalLight->getCSMSlices()));
@@ -399,7 +399,7 @@ void DeferredRenderer::renderLight()
 	shader_deferred.use();
 	glDisable(GL_DEPTH_TEST);
 	
-	if (dConfig.visibleDirectionalLight)
+	if (directionalLight)
 	{
 		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
@@ -445,7 +445,7 @@ void DeferredRenderer::renderLight()
 	Point Light
 	*/
 	
-	if (dConfig.visiblePointLight)
+	if (pointLights.size() > 0)
 	{
 
 		shader_deferred = Shaders[SHADER_DEFFERED_PLIGHT_NOS];
@@ -487,7 +487,7 @@ void DeferredRenderer::renderLight()
 	}
 
 	//begin spot light rendering
-	if (dConfig.visibleSpotLight)
+	if (spotLights.size() > 0)
 	{
 		shader_deferred = Shaders[SHADER_DEFFERED_SLIGHT_NOS];
 		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
@@ -523,7 +523,7 @@ void DeferredRenderer::renderLight()
 	}
 	
 	//render just on camera textrue if no lights active
-	if (!dConfig.visibleDirectionalLight && !dConfig.visiblePointLight && !dConfig.visibleSpotLight)
+	if (!directionalLight && spotLights.size() == 0 && pointLights.size() == 0)
 	{
 
 		shader_deferred = Shaders[SHADER_TEXTURE];
@@ -542,10 +542,6 @@ void DeferredRenderer::renderLight()
 
 void DeferredRenderer::dispose() {
 	
-}
-
-void DeferredRenderer::setOption(std::string option, bool value)
-{
 }
 
 void DeferredRenderer::setup() {

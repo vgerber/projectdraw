@@ -4,13 +4,6 @@
 #include "../Camera/camera.h"
 
 
-class RenderLight {
-public:
-    static const int DIRECTIONAL = 0;
-    static const int POINT = 1;
-    static const int SPOT = 2;
-};
-
 enum RenderMode {
 	POINTR = 0,
 	LINER = 1,
@@ -35,8 +28,6 @@ public:
     virtual GLuint getTexture() = 0;
 
     virtual void dispose() = 0;
-
-	virtual void setOption(std::string option, bool value) = 0;
 
     int getWidth();
     int getHeight();
