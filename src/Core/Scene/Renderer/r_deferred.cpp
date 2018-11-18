@@ -14,6 +14,11 @@ void DeferredRenderer::clearScreen() {
 
 void DeferredRenderer::render()
 {
+	if (invalidShaders) {
+		refreshShaderRenderer();
+		invalidShaders = false;
+	}
+
 	glViewport(0, 0, getWidth(), getHeight());
 	glEnable(GL_DEPTH_TEST);
 
@@ -27,6 +32,7 @@ void DeferredRenderer::addSceneObject(SceneObject & sceneObject)
 	if (DirectionalLight *dLight = dynamic_cast<DirectionalLight *>(&sceneObject))
 	{
 		directionalLight = dLight;
+		directionalLight->setShader(shaderLight, *this);
 		return;
 	}
 
@@ -45,22 +51,32 @@ void DeferredRenderer::addSceneObject(SceneObject & sceneObject)
 	if (SpotLight *sLight = dynamic_cast<SpotLight *>(&sceneObject))
 	{
 		spotLights.push_back(sLight);
+		sLight->setShader(shaderLight, *this);
 		return;
 	}
 
 	if (PointLight *pLight = dynamic_cast<PointLight *>(&sceneObject))
 	{
 		pointLights.push_back(pLight);
+		pLight->setShader(shaderLight, *this);
 		return;
 	}
 
 	if (Drawable *drawable = dynamic_cast<Drawable *>(&sceneObject))
 	{
 		objects.push_back(drawable);
+
+		if (dynamic_cast<Text*>(drawable))
+			drawable->setShader(shaderFont, *this);
+		else if (dynamic_cast<ParticleGenerator*>(drawable))
+			drawable->setShader(shaderInstancing, *this);
+		else
+			drawable->setShader(shaderBasic, *this);
+
 		return;
 	}
 
-	printf("[Engine] [DeferredRenderer] [Error] Scene doesn't accept %s\n", sceneObject.getId());
+	printf("[Engine] [DeferredRenderer] [Error] Scene doesn't accept %s\n", sceneObject.getId().c_str());
 }
 
 void DeferredRenderer::removeSceneObject(SceneObject & sceneObject)
@@ -217,12 +233,10 @@ void DeferredRenderer::resize(int width, int height) {
 void DeferredRenderer::renderObjects()
 {
 
-	glUniformBlockBinding(Shaders[SHADER_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].getId(), "Matrices"), getRendererId());
-	glUniformBlockBinding(Shaders[SHADER_FONT].getId(), glGetUniformBlockIndex(Shaders[SHADER_FONT].getId(), "Matrices"), getRendererId());
-	glUniformBlockBinding(Shaders[SHADER_SKYBOX].getId(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].getId(), "Matrices"), getRendererId());
-	glUniformBlockBinding(Shaders[SHADER_DEFFERED_LIGHT].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_LIGHT].getId(), "Matrices"), getRendererId());
-	glUniformBlockBinding(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), "Matrices"), getRendererId());
-	glUniformBlockBinding(Shaders[SHADER_INSTANCING_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_INSTANCING_BASIC].getId(), "Matrices"), getRendererId());
+	glUniformBlockBinding(shaderBasic.getId(), glGetUniformBlockIndex(shaderBasic.getId(), "Matrices"), getRendererId());
+	glUniformBlockBinding(shaderFont.getId(), glGetUniformBlockIndex(shaderFont.getId(), "Matrices"), getRendererId());
+	glUniformBlockBinding(shaderLight.getId(), glGetUniformBlockIndex(shaderLight.getId(), "Matrices"), getRendererId());
+	glUniformBlockBinding(shaderInstancing.getId(), glGetUniformBlockIndex(shaderInstancing.getId(), "Matrices"), getRendererId());
 
 
 	int polygonMode = GL_FILL;
@@ -254,17 +268,18 @@ void DeferredRenderer::renderObjects()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	//draw 3d pointlight object
-	shader_light.use();
+	shaderLight.use();
 	for (auto plight : pointLights)
 	{
-		glUniform1f(glGetUniformLocation(shader_light.getId(), "intensity"), plight->intensity);
-		glUniform3f(glGetUniformLocation(shader_light.getId(), "color"), plight->diffuse.r, plight->diffuse.g, plight->diffuse.b);
-		plight->draw(shader_light);
+		glUniform1f(glGetUniformLocation(shaderLight.getId(), "intensity"), plight->intensity);
+		glUniform3f(glGetUniformLocation(shaderLight.getId(), "color"), plight->diffuse.r, plight->diffuse.g, plight->diffuse.b);
+		plight->draw();
 	}
 
+	shaderInstancing.use();
 	for (auto instancer : instancers)
 	{
-		instancer->draw();
+		instancer->draw(shaderInstancing);
 	}
 
 	//draw particles
@@ -287,28 +302,30 @@ void DeferredRenderer::renderObjects()
 	}*/
 
 	//draw debug normals of drawables
-	shader_normals.use();
+	shaderNormals.use();
 	for (auto drawable : objects)
 	{
 		if (drawable->settings.normalVisible)
 		{
-			drawable->drawNormals(shader_normals);
+			drawable->drawNormals(shaderNormals);
 		}
 	}
 	//draw bounding box of drawable (not aabb)
+	shaderBasic.use();
 	for (auto drawable : objects)
 	{
 		if (drawable->settings.boxVisible)
 		{
-			drawable->drawBox();
+			drawable->drawBox(shaderBasic);
 		}
 	}
 
 	//draw aabb from drawables
-	shader_geometry.use();
-	glUniform4f(glGetUniformLocation(shader_geometry.getId(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(shader_geometry.getId(), "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-
+	/*
+	shaderGeometry.use();
+	glUniform4f(glGetUniformLocation(shaderGeometry.getId(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(shaderGeometry.getId(), "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+	*/
 	glDisable(GL_STENCIL_TEST);
 	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -317,6 +334,7 @@ void DeferredRenderer::renderObjects()
 
 void DeferredRenderer::bloom()
 {
+	/*
 	Shader blur = Shaders[SHADER_FILTER_BLUR];
 
 	glBindFramebuffer(GL_FRAMEBUFFER, bloomFBO);
@@ -334,6 +352,7 @@ void DeferredRenderer::bloom()
 	glBindVertexArray(0);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	*/
 }
 
 void DeferredRenderer::renderLight()
@@ -359,14 +378,26 @@ void DeferredRenderer::renderLight()
 		directionalLight->setViewFrustum(camera->getViewFrustum(directionalLight->getCSMSlices()));
 
 		//render csm directionLight
-		Shader shader_depth = Shaders[SHADER_DEPTH];
 		for (int i = 0; i < directionalLight->getCSMSlices(); i++)
 		{
 			directionalLight->beginShadowMapping(i);
+
 			for (auto drawable : objects)
 			{
-				glUniformMatrix4fv(glGetUniformLocation(shader_depth.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
-				drawable->draw(shader_depth);
+				glUniformMatrix4fv(
+					glGetUniformLocation(directionalLight->getShaderShadow().getId(), "model"), 
+					1, 
+					GL_FALSE, 
+					glm::value_ptr(drawable->getModelMatrix()
+					)
+				);
+				{
+					//replace drawable mesh shader with light shadow shader and back
+					Shader tmpShader = drawable->getShader().first;
+					drawable->setShader(directionalLight->getShaderShadow(), *this);
+					drawable->draw();
+					drawable->setShader(tmpShader, *this);
+				}
 			}
 			directionalLight->endShadowMapping();
 		}
@@ -389,25 +420,25 @@ void DeferredRenderer::renderLight()
 	//	}
 	//}
 	
-	Shader shader_deferred;
 	glm::vec3 viewPos = camera->getPosition();
 
-	shader_deferred = Shaders[SHADER_DEFERRED];
 
 	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
 	glViewport(0, 0, getWidth(), getHeight());
-	shader_deferred.use();
+	
 	glDisable(GL_DEPTH_TEST);
 	
 	if (directionalLight)
 	{
-		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+		shaderDLight.use();
 
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gBloom"), 4);
+		glUniform3f(glGetUniformLocation(shaderDLight.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+
+		glUniform1i(glGetUniformLocation(shaderDLight.getId(), "gPosition"), 0);
+		glUniform1i(glGetUniformLocation(shaderDLight.getId(), "gNormal"), 1);
+		glUniform1i(glGetUniformLocation(shaderDLight.getId(), "gAlbedo"), 2);
+		glUniform1i(glGetUniformLocation(shaderDLight.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shaderDLight.getId(), "gBloom"), 4);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
@@ -420,18 +451,13 @@ void DeferredRenderer::renderLight()
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_2D, bloomTexture);
 
-		if (directionalLight)
+		directionalLight->apply(shaderDLight, "dirLight");
+
+		for (int i = 0; i < directionalLight->getCSMSlices(); i++)
 		{
-			directionalLight->apply(shader_deferred, "dirLight");
-			for (int i = 0; i < directionalLight->getCSMSlices(); i++)
-			{
-				glUniform1i(glGetUniformLocation(shader_deferred.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 5 + i);
-				glActiveTexture(GL_TEXTURE5 + i);
-				glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
-			}
-		}
-		else {
-			printf("Renderer [Warning] Directional Light not set\n");
+			glUniform1i(glGetUniformLocation(shaderDLight.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 5 + i);
+			glActiveTexture(GL_TEXTURE5 + i);
+			glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
 		}
 
 		//set back to fill mode for texture rendering
@@ -448,15 +474,14 @@ void DeferredRenderer::renderLight()
 	if (pointLights.size() > 0)
 	{
 
-		shader_deferred = Shaders[SHADER_DEFFERED_PLIGHT_NOS];
-		shader_deferred.use();
-		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+		shaderPLight.use();
+		glUniform3f(glGetUniformLocation(shaderPLight.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "prevTexture"), 4);
+		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gPosition"), 0);
+		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gNormal"), 1);
+		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gAlbedo"), 2);
+		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "prevTexture"), 4);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
@@ -474,10 +499,10 @@ void DeferredRenderer::renderLight()
 		///
 
 		GLint plight_count = 0;
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "pointLights"), pointLights.size());
+		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "pointLights"), pointLights.size());
 		for (auto plight : pointLights)
 		{
-			plight->apply(shader_deferred, "pointLight[" + std::to_string(plight_count) + "]");
+			plight->apply(shaderPLight, "pointLight[" + std::to_string(plight_count) + "]");
 			plight_count++;
 		}
 
@@ -489,14 +514,14 @@ void DeferredRenderer::renderLight()
 	//begin spot light rendering
 	if (spotLights.size() > 0)
 	{
-		shader_deferred = Shaders[SHADER_DEFFERED_SLIGHT_NOS];
-		glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+		shaderSLight.use();
+		glUniform3f(glGetUniformLocation(shaderSLight.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gPosition"), 0);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gNormal"), 1);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gAlbedo"), 2);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "gOption1"), 3);
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "prevTexture"), 4);
+		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gPosition"), 0);
+		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gNormal"), 1);
+		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gAlbedo"), 2);
+		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "prevTexture"), 4);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
@@ -510,10 +535,10 @@ void DeferredRenderer::renderLight()
 		glBindTexture(GL_TEXTURE_2D, screenRectTexture);
 
 		GLuint slightCount = 0;
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "spotLights"), spotLights.size());
+		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "spotLights"), spotLights.size());
 		for (auto sLight : spotLights)
 		{
-			sLight->apply(shader_deferred, "spotLight[" + std::to_string(slightCount) + "]");
+			sLight->apply(shaderSLight, "spotLight[" + std::to_string(slightCount) + "]");
 		}
 
 		//merge sportlight scene + old scene
@@ -525,11 +550,9 @@ void DeferredRenderer::renderLight()
 	//render just on camera textrue if no lights active
 	if (!directionalLight && spotLights.size() == 0 && pointLights.size() == 0)
 	{
+		shaderTexture.use();
 
-		shader_deferred = Shaders[SHADER_TEXTURE];
-		shader_deferred.use();
-
-		glUniform1i(glGetUniformLocation(shader_deferred.getId(), "screenTexture"), 0);
+		glUniform1i(glGetUniformLocation(shaderTexture.getId(), "screenTexture"), 0);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
 
@@ -542,6 +565,35 @@ void DeferredRenderer::renderLight()
 
 void DeferredRenderer::dispose() {
 	
+}
+
+void DeferredRenderer::refreshShaderRenderer()
+{
+	if (directionalLight) {
+		directionalLight->setShader(shaderLight, *this);
+	}
+
+	for (auto &plight : pointLights) {
+		plight->setShader(shaderLight, *this);
+	}
+
+	for (auto &slight : spotLights) {
+		slight->setShader(shaderLight, *this);
+	}
+
+	for (auto &drawable : objects) {
+		if (dynamic_cast<Text*>(drawable))
+			drawable->setShader(shaderFont, *this);
+		else if (dynamic_cast<ParticleGenerator*>(drawable))
+			drawable->setShader(shaderInstancing, *this);
+		else
+			drawable->setShader(shaderBasic, *this);
+	}
+}
+
+int DeferredRenderer::getRendererType()
+{
+	return RendererType;
 }
 
 void DeferredRenderer::setup() {
@@ -587,8 +639,16 @@ void DeferredRenderer::setup() {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
 	glBindVertexArray(0);
 
-	shader_basic = Shaders[SHADER_BASIC];
-	shader_light = Shaders[SHADER_DEFFERED_LIGHT];
-	shader_normals = Shaders[SHADER_DEFFERED_NORMALS];
-	shader_geometry = Shaders[SHADER_DEFFERED_GEOMETRY];
+	shaderDLight = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Shadow::D);
+	shaderPLight = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::P);
+	shaderSLight = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::S);
+	shaderTexture = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Texture::ScreenTexture);
+
+	shaderBasic = ResourceManager::loadShader(ShaderName::Deferred::Mesh::Basic);
+	shaderLight = ResourceManager::loadShader(ShaderName::Deferred::Mesh::Light);
+	shaderFont = ResourceManager::loadShader(ShaderName::Deferred::Mesh::Font);
+
+	
+
+	shaderNormals = ResourceManager::loadShader(ShaderName::Deferred::Debug::Normal);
 }

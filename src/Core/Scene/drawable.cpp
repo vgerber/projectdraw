@@ -26,11 +26,7 @@ void Drawable::dispose()
 void Drawable::draw()
 {
 	shader.use();
-	draw(shader);
-}
 
-void Drawable::draw(Shader shader)
-{
 	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 1.0f);
 	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
 	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
@@ -90,21 +86,10 @@ void Drawable::draw(Shader shader)
 	
 }
 
-void Drawable::drawNormals()
-{
-	glUniformMatrix4fv(glGetUniformLocation(shader_normals.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-	objModel.drawNormals(shader_normals);
-}
-
 void Drawable::drawNormals(Shader shader)
 {
 	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 	objModel.drawNormals(shader);
-}
-
-void Drawable::drawBox()
-{
-	drawBox(shader_box);
 }
 
 void Drawable::drawBox(Shader shader)
@@ -120,9 +105,6 @@ void Drawable::drawBox(Shader shader)
 
 void Drawable::setup()
 {
-	shader = Shaders[SHADER_BASIC];
-	shader_normals = Shaders[SHADER_DEFFERED_NORMALS];
-	shader_box = Shaders[SHADER_DEFFERED_GEOMETRY];
 
 	glGenVertexArrays(1, &this->boxVAO);
 	glGenBuffers(1, &this->boxVBO);
@@ -201,21 +183,6 @@ void Drawable::setCenterInWorld(glm::vec3 point)
 	loadBox();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Model Drawable::getModel()
 {
 	return objModel;
@@ -235,9 +202,19 @@ void Drawable::setModel(Model model)
 	loadBox();
 }
 
-void Drawable::setShader(Shader shader)
+void Drawable::setShader(Shader shader, AbstractRenderer &renderer)
 {
+	
+	this->currentRenderer = renderer.getRendererType();
 	this->shader = shader;
+	if (renderer.getRendererType() != currentRenderer) {
+		renderer.invalidateShader();
+	}
+}
+
+std::pair<Shader, int> Drawable::getShader()
+{
+	return std::pair<Shader, int>(shader, currentRenderer);
 }
 
 unsigned int Drawable::getDimension()

@@ -20,7 +20,6 @@ class ParticleGenerator : public Drawable, public Animatable {
 public:
 	ParticleGenerator(Drawable drawable, int particleCount);
 
-	void draw(Shader shader) override;
 	void draw() override;
 	void update(GLfloat deltaTime) override;
 

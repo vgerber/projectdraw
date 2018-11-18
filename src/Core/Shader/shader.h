@@ -1,8 +1,12 @@
 #pragma once
 
+#include "GL/glew.h"
+
 #include <string>
 #include <vector>
-#include "../Resource/loader.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 enum ShaderType {
 	VERTEX,

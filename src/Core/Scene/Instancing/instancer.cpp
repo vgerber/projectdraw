@@ -2,7 +2,6 @@
 
 Instancer::Instancer(Model model, int count)
 {
-	shader = Shaders[SHADER_INSTANCING_BASIC];
 	this->model = model;
 	for (int i = 0; i < count; i++) {
 		modelMatrices.push_back(glm::mat4(1));
@@ -12,8 +11,7 @@ Instancer::Instancer(Model model, int count)
 	resize();
 }
 
-void Instancer::draw() {
-	shader.use();
+void Instancer::draw(Shader shader) {
 	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 1.0f);
 	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
 	model.drawInstancing(shader, DrawType::TRIANGLEG, modelMatrices.size());

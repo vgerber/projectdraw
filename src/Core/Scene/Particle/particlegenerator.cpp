@@ -7,11 +7,9 @@ ParticleGenerator::ParticleGenerator(Drawable drawable, int particleCount)
 	instancer = new Instancer(this->drawableParticle.getModel(), particleCount);
 }
 
-void ParticleGenerator::draw(Shader shader) {
-}
-
 void ParticleGenerator::draw()
 {
+	shader.use();
 	std::vector<glm::mat4> matrices = instancer->getModelMatrices();
 	for (size_t i = 0; i < particles.size(); i++) {
 		Particle part = particles[i];
@@ -27,7 +25,7 @@ void ParticleGenerator::draw()
 		}
 	}
 	instancer->setModelMatrices(matrices);
-	instancer->draw();
+	instancer->draw(shader);
 }
 
 void ParticleGenerator::update(GLfloat deltaTime)

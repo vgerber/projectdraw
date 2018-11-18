@@ -29,7 +29,7 @@ void TextureScene::draw(float delta)
 		glUniform1i(tex_pos, 0);
 		texture->activate(0);
 
-		textureHolder.draw(shader);
+		textureHolder.draw();
 	}
 }
 
@@ -126,7 +126,7 @@ void TextureScene::setTexture(Texture *texture)
 
 void TextureScene::setup()
 {
-	shader = ResourceManager::loadShader(SHADER_TEXTURE_BASIC);
+	shader = ResourceManager::loadShader(ShaderName::Texture::Basic);
 	shader.use();
 	tex_pos = glGetUniformLocation(shader.getId(), "texture1");
 	view_mat_pos = glGetUniformLocation(shader.getId(), "view");

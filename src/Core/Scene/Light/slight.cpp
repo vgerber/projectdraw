@@ -10,18 +10,17 @@ void SpotLight::beginShadowMapping()
 	glm::mat4 lightView = glm::lookAt(position, position + glm::normalize(direction), glm::vec3(0.0, 1.0, 0.0));
 	depthMap.lightSpaceMatrix =  glm::perspective(glm::radians(glm::degrees(outerCutOff) * 2.f), 1.0f, 0.1f, distance) * lightView;
 
-	Shader shader_depth = Shaders[SHADER_DEPTH_PERSP];
-	shader_depth.use();
+	shaderShadow.use();
 
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMap.depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	glUniform1f(glGetUniformLocation(shader_depth.getId(), "farPlane"), distance);
-	glUniform3f(glGetUniformLocation(shader_depth.getId(), "lightPos"), position.x, position.y, position.z);
+	glUniform1f(glGetUniformLocation(shaderShadow.getId(), "farPlane"), distance);
+	glUniform3f(glGetUniformLocation(shaderShadow.getId(), "lightPos"), position.x, position.y, position.z);
 
 	glUniformMatrix4fv(
-		glGetUniformLocation(shader_depth.getId(), "lightSpaceMatrix"),
+		glGetUniformLocation(shaderShadow.getId(), "lightSpaceMatrix"),
 		1,
 		GL_FALSE,
 		glm::value_ptr(depthMap.lightSpaceMatrix));
@@ -96,4 +95,6 @@ void SpotLight::setup()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	shaderShadow = ResourceManager::loadShader(ShaderName::Depth::Persp);
 }

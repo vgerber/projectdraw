@@ -61,7 +61,7 @@ int main() {
 	ground.setPosition(glm::vec3(-2.5f, -0.5f, -2.5f));
 	scene.addObject(ground);
 
-
+	
 	DirectionalLight sunLight;
 	sunLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -69,6 +69,7 @@ int main() {
 	sunLight.intensity = 1.0f;
 	sunLight.draw_shadow = true;
 	scene.addObject(sunLight);
+	
 
 
 	sf::Clock clock;
@@ -76,10 +77,12 @@ int main() {
 	float delta = 0.0f;
 	while (window.isOpen()) {
 		clearScreen(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+		
 		sf::Event e;
 		while (window.pollEvent(e)) {
-			if (e.type == sf::Event::Closed) {
+			if (e.type == sf::Event::Closed ||sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
 				window.close();
+				break;
 			}
 			if (e.type == sf::Event::Resized) {
 				sf::Vector2u size = window.getSize();
@@ -89,7 +92,6 @@ int main() {
 			}
 		}
 
-		
 		//rotate camera around scene
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
 		//rotatingCamera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));

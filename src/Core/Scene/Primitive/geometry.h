@@ -16,9 +16,8 @@ public:
 
 	Geometry();
 	~Geometry();
-	void draw();
-	void draw(Shader shader);
-	void draw_normal();
+	void draw() override;
+	void drawNormals(Shader shader) override;
 	
 	void lineTo(Point point);
 	void lineTo(glm::vec3 point);

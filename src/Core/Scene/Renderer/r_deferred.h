@@ -9,14 +9,15 @@
 #include "../Particle/particlegenerator.h"
 #include "../Instancing/instancer.h"
 #include "../Animation/animatable.h"
+#include "../Text/text.h"
 
 #include "arenderer.h"
 
 
 class DeferredRenderer : public AbstractRenderer {
-public:
+public:	
 
-    DeferredRenderer(int width, int height, Camera &camera);    
+    DeferredRenderer(int width, int height, Camera &camera);   
 
 
 
@@ -33,12 +34,30 @@ public:
 
 	virtual void dispose() override;
 
-protected:
+	virtual void refreshShaderRenderer();
 
-    Shader shader_basic;
-	Shader shader_light;
-	Shader shader_normals;
-	Shader shader_geometry;
+	virtual int getRendererType() override;
+
+protected:
+	static const int RendererType = 1;
+	bool invalidShaders = false;
+
+	//light shaders
+	Shader shaderDLight;
+	Shader shaderPLight;
+	Shader shaderSLight; 
+	Shader shaderTexture;
+	
+	//object drawing shader
+	Shader shaderBasic;
+	Shader shaderInstancing;
+	Shader shaderFont;
+	Shader shaderLight;
+	
+
+	//util shader
+	Shader shaderNormals;
+
 
 	GLuint gBufferFBO = 0;
 	GLuint rboGDepth = 0;

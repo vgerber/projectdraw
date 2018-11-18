@@ -213,7 +213,7 @@ void DirectionalLight::beginShadowMapping(int slice)
 {
 	glEnable(GL_DEPTH_TEST);
 	//glCullFace(GL_FRONT);
-	Shaders[SHADER_DEPTH].use();
+	shaderShadow.use();
 
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMaps[slice].depthMapFBO);
@@ -221,7 +221,7 @@ void DirectionalLight::beginShadowMapping(int slice)
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	glUniformMatrix4fv(
-		glGetUniformLocation(Shaders[SHADER_DEPTH].getId(), "lightSpaceMatrix"),
+		glGetUniformLocation(shaderShadow.getId(), "lightSpaceMatrix"),
 		1,
 		GL_FALSE,
 		glm::value_ptr(depthMaps[slice].lightSpaceMatrix));
@@ -254,6 +254,8 @@ void DirectionalLight::dispose()
 
 void DirectionalLight::setup()
 {
+	shaderShadow = ResourceManager::loadShader(ShaderName::Depth::Ortho);
+
 	for (int i = 0; i < csmSlices; i++) {
 		DepthMap dm;
 		glGenFramebuffers(1, &dm.depthMapFBO);

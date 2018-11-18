@@ -3,6 +3,8 @@
 #include "sceneobject.h"
 #include "../Model/model.h"
 #include "../Model/box.h"
+#include "Renderer/arenderer.h"
+
 #include <memory>
 
 struct Material {
@@ -52,13 +54,14 @@ public:
 
 	virtual void dispose();
 	virtual void draw();
-	virtual void draw(Shader shader);
-	virtual void drawNormals();
 	virtual void drawNormals(Shader shader);
-	virtual void drawBox();
 	virtual void drawBox(Shader shader);
+
 	virtual void setModel(Model model);
-	virtual void setShader(Shader shader);
+
+	//set mesh shader
+	void setShader(Shader shader, AbstractRenderer &renderer);
+	std::pair<Shader, int> getShader();
 
 	
 	Size getAABBBox();	
@@ -71,15 +74,14 @@ public:
 	Model* getModelPtr();
 	
 	unsigned int getDimension();
+
 protected:
+	int currentRenderer;
 	GLuint boxVBO, boxVAO;
 	Model objModel;
+
+	//shader for drawing the mesh
 	Shader shader;
-	Shader shader_normals;
-	Shader shader_box;
-
-	
-
 
 	virtual void setup();
 	

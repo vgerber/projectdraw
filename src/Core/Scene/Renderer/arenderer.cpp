@@ -30,3 +30,8 @@ int AbstractRenderer::getHeight() {
 int AbstractRenderer::getRendererId() {
     return rendererId;
 }
+
+void AbstractRenderer::invalidateShader()
+{
+	invalidShaders = true;
+}

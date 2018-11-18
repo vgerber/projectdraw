@@ -2,6 +2,7 @@
 
 #include "../drawable.h"
 #include "../../Shader/shader.h"
+#include "../../Resource/resourcemanager.h"
 
 class DepthMap {
 public:
@@ -26,4 +27,11 @@ public:
 	void updateModel();
 
 	void apply(Shader shader, std::string target);
+
+	Shader getShaderShadow();
+
+protected:
+
+	Shader shaderShadow;
+
 };

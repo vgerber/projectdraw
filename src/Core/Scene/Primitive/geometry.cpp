@@ -4,7 +4,6 @@
 
 Geometry::Geometry()
 {
-	shader = Shaders[SHADER_DEFFERED_GEOMETRY];
 	glGenVertexArrays(1, &this->VAO);
 	glGenBuffers(1, &this->VBO);
 
@@ -20,15 +19,11 @@ Geometry::~Geometry()
 
 void Geometry::draw()
 {
-	draw(shader);
-}
+	shader.use();
 
-void Geometry::draw(Shader shader)
-{
 	glLineWidth(lineThickness);
 	glPointSize(pointThickness);
 
-	shader.use();
 	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 	glBindVertexArray(VAO);
 	if (size != points.size()) {		
@@ -51,9 +46,8 @@ void Geometry::draw(Shader shader)
 	glBindVertexArray(0);
 }
 
-void Geometry::draw_normal()
+void Geometry::drawNormals(Shader shader)
 {
-	shader_normals.use();
 }
 
 void Geometry::lineTo(Point point)

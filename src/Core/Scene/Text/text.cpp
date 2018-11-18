@@ -3,7 +3,6 @@
 Text::Text(std::string font_path, GLuint size)
 {
 	font = Font(font_path.c_str(), size);
-	shader = Shaders[SHADER_FONT];
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);

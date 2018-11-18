@@ -1,0 +1,16 @@
+#version 330 core
+
+out vec4 color;
+
+in vec2 TexCoords;
+
+uniform sampler2D colorTexture;
+uniform sampelr2D options;
+
+void main() {
+	vec4 texColor = texture(colorTexture, TexCoords).rgba;
+	if(options.b == 1.0)
+		color = texColor;
+	else
+		color = vec4(vec3(0.0), 1.0);
+}

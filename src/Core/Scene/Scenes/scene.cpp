@@ -38,8 +38,9 @@ void Scene::draw(float delta)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glDisable(GL_DEPTH_TEST);
-	Shaders[SHADER_TEXTURE].use();
-	glUniform1i(glGetUniformLocation(Shaders[SHADER_TEXTURE].getId(), "screenTexture"), 0);
+	Shader shader = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Texture::ScreenTexture);
+	shader.use();
+	glUniform1i(glGetUniformLocation(shader.getId(), "screenTexture"), 0);
 	glActiveTexture(GL_TEXTURE0);
 
 	for (auto sceneCamera : cameras)
