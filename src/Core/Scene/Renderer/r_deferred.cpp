@@ -564,7 +564,17 @@ void DeferredRenderer::renderLight()
 }
 
 void DeferredRenderer::dispose() {
-	
+	glDeleteFramebuffers(1, &gBufferFBO);
+	glDeleteRenderbuffers(1, &rboGDepth);
+	glDeleteTextures(1, &gBufferAlbedo);
+	glDeleteTextures(1, &gBufferNormal);
+	glDeleteTextures(1, &gBufferPosition);
+	glDeleteTextures(1, &gBufferOption1);
+
+	glDeleteFramebuffers(1, &screenRectFBO);
+	glDeleteVertexArrays(1, &screenRectVAO);
+	glDeleteBuffers(1, &screenRectVBO);
+	glDeleteTextures(1, &screenRectTexture);
 }
 
 void DeferredRenderer::refreshShaderRenderer()

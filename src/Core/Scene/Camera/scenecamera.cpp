@@ -95,6 +95,9 @@ void SceneCamera::drawFrame(GLuint target) {
 void SceneCamera::dispose()
 {
 	renderer->dispose();
+
+	glDeleteBuffers(1, &camVAO);
+	glDeleteBuffers(1, &camVBO);
 }
 
 void SceneCamera::resize(int sceneWidth, int sceneHeight)

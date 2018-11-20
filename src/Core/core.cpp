@@ -37,6 +37,8 @@ void initCore() {
 	
 	loadTextureShaders();
 
+	loadPostprocessing();
+
 }
 
 void loadDeferredShaders()
@@ -132,7 +134,6 @@ void loadDeferredShaders()
 	};
 	shaderPipelineScreenTexture.load();
 	ResourceManager::storeShader(ShaderName::Deferred::Pipeline::Texture::ScreenTexture, shaderPipelineScreenTexture);
-
 }
 
 void loadDepthShaders()
@@ -176,6 +177,19 @@ void loadTextureShaders()
 	};
 	shader_texture.load();
 	ResourceManager::storeShader(ShaderName::Texture::Basic, shader_texture);
+}
+
+void loadPostprocessing() {
+	printf("[Shader] load POSTPROCESSING shaders\n");
+	//Antialias
+	Shader shaderAntialiasFXAA;
+	shaderAntialiasFXAA.layers = {
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/fxaa.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderAntialiasFXAA.load();
+	ResourceManager::storeShader(ShaderName::Postprocessing::Antialias::FXAA, shaderAntialiasFXAA);
+
 }
 
 void clearScreen(glm::vec4 color) {

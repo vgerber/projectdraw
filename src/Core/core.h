@@ -17,5 +17,7 @@ void loadDepthShaders();
 
 void loadTextureShaders();
 
+void loadPostprocessing();
+
 
 void clearScreen(glm::vec4 color);

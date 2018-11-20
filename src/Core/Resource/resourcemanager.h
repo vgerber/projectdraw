@@ -42,6 +42,12 @@ namespace ShaderName {
 		}		
 	}
 
+	namespace Postprocessing {
+		namespace Antialias {
+			const std::string FXAA = "PostprocessingAntialiasFXAA";
+		}
+	}
+
 	namespace Texture {
 		const std::string Basic = "TextureBasic";
 	}
