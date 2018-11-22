@@ -40,7 +40,7 @@ int main() {
 	rotatingCamera.FarZ = 30.0f;
 	rotatingCamera.Width = WIDTH;
 	rotatingCamera.Height = HEIGHT;
-	scene.addObject(rotatingCamera, Size{ -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f });
+	scene.addObject(rotatingCamera, Size{ -1.0f, -1.0f, 0.0f, .5f, .5f, 0.0f });
 	{
 		SceneCameraConfig scConfig = scene.getCameraConfig(rotatingCamera);
 		scConfig.dLightVisible = true;
@@ -49,16 +49,30 @@ int main() {
 		scene.configureCamera(rotatingCamera, scConfig);
 	}
 	
+	
+	
+	Drawable cylinder, cube, sphere;
+	{
+		cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
+		cylinder.setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+		scene.addObject(cylinder);
+	}
+	{
+		//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.3f, 0.8f, 0.3f, 1.0f)));
+		cube.setModel(Model("C:/Users/Vincent/Documents/Projects/Blender/Example/vehicle2.fbx"));
+		cube.setPosition(glm::vec3(-1.0f, 1.0f, -1.0f));
+		cube.rotate(glm::radians(-90.0f), 0.0f, 0.0f);
+		scene.addObject(cube);
+	}
+	{
+		sphere.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
+		sphere.setPosition(glm::vec3(1.0f, 1.0f, 1.0f));
+		scene.addObject(sphere);
+	}
 
-	Drawable cube;
-	//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)));
-	//cube.setModel(primitives::generateSphere(10, 10, glm::vec4(1.0f, 0.0f, 0.0, 1.0f)));
-	cube.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
-	cube.setPositionCenter(glm::vec3(0.0f, 0.5f, 0.0f));
-	scene.addObject(cube);
 	Drawable ground;
-	ground.setModel(primitives::generateQuad(5.0f, 0.5f, 5.0f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f)));
-	ground.setPosition(glm::vec3(-2.5f, -0.5f, -2.5f));
+	ground.setModel(primitives::generateQuad(20.0f, 0.2f, 20.0f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f)));
+	ground.setPosition(glm::vec3(0, -0.1f, 0));
 	scene.addObject(ground);
 
 	
@@ -66,9 +80,20 @@ int main() {
 	sunLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
 	sunLight.change_direction(glm::vec3(1.0f, -1.0f, 1.0f));
-	sunLight.intensity = 1.0f;
+	sunLight.intensity = 0.2f;
 	sunLight.draw_shadow = true;
 	scene.addObject(sunLight);
+	
+
+	PointLight poleLight;
+	poleLight.setPosition(glm::vec3(2.0f, 2.0f, 0.0f));
+	poleLight.diffuse = glm::vec3(0.3f, 1.0f, 0.3f);
+	poleLight.specular = glm::vec3(0.3f, 1.0f, 0.3f);
+	poleLight.intensity = 0.5f;
+	poleLight.setModel(primitives::generateSphere(20, 20, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
+	poleLight.scale(0.3f, 0.3f, 0.3f);
+
+	scene.addObject(poleLight);
 	
 
 
@@ -76,7 +101,7 @@ int main() {
 	sf::Time deltaTime = clock.getElapsedTime();
 	float delta = 0.0f;
 	while (window.isOpen()) {
-		clearScreen(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+		clearScreen(glm::vec4(0.3f, 0.3f, 1.0f, 1.0f));
 		
 		sf::Event e;
 		while (window.pollEvent(e)) {
@@ -91,11 +116,18 @@ int main() {
 				camera.Height = size.y;
 			}
 		}
-
-		//rotate camera around scene
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
-		//rotatingCamera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
-		//rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+
+		
+		//rotate camera around scene		
+		rotatingCamera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
+		rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+		
+
+		cube.rotate(1.0f * millis, 0.0f, 0.0f);
+		float scale = abs(cos(millis));
+		cube.scale(scale, scale, scale);
+
 
 		sunLight.change_direction(glm::vec3(1.0f * cos(millis), -1.0f, 1.0f * sin(millis)));
 		

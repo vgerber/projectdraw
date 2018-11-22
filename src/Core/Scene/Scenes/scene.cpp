@@ -30,7 +30,7 @@ void Scene::draw(float delta)
 		sceneCamera.renderer->clearScreen();
 		sceneCamera.renderer->render();
 	}
-
+	
 	glBindBuffer(GL_FRAMEBUFFER, 0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glViewport(0, 0, width, height);
@@ -52,6 +52,7 @@ void Scene::draw(float delta)
 		}
 		sceneCamera.drawFrame(0);
 	}
+	
 	glEnable(GL_DEPTH_TEST);
 }
 

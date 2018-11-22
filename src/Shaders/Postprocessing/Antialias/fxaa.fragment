@@ -4,13 +4,14 @@
 
 out vec4 fragColor;
 
-in vec2 inUV;
+in vec2 TexCoords;
 
 uniform sampler2D screenTexture;
 uniform vec2 inverseScreenSize;
 
 float EDGE_THRESHOLD_MAX = 0.125;
 float EDGE_THRESHOLD_MIN = 0.0312;
+float SUBPIXEL_QUALITY = 0.75;
 int ITERATIONS = 12;
 
 float rgb2luma(vec3 rgb) {
@@ -34,14 +35,17 @@ float QUALITY(int i) {
 }
 
 
+
 void main() {
-    vec3 colorCenter = texture(screenTexture, inUV).rgb;
+
+    vec3 colorCenter = texture(screenTexture, TexCoords).rgb;
+	float alpha = texture(screenTexture, TexCoords).a;
     float lumaCenter = rgb2luma(colorCenter);
 
-    float lumaDown = rgb2luma(textureOffset(screenTexture, inUV, ivec(0, -1)).rgb);
-    float lumaUp = rgb2luma(textureOffset(screenTexture, inUV, ivec(0, 1)).rgb);
-    float lumaLeft = rgb2luma(textureOffset(screenTexture, inUV, ivec(-1, 0)).rgb);
-    float lumaRight = rgb2luma(textureOffset(screenTexture, inUV, ivec(1, 0)).rgb);
+    float lumaDown = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(0, -1)).rgb);
+    float lumaUp = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(0, 1)).rgb);
+    float lumaLeft = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(-1, 0)).rgb);
+    float lumaRight = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(1, 0)).rgb);
 
     float lumaMin = min(lumaCenter, min(min(lumaDown, lumaUp), min(lumaLeft, lumaRight)));
     float lumaMax = min(lumaCenter, max(max(lumaDown, lumaUp), max(lumaLeft, lumaRight)));
@@ -49,14 +53,14 @@ void main() {
     float lumaRange = lumaMax - lumaMin;
 
     if(lumaRange < max(EDGE_THRESHOLD_MIN, lumaMax * EDGE_THRESHOLD_MAX)) {
-        fragColor = colorCenter;
+        fragColor = vec4(colorCenter, alpha);
         return;
     }
 
-    float lumaDownLeft = rgb2luma(textureOffset(screenTexture, inUV, ivec(-1, -1)).rgb);
-    float lumaUpRight = rgb2luma(textureOffset(screenTexture, inUV, ivec(1, 1)).rgb);
-    float lumaUpLeft = rgb2luma(textureOffset(screenTexture, inUV, ivec(-1, 1)).rgb);
-    float lumaDownRight = rgb2luma(textureOffset(screenTexture, inUV, ivec(1, -1)).rgb);
+    float lumaDownLeft = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(-1, -1)).rgb);
+    float lumaUpRight = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(1, 1)).rgb);
+    float lumaUpLeft = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(-1, 1)).rgb);
+    float lumaDownRight = rgb2luma(textureOffset(screenTexture, TexCoords, ivec2(1, -1)).rgb);
 
     float lumaDownUp = lumaDown + lumaUp;
     float lumaLeftRight = lumaLeft + lumaRight;
@@ -99,7 +103,7 @@ void main() {
     }
 
     // Shift UV in the correct direction by half a pixel.
-    vec2 currentUv = In.uv;
+    vec2 currentUv = TexCoords;
     if(isHorizontal){
         currentUv.y += stepLength * 0.5;
     } else {
@@ -163,8 +167,8 @@ void main() {
     }
 
     // Compute the distances to each extremity of the edge.
-    float distance1 = isHorizontal ? (In.uv.x - uv1.x) : (In.uv.y - uv1.y);
-    float distance2 = isHorizontal ? (uv2.x - In.uv.x) : (uv2.y - In.uv.y);
+    float distance1 = isHorizontal ? (TexCoords.x - uv1.x) : (TexCoords.y - uv1.y);
+    float distance2 = isHorizontal ? (uv2.x - TexCoords.x) : (uv2.y - TexCoords.y);
 
     // In which direction is the extremity of the edge closer ?
     bool isDirection1 = distance1 < distance2;
@@ -202,7 +206,7 @@ void main() {
 
 
     // Compute the final UV coordinates.
-    vec2 finalUv = In.uv;
+    vec2 finalUv = TexCoords;
     if(isHorizontal){
         finalUv.y += finalOffset * stepLength;
     } else {
@@ -210,6 +214,6 @@ void main() {
     }
 
     // Read the color at the new UV coordinates, and use it.
-    vec3 finalColor = texture(screenTexture,finalUv).rgb;
+    vec4 finalColor = texture(screenTexture, finalUv).rgba;
     fragColor = finalColor;
 }

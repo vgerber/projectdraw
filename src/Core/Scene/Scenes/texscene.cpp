@@ -117,7 +117,7 @@ void TextureScene::setTexture(Texture *texture)
 	bool reloadSize = (texture->getWidth() != width || texture->getHeight() != height);
 
 	textureHolder.setModel(primitives::generateRectangle(texture->getWidth(), texture->getHeight(), glm::vec4(1.0f)));
-	textureHolder.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
+	textureHolder.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	if (reloadSize)
 	{
 		resize(screen_width, screen_height);

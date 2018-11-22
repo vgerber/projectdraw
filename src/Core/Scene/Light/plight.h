@@ -25,5 +25,5 @@ private:
 
 	std::vector<glm::mat4> shadowTransforms;
 	void setup();
-	void setup_shadow_cube();
+	void setupShadowCube();
 };

@@ -43,7 +43,7 @@ void main() {
 	vec3 viewDir = normalize(viewPos - FragPos);    
 	float UseLight = texture(gOption1, TexCoords).r;     
 	float Depth = texture(gOption1, TexCoords).g;	
-		
+
 	color = prevColor;
 	if(UseLight == 1.0) {				
 		vec3 result = vec3(0.0);
@@ -52,6 +52,7 @@ void main() {
 				result += CalcPointLight(pointLight[i], Normal, FragPos, viewDir, Color.rgb) * pointLight[i].intensity;
 			}
 		}
+
 		color += vec4(result.rgb, 1.0);
 	}
 }

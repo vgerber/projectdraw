@@ -44,7 +44,7 @@ void PointLight::endShadowMapping()
 void PointLight::setPosition(glm::vec3 position)
 {
 	Light::setPosition(position);
-	setup_shadow_cube();
+	setupShadowCube();
 }
 
 void PointLight::setup()
@@ -77,12 +77,12 @@ void PointLight::setup()
 	farPlane = 100.0f;
 	shadowProj = glm::perspective(glm::radians(90.0f), aspect, nearPlane, farPlane);
 
-	setup_shadow_cube();
+	setupShadowCube();
 
 	shaderShadow = ResourceManager::loadShader(ShaderName::Depth::PerspCube);
 }
 
-void PointLight::setup_shadow_cube()
+void PointLight::setupShadowCube()
 {
 	shadowTransforms.clear();
 	shadowTransforms.push_back(shadowProj * glm::lookAt(position, position + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));

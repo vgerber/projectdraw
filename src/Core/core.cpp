@@ -138,7 +138,7 @@ void loadDeferredShaders()
 
 void loadDepthShaders()
 {
-	printf("[Shader] load DEPTH shaders\n");
+	printf("\n[Shader] load DEPTH shaders\n");
 
 	Shader shader_perspective_depth;
 	shader_perspective_depth.layers = {
@@ -168,7 +168,7 @@ void loadDepthShaders()
 
 void loadTextureShaders()
 {
-	printf("[Shader] load TEXTURE shaders\n");
+	printf("\n[Shader] load TEXTURE shaders\n");
 
 	Shader shader_texture;
 	shader_texture.layers = {
@@ -180,7 +180,7 @@ void loadTextureShaders()
 }
 
 void loadPostprocessing() {
-	printf("[Shader] load POSTPROCESSING shaders\n");
+	printf("\n[Shader] load POSTPROCESSING shaders\n");
 	//Antialias
 	Shader shaderAntialiasFXAA;
 	shaderAntialiasFXAA.layers = {
@@ -190,7 +190,34 @@ void loadPostprocessing() {
 	shaderAntialiasFXAA.load();
 	ResourceManager::storeShader(ShaderName::Postprocessing::Antialias::FXAA, shaderAntialiasFXAA);
 
+	//HDR
+	Shader shaderHDRBasic;
+	shaderHDRBasic.layers = {
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/HDR/hdr.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderHDRBasic.load();
+	ResourceManager::storeShader(ShaderName::Postprocessing::HDR::Basic, shaderHDRBasic);
+
+	//Bloom
+	Shader shaderBloomBlur;
+	shaderBloomBlur.layers = {
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Bloom/blur.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderBloomBlur.load();
+	ResourceManager::storeShader(ShaderName::Postprocessing::Bloom::Blur, shaderBloomBlur);
+
+	Shader shaderBloomMerge;
+	shaderBloomMerge.layers = {
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Bloom/merge.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderBloomMerge.load();
+	ResourceManager::storeShader(ShaderName::Postprocessing::Bloom::Merge, shaderBloomMerge);
+
 }
+
 
 void clearScreen(glm::vec4 color) {
 	glClearColor(color.r, color.g, color.b, color.a);

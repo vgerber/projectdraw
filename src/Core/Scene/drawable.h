@@ -45,7 +45,6 @@ class Drawable : public SceneObject
 {
 public:
 	Drawable();
-	Drawable(GLchar* mmodel);
 	~Drawable();
 
 

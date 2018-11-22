@@ -46,6 +46,15 @@ namespace ShaderName {
 		namespace Antialias {
 			const std::string FXAA = "PostprocessingAntialiasFXAA";
 		}
+
+		namespace HDR {
+			const std::string Basic = "PosprocessingHDRBasic";
+		}
+
+		namespace Bloom {
+			const std::string Blur = "PostprocessingBloomBlur";
+			const std::string Merge = "PostprocessingBloomMerge";
+		}
 	}
 
 	namespace Texture {

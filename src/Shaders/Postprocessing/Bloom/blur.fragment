@@ -1,0 +1,22 @@
+#version 330 core
+
+out vec4 color;
+
+in vec2 TexCoords;
+
+uniform sampler2D glowTexture;
+uniform vec2 offset;
+
+void main() {
+    vec4 c = vec4(0);
+    c += 2.0 * texture(glowTexture, TexCoords - 4 * offset);
+    c += 3.0 * texture(glowTexture, TexCoords - 3 * offset);
+    c += 4.0 * texture(glowTexture, TexCoords - 2 * offset);
+    c += 5.0 * texture(glowTexture, TexCoords - offset);
+    c += 6.0 * texture(glowTexture, TexCoords);
+    c += 5.0 * texture(glowTexture, TexCoords + offset);
+    c += 4.0 * texture(glowTexture, TexCoords + 2 * offset);
+    c += 3.0 * texture(glowTexture, TexCoords + 3 * offset);
+    c += 2.0 * texture(glowTexture, TexCoords + 4 * offset);
+    color = c / 34.0;
+}

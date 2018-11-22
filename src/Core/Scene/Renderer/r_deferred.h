@@ -58,6 +58,12 @@ protected:
 	//util shader
 	Shader shaderNormals;
 
+	//post
+	Shader shaderFXAA;
+	Shader shaderHDR;
+	Shader shaderBloomBlur;
+	Shader shaderBloomMerge;
+
 
 	GLuint gBufferFBO = 0;
 	GLuint rboGDepth = 0;
@@ -65,11 +71,10 @@ protected:
     GLuint gBufferNormal = 0;
     GLuint gBufferAlbedo = 0;
     GLuint gBufferOption1 = 0;
-    GLuint gBloom = 0;
+    GLuint gBufferGlow = 0;
     GLuint gDepthStencil = 0;
 
 	GLuint bloomFBO = 0;
-	GLuint bloomTexture = 0;
 	
 
 	GLuint uboMatrices = 0;
@@ -79,6 +84,12 @@ protected:
 	GLuint screenRectVAO = 0;
 	GLuint screenRectTexture = 0;
 
+	   
+	GLuint tmpRenderTexture = 0;
+
+
+	static const int bloomSample = 4;
+	GLuint bloomTextures[bloomSample];
 
 
 	std::vector<Drawable*> objects;
@@ -95,9 +106,12 @@ protected:
 
 
 	virtual void renderObjects() override;
-	virtual void bloom();
 
 	virtual void renderLight() override;
+
+	virtual void applyAntialias();
+	virtual void applyBloom();
+	virtual void applyHDR();
 
 	void setup();
 

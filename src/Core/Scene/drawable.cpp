@@ -5,13 +5,6 @@ Drawable::Drawable()
 	setup();
 }
 
-Drawable::Drawable(GLchar* mmodel)
-{
-	objModel = Model(mmodel);
-	size = objModel.getSize();
-	setup();
-}
-
 Drawable::~Drawable()
 {
 }

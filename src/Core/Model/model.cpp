@@ -8,7 +8,7 @@ Model::Model()
 
 Model::Model(GLchar * path)
 {
-	load_model(path);
+	loadModel(path);
 }
 
 Model::Model(std::vector<BasicMesh> meshes, std::vector<sTexture> textures)
@@ -72,16 +72,21 @@ Size Model::getSize()
 			}
 		}
 	}
+	//set center to 0
 	size.width  -= size.x;
 	size.height -= size.y;
 	size.depth  -= size.z;
+	size.x = -0.5f * size.width  - size.x;
+	size.y = -0.5f * size.height - size.y;
+	size.z = -0.5f * size.depth  - size.z;
 	glm::vec3 offset(size.x, size.y, size.z);
 	for (size_t i = 0; i < meshes.size(); i++) {
-		meshes[i].add_offset(-offset);
+		meshes[i].add_offset(offset);
 	}
 	size.x = 0.0f;
 	size.y = 0.0f;
 	size.z = 0.0f;
+	
 	return size;
 }
 
@@ -118,7 +123,7 @@ void Model::dispose() {
 	this->meshes.clear();
 }
 
-void Model::load_model(std::string path)
+void Model::loadModel(std::string path)
 {
 	Assimp::Importer importer;
 
@@ -131,17 +136,17 @@ void Model::load_model(std::string path)
 
 	this->directory = path.substr(0, path.find_last_of('/'));
 	
-	this->process_node(scene->mRootNode, scene);
+	this->processNode(scene->mRootNode, scene);
 }
 
-void Model::process_node(aiNode * node, const aiScene * scene)
+void Model::processNode(aiNode * node, const aiScene * scene)
 {
 	for (GLuint i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		this->meshes.push_back(this->process_mesh(mesh, scene));
 	}
 	for (GLuint i = 0; i < node->mNumChildren; i++) {
-		this->process_node(node->mChildren[i], scene);
+		this->processNode(node->mChildren[i], scene);
 	}
 }
 

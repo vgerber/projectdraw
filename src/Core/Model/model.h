@@ -30,8 +30,8 @@ private:
 	std::vector<BasicMesh> meshes;
 	std::string directory;
 
-	void load_model(std::string path);
-	void process_node(aiNode* node, const aiScene* scene);
+	void loadModel(std::string path);
+	void processNode(aiNode* node, const aiScene* scene);
 	BasicMesh process_mesh(aiMesh* mesh, const aiScene* scene);
 	std::vector<sTexture> load_material_textures(aiMaterial* mat, aiTextureType type, std::string typeName);
 

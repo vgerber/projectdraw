@@ -16,11 +16,6 @@ void Moveable::setPosition(glm::vec3 position)
 	translate(position - this->position);
 }
 
-void Moveable::setPositionCenter(glm::vec3 position)
-{
-	setPosition(position - glm::vec3(size.width, size.height, size.depth) * glm::vec3(0.5f, 0.5f, 0.5f) * vscale);
-}
-
 
 void Moveable::rotate(float x, float y, float z)
 {
@@ -161,12 +156,17 @@ glm::vec3 Moveable::getRotation()
 void Moveable::updateModel()
 {
 	mmodel = glm::mat4(1.0f);
-
+	/*
 	glm::vec3 center_translation = glm::vec3(
 		vcenter.x * size.width * vscale.x,
 		vcenter.y * size.height * vscale.y,
 		vcenter.z * size.depth * vscale.z);
-
+	*/
+	glm::vec3 center_translation = glm::vec3(
+		size.x,
+		size.y,
+		size.z
+	);
 
 	glm::quat rot_quat = glm::quat(vrotation);
 	glm::mat4 rotation = glm::toMat4(rot_quat);

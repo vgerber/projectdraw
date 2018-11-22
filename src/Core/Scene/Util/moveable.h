@@ -16,7 +16,6 @@ public:
 
 	virtual void setCenter(glm::vec3 center);
 	virtual void setPosition(glm::vec3 position);
-	virtual void setPositionCenter(glm::vec3 position);
 	virtual void rotate(float x, float y, float z);
 	virtual void rotate(glm::vec3 vrotation);
 	virtual void translate(float x, float y, float z);

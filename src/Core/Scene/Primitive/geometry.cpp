@@ -33,7 +33,7 @@ void Geometry::draw()
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Point), (GLvoid*)0); 
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Point), (GLvoid*)offsetof(Point, color));
-		size = points.size();
+		size = (int)points.size();
 	}
 	if (points.size() > 0) {
 		if (settings.drawType == DrawType::LINEG) {
