@@ -20,7 +20,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
 	float distance = length(surfaceToLight);
 
 	float attenuation = 0.0;
-	if(distance <= light.radius) {
+	if(true || distance <= light.radius) {
 		attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
 	}
 

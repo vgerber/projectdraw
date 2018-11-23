@@ -13,6 +13,8 @@ struct PointLight {
 	float linear;
 	float quadratic;
 
+	float radius;
+
 	float far_plane;
 	samplerCube shadowCubeMap;
 };
@@ -44,7 +46,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
 	specular *= attenuation;
 
 	float shadow = 0.0;
-	if(light.drawShadow) {
+	if(light.drawShadow && distance < radius) {
 		shadow = ShadowPointCalculation(light, fragPos);
 	}
     return (ambient + (1.0 - shadow) * (diffuse + specular));

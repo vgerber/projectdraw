@@ -3,8 +3,8 @@
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
 
-const int WIDTH = 800;
-const int HEIGHT = 800;
+const int WIDTH = 400;
+const int HEIGHT = 400;
 
 int main() {
 
@@ -40,14 +40,14 @@ int main() {
 	rotatingCamera.FarZ = 30.0f;
 	rotatingCamera.Width = WIDTH;
 	rotatingCamera.Height = HEIGHT;
-	scene.addObject(rotatingCamera, Size{ -1.0f, -1.0f, 0.0f, .5f, .5f, 0.0f });
+	/*scene.addObject(rotatingCamera, Size{ -1.0f, -1.0f, 0.0f, .5f, .5f, 0.0f });
 	{
 		SceneCameraConfig scConfig = scene.getCameraConfig(rotatingCamera);
 		scConfig.dLightVisible = true;
 		scConfig.pLightVisible = false;
 		scConfig.sLightVisible = false;
 		scene.configureCamera(rotatingCamera, scConfig);
-	}
+	}*/
 	
 	
 	
@@ -87,13 +87,24 @@ int main() {
 
 	PointLight poleLight;
 	poleLight.setPosition(glm::vec3(2.0f, 2.0f, 0.0f));
-	poleLight.diffuse = glm::vec3(0.3f, 1.0f, 0.3f);
+	poleLight.diffuse = glm::vec3(0.3f, 0.3f, 1.0f);
 	poleLight.specular = glm::vec3(0.3f, 1.0f, 0.3f);
 	poleLight.intensity = 0.5f;
-	poleLight.setModel(primitives::generateSphere(20, 20, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
-	poleLight.scale(0.3f, 0.3f, 0.3f);
+	poleLight.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
 
 	scene.addObject(poleLight);
+	
+
+	SpotLight flashLight;
+	flashLight.attenuationLinear = 1.0;
+	flashLight.attenuationQuadratic = 0.1;
+	flashLight.cutOff = glm::radians(10.0f);
+	flashLight.outerCutOff = glm::radians(20.0f);
+	flashLight.diffuse = glm::vec3(0.8, 0.8, 0.2);
+	flashLight.setPosition(glm::vec3(0.0, 10.0, 0.0));
+	flashLight.direction = glm::vec3(0.0, -1.0, 0.0);
+	flashLight.intensity = 1.0;
+	scene.addObject(flashLight);
 	
 
 

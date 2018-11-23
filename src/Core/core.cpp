@@ -105,6 +105,24 @@ void loadDeferredShaders()
 	shader_deferred.load();
 	ResourceManager::storeShader(ShaderName::Deferred::Pipeline::Shadow::D, shader_deferred);
 
+	Shader shaderDeferredPShadow;
+	shader_deferred.layers = {
+		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/Shadow/dlight_pass.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Deferred/Light/Shadow/plight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
+	};
+	shaderDeferredPShadow.load();
+	ResourceManager::storeShader(ShaderName::Deferred::Pipeline::Shadow::P, shaderDeferredPShadow);
+
+	Shader shaderDeferredSShadow;
+	shaderDeferredSShadow.layers = {
+		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/Shadow/dlight_pass.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Deferred/Light/Shadow/slight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
+	};
+	shaderDeferredSShadow.load();
+	ResourceManager::storeShader(ShaderName::Deferred::Pipeline::Shadow::S, shaderDeferredSShadow);
+
 
 
 	//No Shadow

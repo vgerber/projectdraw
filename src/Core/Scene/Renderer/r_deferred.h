@@ -90,6 +90,7 @@ protected:
 
 	static const int bloomSample = 4;
 	GLuint bloomTextures[bloomSample];
+	GLuint tmpbloomTextures[bloomSample];
 
 
 	std::vector<Drawable*> objects;

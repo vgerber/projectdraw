@@ -17,8 +17,8 @@ void main() {
     vec4 g4 = texture(glow4, TexCoords);
     vec4 g8 = texture(glow8, TexCoords);
 
-    color = g1;
-    return;
+    //color = g1;
+    //return;
 
-    //color = vec4(clamp(vec3(screenColor + g1 + g2 + g4 + g8), 0.0, 1.0), screenColor.a);
+    color = vec4(clamp(vec3(screenColor + g1 + g2 + g4 + g8), 0.0, 1.0), screenColor.a);
 }

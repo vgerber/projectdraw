@@ -28,9 +28,9 @@ void DeferredRenderer::render()
 
 	applyBloom();
 
-	//applyAntialias();
+	applyAntialias();
 
-	//applyHDR();
+	applyHDR();
 }
 
 void DeferredRenderer::addSceneObject(SceneObject & sceneObject)
@@ -207,6 +207,12 @@ void DeferredRenderer::resize(int width, int height) {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTextures[i], 0);
+
+			glBindTexture(GL_TEXTURE_2D, tmpbloomTextures[i]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, getWidth() / pow(2, i), getHeight() / pow(2, i), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
 		GLuint attachments[1] = { GL_COLOR_ATTACHMENT0 };
@@ -589,8 +595,7 @@ void DeferredRenderer::applyBloom()
 
 
 	for (int i = 0; i < bloomSample; i++) {
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTextures[i], 0);
 
 		//draw glowBuffer to bloom images
 		shaderTexture.use();
@@ -603,33 +608,33 @@ void DeferredRenderer::applyBloom()
 
 		glViewport(0, 0, tmpWidth, tmpHeight);
 
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTextures[i], 0);
+
 		glBindVertexArray(screenRectVAO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
 
-		glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, tmpWidth, tmpHeight);
+		glCopyTextureSubImage2D(tmpbloomTextures[i], 0, 0, 0, 0, 0, tmpWidth, tmpHeight);
 
-		/*
+		
 		//blur glow image
 		shaderBloomBlur.use();
 
 		glUniform1i(glGetUniformLocation(shaderBloomBlur.getId(), "glowTexture"), 0);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
-
-		glUniform2f(offsetLocation, 1.2 / getWidth(), 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTextures[i], 0);
-		glBindVertexArray(screenRectVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, tmpbloomTextures[i]);
 
 		glUniform2f(offsetLocation, 0, 1.2 / getHeight());
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTextures[i], 0);
 		glBindVertexArray(screenRectVAO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
-		*/
+		glCopyTextureSubImage2D(tmpbloomTextures[i], 0, 0, 0, 0, 0, tmpWidth, tmpHeight);
+
+		glUniform2f(offsetLocation, 1.2 / getWidth(), 0);
+		glBindVertexArray(screenRectVAO);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindVertexArray(0);
+
+
 	}
 	
 	
@@ -744,6 +749,7 @@ void DeferredRenderer::setup() {
 
 	for (int i = 0; i < bloomSample; i++) {
 		glGenTextures(1, &bloomTextures[i]);
+		glGenTextures(1, &tmpbloomTextures[i]);
 	}
 
 
