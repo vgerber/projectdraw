@@ -367,6 +367,10 @@ void DeferredRenderer::renderLight()
 		2. Point
 		3. Spot
 		4. All off (=Albedo)	
+
+
+		tmpRenderTexture is a full scene size buffer for tmp save of current screen pixels (e.g. += pixel operations which will otherwise fail)
+		this texture has to be prefilled or filled (black) or with light renderering (p and s light will need them)
 	*/
 
 
@@ -402,41 +406,63 @@ void DeferredRenderer::renderLight()
 		}
 	}
 	
-	//Point Light Shader is deactivated
-	/*
-	if (point_lights.size() > 0)
+	//Point Light Shadow
+	
+	if (pointLights.size() > 0)
 	{
-		Shader shader_depth_cube = Shaders[SHADER_DEPTH_CUBE];
-		for (auto plight : point_lights)
+		for (auto plight : pointLights)
 		{
-			plight->begin_shadow_mapping();
-			for (auto drawable : objects)
-			{
-				glUniformMatrix4fv(glGetUniformLocation(shader_depth_cube.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
-				drawable->draw(shader_depth_cube);
+			if (plight->draw_shadow) {
+				plight->beginShadowMapping();
+				for (auto drawable : objects)
+				{
+					glUniformMatrix4fv(glGetUniformLocation(plight->getShaderShadow().getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
+					Shader tmpShader = drawable->getShader().first;
+					drawable->setShader(plight->getShaderShadow(), *this);
+					drawable->draw();
+					drawable->setShader(tmpShader, *this);
+				}
+				plight->endShadowMapping();
 			}
-			plight->end_shadow_mapping();
 		}
 	}
-	*/
+
+	//SpotLight Shadow
+	if (spotLights.size() > 0) {
+		for (auto slight : spotLights) {
+			if (slight->draw_shadow) {
+				slight->beginShadowMapping();
+				for (auto drawable : objects)
+				{
+					glUniformMatrix4fv(glGetUniformLocation(slight->getShaderShadow().getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
+					Shader tmpShader = drawable->getShader().first;
+					drawable->setShader(slight->getShaderShadow(), *this);
+					drawable->draw();
+					drawable->setShader(tmpShader, *this);
+				}
+				slight->endShadowMapping();
+			}
+		}
+	}
+
+
 	glm::vec3 viewPos = camera->getPosition();
 
+	
 
 	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
 	glViewport(0, 0, getWidth(), getHeight());
 	
 	if (directionalLight)
 	{
+		shaderDLightShadow.use();
 
+		glUniform3f(glGetUniformLocation(shaderDLightShadow.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
-		shaderDLight.use();
-
-		glUniform3f(glGetUniformLocation(shaderDLight.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
-
-		glUniform1i(glGetUniformLocation(shaderDLight.getId(), "gPosition"), 0);
-		glUniform1i(glGetUniformLocation(shaderDLight.getId(), "gNormal"), 1);
-		glUniform1i(glGetUniformLocation(shaderDLight.getId(), "gAlbedo"), 2);
-		glUniform1i(glGetUniformLocation(shaderDLight.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), "gPosition"), 0);
+		glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), "gNormal"), 1);
+		glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), "gAlbedo"), 2);
+		glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), "gOption1"), 3);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
@@ -447,11 +473,11 @@ void DeferredRenderer::renderLight()
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
 
-		directionalLight->apply(shaderDLight, "dirLight");
+		directionalLight->apply(shaderDLightShadow, "dirLight");
 		
 		for (int i = 0; i < directionalLight->getCSMSlices(); i++)
 		{
-			glUniform1i(glGetUniformLocation(shaderDLight.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 5 + i);
+			glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 5 + i);
 			glActiveTexture(GL_TEXTURE5 + i);
 			glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
 		}
@@ -464,20 +490,23 @@ void DeferredRenderer::renderLight()
 
 		glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
 	}
+	else {
+		glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
+	}
 	
 	/*
 	Point Light
 	*/
 	if (pointLights.size() > 0)
 	{
-		shaderPLight.use();
-		glUniform3f(glGetUniformLocation(shaderPLight.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+		shaderPLightShadow.use();
+		glUniform3f(glGetUniformLocation(shaderPLightShadow.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
-		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gPosition"), 0);
-		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gNormal"), 1);
-		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gAlbedo"), 2);
-		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gOption1"), 3);
-		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "prevTexture"), 4);
+		glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), "gPosition"), 0);
+		glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), "gNormal"), 1);
+		glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), "gAlbedo"), 2);
+		glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), "prevTexture"), 4);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
@@ -495,10 +524,15 @@ void DeferredRenderer::renderLight()
 		///
 
 		GLint plight_count = 0;
-		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "pointLights"), pointLights.size());
+		glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), "pointLights"), pointLights.size());
 		for (auto plight : pointLights)
 		{
-			plight->apply(shaderPLight, "pointLight[" + std::to_string(plight_count) + "]");
+			plight->apply(shaderPLightShadow, "pointLight[" + std::to_string(plight_count) + "]");
+			std::string shadowLoc = ("pointLight[" + std::to_string(plight_count) + "].shadowCubeMap");
+			glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), shadowLoc.c_str()), 5);
+			
+			glActiveTexture(GL_TEXTURE5);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, plight->getShadowCubeMap());
 			plight_count++;
 		}
 
@@ -508,18 +542,23 @@ void DeferredRenderer::renderLight()
 
 		glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
 	}
+	else {
+		if (!directionalLight) {
+			glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
+		}
+	}
 
 	//begin spot light rendering
 	if (spotLights.size() > 0)
 	{
-		shaderSLight.use();
-		glUniform3f(glGetUniformLocation(shaderSLight.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+		shaderSLightShadow.use();
+		glUniform3f(glGetUniformLocation(shaderSLightShadow.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
-		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gPosition"), 0);
-		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gNormal"), 1);
-		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gAlbedo"), 2);
-		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gOption1"), 3);
-		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "prevTexture"), 4);
+		glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), "gPosition"), 0);
+		glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), "gNormal"), 1);
+		glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), "gAlbedo"), 2);
+		glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), "prevTexture"), 4);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
@@ -533,10 +572,16 @@ void DeferredRenderer::renderLight()
 		glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
 
 		GLuint slightCount = 0;
-		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "spotLights"), spotLights.size());
+		glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), "spotLights"), spotLights.size());
 		for (auto sLight : spotLights)
 		{
-			sLight->apply(shaderSLight, "spotLight[" + std::to_string(slightCount) + "]");
+			sLight->apply(shaderSLightShadow, "spotLight[" + std::to_string(slightCount) + "]");
+
+			std::string shadowLoc = ("spotLight[" + std::to_string(slightCount) + "].shadowMap");
+			glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), shadowLoc.c_str()), 5 +slightCount);
+			glActiveTexture(GL_TEXTURE5 + slightCount);
+			glBindTexture(GL_TEXTURE_2D, sLight->getShadowMap());
+			slightCount++;
 		}
 
 		//merge sportlight scene + old scene
@@ -781,9 +826,11 @@ void DeferredRenderer::setup() {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
 	glBindVertexArray(0);
 
-	shaderDLight = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Shadow::D);
+	shaderDLightShadow = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Shadow::D);
 	shaderPLight = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::P);
+	shaderPLightShadow = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Shadow::P);
 	shaderSLight = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::S);
+	shaderSLightShadow = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Shadow::S);
 	shaderTexture = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Texture::ScreenTexture);
 
 	shaderBasic = ResourceManager::loadShader(ShaderName::Deferred::Mesh::Basic);

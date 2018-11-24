@@ -6,7 +6,7 @@ in vec2 TexCoords;
 
 uniform sampler2D glowTexture;
 uniform vec2 offset;
-uniform int blurSteps = 2;
+uniform int blurSteps = 10;
 
 void main() {
     vec4 c = vec4(0);

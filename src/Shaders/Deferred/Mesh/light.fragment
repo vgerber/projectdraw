@@ -13,11 +13,13 @@ in VS_OUT {
 } fs_in;
 
 uniform vec3 lightColor;
+uniform float intensity;
 
 void main() {
 	Albedo = fs_in.Color;
+	
 	Normal = vec4(fs_in.Normal, 1.0);
 	Position = vec4(fs_in.FragPos, 1.0);
-	Option1 = vec4(vec3(0.0), 1.0);
-	Glow = fs_in.Color;
+	Option1 = vec4(0.0, 0.0, 0.0, 1.0);
+	Glow = vec4(fs_in.Color.rgb, 1.0) * intensity;
 }

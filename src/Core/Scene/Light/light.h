@@ -24,6 +24,8 @@ public:
 
 	Light();
 
+	virtual void draw() override;
+
 	void updateModel();
 
 	void apply(Shader shader, std::string target);

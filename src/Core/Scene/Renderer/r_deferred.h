@@ -44,8 +44,11 @@ protected:
 
 	//light shaders
 	Shader shaderDLight;
+	Shader shaderDLightShadow;
 	Shader shaderPLight;
+	Shader shaderPLightShadow;
 	Shader shaderSLight; 
+	Shader shaderSLightShadow; 
 	Shader shaderTexture;
 	
 	//object drawing shader

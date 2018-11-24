@@ -24,8 +24,6 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
 		attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
 	}
 
-
-
   	
     // Diffuse 
     vec3 lightDir = normalize(light.position - fragPos);

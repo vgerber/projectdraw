@@ -34,7 +34,7 @@ void Shader::load()
 			shader_stream.close();
 		}
 		else {
-			printf("Impossible to open %s. Are you in the right directory ?\n", layer.path);
+			printf("Impossible to open %s. Are you in the right directory ?\n", layer.path.c_str());
 			getchar();
 			return;
 		}

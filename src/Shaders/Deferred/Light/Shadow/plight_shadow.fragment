@@ -14,8 +14,6 @@ struct PointLight {
 	float quadratic;
 
 	float radius;
-
-	float far_plane;
 	samplerCube shadowCubeMap;
 };
 
@@ -24,8 +22,12 @@ float ShadowPointCalculation(PointLight light, vec3 fragPos);
 
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color) {
-	float distance = length(light.position - fragPos);
-	float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * distance);
+	vec3 surfaceToLight = light.position - fragPos;
+	float distance = length(surfaceToLight);
+
+	float attenuation = 0.0;
+	attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
+
   	
     // Diffuse 
     vec3 lightDir = normalize(light.position - fragPos);
@@ -34,7 +36,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     // Specular
     vec3 reflectDir = reflect(-lightDir, normal);  
 	vec3 halfWayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfWayDir), 0.0), 2.0f);
+    float spec = pow(max(dot(normal, halfWayDir), 0.0), 256.0f);
     
 
 	vec3 ambient = light.ambient * color.rgb;
@@ -43,10 +45,10 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
 
 	ambient *= attenuation;
 	diffuse *= attenuation;
-	specular *= attenuation;
+	specular *= attenuation;	
 
 	float shadow = 0.0;
-	if(light.drawShadow && distance < radius) {
+	if(light.drawShadow) {
 		shadow = ShadowPointCalculation(light, fragPos);
 	}
     return (ambient + (1.0 - shadow) * (diffuse + specular));
@@ -55,10 +57,10 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
 float ShadowPointCalculation(PointLight light, vec3 fragPos) {
 	vec3 fragToLight = fragPos - light.position;
 	float closestDepth = texture(light.shadowCubeMap, fragToLight).r;
-	closestDepth *= light.far_plane;
+	closestDepth *= light.radius;
 	float currentDepth = length(fragToLight);
 	float shadow  = 0.0;
-	float bias    = 0.00001; 
+	float bias    = 0.05; 
 	float samples = 4.0;
 	float offset  = 0.01;
 	for(float x = -offset; x < offset; x += offset / (samples * 0.5))
@@ -68,7 +70,7 @@ float ShadowPointCalculation(PointLight light, vec3 fragPos) {
 			for(float z = -offset; z < offset; z += offset / (samples * 0.5))
 			{
 				float closestDepth = texture(light.shadowCubeMap, fragToLight + vec3(x, y, z)).r; 
-				closestDepth *= light.far_plane;   // Undo mapping [0;1]
+				closestDepth *= light.radius;   // Undo mapping [0;1]
 				if(currentDepth - bias > closestDepth)
 					shadow += 1.0;
 			}

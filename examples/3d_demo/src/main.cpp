@@ -87,11 +87,12 @@ int main() {
 
 	PointLight poleLight;
 	poleLight.setPosition(glm::vec3(2.0f, 2.0f, 0.0f));
-	poleLight.diffuse = glm::vec3(0.3f, 0.3f, 1.0f);
-	poleLight.specular = glm::vec3(0.3f, 1.0f, 0.3f);
-	poleLight.intensity = 0.5f;
+	poleLight.radius = 6.0;
+	poleLight.diffuse = glm::vec3(1.0f, 0.7f, 0.0f);
+	poleLight.specular = glm::vec3(0.3f, 0.3f, 1.0f);
+	poleLight.intensity = 1.0f;
 	poleLight.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
-
+	poleLight.draw_shadow = true;
 	scene.addObject(poleLight);
 	
 
@@ -104,6 +105,7 @@ int main() {
 	flashLight.setPosition(glm::vec3(0.0, 10.0, 0.0));
 	flashLight.direction = glm::vec3(0.0, -1.0, 0.0);
 	flashLight.intensity = 1.0;
+	flashLight.draw_shadow = true;
 	scene.addObject(flashLight);
 	
 
@@ -134,6 +136,8 @@ int main() {
 		rotatingCamera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
 		rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 		
+		flashLight.direction = glm::vec3(glm::vec3(0.2f * cos(millis), -1.0f, 0.2f * sin(millis)));
+		poleLight.intensity = sin(millis * 2) * 0.5 + 1.0;
 
 		cube.rotate(1.0f * millis, 0.0f, 0.0f);
 		float scale = abs(cos(millis));

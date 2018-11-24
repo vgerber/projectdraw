@@ -15,7 +15,7 @@ public:
 	SpotLight();
 
 	void beginShadowMapping();
-	void endShadadowMapping();
+	void endShadowMapping();
 
 	GLuint getShadowMap();
 

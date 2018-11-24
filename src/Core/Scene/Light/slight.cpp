@@ -12,6 +12,7 @@ void SpotLight::beginShadowMapping()
 
 	shaderShadow.use();
 
+	glEnable(GL_DEPTH_TEST);
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMap.depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -26,7 +27,7 @@ void SpotLight::beginShadowMapping()
 		glm::value_ptr(depthMap.lightSpaceMatrix));
 }
 
-void SpotLight::endShadadowMapping()
+void SpotLight::endShadowMapping()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
