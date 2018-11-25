@@ -16,7 +16,7 @@ public:
 class Light : public Drawable
 {
 public:
-	bool draw_shadow = false;
+	bool shadow = false;
 	GLfloat intensity = 1.0f;
 	glm::vec3 ambient = glm::vec3(0.1f, 0.1f, 0.1f);
 	glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f);

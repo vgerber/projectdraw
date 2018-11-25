@@ -19,7 +19,7 @@ void Light::updateModel()
 
 void Light::apply(Shader shader, std::string target)
 {
-	glUniform1i(glGetUniformLocation(shader.getId(), (target + ".drawShadow").c_str()), draw_shadow);
+	glUniform1i(glGetUniformLocation(shader.getId(), (target + ".drawShadow").c_str()), shadow);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".intensity").c_str()), intensity);
 	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".ambient").c_str()), ambient.r, ambient.g, ambient.b);
 	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".diffuse").c_str()), diffuse.r, diffuse.g, diffuse.b);

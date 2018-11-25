@@ -381,7 +381,7 @@ void DeferredRenderer::renderLight()
 	
 	
 
-	if (directionalLight && directionalLight->draw_shadow)
+	if (directionalLight && directionalLight->shadow)
 	{
 		//set viewfrustum for directional light (for cascaded shadow mapping)
 		directionalLight->setViewFrustum(camera->getViewFrustum(directionalLight->getCSMSlices()));
@@ -425,9 +425,13 @@ void DeferredRenderer::renderLight()
 			//reduce depth cubemap generation to actual shadow maximum
 			if(pointLightShadowCount == PointLightShadows) {
 				break;
+			}	
+			//avoid shadow mapping for non visible lights
+			if (plight->intensity == 0.0) {
+				continue;
 			}
 
-			if (plight->draw_shadow) {				
+			if (plight->shadow) {				
 				plight->beginShadowMapping();
 				for (auto drawable : objects)
 				{
@@ -461,7 +465,12 @@ void DeferredRenderer::renderLight()
 				break;
 			}
 
-			if (slight->draw_shadow) {
+			//avoid shadow mapping for non visible lights
+			/*if (slight->intensity = 0.0) {
+				continue;
+			}*/
+
+			if (slight->shadow) {
 				slight->beginShadowMapping();
 				for (auto drawable : objects)
 				{

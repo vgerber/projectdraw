@@ -22,17 +22,24 @@ struct SortPointLights {
 		float p1Value = 0.0;
 		float p2Value = 0.0;
 
-/*
-		if(p1->draw_shadow && p1->intensity < p2->intensity) {
+
+		if(p1->shadow && p2->shadow) {
 			p1Value = glm::distance2(cameraPosition, p1->getPosition());
 			p2Value = glm::distance2(cameraPosition, p2->getPosition());
 			if(p1Value < p2Value) {
+				p1Value = p1->intensity;
+				p2Value = p2->intensity;
+				if (p1Value > p2Value) {
+					return true;
+				}
+			}
+		}
+		else {
+			if (p1->shadow && !p2->shadow) {
 				return true;
 			}
 		}
 		return false;
-*/
-		return (p1->draw_shadow && !p2->draw_shadow);
 	}
 };
 
@@ -56,7 +63,7 @@ struct SortSpotLights {
 		return false;
 		*/
 
-		if(s1->draw_shadow && !s2->draw_shadow) {
+		if(s1->shadow && !s2->shadow) {
 			return true;
 		} 
 		return false;
