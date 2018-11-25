@@ -54,7 +54,7 @@ int main() {
 	Drawable cylinder, cube, sphere;
 	{
 		cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
-		cylinder.setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+		cylinder.setPosition(glm::vec3(-1.0f, 2.0f, 0.0f));
 		scene.addObject(cylinder);
 	}
 	{
@@ -80,20 +80,30 @@ int main() {
 	sunLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
 	sunLight.change_direction(glm::vec3(1.0f, -1.0f, 1.0f));
-	sunLight.intensity = 0.2f;
-	sunLight.draw_shadow = true;
+	sunLight.intensity = 0.0f;
+	sunLight.draw_shadow = false;
 	scene.addObject(sunLight);
 	
 
 	PointLight poleLight;
 	poleLight.setPosition(glm::vec3(2.0f, 2.0f, 0.0f));
-	poleLight.radius = 6.0;
-	poleLight.diffuse = glm::vec3(1.0f, 0.7f, 0.0f);
-	poleLight.specular = glm::vec3(0.3f, 0.3f, 1.0f);
+	poleLight.setDistance(20.0);
+	poleLight.diffuse = glm::vec3(0.01f, 0.01f, 1.0f);
+	poleLight.specular = glm::vec3(0.1f, 0.1f, 1.0f);
 	poleLight.intensity = 1.0f;
 	poleLight.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
 	poleLight.draw_shadow = true;
 	scene.addObject(poleLight);
+
+	PointLight poleLight2;
+	poleLight2.setPosition(glm::vec3(-2.0f, 2.0f, 0.0f));
+	poleLight2.setDistance(20.0);
+	poleLight2.diffuse = glm::vec3(0.01f, 0.01f, 1.0f);
+	poleLight2.specular = glm::vec3(0.1f, 0.1f, 1.0f);
+	poleLight2.intensity = 1.0f;
+	poleLight2.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
+	poleLight2.draw_shadow = true;
+	scene.addObject(poleLight2);
 	
 
 	SpotLight flashLight;
@@ -102,11 +112,25 @@ int main() {
 	flashLight.cutOff = glm::radians(10.0f);
 	flashLight.outerCutOff = glm::radians(20.0f);
 	flashLight.diffuse = glm::vec3(0.8, 0.8, 0.2);
+	flashLight.specular = flashLight.diffuse;
 	flashLight.setPosition(glm::vec3(0.0, 10.0, 0.0));
 	flashLight.direction = glm::vec3(0.0, -1.0, 0.0);
-	flashLight.intensity = 1.0;
+	flashLight.intensity = 0.1;
 	flashLight.draw_shadow = true;
 	scene.addObject(flashLight);
+
+	SpotLight flashLight2;
+	flashLight2.attenuationLinear = 1.0;
+	flashLight2.attenuationQuadratic = 0.1;
+	flashLight2.cutOff = glm::radians(10.0f);
+	flashLight2.outerCutOff = glm::radians(20.0f);
+	flashLight2.diffuse = glm::vec3(0.8, 0.8, 0.2);
+	flashLight2.specular = flashLight2.diffuse;
+	flashLight2.setPosition(glm::vec3(-3.0, 3.0, 2.0));
+	flashLight2.direction = glm::normalize(-flashLight2.getPosition());
+	flashLight2.intensity = 0.1;
+	flashLight2.draw_shadow = true;
+	scene.addObject(flashLight2);
 	
 
 
@@ -137,7 +161,9 @@ int main() {
 		rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 		
 		flashLight.direction = glm::vec3(glm::vec3(0.2f * cos(millis), -1.0f, 0.2f * sin(millis)));
-		poleLight.intensity = sin(millis * 2) * 0.5 + 1.0;
+		
+		poleLight.intensity = sin(millis * 10) * 0.5 + 1.0;
+		poleLight2.intensity = sin(millis * 10 + 1.6) * 0.5 + 1.0;
 
 		cube.rotate(1.0f * millis, 0.0f, 0.0f);
 		float scale = abs(cos(millis));

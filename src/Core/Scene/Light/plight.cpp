@@ -11,7 +11,7 @@ void PointLight::apply(Shader shader, std::string target)
 	//glm::vec4 Mpos = mmodel * glm::vec4(size.width * 0.5f, size.height * 0.5f, size.depth * 0.5f, 1.0f);
 	glm::vec3 pos = getPosition();
 	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".position").c_str()), pos.x, pos.y, pos.z);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".radius").c_str()), radius);
+	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".radius").c_str()), distance);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".constant").c_str()), attenuationConstant);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".linear").c_str()), attenuationLinear);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".quadratic").c_str()), attenuationQuadratic);
@@ -32,7 +32,7 @@ void PointLight::beginShadowMapping()
 	glUniformMatrix4fv(glGetUniformLocation(shaderShadow.getId(), "shadowMatrices[3]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[3]));
 	glUniformMatrix4fv(glGetUniformLocation(shaderShadow.getId(), "shadowMatrices[4]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[4]));
 	glUniformMatrix4fv(glGetUniformLocation(shaderShadow.getId(), "shadowMatrices[5]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[5]));
-	glUniform1f(glGetUniformLocation(shaderShadow.getId(), "far_plane"), radius);
+	glUniform1f(glGetUniformLocation(shaderShadow.getId(), "far_plane"), distance);
 	glUniform3f(glGetUniformLocation(shaderShadow.getId(), "lightPos"), position.x, position.y, position.z);
 }
 
@@ -46,6 +46,18 @@ void PointLight::setPosition(glm::vec3 position)
 {
 	Light::setPosition(position);
 	setupShadowCube();
+}
+
+void PointLight::setDistance(float distance) {
+	this->distance = distance;
+	aspect = (GLfloat)SHADOW_C_WIDTH / (GLfloat)SHADOW_C_HEIGHT;
+	nearPlane = 0.0f;
+	shadowProj = glm::perspective(glm::radians(90.0f), aspect, nearPlane, distance);
+	setupShadowCube();
+}
+
+float PointLight::getDistance() {
+	return distance;
 }
 
 void PointLight::setup()
@@ -75,7 +87,7 @@ void PointLight::setup()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	aspect = (GLfloat)SHADOW_C_WIDTH / (GLfloat)SHADOW_C_HEIGHT;
 	nearPlane = 1.0f;
-	shadowProj = glm::perspective(glm::radians(90.0f), aspect, nearPlane, radius);
+	shadowProj = glm::perspective(glm::radians(90.0f), aspect, nearPlane, distance);
 
 	setupShadowCube();
 

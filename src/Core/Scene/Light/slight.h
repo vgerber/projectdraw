@@ -20,7 +20,9 @@ public:
 	GLuint getShadowMap();
 
 	void setDirection(glm::vec3 direction);
+	glm::vec3 getDirection();
 	void setDistance(float distance);
+	float getDistance();
 
 	void apply(Shader shader, std::string target);
 	void setCutOff(float inner, float outer);

@@ -42,9 +42,17 @@ void SpotLight::setDirection(glm::vec3 direction)
 	this->direction = direction;
 }
 
+glm::vec3 SpotLight::getDirection() {
+	return direction;
+}
+
 void SpotLight::setDistance(float distance)
 {
 	this->distance = distance;
+}
+
+float SpotLight::getDistance() {
+	return distance;
 }
 
 void SpotLight::apply(Shader shader, std::string target)

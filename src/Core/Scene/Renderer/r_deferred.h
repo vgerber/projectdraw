@@ -13,6 +13,71 @@
 
 #include "arenderer.h"
 
+struct SortPointLights {
+	glm::vec3 cameraPosition;
+
+	SortPointLights(glm::vec3 cameraPosition) { this->cameraPosition = cameraPosition; }
+
+	inline bool operator() (PointLight * p1, PointLight * p2) {
+		float p1Value = 0.0;
+		float p2Value = 0.0;
+
+/*
+		if(p1->draw_shadow && p1->intensity < p2->intensity) {
+			p1Value = glm::distance2(cameraPosition, p1->getPosition());
+			p2Value = glm::distance2(cameraPosition, p2->getPosition());
+			if(p1Value < p2Value) {
+				return true;
+			}
+		}
+		return false;
+*/
+		return (p1->draw_shadow && !p2->draw_shadow);
+	}
+};
+
+struct SortSpotLights {
+	glm::vec3 cameraPosition;
+
+	SortSpotLights(glm::vec3 cameraPosition) { this->cameraPosition = cameraPosition; }
+
+	inline bool operator() (SpotLight * s1, SpotLight * s2) {
+		float s1Value = 0.0;
+		float s2Value = 0.0;
+
+/*
+		if(s1->draw_shadow && s1->intensity < s2->intensity) {
+			s1Value = glm::distance2(cameraPosition, s1->getPosition());
+			s2Value = glm::distance2(cameraPosition, s2->getPosition());
+			if(s1Value > s2Value) {
+				return true;
+			}
+		}
+		return false;
+		*/
+
+		if(s1->draw_shadow && !s2->draw_shadow) {
+			return true;
+		} 
+		return false;
+	}
+};
+
+struct SortDrawable {
+	glm::vec3 cameraPosition;
+
+	SortDrawable(glm::vec3 cameraPosition) { this->cameraPosition = cameraPosition; }
+
+	inline bool operator() (Drawable *d1, Drawable *d2) {
+		if (!d1->settings.xrayVisible && d2->settings.xrayVisible) {
+			return true;
+		}
+		if (glm::distance2(d1->getPositionCenter(), cameraPosition) > glm::distance2(d2->getPositionCenter(), cameraPosition)) {
+			return true;
+		}
+		return false;
+	}
+};
 
 class DeferredRenderer : public AbstractRenderer {
 public:	
@@ -41,6 +106,14 @@ public:
 protected:
 	static const int RendererType = 1;
 	bool invalidShaders = false;
+
+	static const int PointLightShadows = 10;
+	static const int SpotLightShadows = 10;
+
+	static const int ShaderPointLightShadowSize = 1;
+	static const int ShaderPointLightSize = 100;
+	static const int ShaderSpotLightShadowSize = 10;
+	static const int ShaderSpotLightSize = 100;
 
 	//light shaders
 	Shader shaderDLight;

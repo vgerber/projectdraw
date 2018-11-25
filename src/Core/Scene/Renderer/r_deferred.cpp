@@ -254,6 +254,8 @@ void DeferredRenderer::resize(int width, int height) {
 
 void DeferredRenderer::renderObjects()
 {
+	//sort objects for stencil testing
+	std::sort(objects.begin(), objects.end(), SortDrawable(camera->getPosition()));
 
 	glUniformBlockBinding(shaderBasic.getId(), glGetUniformBlockIndex(shaderBasic.getId(), "Matrices"), getRendererId());
 	glUniformBlockBinding(shaderFont.getId(), glGetUniformBlockIndex(shaderFont.getId(), "Matrices"), getRendererId());
@@ -373,8 +375,12 @@ void DeferredRenderer::renderLight()
 		this texture has to be prefilled or filled (black) or with light renderering (p and s light will need them)
 	*/
 
-
+	//sort spot- and pointlights for shadow pipeline
+	std::sort(pointLights.begin(), pointLights.end(), SortPointLights(camera->getPosition()));
+	std::sort(spotLights.begin(), spotLights.end(), SortSpotLights(camera->getPosition()));
 	
+	
+
 	if (directionalLight && directionalLight->draw_shadow)
 	{
 		//set viewfrustum for directional light (for cascaded shadow mapping)
@@ -405,6 +411,10 @@ void DeferredRenderer::renderLight()
 			directionalLight->endShadowMapping();
 		}
 	}
+
+	//count shadows for each light for shadow render pipeline
+	int pointLightShadowCount = 0;
+	int spotLightShadowCount = 0;
 	
 	//Point Light Shadow
 	
@@ -412,36 +422,66 @@ void DeferredRenderer::renderLight()
 	{
 		for (auto plight : pointLights)
 		{
-			if (plight->draw_shadow) {
+			//reduce depth cubemap generation to actual shadow maximum
+			if(pointLightShadowCount == PointLightShadows) {
+				break;
+			}
+
+			if (plight->draw_shadow) {				
 				plight->beginShadowMapping();
 				for (auto drawable : objects)
 				{
-					glUniformMatrix4fv(glGetUniformLocation(plight->getShaderShadow().getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
-					Shader tmpShader = drawable->getShader().first;
-					drawable->setShader(plight->getShaderShadow(), *this);
-					drawable->draw();
-					drawable->setShader(tmpShader, *this);
+					if(glm::length(drawable->getPosition() - plight->getPosition()) < plight->getDistance()) {
+						//draw each drawable to depth buffer if it is within the distance of the light and apply 
+						//the corresponding depth shader
+						glUniformMatrix4fv(glGetUniformLocation(plight->getShaderShadow().getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
+						Shader tmpShader = drawable->getShader().first;
+						drawable->setShader(plight->getShaderShadow(), *this);
+						drawable->draw();
+						drawable->setShader(tmpShader, *this);
+					}
 				}
 				plight->endShadowMapping();
 			}
+			else {
+				//if the list is correctly sorted 
+				//the first non shadow light marks the beginning of non shadow lights
+				break;
+			}
+			pointLightShadowCount++;
 		}
 	}
 
 	//SpotLight Shadow
 	if (spotLights.size() > 0) {
 		for (auto slight : spotLights) {
+
+			//stop if maximum of shadows is reached
+			if(spotLightShadowCount == SpotLightShadows) {
+				break;
+			}
+
 			if (slight->draw_shadow) {
 				slight->beginShadowMapping();
 				for (auto drawable : objects)
 				{
-					glUniformMatrix4fv(glGetUniformLocation(slight->getShaderShadow().getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
-					Shader tmpShader = drawable->getShader().first;
-					drawable->setShader(slight->getShaderShadow(), *this);
-					drawable->draw();
-					drawable->setShader(tmpShader, *this);
+					if(slight->getDistance() > glm::length(drawable->getPosition() - slight->getPosition())) {
+						//draw each drawable to depth buffer if it is within the distance of the light and apply 
+						//the corresponding depth shader
+						glUniformMatrix4fv(glGetUniformLocation(slight->getShaderShadow().getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
+						Shader tmpShader = drawable->getShader().first;
+						drawable->setShader(slight->getShaderShadow(), *this);
+						drawable->draw();
+						drawable->setShader(tmpShader, *this);
+					}
 				}
 				slight->endShadowMapping();
 			}
+			else {
+				//stop if first non shadow light was encounterd
+				break;
+			}
+			spotLightShadowCount++;
 		}
 	}
 
@@ -493,12 +533,20 @@ void DeferredRenderer::renderLight()
 	else {
 		glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
 	}
+
+
 	
 	/*
 	Point Light
+
+	1. Light + Shadow
+	2. Light - Shadow
 	*/
-	if (pointLights.size() > 0)
-	{
+	
+	
+
+	if(pointLightShadowCount > 0) {
+
 		shaderPLightShadow.use();
 		glUniform3f(glGetUniformLocation(shaderPLightShadow.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
@@ -519,37 +567,89 @@ void DeferredRenderer::renderLight()
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
 
-		///
-		/// For simplicity point and spotlight shadows have been disabled
-		///
-
-		GLint plight_count = 0;
-		glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), "pointLights"), pointLights.size());
-		for (auto plight : pointLights)
-		{
-			plight->apply(shaderPLightShadow, "pointLight[" + std::to_string(plight_count) + "]");
-			std::string shadowLoc = ("pointLight[" + std::to_string(plight_count) + "].shadowCubeMap");
-			glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), shadowLoc.c_str()), 5);
-			
+		int pLightCount = 0;
+		for(int pLightIndex = 0; pLightIndex < pointLightShadowCount; pLightIndex++) {
+			PointLight * pLight = pointLights[pLightIndex];
+			//set pointlight uniforms
+			pLight->apply(shaderPLightShadow, "pointLight[" + std::to_string(pLightCount) + "]");			
+			std::string shadowLoc = ("pointLight[" + std::to_string(pLightCount) + "].shadowCubeMap");
+			glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), shadowLoc.c_str()), 5);				
 			glActiveTexture(GL_TEXTURE5);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, plight->getShadowCubeMap());
-			plight_count++;
+			glBindTexture(GL_TEXTURE_CUBE_MAP, pLight->getShadowCubeMap());
+
+			pLightCount++;
+			//draw current set point ligts if array limit or last index is reached
+			if(pLightCount == ShaderPointLightShadowSize || pLightIndex == pointLightShadowCount-1) {
+				glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), "pointLights"), pLightCount);
+			
+				glBindVertexArray(screenRectVAO);
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+				glBindVertexArray(0);
+
+				glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
+				glActiveTexture(GL_TEXTURE4);
+				glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
+
+				pLightCount = 0;
+			}
+		}
+	}
+
+	if (pointLights.size() > 0 && pointLights.size() != pointLightShadowCount)
+	{
+		shaderPLight.use();
+		glUniform3f(glGetUniformLocation(shaderPLight.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+
+		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gPosition"), 0);
+		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gNormal"), 1);
+		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gAlbedo"), 2);
+		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shaderPLight.getId(), "prevTexture"), 4);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, gBufferNormal);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
+
+
+		int pLightCount = 0;
+		for (int pLightIndex = pointLightShadowCount; pLightIndex < pointLights.size(); pLightIndex++)
+		{
+			PointLight * pLight = pointLights[pLightIndex];
+			pLight->apply(shaderPLight, "pointLight[" + std::to_string(pLightCount) + "]");
+			pLightCount++;
+
+			//draw lights if maximum of array or last element is reached
+			if(pLightCount == ShaderPointLightSize || pLightIndex == pointLights.size()-1) {
+				glUniform1i(glGetUniformLocation(shaderPLight.getId(), "pointLights"), pLightCount);
+				
+				glBindVertexArray(screenRectVAO);
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+				glBindVertexArray(0);
+
+				glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
+				glActiveTexture(GL_TEXTURE4);
+				glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
+				pLightCount = 0;
+			}
 		}
 
-		glBindVertexArray(screenRectVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);
-
-		glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
-	}
-	else {
-		if (!directionalLight) {
-			glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
-		}
+		
 	}
 
-	//begin spot light rendering
-	if (spotLights.size() > 0)
+	/*
+	Spotlight Rendering
+
+	1. Light + Shadow
+	2. Light - Shadow
+	*/
+	if (spotLightShadowCount > 0)
 	{
 		shaderSLightShadow.use();
 		glUniform3f(glGetUniformLocation(shaderSLightShadow.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
@@ -571,27 +671,78 @@ void DeferredRenderer::renderLight()
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
 
-		GLuint slightCount = 0;
-		glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), "spotLights"), spotLights.size());
-		for (auto sLight : spotLights)
-		{
-			sLight->apply(shaderSLightShadow, "spotLight[" + std::to_string(slightCount) + "]");
+		int sLightCount = 0;
+		for(int sLightIndex = 0; sLightIndex < spotLightShadowCount; sLightIndex++) {
+			SpotLight * sLight = spotLights[sLightIndex];
 
-			std::string shadowLoc = ("spotLight[" + std::to_string(slightCount) + "].shadowMap");
-			glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), shadowLoc.c_str()), 5 +slightCount);
-			glActiveTexture(GL_TEXTURE5 + slightCount);
+			sLight->apply(shaderSLightShadow, "spotLight[" + std::to_string(sLightCount) + "]");
+			std::string shadowLoc = ("spotLight[" + std::to_string(sLightCount) + "].shadowMap");
+			glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), shadowLoc.c_str()), 5 + sLightCount);
+			glActiveTexture(GL_TEXTURE5 + sLightCount);
 			glBindTexture(GL_TEXTURE_2D, sLight->getShadowMap());
-			slightCount++;
+
+			sLightCount++;
+			if(sLightCount == ShaderSpotLightShadowSize || sLightIndex == spotLightShadowCount-1) {
+				glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), "spotLights"), sLightCount);
+
+				glBindVertexArray(screenRectVAO);
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+				glBindVertexArray(0);
+
+				glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
+				glActiveTexture(GL_TEXTURE4);
+				glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
+				sLightCount = 0;
+			}
 		}
-
-		//merge sportlight scene + old scene
-		glBindVertexArray(screenRectVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);
-
-		glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
 	}
-	
+	//render spotlights without shadowmapping
+	if (spotLights.size() > 0 && spotLights.size() != spotLightShadowCount)
+	{
+		shaderSLight.use();
+		glUniform3f(glGetUniformLocation(shaderSLight.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
+
+		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gPosition"), 0);
+		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gNormal"), 1);
+		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gAlbedo"), 2);
+		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shaderSLight.getId(), "prevTexture"), 4);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, gBufferNormal);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
+
+		int sLightCount = 0;
+		for(int sLightIndex = spotLightShadowCount; sLightIndex < spotLights.size(); sLightIndex++) {
+			SpotLight * sLight = spotLights[sLightIndex];
+			sLight->apply(shaderSLight, "spotLight[" + std::to_string(sLightCount) + "]");
+
+			sLightCount++;
+			if(sLightCount == ShaderSpotLightSize || sLightIndex == spotLights.size()-1) {
+				glUniform1i(glGetUniformLocation(shaderSLight.getId(), "spotLights"), sLightCount);
+
+				glBindVertexArray(screenRectVAO);
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+				glBindVertexArray(0);
+
+				glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
+				glActiveTexture(GL_TEXTURE4);
+				glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
+				sLightCount = 0;
+			}
+		}
+	}
+
+
+
+
 	//render just on camera textrue if no lights active
 	if (!directionalLight && spotLights.size() == 0 && pointLights.size() == 0)
 	{
