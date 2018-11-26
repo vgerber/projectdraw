@@ -4,9 +4,11 @@ layout (location = 0) in vec4 vertex; //2x pos + 2x tex
 layout (std140) uniform Matrices {
 	uniform mat4 view;
 	uniform mat4 projection;
+	float farPlane;
 };
 
 uniform mat4 model;
+uniform mat4 mvp;
 
 out VS_OUT {
 	vec2 TexCoords;
@@ -15,7 +17,7 @@ out VS_OUT {
 } vs_out;
 
 void main() {
-	gl_Position = projection * view *  model * vec4(vertex.xy, 0.0, 1.0);
+	gl_Position = mvp * vec4(vertex.xy, 0.0, 1.0);
 	vs_out.TexCoords = vertex.zw;
 	vs_out.FragPos = vec3(vertex.xy, 1.0);
 	vs_out.Normal = vec3(0.0, 0.0, 1.0);

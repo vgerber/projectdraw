@@ -45,7 +45,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
 	specular *= intensity;
 
 
-    float bias = 0.000008;
+    float bias = 0.0008;
     float shadow = CalcSpotLightShadow(light, fragPos, bias);
 
 	return (ambient + (1.0 - shadow) * (diffuse + specular)) * attenuation;

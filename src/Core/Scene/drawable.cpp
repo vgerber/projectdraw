@@ -22,10 +22,12 @@ void Drawable::draw()
 
 	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 1.0f);
 	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
 	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 	
 	if (settings.xrayVisible || settings.outlineVisible) {
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glStencilMask(0xFF);
 	}
 	else {
@@ -62,14 +64,19 @@ void Drawable::draw()
 		scale(outlineSize.width, outlineSize.height, outlineSize.depth);
 		
 		
-		setPosition(getPosition() + glm::vec3(-0.5f * thickness));
+		//setPosition(getPosition() + glm::vec3(-0.5f * thickness));
 		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		glStencilMask(0x00);
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
 		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 0.0f);
 		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 1);
 		glm::vec4 color = settings.outlineColor;
 		glUniform4f(glGetUniformLocation(shader.getId(), "customColor"), color.r, color.g, color.b, color.a);
+
+
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+
+
 		objModel.draw(shader, settings.drawType);
 		setPosition(oldPosition);
 		scale(oldScale);
@@ -77,6 +84,16 @@ void Drawable::draw()
 	
 	glStencilMask(0xFF);
 	
+}
+
+void Drawable::drawRaw()
+{
+	shader.use();
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 0.0f);
+	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
+	objModel.draw(shader, settings.drawType);
 }
 
 void Drawable::drawNormals(Shader shader)
@@ -174,6 +191,12 @@ void Drawable::setCenterInWorld(glm::vec3 point)
 {
 	Moveable::setCenterInWorld(point);
 	loadBox();
+}
+
+void Drawable::setCameraMatrices(glm::mat4 cView, glm::mat4 cProj)
+{
+	cameraView = cView;
+	cameraProj = cProj;
 }
 
 Model Drawable::getModel()

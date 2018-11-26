@@ -297,6 +297,7 @@ void DeferredRenderer::renderObjects()
 	{
 		glUniform1f(glGetUniformLocation(shaderLight.getId(), "intensity"), plight->intensity);
 		glUniform3f(glGetUniformLocation(shaderLight.getId(), "color"), plight->diffuse.r, plight->diffuse.g, plight->diffuse.b);
+		plight->setCameraMatrices(camera->getViewMatrix(), camera->getCameraMatrix());
 		plight->draw();
 	}
 
@@ -311,6 +312,7 @@ void DeferredRenderer::renderObjects()
 	//draw all drawables
 	for (auto drawable : objects)
 	{
+		drawable->setCameraMatrices(camera->getViewMatrix(), camera->getCameraMatrix());
 		drawable->draw();
 	}
 
@@ -404,7 +406,7 @@ void DeferredRenderer::renderLight()
 					//replace drawable mesh shader with light shadow shader and back
 					Shader tmpShader = drawable->getShader().first;
 					drawable->setShader(directionalLight->getShaderShadow(), *this);
-					drawable->draw();
+					drawable->drawRaw();
 					drawable->setShader(tmpShader, *this);
 				}
 			}
@@ -441,7 +443,7 @@ void DeferredRenderer::renderLight()
 						glUniformMatrix4fv(glGetUniformLocation(plight->getShaderShadow().getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
 						Shader tmpShader = drawable->getShader().first;
 						drawable->setShader(plight->getShaderShadow(), *this);
-						drawable->draw();
+						drawable->drawRaw();
 						drawable->setShader(tmpShader, *this);
 					}
 				}
@@ -480,7 +482,7 @@ void DeferredRenderer::renderLight()
 						glUniformMatrix4fv(glGetUniformLocation(slight->getShaderShadow().getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getModelMatrix()));
 						Shader tmpShader = drawable->getShader().first;
 						drawable->setShader(slight->getShaderShadow(), *this);
-						drawable->draw();
+						drawable->drawRaw();
 						drawable->setShader(tmpShader, *this);
 					}
 				}

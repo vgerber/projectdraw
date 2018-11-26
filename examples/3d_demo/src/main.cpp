@@ -57,6 +57,9 @@ int main() {
 	{
 		cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
 		cylinder.setPosition(glm::vec3(-1.0f, 2.0f, 0.0f));
+		cylinder.settings.outlineVisible = true;
+		cylinder.settings.outlineThickness = 0.1f;
+		cylinder.settings.outlineColor = glm::vec4(0.0, 1.0, 0.0, 1.0);
 		scene.addObject(cylinder);
 	}
 	{
@@ -187,38 +190,54 @@ int main() {
 
 
 void moveDrawable(Drawable &drawable, Camera &camera, float delta) {
+	float speed = 0.004f;
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 		glm::vec3 move = camera.getFront();
 		move.y = 0.0f;
-		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
+		drawable.setPosition(drawable.getPosition() + move * delta * speed);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
 		glm::vec3 move = -camera.getFront();
 		move.y = 0.0f;
-		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
+		drawable.setPosition(drawable.getPosition() + move * delta * speed);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
 		glm::vec3 move = -camera.getRight();
 		move.y = 0.0f;
-		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
+		drawable.setPosition(drawable.getPosition() + move * delta * speed);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
 		glm::vec3 move = camera.getRight();
 		move.y = 0.0f;
-		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
+		drawable.setPosition(drawable.getPosition() + move * delta * speed);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
 		glm::vec3 move = glm::vec3(0.0, 1.0, 0.0);
-		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
+		drawable.setPosition(drawable.getPosition() + move * delta * speed);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
 		glm::vec3 move = glm::vec3(0.0, -1.0, 0.0);
-		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
+		drawable.setPosition(drawable.getPosition() + move * delta * speed);
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) {
+		glm::vec3 rot = glm::vec3(1.0f, 0.0f, 0.0f);
+		drawable.rotate(drawable.getRotation() + rot * delta * speed);
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2)) {
+		glm::vec3 rot = glm::vec3(0.0f, 1.0f, 0.0f);
+		drawable.rotate(drawable.getRotation() + rot * delta * speed);
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3)) {
+		glm::vec3 rot = glm::vec3(0.0f, 0.0f, 1.0f);
+		drawable.rotate(drawable.getRotation() + rot * delta * speed);
 	}
 
 }
