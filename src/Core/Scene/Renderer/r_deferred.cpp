@@ -466,9 +466,9 @@ void DeferredRenderer::renderLight()
 			}
 
 			//avoid shadow mapping for non visible lights
-			/*if (slight->intensity = 0.0) {
+			if (slight->intensity == 0.0) {
 				continue;
-			}*/
+			}
 
 			if (slight->shadow) {
 				slight->beginShadowMapping();
@@ -579,6 +579,11 @@ void DeferredRenderer::renderLight()
 		int pLightCount = 0;
 		for(int pLightIndex = 0; pLightIndex < pointLightShadowCount; pLightIndex++) {
 			PointLight * pLight = pointLights[pLightIndex];
+
+			if(pLight->intensity == 0.0) {
+				continue;
+			}
+
 			//set pointlight uniforms
 			pLight->apply(shaderPLightShadow, "pointLight[" + std::to_string(pLightCount) + "]");			
 			std::string shadowLoc = ("pointLight[" + std::to_string(pLightCount) + "].shadowCubeMap");
@@ -631,6 +636,11 @@ void DeferredRenderer::renderLight()
 		for (int pLightIndex = pointLightShadowCount; pLightIndex < pointLights.size(); pLightIndex++)
 		{
 			PointLight * pLight = pointLights[pLightIndex];
+
+			if(pLight->intensity = 0.0) {
+				continue;
+			}
+
 			pLight->apply(shaderPLight, "pointLight[" + std::to_string(pLightCount) + "]");
 			pLightCount++;
 
@@ -684,6 +694,10 @@ void DeferredRenderer::renderLight()
 		for(int sLightIndex = 0; sLightIndex < spotLightShadowCount; sLightIndex++) {
 			SpotLight * sLight = spotLights[sLightIndex];
 
+			if(sLight->intensity == 0.0) {
+				continue;
+			}
+
 			sLight->apply(shaderSLightShadow, "spotLight[" + std::to_string(sLightCount) + "]");
 			std::string shadowLoc = ("spotLight[" + std::to_string(sLightCount) + "].shadowMap");
 			glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), shadowLoc.c_str()), 5 + sLightCount);
@@ -732,6 +746,10 @@ void DeferredRenderer::renderLight()
 		for(int sLightIndex = spotLightShadowCount; sLightIndex < spotLights.size(); sLightIndex++) {
 			SpotLight * sLight = spotLights[sLightIndex];
 			sLight->apply(shaderSLight, "spotLight[" + std::to_string(sLightCount) + "]");
+
+			if(sLight->intensity = 0.0) {
+				continue;
+			}
 
 			sLightCount++;
 			if(sLightCount == ShaderSpotLightSize || sLightIndex == spotLights.size()-1) {

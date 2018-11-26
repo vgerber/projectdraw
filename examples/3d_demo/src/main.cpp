@@ -6,6 +6,8 @@
 const int WIDTH = 400;
 const int HEIGHT = 400;
 
+void moveDrawable(Drawable &drawable, Camera &camera, float delta);
+
 int main() {
 
 	sf::ContextSettings settings;
@@ -155,6 +157,7 @@ int main() {
 		}
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
 
+		moveDrawable(cylinder, camera, delta);
 		
 		//rotate camera around scene		
 		rotatingCamera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
@@ -178,6 +181,44 @@ int main() {
 		//calculate delta
 		delta = (clock.getElapsedTime() - deltaTime).asMilliseconds();
 		deltaTime = clock.getElapsedTime();
+	}
+
+}
+
+
+void moveDrawable(Drawable &drawable, Camera &camera, float delta) {
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+		glm::vec3 move = camera.getFront();
+		move.y = 0.0f;
+		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+		glm::vec3 move = -camera.getFront();
+		move.y = 0.0f;
+		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+		glm::vec3 move = -camera.getRight();
+		move.y = 0.0f;
+		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+		glm::vec3 move = camera.getRight();
+		move.y = 0.0f;
+		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
+		glm::vec3 move = glm::vec3(0.0, 1.0, 0.0);
+		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
+		glm::vec3 move = glm::vec3(0.0, -1.0, 0.0);
+		drawable.setPosition(drawable.getPosition() + move * delta * 0.001f);
 	}
 
 }
