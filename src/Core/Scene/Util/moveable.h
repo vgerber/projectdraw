@@ -9,6 +9,11 @@
 
 #include "../../Model/box.h"
 
+/*
+http://www.opengl-tutorial.org/cn/intermediate-tutorials/tutorial-17-quaternions/
+
+*/
+
 class Moveable : public BoundingBox {
 public:
 
