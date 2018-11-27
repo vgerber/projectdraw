@@ -51,12 +51,22 @@ public:
 
 	DrawableInfo settings;
 
-
+	//free all gl resources
 	virtual void dispose();
+
+	//draw object with all settings
 	virtual void draw();
+
+	//draw plain object geometry
+	virtual void drawRaw();
+
+	//draw normals for each vertex
 	virtual void drawNormals(Shader shader);
+
+	//draw bounding box (not aabb) and rotation center
 	virtual void drawBox(Shader shader);
 
+	//set model for drawbale
 	virtual void setModel(Model model);
 
 	//set mesh shader
@@ -69,6 +79,8 @@ public:
 	void setCenter(glm::vec3 center) override;
 	void setCenterInWorld(glm::vec3 point) override;
 
+	//set view and camera matrix for mvp calculation
+	void setCameraMatrices(glm::mat4 cView, glm::mat4 cProj);
 
 	Model getModel();
 	Model* getModelPtr();
@@ -76,6 +88,8 @@ public:
 	unsigned int getDimension();
 
 protected:
+	glm::mat4 cameraView = glm::mat4(1.0);
+	glm::mat4 cameraProj = glm::mat4(1.0);
 	int currentRenderer;
 	GLuint boxVBO, boxVAO;
 	Model objModel;
