@@ -24,25 +24,40 @@ void Drawable::draw()
 	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
 	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 	
-	if (settings.xrayVisible || settings.outlineVisible) {
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+
+	/*
+	Stencil
+	0: normal draw
+	1: stencil optiona active draw
+	2: xray draw
+	3: outline draw
+	*/
+
+	if (settings.outlineVisible) {
+		glStencilFunc(GL_EQUAL, 0, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 		glStencilMask(0xFF);
 	}
 	else {
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		//only write on stencils less than 2
+		glStencilFunc(GL_GREATER, 2, 0xFF);
 		glStencilMask(0x00);
 	}
+	
 	objModel.draw(shader, settings.drawType);
 
 	if (settings.xrayVisible) {
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		glStencilMask(0x00);
-		glDisable(GL_DEPTH_TEST);
+		glStencilFunc(GL_EQUAL, 0, 0xFF);
+		glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
+		glStencilMask(0xFF);
+
 		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), settings.xrayUseLight);
 		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), settings.xrayCustomColor);
 		glm::vec4 color = settings.xrayColor;
 		glUniform4f(glGetUniformLocation(shader.getId(), "customColor"), color.r, color.g, color.b, color.a);
-		objModel.draw(shader, settings.drawType);
+		
+		glDisable(GL_DEPTH_TEST);
+		objModel.draw(shader, settings.xrayDrawType);
 		glEnable(GL_DEPTH_TEST);
 	}
 	
@@ -61,16 +76,19 @@ void Drawable::draw()
 
 		scale(outlineSize.width, outlineSize.height, outlineSize.depth);
 		
-		
-		setPosition(getPosition() + glm::vec3(-0.5f * thickness));
 		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		glStencilMask(0x00);
+		glStencilFunc(GL_EQUAL, 0, 0xFF);
+		glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
+		glStencilMask(0xFF);
 		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 0.0f);
 		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 1);
 		glm::vec4 color = settings.outlineColor;
 		glUniform4f(glGetUniformLocation(shader.getId(), "customColor"), color.r, color.g, color.b, color.a);
+		
+		//glDisable(GL_DEPTH_TEST);
 		objModel.draw(shader, settings.drawType);
+		//glEnable(GL_DEPTH_TEST);
+
 		setPosition(oldPosition);
 		scale(oldScale);
 	}

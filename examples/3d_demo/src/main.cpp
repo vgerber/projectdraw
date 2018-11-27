@@ -57,6 +57,13 @@ int main() {
 	{
 		cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
 		cylinder.setPosition(glm::vec3(-1.0f, 2.0f, 0.0f));
+		cylinder.settings.outlineVisible = true;
+		cylinder.settings.outlineColor = glm::vec4(0.0, 1.0, 0.0, 1.0);
+		cylinder.settings.outlineThickness = 0.1;
+		cylinder.settings.xrayVisible = true;
+		cylinder.settings.xrayCustomColor = true;
+		cylinder.settings.xrayColor = glm::vec4(1.0, 0.0, 0.0, 1.0);
+		cylinder.settings.xrayDrawType = DrawType::LINEG;
 		scene.addObject(cylinder);
 	}
 	{
@@ -91,7 +98,7 @@ int main() {
 	poleLight.setPosition(glm::vec3(2.0f, 2.0f, 0.0f));
 	poleLight.setDistance(20.0);
 	poleLight.diffuse = glm::vec3(0.01f, 0.01f, 1.0f);
-	poleLight.specular = glm::vec3(0.1f, 0.1f, 1.0f);
+	poleLight.specular = poleLight.diffuse;
 	poleLight.intensity = 1.0f;
 	poleLight.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
 	poleLight.shadow = true;
@@ -100,8 +107,8 @@ int main() {
 	PointLight poleLight2;
 	poleLight2.setPosition(glm::vec3(-2.0f, 2.0f, 0.0f));
 	poleLight2.setDistance(20.0);
-	poleLight2.diffuse = glm::vec3(0.01f, 0.01f, 1.0f);
-	poleLight2.specular = glm::vec3(0.1f, 0.1f, 1.0f);
+	poleLight2.diffuse = poleLight.diffuse;
+	poleLight2.specular = poleLight2.diffuse;
 	poleLight2.intensity = 1.0f;
 	poleLight2.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
 	poleLight2.shadow = true;

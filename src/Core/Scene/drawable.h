@@ -34,6 +34,7 @@ struct DrawableInfo {
 	bool xrayUseLight = false;
 	bool xrayCustomColor = true;
 	glm::vec4 xrayColor = glm::vec4(1.0f);
+	DrawType xrayDrawType = DrawType::TRIANGLEG;
 
 	//Outline
 	bool outlineVisible = false;

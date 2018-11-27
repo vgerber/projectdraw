@@ -791,19 +791,19 @@ Model primitives::generateCylinder(float radius, float height, float quality, gl
 
 		//top circle
 		indices.push_back(1);
-		indices.push_back(index + 0);
 		indices.push_back(index + 1);
+		indices.push_back(index + 0);
 		index += 2;
 		
 
 		//side quad
+		indices.push_back(index + 2);
+		indices.push_back(index + 1);
 		indices.push_back(index + 0);
-		indices.push_back(index + 1);
-		indices.push_back(index + 2);
 
-		indices.push_back(index + 3);
-		indices.push_back(index + 2);
 		indices.push_back(index + 1);
+		indices.push_back(index + 2);
+		indices.push_back(index + 3);
 
 		index += 4;
 		

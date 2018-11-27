@@ -14,6 +14,7 @@ void DeferredRenderer::clearScreen() {
 
 void DeferredRenderer::render()
 {
+	glEnable(GL_CULL_FACE);
 	if (invalidShaders) {
 		refreshShaderRenderer();
 		invalidShaders = false;
@@ -254,6 +255,7 @@ void DeferredRenderer::resize(int width, int height) {
 
 void DeferredRenderer::renderObjects()
 {
+	glCullFace(GL_BACK);
 	//sort objects for stencil testing
 	std::sort(objects.begin(), objects.end(), SortDrawable(camera->getPosition()));
 
