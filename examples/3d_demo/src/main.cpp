@@ -55,10 +55,11 @@ int main() {
 	
 	Drawable cylinder, cube, sphere;
 	{
-		cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
+		//cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
+		cylinder.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.5f, 1.0f, 0.4f, 1.0f)));
 		cylinder.setPosition(glm::vec3(-1.0f, 2.0f, 0.0f));
-		cylinder.settings.outlineVisible = false;
-		cylinder.settings.outlineColor = glm::vec4(0.0, 1.0, 0.0, 1.0);
+		cylinder.settings.outlineVisible = true;
+		cylinder.settings.outlineColor = glm::vec4(0.7, 0.7, 0.2, 1.0);
 		cylinder.settings.outlineThickness = 0.1;
 		cylinder.settings.xrayVisible = true;
 		cylinder.settings.xrayCustomColor = true;

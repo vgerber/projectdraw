@@ -255,6 +255,7 @@ void DeferredRenderer::resize(int width, int height) {
 
 void DeferredRenderer::renderObjects()
 {
+	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	//sort objects for stencil testing
 	std::sort(objects.begin(), objects.end(), SortDrawable(camera->getPosition()));

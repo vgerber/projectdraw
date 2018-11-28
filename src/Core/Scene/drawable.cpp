@@ -20,11 +20,6 @@ void Drawable::draw()
 {
 	shader.use();
 
-	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 1.0f);
-	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-	
 	/*
 	Stencil
 	0: normal draw
@@ -32,40 +27,68 @@ void Drawable::draw()
 	2: xray draw
 	3: outline draw
 	*/
-
+/*
 	if (settings.outlineVisible || settings.xrayVisible) {
-		glStencilFunc(GL_GREATER, 1, 0xFF);
+		glStencilFunc(GL_ALWAYS, 2, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glStencilMask(0xFF);
 	}
 	else {
 		//only write on stencils less than 2
-		glStencilFunc(GL_GREATER, 2, 0xFF);
-		glStencilMask(0x00);
+		
 	}
-	
-	objModel.draw(shader, settings.drawType);
-
+*/
 	if (settings.xrayVisible) {
-		glStencilFunc(GL_EQUAL, 0, 0xFF);
-		glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
-		glStencilMask(0xFF);
-
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
 		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), settings.xrayUseLight);
 		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), settings.xrayCustomColor);
 		glm::vec4 color = settings.xrayColor;
 		glUniform4f(glGetUniformLocation(shader.getId(), "customColor"), color.r, color.g, color.b, color.a);
 		
-		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
+		//set all occupied pixels to 1
+		glStencilFunc(GL_GREATER, 1, 0xFF);
+		glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
+		glStencilMask(0xFF);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glDepthMask(GL_FALSE);
+
 		objModel.draw(shader, settings.xrayDrawType);
+
+		//draw to all pixels with stencil equals 1 and reset it to zero
+		glStencilFunc(GL_EQUAL, 1, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		glStencilMask(0xFF);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+		glDisable(GL_DEPTH_TEST);		
+		objModel.draw(shader, settings.xrayDrawType);		
 		glEnable(GL_DEPTH_TEST);
 	}
 	
 
 	if (settings.outlineVisible) {
-		Size outlineSize;
-		Size size = getSize();
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
+		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 0.0f);
+		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 1);
+		glm::vec4 color = settings.outlineColor;
+		glUniform4f(glGetUniformLocation(shader.getId(), "customColor"), color.r, color.g, color.b, color.a);
 
+		//set all occupied pixels to 2
+		glStencilFunc(GL_GREATER, 2, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glStencilMask(0xFF);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glDepthMask(GL_FALSE);
+
+		objModel.draw(shader, DrawType::TRIANGLEG);
+
+
+
+		Size outlineSize;
+		Size size = getSize();	
 		float thickness = settings.outlineThickness;
 		outlineSize.width = (size.width + thickness) / size.width;
 		outlineSize.height = (size.height + thickness) / size.height;
@@ -77,26 +100,32 @@ void Drawable::draw()
 		scale(outlineSize.width, outlineSize.height, outlineSize.depth);
 		
 		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-		glStencilFunc(GL_EQUAL, 0, 0xFF);
-		glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
-		glStencilMask(0xFF);
-		
-		//setPosition(getPosition() + glm::vec3(-0.5f * thickness));
-		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
-		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 0.0f);
-		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 1);
-		glm::vec4 color = settings.outlineColor;
-		glUniform4f(glGetUniformLocation(shader.getId(), "customColor"), color.r, color.g, color.b, color.a);
-
-		objModel.draw(shader, settings.drawType);
+		//setPosition(getPosition() + glm::vec3(-0.5f * thickness));
+		
+		glStencilFunc(GL_EQUAL, 0, 0xFF);
+		glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
+		glStencilMask(0xFF);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glDepthMask(GL_TRUE);
+		
+		objModel.draw(shader, DrawType::TRIANGLEG);		
 
 		setPosition(oldPosition);
 		scale(oldScale);
-	}
+	}	
+
+	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 1.0f);
+	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
 	
+	glStencilFunc(GL_EQUAL, 0, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glStencilMask(0xFF);
-	
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthMask(GL_TRUE);
+	objModel.draw(shader, settings.drawType);	
 }
 
 void Drawable::drawRaw()

@@ -86,14 +86,18 @@ struct SortDrawable {
 	SortDrawable(glm::vec3 cameraPosition) { this->cameraPosition = cameraPosition; }
 
 	inline bool operator() (Drawable *d1, Drawable *d2) {
-		/*if (!d1->settings.xrayVisible && d2->settings.xrayVisible) {
-			return true;
-		}*/
-		/*if(!d1->settings.outlineVisible && d2->settings.outlineVisible) {
-			return true;
-		}*/
-		if (glm::distance2(d1->getPositionCenter(), cameraPosition) < glm::distance2(d2->getPositionCenter(), cameraPosition)) {
-			return true;
+		if((d1->settings.xrayVisible || d2->settings.xrayVisible)) {
+			if (!d1->settings.xrayVisible && d2->settings.xrayVisible) {
+				return true;
+			}
+			if(d1->settings.xrayUseLight && !d2->settings.xrayVisible) {
+				return false;
+			}
+		}
+		else {
+			if (glm::distance2(d1->getPositionCenter(), cameraPosition) < glm::distance2(d2->getPositionCenter(), cameraPosition)) {
+				return true;
+			}
 		}
 		return false;
 	}

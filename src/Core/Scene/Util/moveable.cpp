@@ -20,12 +20,14 @@ void Moveable::setPosition(glm::vec3 position)
 void Moveable::rotate(float x, float y, float z)
 {
 	vrotation = glm::vec3(x, y, z);
+	qRotation = glm::quat(glm::vec3(x, y, z));
 	updateModel();
 }
 
 void Moveable::rotate(glm::vec3 vrotation)
 {
 	this->vrotation = vrotation;
+	qRotation = glm::quat(vrotation);
 	updateModel();
 }
 
@@ -167,7 +169,6 @@ void Moveable::updateModel()
 		size.y,
 		size.z
 	);
-
 	glm::quat rot_quat = glm::quat(vrotation);
 	glm::mat4 rotation = glm::toMat4(rot_quat);
 

@@ -52,6 +52,7 @@ protected:
 	glm::vec3 vscale = glm::vec3(1.0f);
 	glm::vec3 vcenter = glm::vec3(0.5f);
 	glm::mat4 mmodel = glm::mat4(1.0f);
+	glm::quat qRotation;
 
 
 	
