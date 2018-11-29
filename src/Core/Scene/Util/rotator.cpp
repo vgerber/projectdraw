@@ -1,7 +1,7 @@
 #include "rotator.h"
 
 Rotator::Rotator() {
-
+	this->rotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
 }
 
 Rotator::Rotator(glm::quat rotation) {
@@ -21,7 +21,7 @@ void Rotator::rotate(glm::quat rotation) {
 }
 
 void Rotator::rotateAxis(float radians, glm::vec3 rotationAxis) {
-    rotation = glm::angleAxis(glm::degrees(radians), rotationAxis);
+    rotation = glm::angleAxis(radians, rotationAxis);
 }
 
 void Rotator::applyRotation(glm::quat rotation) {

@@ -15,7 +15,7 @@ void ParticleGenerator::draw()
 		Particle part = particles[i];
 		if (part.alive) {
 			drawableParticle.setPosition(part.position);
-			drawableParticle.rotate(part.rotation);
+			//drawableParticle.rotate(part.rotation);
 			drawableParticle.scale(part.scale);
 
 			matrices[i] = drawableParticle.getModelMatrix();

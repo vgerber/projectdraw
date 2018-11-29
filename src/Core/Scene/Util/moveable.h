@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
+#include "rotator.h"
 #include "../../Model/box.h"
 
 /*
@@ -21,8 +21,7 @@ public:
 
 	virtual void setCenter(glm::vec3 center);
 	virtual void setPosition(glm::vec3 position);
-	virtual void rotate(float x, float y, float z);
-	virtual void rotate(glm::vec3 vrotation);
+	virtual void rotate(Rotator rotator);
 	virtual void translate(float x, float y, float z);
 	virtual void translate(glm::vec3 vtranslation);
 	virtual void scale(float x, float y, float z);
@@ -40,19 +39,19 @@ public:
 
 	glm::vec3 getCenter();
 	glm::vec3 getCenterPoint();
-	glm::vec3 getScale();
-	glm::vec3 getRotation();
+	glm::vec3 getScale();	
 	glm::vec3 getPosition();
 	glm::vec3 getPositionCenter();
+
+	Rotator getRotator();
 	
 protected:
 	Size size;
 	glm::vec3 position = glm::vec3(0.0f);
-	glm::vec3 vrotation = glm::vec3(0.0f);
 	glm::vec3 vscale = glm::vec3(1.0f);
 	glm::vec3 vcenter = glm::vec3(0.5f);
 	glm::mat4 mmodel = glm::mat4(1.0f);
-	glm::quat qRotation;
+	Rotator rotator;
 
 
 	

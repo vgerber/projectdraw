@@ -6,6 +6,13 @@
 const int WIDTH = 400;
 const int HEIGHT = 400;
 
+glm::vec3 forwardVec = glm::vec3(1.0f, 0.0f, 0.0f);
+glm::vec3 rightVec = glm::vec3(0.0, 0.0, 1.0);
+glm::vec3 upVec = glm::vec3(0.0, 1.0, 0.0);
+glm::vec3 origforwardVec = glm::vec3(1.0f, 0.0f, 0.0f);
+glm::vec3 steerVec = glm::vec3(0.0f, 0.0f, 0.01f);
+float bankingAngle = 0.0f;
+
 void moveDrawable(Drawable &drawable, Camera &camera, float delta);
 
 int main() {
@@ -53,25 +60,26 @@ int main() {
 	
 	
 	
-	Drawable cylinder, cube, sphere;
+	Drawable quad, cube, sphere;
 	{
 		//cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
-		cylinder.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.5f, 1.0f, 0.4f, 1.0f)));
-		cylinder.setPosition(glm::vec3(-1.0f, 2.0f, 0.0f));
-		cylinder.settings.outlineVisible = true;
-		cylinder.settings.outlineColor = glm::vec4(0.7, 0.7, 0.2, 1.0);
-		cylinder.settings.outlineThickness = 0.1;
-		cylinder.settings.xrayVisible = true;
-		cylinder.settings.xrayCustomColor = true;
-		cylinder.settings.xrayColor = glm::vec4(1.0, 0.0, 0.0, 1.0);
-		cylinder.settings.xrayDrawType = DrawType::LINEG;
-		scene.addObject(cylinder);
+		quad.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.5f, 1.0f, 0.4f, 1.0f)));
+		//cylinder.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
+		quad.setPosition(glm::vec3(-1.0f, 2.0f, 0.0f));
+		quad.settings.outlineVisible = true;
+		quad.settings.outlineColor = glm::vec4(0.7, 0.7, 0.2, 1.0);
+		quad.settings.outlineThickness = 0.03;
+		quad.settings.xrayVisible = true;
+		quad.settings.xrayCustomColor = true;
+		quad.settings.xrayColor = glm::vec4(1.0, 0.0, 0.0, 1.0);
+		quad.settings.xrayDrawType = DrawType::LINEG;
+		scene.addObject(quad);
 	}
 	{
 		//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.3f, 0.8f, 0.3f, 1.0f)));
 		cube.setModel(Model("C:/Users/Vincent/Documents/Projects/Blender/Example/vehicle2.fbx"));
 		cube.setPosition(glm::vec3(-1.0f, 1.0f, -1.0f));
-		cube.rotate(glm::radians(-90.0f), 0.0f, 0.0f);
+		//cube.rotate(glm::radians(-90.0f), 0.0f, 0.0f);
 		scene.addObject(cube);
 	}
 	{
@@ -165,7 +173,7 @@ int main() {
 		}
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
 
-		moveDrawable(cylinder, camera, delta);
+		moveDrawable(quad, camera, delta);
 		
 		//rotate camera around scene		
 		rotatingCamera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
@@ -176,10 +184,16 @@ int main() {
 		poleLight.intensity = sin(millis * 10) * 0.5 + 1.0;
 		poleLight2.intensity = sin(millis * 10 + 1.6) * 0.5 + 1.0;
 
-		cube.rotate(1.0f * millis, 0.0f, 0.0f);
+		//cube.rotate(1.0f * millis, 0.0f, 0.0f);
 		float scale = abs(cos(millis));
 		cube.scale(scale, scale, scale);
 
+		Rotator rotator;
+		rotator.rotateAxis(glm::radians(bankingAngle), forwardVec);
+		Rotator quadRotator = quad.getRotator();
+		quadRotator.vectorRotation(origforwardVec, forwardVec);
+		quadRotator.applyRotation(rotator);
+		quad.rotate(quadRotator);
 
 		sunLight.change_direction(glm::vec3(1.0f * cos(millis), -1.0f, 1.0f * sin(millis)));
 		
@@ -196,40 +210,42 @@ int main() {
 
 void moveDrawable(Drawable &drawable, Camera &camera, float delta) {
 	float speed = 0.004f;
+	float steering = 0.004f;
+	float maxBanking = 80.0f;
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-		glm::vec3 move = camera.getFront();
-		move.y = 0.0f;
+		glm::vec3 move = forwardVec;
 		drawable.setPosition(drawable.getPosition() + move * delta * speed);
+		bankingAngle *= 1.0 - steering;
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-		glm::vec3 move = -camera.getFront();
-		move.y = 0.0f;
+		glm::vec3 move = -forwardVec;
 		drawable.setPosition(drawable.getPosition() + move * delta * speed);
+		bankingAngle *= 1.0 - steering;
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-		glm::vec3 move = -camera.getRight();
-		move.y = 0.0f;
-		drawable.setPosition(drawable.getPosition() + move * delta * speed);
+		rightVec = glm::cross(forwardVec, upVec);
+		forwardVec = glm::normalize(forwardVec - rightVec * delta * steering);
+		bankingAngle = std::max(bankingAngle - maxBanking * delta * steering, -maxBanking);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-		glm::vec3 move = camera.getRight();
-		move.y = 0.0f;
-		drawable.setPosition(drawable.getPosition() + move * delta * speed);
+		rightVec = glm::cross(forwardVec, upVec);
+		forwardVec = glm::normalize(forwardVec + rightVec * delta * steering);
+		bankingAngle = std::min(bankingAngle + maxBanking * delta * steering, maxBanking);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-		glm::vec3 move = glm::vec3(0.0, 1.0, 0.0);
+		glm::vec3 move = upVec;
 		drawable.setPosition(drawable.getPosition() + move * delta * speed);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
-		glm::vec3 move = glm::vec3(0.0, -1.0, 0.0);
-		drawable.setPosition(drawable.getPosition() + move * delta * speed);
+		glm::vec3 move = upVec;
+		drawable.setPosition(drawable.getPosition() - move * delta * speed);
 	}
-
+	/*
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) {
 		glm::vec3 rot = glm::vec3(1.0f, 0.0f, 0.0f);
 		drawable.rotate(drawable.getRotation() + rot * delta * speed);
@@ -244,5 +260,6 @@ void moveDrawable(Drawable &drawable, Camera &camera, float delta) {
 		glm::vec3 rot = glm::vec3(0.0f, 0.0f, 1.0f);
 		drawable.rotate(drawable.getRotation() + rot * delta * speed);
 	}
+	*/
 
 }
