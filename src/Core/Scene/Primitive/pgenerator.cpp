@@ -474,8 +474,8 @@ glm::vec3 getSpherePoint(double lat, double lng, double radius) {
 	lng *= toRad;
 	return glm::vec3(
 		radius * cos(lat) * cos(lng),
-		radius * sin(lat),
-		radius * cos(lat) * sin(lng)
+		radius * cos(lat) * sin(lng),
+		radius * sin(lat)
 	);
 }
 
@@ -561,12 +561,12 @@ Model primitives::generateSphere(int lats, int longs, glm::vec4 color)
 
 
 			indices.push_back(indicator + 0);
-			indices.push_back(indicator + 1);
-			indices.push_back(indicator + 2);			
+			indices.push_back(indicator + 2);
+			indices.push_back(indicator + 1);			
 			
 			indices.push_back(indicator + 0);
-			indices.push_back(indicator + 2);
-			indices.push_back(indicator + 4);	
+			indices.push_back(indicator + 4);
+			indices.push_back(indicator + 2);	
 
 			indicator += 4;
 			lastLong = lng;
@@ -610,35 +610,35 @@ Model primitives::generateCone(float radius, float height, float quality, glm::v
 		std::vector<GLuint> indices_circle;
 		{
 			GLfloat x_tex = 0.0f;
-			GLfloat z_tex = 0.0f;
+			GLfloat y_tex = 0.0f;
 
 			GLfloat x = x_tex * radius;
-			GLfloat z = z_tex * radius;
-			vertices_circle.push_back(x);					//X
-			vertices_circle.push_back(0.0f);				//Y
-			vertices_circle.push_back(z);					//Z
-			vertices_circle.push_back(0.0f);				//Normal x
-			vertices_circle.push_back(-1.0f);				//Normal y
-			vertices_circle.push_back(0.0f);				//Normal z
-			vertices_circle.push_back(0.0f);//Tex x
-			vertices_circle.push_back(0.0f);//Tex y
+			GLfloat y = y_tex * radius;
+			vertices_circle.push_back(x);		//X
+			vertices_circle.push_back(y);		//Y
+			vertices_circle.push_back(0.0f);	//Z
+			vertices_circle.push_back(0.0f);	//Normal x
+			vertices_circle.push_back(-1.0f);	//Normal y
+			vertices_circle.push_back(0.0f);	//Normal z
+			vertices_circle.push_back(0.0f);	//Tex x
+			vertices_circle.push_back(0.0f);	//Tex y
 		}
 
 		for (GLfloat theta = 0; theta <= 2.5 * glm::pi<GLfloat>(); theta += step) {
 			GLfloat x_tex = cos(theta);
-			GLfloat z_tex = sin(theta);
+			GLfloat y_tex = sin(theta);
 
 			GLfloat x = x_tex * radius;
-			GLfloat z = z_tex * radius;
+			GLfloat y = y_tex * radius;
 
-			vertices_circle.push_back(x);					//X
-			vertices_circle.push_back(0.0f);				//Y
-			vertices_circle.push_back(z);					//Z
-			vertices_circle.push_back(0.0f);				//Normal x
-			vertices_circle.push_back(-1.0f);				//Normal y
-			vertices_circle.push_back(0.0f);				//Normal z
-			vertices_circle.push_back(0.0f);//Tex x
-			vertices_circle.push_back(0.0f);//Tex y
+			vertices_circle.push_back(x);		//X
+			vertices_circle.push_back(y);		//Y
+			vertices_circle.push_back(0.0f);	//Z
+			vertices_circle.push_back(0.0f);	//Normal x
+			vertices_circle.push_back(0.0f);	//Normal y
+			vertices_circle.push_back(-1.0f);	//Normal z
+			vertices_circle.push_back(0.0f);	//Tex x
+			vertices_circle.push_back(0.0f);	//Tex y
 		}
 		size_t size_back = vertices_circle.size();
 
@@ -662,38 +662,38 @@ Model primitives::generateCone(float radius, float height, float quality, glm::v
 		std::vector<GLuint> indices_cone;
 		{
 			GLfloat x_tex = 0.0f;
-			GLfloat z_tex = 0.0f;
+			GLfloat y_tex = 0.0f;
 
 			GLfloat x = x_tex * radius;
-			GLfloat z = z_tex * radius;
-			vertices_cone.push_back(x);					//X
-			vertices_cone.push_back(height);			//Y
-			vertices_cone.push_back(z);					//Z
-			vertices_cone.push_back(0.0f);				//Normal x
-			vertices_cone.push_back(1.0f);				//Normal y
-			vertices_cone.push_back(0.0f);				//Normal z
-			vertices_cone.push_back(0.0f);//Tex x
-			vertices_cone.push_back(0.0f);//Tex y
+			GLfloat y = y_tex * radius;
+			vertices_cone.push_back(x);			//X
+			vertices_cone.push_back(y);			//Y
+			vertices_cone.push_back(height);	//Z
+			vertices_cone.push_back(0.0f);		//Normal x
+			vertices_cone.push_back(1.0f);		//Normal y
+			vertices_cone.push_back(0.0f);		//Normal z
+			vertices_cone.push_back(0.0f);		//Tex x
+			vertices_cone.push_back(0.0f);		//Tex y
 		}
 
 		for (GLfloat theta = 0; theta <= 2.5 * glm::pi<GLfloat>(); theta += step) {
 			GLfloat x_tex = cos(theta);
-			GLfloat z_tex = sin(theta);
+			GLfloat y_tex = sin(theta);
 
 			GLfloat x = x_tex * radius;
-			GLfloat z = z_tex * radius;
+			GLfloat y = y_tex * radius;
 
-			vertices_cone.push_back(x);					//X
-			vertices_cone.push_back(0.0f);				//Y
-			vertices_cone.push_back(z);					//Z
+			vertices_cone.push_back(x);		//X
+			vertices_cone.push_back(y);		//Y
+			vertices_cone.push_back(0.0f);	//Z
 			//normal
 			glm::vec3 normal = glm::normalize(glm::vec3(x, 0.0f, z) - glm::vec3(0.5f, 0.0f, 0.5f));
 			vertices_cone.push_back(normal.x);
 			vertices_cone.push_back(normal.y);
 			vertices_cone.push_back(normal.z);
 			//Texture
-			vertices_cone.push_back(0.0f);//Tex x
-			vertices_cone.push_back(0.0f);//Tex y
+			vertices_cone.push_back(0.0f);	//Tex x
+			vertices_cone.push_back(0.0f);	//Tex y
 		}
 		size_t size_back = vertices_cone.size();
 
@@ -772,16 +772,16 @@ Model primitives::generateCylinder(float radius, float height, float quality, gl
 		vertices.insert(vertices.end(), {x,     0.0f, y,     0.0f ,-1.0f, 0.0f, 0.0f, 0.0f});
 		vertices.insert(vertices.end(), {xNext, 0.0f, yNext, 0.0f ,-1.0f, 0.0f, 0.0f, 0.0f});
 		//top face
-		vertices.insert(vertices.end(), {x, 	height, y,     0.0f ,1.0f, 0.0f, 0.0f, 0.0f});
-		vertices.insert(vertices.end(), {xNext, height, yNext, 0.0f ,1.0f, 0.0f, 0.0f, 0.0f});
+		vertices.insert(vertices.end(), {x, 	y, 	   height,     0.0f ,1.0f, 0.0f, 0.0f, 0.0f});
+		vertices.insert(vertices.end(), {xNext, yNext, height, 0.0f ,1.0f, 0.0f, 0.0f, 0.0f});
 		//side faces
 		
 		glm::vec3 normal = normalize(glm::vec3(x, 0, y));
 		glm::vec3 normalNext = normalize(glm::vec3(xNext, 0, yNext));
-		vertices.insert(vertices.end(), {x,     0.0f,   y,     normal.x,     normal.y,     normal.z,     0.0f, 0.0f});
-		vertices.insert(vertices.end(), {xNext, 0.0f,   yNext, normalNext.x, normalNext.y, normalNext.z, 0.0f, 0.0f});
-		vertices.insert(vertices.end(), {x,     height, y,     normal.x,     normal.y,     normal.z,     0.0f, 0.0f});
-		vertices.insert(vertices.end(), {xNext, height, yNext, normalNext.x, normalNext.y, normalNext.z, 0.0f, 0.0f});
+		vertices.insert(vertices.end(), {x,     0.0f,     0.0f,   normal.x,     normal.y,     normal.z,     0.0f, 0.0f});
+		vertices.insert(vertices.end(), {xNext, yNext, 0.0f,   normalNext.x, normalNext.y, normalNext.z, 0.0f, 0.0f});
+		vertices.insert(vertices.end(), {x,     y,     height, normal.x,     normal.y,     normal.z,     0.0f, 0.0f});
+		vertices.insert(vertices.end(), {xNext, yNext, height, normalNext.x, normalNext.y, normalNext.z, 0.0f, 0.0f});
 
 		//botom circle
 		indices.push_back(0);

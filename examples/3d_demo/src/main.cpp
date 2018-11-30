@@ -7,10 +7,10 @@ const int WIDTH = 400;
 const int HEIGHT = 400;
 
 glm::vec3 forwardVec = glm::vec3(1.0f, 0.0f, 0.0f);
-glm::vec3 rightVec = glm::vec3(0.0, 0.0, 1.0);
-glm::vec3 upVec = glm::vec3(0.0, 1.0, 0.0);
+glm::vec3 rightVec = glm::vec3(0.0, 1.0, 0.0);
+glm::vec3 upVec = glm::vec3(0.0, 0.0, 1.0);
 glm::vec3 origforwardVec = glm::vec3(1.0f, 0.0f, 0.0f);
-glm::vec3 steerVec = glm::vec3(0.0f, 0.0f, 0.01f);
+glm::vec3 steerVec = glm::vec3(0.0f, 0.01f, 0.00f);
 float bankingAngle = 0.0f;
 
 void moveDrawable(Drawable &drawable, Camera &camera, float delta);
@@ -65,7 +65,7 @@ int main() {
 		//cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
 		quad.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.5f, 1.0f, 0.4f, 1.0f)));
 		//cylinder.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
-		quad.setPosition(glm::vec3(-1.0f, 2.0f, 0.0f));
+		quad.setPosition(glm::vec3(-1.0f, 0.0f, 2.0f));
 		quad.settings.outlineVisible = true;
 		quad.settings.outlineColor = glm::vec4(0.7, 0.7, 0.2, 1.0);
 		quad.settings.outlineThickness = 0.03;
@@ -78,7 +78,7 @@ int main() {
 	{
 		//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.3f, 0.8f, 0.3f, 1.0f)));
 		cube.setModel(Model("C:/Users/Vincent/Documents/Projects/Blender/Example/vehicle2.fbx"));
-		cube.setPosition(glm::vec3(-1.0f, 1.0f, -1.0f));
+		cube.setPosition(glm::vec3(-1.0f, -1.0f, 1.0f));
 		//cube.rotate(glm::radians(-90.0f), 0.0f, 0.0f);
 		scene.addObject(cube);
 	}
@@ -89,22 +89,22 @@ int main() {
 	}
 
 	Drawable ground;
-	ground.setModel(primitives::generateQuad(20.0f, 0.2f, 20.0f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f)));
-	ground.setPosition(glm::vec3(0, -0.1f, 0));
+	ground.setModel(primitives::generateQuad(20.0f, 20.0f, 0.2f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f)));
+	ground.setPosition(glm::vec3(0, 0.0f, -0.1f));
 	scene.addObject(ground);
 
 	
 	DirectionalLight sunLight;
 	sunLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-	sunLight.change_direction(glm::vec3(1.0f, -1.0f, 1.0f));
+	sunLight.change_direction(glm::vec3(1.0f, 1.0f, -1.0f));
 	sunLight.intensity = 0.4f;
 	sunLight.shadow = true;
 	scene.addObject(sunLight);
 	
 
 	PointLight poleLight;
-	poleLight.setPosition(glm::vec3(2.0f, 2.0f, 0.0f));
+	poleLight.setPosition(glm::vec3(2.0f, 0.0f, 2.0f));
 	poleLight.setDistance(20.0);
 	poleLight.diffuse = glm::vec3(0.01f, 0.01f, 1.0f);
 	poleLight.specular = poleLight.diffuse;
@@ -114,7 +114,7 @@ int main() {
 	scene.addObject(poleLight);
 
 	PointLight poleLight2;
-	poleLight2.setPosition(glm::vec3(-2.0f, 2.0f, 0.0f));
+	poleLight2.setPosition(glm::vec3(-2.0f, 0.0f, 2.0f));
 	poleLight2.setDistance(20.0);
 	poleLight2.diffuse = poleLight.diffuse;
 	poleLight2.specular = poleLight2.diffuse;
@@ -131,7 +131,7 @@ int main() {
 	flashLight.outerCutOff = glm::radians(20.0f);
 	flashLight.diffuse = glm::vec3(0.8, 0.8, 0.2);
 	flashLight.specular = flashLight.diffuse;
-	flashLight.setPosition(glm::vec3(0.0, 10.0, 0.0));
+	flashLight.setPosition(glm::vec3(0.0, 10.0, 00.0));
 	flashLight.direction = glm::vec3(0.0, -1.0, 0.0);
 	flashLight.intensity = 0.3;
 	flashLight.shadow = true;
@@ -144,7 +144,7 @@ int main() {
 	flashLight2.outerCutOff = glm::radians(30.0f);
 	flashLight2.diffuse = glm::vec3(0.8, 0.8, 0.2);
 	flashLight2.specular = flashLight2.diffuse;
-	flashLight2.setPosition(glm::vec3(-3.0, 3.0, 2.0));
+	flashLight2.setPosition(glm::vec3(-3.0, 2.0, 3.0));
 	flashLight2.direction = glm::normalize(-flashLight2.getPosition());
 	flashLight2.intensity = 0.3;
 	flashLight2.shadow = true;
@@ -179,7 +179,7 @@ int main() {
 		rotatingCamera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
 		rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 		
-		flashLight.direction = glm::vec3(glm::vec3(0.2f * cos(millis), -1.0f, 0.2f * sin(millis)));
+		flashLight.direction = glm::vec3(0.2f * cos(millis), 0.2f * sin(millis), -1.0f);
 		
 		poleLight.intensity = sin(millis * 10) * 0.5 + 1.0;
 		poleLight2.intensity = sin(millis * 10 + 1.6) * 0.5 + 1.0;
@@ -195,7 +195,7 @@ int main() {
 		quadRotator.applyRotation(rotator);
 		quad.rotate(quadRotator);
 
-		sunLight.change_direction(glm::vec3(1.0f * cos(millis), -1.0f, 1.0f * sin(millis)));
+		sunLight.change_direction(glm::vec3(1.0f * cos(millis), 1.0f * sin(millis), -1.0f));
 		
 		scene.update(delta);
 		window.display();
@@ -215,13 +215,13 @@ void moveDrawable(Drawable &drawable, Camera &camera, float delta) {
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 		glm::vec3 move = forwardVec;
 		drawable.setPosition(drawable.getPosition() + move * delta * speed);
-		bankingAngle *= 1.0 - steering;
+		bankingAngle *= 0.8;
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
 		glm::vec3 move = -forwardVec;
 		drawable.setPosition(drawable.getPosition() + move * delta * speed);
-		bankingAngle *= 1.0 - steering;
+		bankingAngle *= 0.8;
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
