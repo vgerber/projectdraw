@@ -50,7 +50,7 @@ ViewFrustum OrthographicCamera::getViewFrustum(int splits) {
 	{
 		float split;
 		if (splits == 3) {
-			split = (FarZ * 0.2);
+			split = (FarZ * 0.2f);
 		}
 		else {
 			split = (FarZ / splits);

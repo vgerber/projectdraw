@@ -19,6 +19,7 @@ void Moveable::setPosition(glm::vec3 position)
 void Moveable::rotate(Rotator rotator)
 {
 	this->rotator = rotator;
+	updateModel();
 }
 
 void Moveable::translate(float x, float y, float z)
@@ -159,11 +160,16 @@ void Moveable::updateModel()
 		size.z
 	);
 	glm::mat4 rotation = rotator.getRotationMatrix();
+	/*
+		glm::translate(glm::mat4(1.0f), rotator.getOrigin()) *
+		rotator.getRotationMatrix() * 
+		glm::translate(glm::mat4(1.0f), -rotator.getOrigin());
+	*/
 
-	rotation = glm::translate(glm::mat4(1.0f), center_translation)
+	/*rotation = glm::translate(glm::mat4(1.0f), center_translation)
 		* rotation
 		* glm::translate(glm::mat4(1.0f), -center_translation);
-
+	*/
 
 	/*
 	glm::mat4 rotation = glm::mat4(1.0f);

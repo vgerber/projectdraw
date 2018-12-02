@@ -2,10 +2,23 @@
 
 Rotator::Rotator() {
 	this->rotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
+	this->origin = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
-Rotator::Rotator(glm::quat rotation) {
-    this->rotation = rotation;
+Rotator::Rotator(glm::quat rotation, glm::vec3 origin)
+{
+	this->rotation = rotation;
+	this->origin = origin;
+}
+
+void Rotator::setOrigin(float x, float y, float z)
+{
+	setOrigin(glm::vec3(x, y, z));
+}
+
+void Rotator::setOrigin(glm::vec3 origin)
+{
+	this->origin = origin;
 }
 
 void Rotator::rotateEuler(float x, float y, float z) {
@@ -13,15 +26,15 @@ void Rotator::rotateEuler(float x, float y, float z) {
 }
 
 void Rotator::rotateEuler(glm::vec3 rotation) {
-    this->rotation = glm::quat(rotation);
+	this->rotation = glm::quat(rotation);
 }
 
 void Rotator::rotate(glm::quat rotation) {
-    this->rotation = rotation;
+	this->rotation = rotation;
 }
 
 void Rotator::rotateAxis(float radians, glm::vec3 rotationAxis) {
-    rotation = glm::angleAxis(radians, rotationAxis);
+	rotation = glm::angleAxis(radians, rotationAxis);
 }
 
 void Rotator::applyRotation(glm::quat rotation) {
@@ -33,7 +46,7 @@ void Rotator::applyRotation(glm::vec3 euler) {
 }
 
 void Rotator::applyRotation(Rotator rotator) {
-    applyRotation(rotator.getRotation());
+	appliedMatrices.push_back(rotator.getRotationMatrix());
 }
 
 void Rotator::vectorRotation(glm::vec3 vecFrom, glm::vec3 vecTo) {
@@ -78,6 +91,11 @@ void Rotator::interpolate(Rotator rotator, float factor) {
     interpolate(rotator.getRotation(), factor);
 }
 
+glm::vec3 Rotator::getOrigin()
+{
+	return origin;
+}
+
 glm::vec3 Rotator::getRotationAxis() {
     return glm::axis(rotation);
 }
@@ -91,7 +109,14 @@ glm::quat Rotator::getRotation() {
 }
 
 glm::mat4 Rotator::getRotationMatrix() {
-    return glm::toMat4(rotation);
+	updateMatrix();
+	glm::mat4 finalRotationMatrix = glm::mat4(1.0);
+	
+	for (int i = 0; i < appliedMatrices.size(); i++) {
+		finalRotationMatrix = appliedMatrices[i] * finalRotationMatrix;
+	}
+	finalRotationMatrix *= rotationMatrix;
+    return finalRotationMatrix;
 }
 
 bool Rotator::isEqual(Rotator rotator) {
@@ -101,5 +126,15 @@ bool Rotator::isEqual(Rotator rotator) {
 bool Rotator::isEqual(glm::quat rotation) {
     float matching = glm::dot(this->rotation, rotation);
     return (std::abs(matching - 1.0) < 0.001);
+}
+
+void Rotator::clearAppliedRotators()
+{
+	appliedMatrices.clear();
+}
+
+void Rotator::updateMatrix()
+{
+	rotationMatrix = glm::translate(glm::mat4(1.0), origin) * glm::toMat4(rotation) * glm::translate(glm::mat4(1.0), -origin);
 }
 

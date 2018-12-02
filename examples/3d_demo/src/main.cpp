@@ -63,7 +63,7 @@ int main() {
 	Drawable quad, cube, sphere;
 	{
 		//cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
-		quad.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.5f, 1.0f, 0.4f, 1.0f)));
+		quad.setModel(primitives::generateQuad(2.0f, 1.0f, 1.0f, glm::vec4(0.5f, 1.0f, 0.4f, 1.0f)));
 		//cylinder.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
 		quad.setPosition(glm::vec3(-1.0f, 0.0f, 2.0f));
 		quad.settings.outlineVisible = true;
@@ -83,7 +83,8 @@ int main() {
 		scene.addObject(cube);
 	}
 	{
-		sphere.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
+		//sphere.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
+		sphere.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.8f, 0.5f, 0.8f, 1.0f)));
 		sphere.setPosition(glm::vec3(1.0f, 1.0f, 1.0f));
 		scene.addObject(sphere);
 	}
@@ -184,19 +185,41 @@ int main() {
 		poleLight.intensity = sin(millis * 10) * 0.5 + 1.0;
 		poleLight2.intensity = sin(millis * 10 + 1.6) * 0.5 + 1.0;
 
+		sunLight.change_direction(glm::vec3(1.0f * cos(millis), 1.0f * sin(millis), -1.0f));
+
 		//cube.rotate(1.0f * millis, 0.0f, 0.0f);
 		float scale = abs(cos(millis));
 		cube.scale(scale, scale, scale);
 
-		Rotator rotator;
-		rotator.rotateAxis(glm::radians(bankingAngle), forwardVec);
-		Rotator quadRotator = quad.getRotator();
-		quadRotator.vectorRotation(origforwardVec, forwardVec);
-		quadRotator.applyRotation(rotator);
-		quad.rotate(quadRotator);
+		{
+			Rotator rotator;
+			rotator.rotateAxis(glm::radians(bankingAngle), forwardVec);
+			Rotator quadRotator; // = quad.getRotator();
+			quadRotator.vectorRotation(origforwardVec, forwardVec);
+			quadRotator.applyRotation(rotator);
+			quad.rotate(quadRotator);
+		}
 
-		sunLight.change_direction(glm::vec3(1.0f * cos(millis), 1.0f * sin(millis), -1.0f));
 		
+		
+		
+		{
+			Rotator rotator, rotator2, rotator3;
+			sphere.setPosition(quad.getPosition() + glm::vec3(1.5f, 1.5f, 0.0f));
+			rotator.setOrigin(quad.getPosition() - sphere.getPosition());
+			rotator.rotateAxis(glm::radians(millis * 200.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+			rotator2.rotateAxis(glm::radians(millis * 100.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+			rotator3.rotateAxis(glm::radians(millis * 50.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			rotator3.applyRotation(rotator2);
+			rotator3.applyRotation(rotator);
+
+			sphere.rotate(rotator3);
+		}
+		
+
+
 		scene.update(delta);
 		window.display();
 
@@ -215,13 +238,13 @@ void moveDrawable(Drawable &drawable, Camera &camera, float delta) {
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 		glm::vec3 move = forwardVec;
 		drawable.setPosition(drawable.getPosition() + move * delta * speed);
-		bankingAngle *= 0.8;
+		bankingAngle *= 0.85;
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
 		glm::vec3 move = -forwardVec;
 		drawable.setPosition(drawable.getPosition() + move * delta * speed);
-		bankingAngle *= 0.8;
+		bankingAngle *= 0.85;
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {

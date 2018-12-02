@@ -19,6 +19,11 @@ file(GLOB_RECURSE RECORDER_SRC
 	"src/Recorder/*.cpp"
 )
 
+file(GLOB_RECURSE PHYSICS_SRC
+	"src/Physics/*.h"
+	"src/Physics/*.cpp"
+)
+
 if (UNIX)
 add_library(projectdraw_slim ${ENGINE_SRC})
 
@@ -79,6 +84,30 @@ include_directories(C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/stb)
 
 
+set(BulletLib 
+	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletSoftBody_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletInverseDynamics_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletInverseDynamicsUtils_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletDynamics_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletCollision_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/Bullet3Geometry_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/Bullet3Common_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/Bullet3Dynamics_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/Bullet3Collision_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/LinearMath_Debug.lib
+
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/BulletSoftBody.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/BulletInverseDynamics.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/BulletInverseDynamicsUtils.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/BulletDynamics.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/BulletCollision.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/Bullet3Geometry.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/Bullet3Common.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/Bullet3Dynamics.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/Bullet3Collision.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/LinearMath.lib
+)
+
 
 #add_executable(engine src/main.cpp ${ENGINE_SRC})
 add_library(projectdraw_slim STATIC  ${ENGINE_SRC})
@@ -119,6 +148,15 @@ target_link_libraries(projectdraw_recorder
 #ffmpeg
 	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/debug/avcodec.lib
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/avcodec.lib
+)
+
+include_directories(C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src)
+include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/src)
+add_library(projectdraw_physics ${PHYSICS_SRC})
+target_link_libraries(projectdraw_physics
+	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw.lib
+	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw.lib
+	${BulletLib}
 )
 
 endif()
