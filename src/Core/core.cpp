@@ -126,6 +126,7 @@ void loadDeferredShaders()
 
 
 	//No Shadow
+
 	Shader shader_deferred_plight_nos;
 	shader_deferred_plight_nos.layers = {
 		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },

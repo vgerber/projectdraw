@@ -206,6 +206,8 @@ void DeferredRenderer::resize(int width, int height) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, getWidth() / pow(2, i), getHeight() / pow(2, i), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bloomTextures[i], 0);
 
@@ -213,6 +215,8 @@ void DeferredRenderer::resize(int width, int height) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, getWidth() / pow(2, i), getHeight() / pow(2, i), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
@@ -555,9 +559,7 @@ void DeferredRenderer::renderLight()
 
 	1. Light + Shadow
 	2. Light - Shadow
-	*/
-	
-	
+	*/	
 
 	if(pointLightShadowCount > 0) {
 
@@ -642,7 +644,7 @@ void DeferredRenderer::renderLight()
 		{
 			PointLight * pLight = pointLights[pLightIndex];
 
-			if(pLight->intensity = 0.0) {
+			if(pLight->intensity == 0.0) {
 				continue;
 			}
 
@@ -752,7 +754,7 @@ void DeferredRenderer::renderLight()
 			SpotLight * sLight = spotLights[sLightIndex];
 			sLight->apply(shaderSLight, "spotLight[" + std::to_string(sLightCount) + "]");
 
-			if(sLight->intensity = 0.0) {
+			if(sLight->intensity == 0.0) {
 				continue;
 			}
 

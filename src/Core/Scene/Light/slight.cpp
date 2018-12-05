@@ -62,16 +62,15 @@ void SpotLight::apply(Shader shader, std::string target)
 	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".direction").c_str()), direction.x, direction.y, direction.z);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".cutOff").c_str()), glm::cos(cutOff));
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".outerCutOff").c_str()), glm::cos(outerCutOff));
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".linear").c_str()), attenuationLinear);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".constant").c_str()), attenuationConstant);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".quadratic").c_str()), attenuationQuadratic);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".farPlane").c_str()), distance);
 
-	glUniformMatrix4fv(
+	if (shadow) {
+		glUniformMatrix4fv(
 			glGetUniformLocation(shader.getId(), (target + ".lightSpaceMatrix").c_str()),
 			1,
 			GL_FALSE,
 			glm::value_ptr(depthMap.lightSpaceMatrix));
+	}
 }
 
 void SpotLight::setCutOff(float inner, float outer)

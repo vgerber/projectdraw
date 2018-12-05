@@ -53,6 +53,9 @@ void main() {
 			}
 		}
 
-		color += vec4(result.rgb, 1.0);
+		color = vec4(clamp(color + vec4(result.rgb, 1.0), 0.0, 1.0));
+	}
+	else {
+		color = vec4(Color.rgb, Color.a);
 	}
 }

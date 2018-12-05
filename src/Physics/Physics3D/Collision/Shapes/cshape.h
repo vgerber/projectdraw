@@ -5,6 +5,7 @@
 
 #include "Core/Model/model.h"
 
+#include "../../Util/conversion.h"
 
 
 namespace collision {
