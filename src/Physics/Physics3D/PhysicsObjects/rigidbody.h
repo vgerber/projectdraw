@@ -1,8 +1,9 @@
 #pragma once
 
-#include <btBulletDynamicsCommon.h>
+
 #include "Core/Scene/drawable.h"
 
+#include "physicsobject.h"
 #include "../Collision/Shapes/cshape.h"
 
 typedef  unsigned int (uint);
@@ -14,7 +15,7 @@ enum RigidType
 	DYNAMIC
 };
 
-class RigidBody {
+class RigidBody : public PhyscisObject {
 public:
     bool visibleAABB = false;
 
