@@ -4,6 +4,7 @@ project (ProjectDraw_Slim)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
+
 file(GLOB_RECURSE ENGINE_SRC 
     "src/Core/*.h"
     "src/Core/*.cpp"	
@@ -24,56 +25,59 @@ file(GLOB_RECURSE PHYSICS_SRC
 	"src/Physics/*.cpp"
 )
 
+file(GLOB_RECURSE EXAMPLE_3D_SRC
+	"examples/3d_demo/*.h"
+	"examples/3d_demo/*.cpp"
+)
+
 if (UNIX)
-add_library(projectdraw_slim ${ENGINE_SRC})
 
-IF (SOIL_INCLUDE_DIR)
-  # Already in cache, be silent
-  SET(SOIL_FIND_QUIETLY TRUE)
-ENDIF (SOIL_INCLUDE_DIR)
+set(BulletLibraries
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/Bullet3Common/libBullet3Common.so
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletSoftBody/libBulletSoftBody.so
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletDynamics/libBulletDynamics.so
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletCollision/libBulletCollision.so
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletInverseDynamics/libBulletInverseDynamics.so
+	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/LinearMath/libLinearMath.so
 
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/Bullet3Common/libBullet3Common.so
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletSoftBody/libBulletSoftBody.so
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletDynamics/libBulletDynamics.so
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletCollision/libBulletCollision.so
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletInverseDynamics/libBulletInverseDynamics.so
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/LinearMath/libLinearMath.so
+)
 
-FIND_PATH(SOIL_INCLUDE_DIR SOIL.h PATH_SUFFIXES include/SOIL include)
-
-SET(SOIL_NAMES SOIL Soil soil)
-FIND_LIBRARY(SOIL_LIBRARY NAMES ${SOIL_NAMES} )
-MARK_AS_ADVANCED( SOIL_LIBRARY SOIL_INCLUDE_DIR )
-
-# Per-recommendation
-SET(SOIL_INCLUDE_DIRS "${SOIL_INCLUDE_DIR}")
-SET(SOIL_LIBRARIES    "${SOIL_LIBRARY}")
-
-# handle the QUIETLY and REQUIRED arguments and set SOIL_FOUND to TRUE if
-# all listed variables are TRUE
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(SOIL DEFAULT_MSG SOIL_LIBRARIES SOIL_INCLUDE_DIRS)    
-
-
-include_directories(~/Development/Lib/Cpp/glm-0.9.9.0/)
-
-#define GLM_ENABLE_EXPERIMENTAL
 find_package(GLEW REQUIRED)
 find_package(assimp REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Freetype REQUIRED)
 
+add_library(projectdraw_slim ${ENGINE_SRC}) 
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS}
-	/home/vincent/Development/Lib/Cpp/stb-master
+	/home/vincent/Development/Lib/Cpp/stb-master	
+	/home/vincent/Development/Lib/Cpp/glm-0.9.9.0/
 )
-
-
 target_link_libraries(projectdraw_slim
 #Assimp
 	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/code/libassimp.so 
 	optimized /home/vincent/Development/Lib/Cpp/assimp-master/Release/code/libassimp.so 
-#GLFW
-	glfw 
 
 	${OPENGL_LIBRARIES} 
 	${GLEW_LIBRARIES} 
 	${SOIL_LIBRARIES} 
 	${FREETYPE_LIBRARIES} 
+)
+
+add_library(projectdraw_physics ${PHYSICS_SRC})
+include_directories(
+	/home/vincent/Development/Lib/Cpp/bullet3/src/
+	/home/vincent/Development/Cpp/projectdraw_slim/src/
+)
+target_link_libraries(projectdraw_physics
+	${BulletLibraries}
+	/home/vincent/Development/Cpp/projectdraw_slim/build/projectdraw_slim.a
 )
 endif()
 
@@ -84,7 +88,7 @@ include_directories(C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/stb)
 
 
-set(BulletLib 
+set(BulletLibraries 
 	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletSoftBody_Debug.lib
 	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletInverseDynamics_Debug.lib
 	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletInverseDynamicsUtils_Debug.lib
@@ -108,19 +112,29 @@ set(BulletLib
 	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/LinearMath.lib
 )
 
+set(ProjectDrawLibraries
+	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw_core.lib
+	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw_core.lib
+)
 
-#add_executable(engine src/main.cpp ${ENGINE_SRC})
-add_library(projectdraw_slim STATIC  ${ENGINE_SRC})
-target_link_libraries(projectdraw_slim
+
+add_library(projectdraw_core STATIC  ${ENGINE_SRC})
+
+set(ENGINE_ROOT "C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src/Core/")
+foreach(source_item IN ITEMS ${ENGINE_SRC})
+    get_filename_component(source_item_path "${source_item}" PATH)
+    file(RELATIVE_PATH source_item_rel_path "${ENGINE_ROOT}" "${source_item_path}")
+    string(REPLACE "/" "\\" item_group_path "${source_item_rel_path}")
+    source_group("${item_group_path}" FILES "${source_item}")
+endforeach()
+
+target_link_libraries(projectdraw_core
 #ASSIMP
 	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/assimp-vc140-mtd.lib
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/assimp-vc140-mt.lib
 #GLEW
 	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/glew32d.lib 
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/glew32.lib 
-#SOIL
-	#debug 	  C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Debug/SOIL.lib
-	#optimized C:/Users/Vincent/Documents/Projects/Lib/C++/SOIL/projects/VC9/Release/SOIL.lib	
 #OpenGL
 	debug	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/debug/OpenGL32.lib
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/OpenGL32.lib 
@@ -135,29 +149,64 @@ find_package(CUDA QUIET REQUIRED)
 
 cuda_add_library(cuda_render STATIC ${CUDARENDER_SRC})
 target_link_libraries(cuda_render
-	#C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Cuda/curender.lib
-	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw.lib
-	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw.lib
+	${ProjectDrawLibraries}
 )
 
-include_directories(C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src)
 add_library(projectdraw_recorder ${RECORDER_SRC})
+include_directories(C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src)
 target_link_libraries(projectdraw_recorder
-	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw.lib
-	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw.lib
+	${ProjectDrawLibraries}
 #ffmpeg
 	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/debug/avcodec.lib
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/avcodec.lib
 )
 
-include_directories(C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src)
-include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/src)
+#Physics Module
 add_library(projectdraw_physics ${PHYSICS_SRC})
+include_directories( 
+	C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src
+	C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/src
+)
 target_link_libraries(projectdraw_physics
-	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw.lib
-	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw.lib
+	${ProjectDrawLibraries}
 	${BulletLib}
 )
+
+
+#Examples
+
+
+#3D Example
+include_directories(C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/include)
+include_directories(C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src)
+
+
+#add_executable(engine src/main.cpp ${ENGINE_SRC})
+add_executable(example_scene3d ${EXAMPLE_3D_SRC})
+target_link_libraries(example_scene3d
+#ASSIMP
+	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/assimp-vc140-mtd.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/assimp-vc140-mt.lib
+#GLEW
+	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/glew32d.lib 
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/glew32.lib 
+#OpenGL
+	debug	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/OpenGL32.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/OpenGL32.lib
+#FreeType
+	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/freetyped.lib 
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/freetype.lib 
+#SFML
+	debug     C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/sfml-graphics-d.lib
+	debug     C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/sfml-window-d.lib
+	debug     C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/sfml-system-d.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/sfml-graphics.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/sfml-window.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/sfml-system.lib
+#ProjectDraw
+	${ProjectDrawLibraries}
+)
+
 
 endif()
 
