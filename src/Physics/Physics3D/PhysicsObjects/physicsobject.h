@@ -4,6 +4,8 @@
 class PhyscisObject {
 public:
 
+    virtual void update() = 0;
+
 private:
 
 };

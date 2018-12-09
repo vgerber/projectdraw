@@ -2,7 +2,8 @@
 
 #include <vector>
 
-#include "../PhysicsObjects/physicsobject.h"
+#include "../PhysicsObjects/rigidbody.h"
+#include "../PhysicsObjects/triggervolume.h"
 
 class DiscreteWorld {
 public:
@@ -12,10 +13,14 @@ public:
     void removePhysicsObject(PhyscisObject &pobject);
 
     void update(float delta);
-    void refreshDrawables();
+
+    void setQuality(int maxSteps, float fixedTimeStep);
 
 private:
-    std::vector<PhyscisObject*> physcisObjects;
+    int maxSimulationSteps = 10;
+    float fixedSimulationStep = 1.0f / 60.0f;
+    std::vector<RigidBody*> rigidBodies;
+    std::vector<TriggerVolume*> triggerVolumes;
 
     btDefaultCollisionConfiguration * collisionConfig = nullptr;
     btCollisionDispatcher * collisionDispatcher = nullptr;

@@ -152,7 +152,6 @@ int main() {
 	scene.addObject(flashLight2);
 	
 
-
 	sf::Clock clock;
 	sf::Time deltaTime = clock.getElapsedTime();
 	float delta = 0.0f;

@@ -1,4 +1,0 @@
-#include "ghostobject.h"
-
-
-

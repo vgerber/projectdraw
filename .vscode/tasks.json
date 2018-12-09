@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build engine",
+            "label": "build release",
             "type": "shell",
-            "command": "cd build/ && cmake .. && make",
+            "command": "cd build/ && cmake -DCMAKE_BUILD_TYPE=Release .. && make",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -14,25 +14,28 @@
             "problemMatcher": []
         },
         {
-            "label": "build and run 3d_demo",
+            "label": "build debug",
             "type": "shell",
-            "command": "cd examples/3d_demo/build/ && cmake .. && make && ./3d_demo",
+            "command": "cd build/ && cmake  -DCMAKE_BUILD_TYPE=Debug .. && make",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
+            "problemMatcher": []
+        },
+        {
+            "label": "run 3d_example",
+            "type": "shell",
+            "command": "./build/3d_example",
             "problemMatcher": [],
-            "dependsOn": ["build engine"]
+            "dependsOn": "build release"
         },
         {
-            "label": "build and run texture_demo",
+            "label": "run physics3d_example",
             "type": "shell",
-            "command": "cd examples/texture_demo/build/ && cmake .. && make && ./texture_demo",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": []
+            "command": "./build/physics3d_example",
+            "problemMatcher": [],
+            "dependsOn": "build release"
         }
     ]
 }

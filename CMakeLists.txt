@@ -30,6 +30,11 @@ file(GLOB_RECURSE EXAMPLE_3D_SRC
 	"examples/3d_demo/*.cpp"
 )
 
+file(GLOB_RECURSE EXAMPLE_PHYSICS3D_SRC
+	"examples/physics3d_example/*.h"
+	"examples/physics3d_example/*.cpp"
+)
+
 if (UNIX)
 
 set(BulletLibraries
@@ -54,12 +59,12 @@ find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Freetype REQUIRED)
 
-add_library(projectdraw_slim ${ENGINE_SRC}) 
+add_library(projectdraw_core ${ENGINE_SRC}) 
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${SOIL_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS}
 	/home/vincent/Development/Lib/Cpp/stb-master	
 	/home/vincent/Development/Lib/Cpp/glm-0.9.9.0/
 )
-target_link_libraries(projectdraw_slim
+target_link_libraries(projectdraw_core
 #Assimp
 	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/code/libassimp.so 
 	optimized /home/vincent/Development/Lib/Cpp/assimp-master/Release/code/libassimp.so 
@@ -70,16 +75,75 @@ target_link_libraries(projectdraw_slim
 	${FREETYPE_LIBRARIES} 
 )
 
-add_library(projectdraw_physics ${PHYSICS_SRC})
+add_library(projectdraw_physics3d ${PHYSICS_SRC})
 include_directories(
 	/home/vincent/Development/Lib/Cpp/bullet3/src/
 	/home/vincent/Development/Cpp/projectdraw_slim/src/
 )
-target_link_libraries(projectdraw_physics
+target_link_libraries(projectdraw_physics3d
 	${BulletLibraries}
-	/home/vincent/Development/Cpp/projectdraw_slim/build/projectdraw_slim.a
+	/home/vincent/Development/Cpp/projectdraw_slim/build/projectdraw_core.a
+)
+
+
+
+#Examples
+
+
+#Scene3D Example
+include_directories(
+	/home/vincent/Development/Lib/Cpp/glm-0.9.9.0/
+	/home/vincent/Development/Cpp/projectdraw_slim/src/
+	/home/vincent/Development/Lib/Cpp/stb-master/
+	${FREETYPE_INCLUDE_DIRS} 
+	${OPENGL_INCLUDE_DIRS}
+	${GLEW_INCLUDE_DIRS}
+)
+
+add_executable(3d_example ${EXAMPLE_3D_SRC})
+
+target_link_libraries(3d_example
+	sfml-graphics
+	sfml-window
+	sfml-system
+	/home/vincent/Development/Cpp/projectdraw_slim/build/libprojectdraw_core.a
+	${FREETYPE_LIBRARIES} 
+	${OPENGL_LIBRARIES}
+	${GLEW_LIBRARIES} 
+
+	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/code/libassimp.so 
+	optimized /home/vincent/Development/Lib/Cpp/assimp-master/Release/code/libassimp.so 
+)
+
+
+#Scene3D Example
+include_directories(
+	/home/vincent/Development/Lib/Cpp/glm-0.9.9.0/
+	/home/vincent/Development/Cpp/projectdraw_slim/src/
+	/home/vincent/Development/Lib/Cpp/stb-master/
+	${FREETYPE_INCLUDE_DIRS} 
+	${OPENGL_INCLUDE_DIRS}
+	${GLEW_INCLUDE_DIRS}
+)
+
+add_executable(physics3d_example ${EXAMPLE_PHYSICS3D_SRC})
+
+target_link_libraries(physics3d_example
+	sfml-graphics
+	sfml-window
+	sfml-system
+	/home/vincent/Development/Cpp/projectdraw_slim/build/libprojectdraw_core.a
+	/home/vincent/Development/Cpp/projectdraw_slim/build/libprojectdraw_physics3d.a
+	${FREETYPE_LIBRARIES} 
+	${OPENGL_LIBRARIES}
+	${GLEW_LIBRARIES} 
+	${BulletLibraries}
+
+	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/code/libassimp.so 
+	optimized /home/vincent/Development/Lib/Cpp/assimp-master/Release/code/libassimp.so 
 )
 endif()
+
 
 if(WIN32)
 

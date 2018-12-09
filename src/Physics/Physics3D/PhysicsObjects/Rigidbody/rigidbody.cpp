@@ -31,6 +31,10 @@ RigidBody::RigidBody(collision::CollisionShape shape, float mass, RigidType type
 
 }
 
+void RigidBody::update() {
+	refreshDrawable();
+}
+
 void RigidBody::linkDrawable(Drawable &drawable)
 {
 	this->drawable = &drawable;
@@ -38,18 +42,14 @@ void RigidBody::linkDrawable(Drawable &drawable)
 
 	scaleShape(drawable.getScale());
 
-
-	btTransform transform = rigidBody->getWorldTransform();
-
-	transform.setOrigin(transform.getOrigin() - btVector3(drawable.getSize().width, drawable.getSize().height, drawable.getSize().depth) * btVector3(0.5f, 0.5f, 0.5f));
-	rigidBody->setWorldTransform(transform);
+	refreshBody();
 }
 
 void RigidBody::refreshBody()
 {
 	if (drawable) {
 		btTransform transform;
-		glm::vec3 center = drawable->getPositionCenter();
+		glm::vec3 center = drawable->getPosition();
 		glm::vec3 rotation = drawable->getRotator().getRotationEuler();
 
 		scaleShape(drawable->getScale());
@@ -141,6 +141,58 @@ void RigidBody::dispose()
 {
 	delete rigidBody->getMotionState();
 	delete rigidBody;
+}
+
+void RigidBody::setDamping(float linear, float angular) {
+	rigidBody->setDamping(__cpp_lib_exchange_function, angular);
+}
+
+void RigidBody::setRestitution(float restitution) {
+	rigidBody->setRestitution(restitution);
+}
+
+void RigidBody::applyImpulse(glm::vec3 impules, glm::vec3 relativePosition) {
+	rigidBody->applyImpulse(toBtVec3(impules), toBtVec3(relativePosition));
+}
+
+void RigidBody::applyForce(glm::vec3 force, glm::vec3 relativePosition) {
+	rigidBody->applyForce(toBtVec3(force), toBtVec3(relativePosition));
+}
+
+void RigidBody::setLinearFactor(glm::vec3 factor) {
+	rigidBody->setLinearFactor(toBtVec3(factor));
+}
+
+void RigidBody::setAngularFactor(glm::vec3 factor) {
+	rigidBody->setAngularFactor(toBtVec3(factor));
+}
+
+float RigidBody::getLinearDamping() {
+	return rigidBody->getLinearDamping();
+}
+
+float RigidBody::getAngularDamping() {
+	return rigidBody->getAngularDamping();
+}
+
+float RigidBody::getRestitution() {
+	return rigidBody->getRestitution();
+}
+
+glm::vec3 RigidBody::getLinearFactor() {
+	return toGLMVec3(rigidBody->getLinearFactor());
+}
+
+glm::vec3 RigidBody::getAngularFactor() {
+	return toGLMVec3(rigidBody->getAngularFactor());
+}
+
+glm::vec3 RigidBody::getLinearVelocity() {
+	return toGLMVec3(rigidBody->getLinearVelocity());
+}
+
+glm::vec3 RigidBody::getAngularVelocity() {
+	return toGLMVec3(rigidBody->getAngularVelocity());
 }
 
 RigidType RigidBody::getRigidType()
