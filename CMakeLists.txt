@@ -154,27 +154,27 @@ include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/stb)
 
 
 set(BulletLibraries 
-	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletSoftBody_Debug.lib
-	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletInverseDynamics_Debug.lib
-	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletInverseDynamicsUtils_Debug.lib
-	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletDynamics_Debug.lib
-	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/BulletCollision_Debug.lib
-	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/Bullet3Geometry_Debug.lib
-	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/Bullet3Common_Debug.lib
-	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/Bullet3Dynamics_Debug.lib
-	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/Bullet3Collision_Debug.lib
-	debug C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Debug/LinearMath_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/BulletSoftBody_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/BulletInverseDynamics_Debug.lib
+	#debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/BulletInverseDynamicsUtils_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/BulletDynamics_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/BulletCollision_Debug.lib
+	#debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/Bullet3Geometry_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/Bullet3Common_Debug.lib
+	#debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/Bullet3Dynamics_Debug.lib
+	#debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/Bullet3Collision_Debug.lib
+	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/LinearMath_Debug.lib
 
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/BulletSoftBody.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/BulletInverseDynamics.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/BulletInverseDynamicsUtils.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/BulletDynamics.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/BulletCollision.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/Bullet3Geometry.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/Bullet3Common.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/Bullet3Dynamics.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/Bullet3Collision.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/build/lib/Release/LinearMath.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/BulletSoftBody.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/BulletInverseDynamics.lib
+	#optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/BulletInverseDynamicsUtils.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/BulletDynamics.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/BulletCollision.lib
+	#optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/Bullet3Geometry.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/Bullet3Common.lib
+	#optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/Bullet3Dynamics.lib
+	#optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/Bullet3Collision.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/LinearMath.lib
 )
 
 set(ProjectDrawLibraries
@@ -230,15 +230,15 @@ target_link_libraries(projectdraw_recorder
 )
 
 #Physics Module
-add_library(projectdraw_physics ${PHYSICS_SRC})
+add_library(projectdraw_physics3d ${PHYSICS_SRC})
 include_directories( 
 	C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src
 	C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/src
 )
-target_link_libraries(projectdraw_physics
+target_link_libraries(projectdraw_physics3d
 	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw_core.lib
 	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw_core.lib
-	${BulletLib}
+	${BulletLibraries}
 )
 
 
@@ -277,7 +277,11 @@ target_link_libraries(example_scene3d
 )
 
 
-add_executable(example_physics3d ${EXAMPLE_3D_SRC})
+add_executable(example_physics3d ${EXAMPLE_PHYSICS3D_SRC})
+target_include_directories(example_physics3d PUBLIC
+	C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src
+	C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/src
+)
 target_link_libraries(example_physics3d
 #ASSIMP
 	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/assimp-vc140-mtd.lib
@@ -300,6 +304,8 @@ target_link_libraries(example_physics3d
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/sfml-system.lib
 #ProjectDraw
 	${ProjectDrawLibraries}
+#Bullet
+	${BulletLibraries}
 )
 
 endif()

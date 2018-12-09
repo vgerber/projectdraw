@@ -4,8 +4,8 @@
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
 
-const int WIDTH = 500;
-const int HEIGHT = 500;
+const int WIDTH = 1000;
+const int HEIGHT = 1000;
 
 sf::Window * activeWindow = nullptr;
 sf::Clock windowClock;
@@ -41,14 +41,14 @@ int main() {
     mainScene.addObject(ground);
 
     Drawable testObject;
-    testObject.setModel(primitives::generateSphere(20, 20,  glm::vec4(0.4f, 1.0f, 0.4f, 1.0f)));
+    testObject.setModel(primitives::generateSphere(20, 20,  glm::vec4(0.4f, 0.8f, 0.4f, 1.0f)));
     testObject.setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
     mainScene.addObject(testObject);
 
     DirectionalLight sunLight;
     sunLight.change_direction(glm::vec3(-0.3, -1.0f, -1.0));
     sunLight.diffuse = glm::vec3(1.0f, 1.0f, 0.8f);
-    sunLight.ambient = sunLight.diffuse;
+    sunLight.ambient = sunLight.diffuse * 0.5f;
     sunLight.shadow = true;
     mainScene.addObject(sunLight);
     
@@ -65,7 +65,7 @@ int main() {
 
 
     collision::CollisionShape rGroundShape(collision::generateCube(ground.getSize()));
-    RigidBody rGroundBody(rGroundShape, 0.0f, RigidType::STATIC);
+    RigidBody rGroundBody(rGroundShape, 0.0f, RigidType::KINEMAITC);
     rGroundBody.linkDrawable(ground);
     rGroundBody.setRestitution(0.8);
     physicsWorld.addPhysicsObject(rGroundBody);
@@ -79,8 +79,20 @@ int main() {
         }
         clearScreen(glm::vec4(0.3f, 0.3f, 1.0f, 1.0f));
 
+		float deltaTimeMilli = deltaTime * 0.001f;
+
+		//Keyboard events
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
+			ground.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, -10.0f * deltaTimeMilli));
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
+			ground.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, 10.0f * deltaTimeMilli));
+		}
+		rGroundBody.refreshBody();
+
+
         //update all elements
-        physicsWorld.update(deltaTime * 0.001f);
+        physicsWorld.update(std::max(deltaTime * 0.001f, 0.002f));
         mainScene.update(deltaTime);
         activeWindow->display();
 
