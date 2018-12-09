@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "../PhysicsObjects/rigidbody.h"
-#include "../PhysicsObjects/triggervolume.h"
+#include "../PhysicsObjects/Rigidbody/rigidbody.h"
+#include "../PhysicsObjects/Trigger/triggervolume.h"
 
 class DiscreteWorld {
 public:

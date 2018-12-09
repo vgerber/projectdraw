@@ -46,7 +46,7 @@ int main() {
     mainScene.addObject(testObject);
 
     DirectionalLight sunLight;
-    sunLight.change_direction(glm::vec3(-1.0, -0.3f, -1.0));
+    sunLight.change_direction(glm::vec3(-0.3, -1.0f, -1.0));
     sunLight.diffuse = glm::vec3(1.0f, 1.0f, 0.8f);
     sunLight.ambient = sunLight.diffuse;
     sunLight.shadow = true;

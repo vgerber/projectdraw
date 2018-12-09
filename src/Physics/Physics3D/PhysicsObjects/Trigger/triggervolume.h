@@ -1,5 +1,5 @@
 #pragma once
-#include "physicsobject.h"
+#include "../physicsobject.h"
 
 class TriggerVolume : public PhyscisObject{
 

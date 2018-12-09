@@ -3,8 +3,8 @@
 
 #include "Core/Scene/drawable.h"
 
-#include "physicsobject.h"
-#include "../Collision/Shapes/cshape.h"
+#include "../physicsobject.h"
+#include "../../Collision/Shapes/cshape.h"
 
 typedef  unsigned int (uint);
 
@@ -42,9 +42,9 @@ public:
 	void applyImpulse(glm::vec3 impulse, glm::vec3 relativePosition = glm::vec3(0.0f));
 	//time based 
 	void applyForce(glm::vec3 force, glm::vec3 relativePosition = glm::vec3(0.0f));
-
+	//lock/control displacement for certain directions
 	void setLinearFactor(glm::vec3 factor);
-
+	//lock/control rotating for certain axis
 	void setAngularFactor(glm::vec3 factor);
 
 	float getLinearDamping();
