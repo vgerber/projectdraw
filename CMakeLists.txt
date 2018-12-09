@@ -80,6 +80,7 @@ include_directories(
 	/home/vincent/Development/Lib/Cpp/bullet3/src/
 	/home/vincent/Development/Cpp/projectdraw_slim/src/
 )
+
 target_link_libraries(projectdraw_physics3d
 	${BulletLibraries}
 	/home/vincent/Development/Cpp/projectdraw_slim/build/projectdraw_core.a
@@ -179,8 +180,9 @@ set(BulletLibraries
 set(ProjectDrawLibraries
 	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw_core.lib
 	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw_core.lib
+	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw_physics3d.lib
+	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw_physcis3d.lib
 )
-
 
 add_library(projectdraw_core STATIC  ${ENGINE_SRC})
 
@@ -213,13 +215,15 @@ find_package(CUDA QUIET REQUIRED)
 
 cuda_add_library(cuda_render STATIC ${CUDARENDER_SRC})
 target_link_libraries(cuda_render
-	${ProjectDrawLibraries}
+debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw_core.lib
+optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw_core.lib
 )
 
 add_library(projectdraw_recorder ${RECORDER_SRC})
 include_directories(C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src)
 target_link_libraries(projectdraw_recorder
-	${ProjectDrawLibraries}
+	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw_core.lib
+	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw_core.lib
 #ffmpeg
 	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/debug/avcodec.lib
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/avcodec.lib
@@ -232,7 +236,8 @@ include_directories(
 	C:/Users/Vincent/Documents/Projects/Lib/C++/bullet3-master/src
 )
 target_link_libraries(projectdraw_physics
-	${ProjectDrawLibraries}
+	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw_core.lib
+	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw_core.lib
 	${BulletLib}
 )
 
@@ -245,7 +250,7 @@ include_directories(C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-
 include_directories(C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src)
 
 
-#add_executable(engine src/main.cpp ${ENGINE_SRC})
+
 add_executable(example_scene3d ${EXAMPLE_3D_SRC})
 target_link_libraries(example_scene3d
 #ASSIMP
@@ -271,6 +276,31 @@ target_link_libraries(example_scene3d
 	${ProjectDrawLibraries}
 )
 
+
+add_executable(example_physics3d ${EXAMPLE_3D_SRC})
+target_link_libraries(example_physics3d
+#ASSIMP
+	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/assimp-vc140-mtd.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/assimp-vc140-mt.lib
+#GLEW
+	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/glew32d.lib 
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/glew32.lib 
+#OpenGL
+	debug	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/OpenGL32.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/OpenGL32.lib
+#FreeType
+	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/freetyped.lib 
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/freetype.lib 
+#SFML
+	debug     C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/sfml-graphics-d.lib
+	debug     C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/sfml-window-d.lib
+	debug     C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/sfml-system-d.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/sfml-graphics.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/sfml-window.lib
+	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/sfml-system.lib
+#ProjectDraw
+	${ProjectDrawLibraries}
+)
 
 endif()
 
