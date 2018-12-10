@@ -4,8 +4,8 @@
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
 
-const int WIDTH = 1000;
-const int HEIGHT = 1000;
+const int WIDTH  = 500;
+const int HEIGHT = 500;
 
 sf::Window * activeWindow = nullptr;
 sf::Clock windowClock;

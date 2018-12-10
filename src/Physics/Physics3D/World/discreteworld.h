@@ -5,6 +5,9 @@
 #include "../PhysicsObjects/Rigidbody/rigidbody.h"
 #include "../PhysicsObjects/Trigger/triggervolume.h"
 
+#include "../Util/debugdrawer.h"
+#include "LinearMath/btIDebugDraw.h"
+
 class DiscreteWorld {
 public:
     DiscreteWorld();
@@ -16,7 +19,11 @@ public:
 
     void setQuality(int maxSteps, float fixedTimeStep);
 
+    //do not manipulate them outside!
+    const std::vector<Drawable> * getDebugDrawables();
+
 private:
+    DebugDrawer debugDrawer;
     int maxSimulationSteps = 10;
     float fixedSimulationStep = 1.0f / 60.0f;
     std::vector<RigidBody*> rigidBodies;

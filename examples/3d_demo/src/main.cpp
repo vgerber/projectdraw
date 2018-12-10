@@ -99,7 +99,7 @@ int main() {
 	sunLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
 	sunLight.change_direction(glm::vec3(1.0f, 1.0f, -1.0f));
-	sunLight.intensity = 1.0f;
+	sunLight.intensity = 0.1f;
 	sunLight.shadow = true;
 	scene.addObject(sunLight);
 	
@@ -111,7 +111,7 @@ int main() {
 	poleLight.specular = poleLight.diffuse;
 	poleLight.intensity = 1.0f;
 	poleLight.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
-	poleLight.shadow = false;
+	poleLight.shadow = true;
 	scene.addObject(poleLight);
 
 	PointLight poleLight2;
@@ -121,7 +121,7 @@ int main() {
 	poleLight2.specular = poleLight2.diffuse;
 	poleLight2.intensity = 1.0f;
 	poleLight2.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
-	poleLight2.shadow = false;
+	poleLight2.shadow = true;
 	scene.addObject(poleLight2);
 	
 	
@@ -135,7 +135,7 @@ int main() {
 	flashLight.setPosition(glm::vec3(0.0, 0.0, 10.0));
 	flashLight.direction = glm::vec3(0.0, -1.0, 0.0);
 	flashLight.intensity = 0.6;
-	flashLight.shadow = false;
+	flashLight.shadow = true;
 	scene.addObject(flashLight);
 
 	SpotLight flashLight2;

@@ -25,7 +25,7 @@ RigidBody::RigidBody(collision::CollisionShape shape, float mass, RigidType type
 	btDefaultMotionState *myMotionState = new btDefaultMotionState(transform);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, this->shape->getShape(), localInertia);
 	rigidBody = new btRigidBody(rbInfo);	
-	
+	//rigidBody->setContactStiffnessAndDamping(0.0, 0.0);
 	glGenVertexArrays(1, &aabbVAO);
 	glGenBuffers(1, &aabbVBO);		
 

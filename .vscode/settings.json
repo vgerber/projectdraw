@@ -22,7 +22,8 @@
         "cwctype": "cpp",
         "condition_variable": "cpp",
         "mutex": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "vector": "cpp"
     },
     "C_Cpp.configurationWarnings": "Disabled"
 }

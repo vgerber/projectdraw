@@ -51,6 +51,10 @@ void DiscreteWorld::setQuality(int maxSteps, float fixedTimeStep) {
     fixedSimulationStep = fixedTimeStep;
 }
 
+const std::vector<Drawable> * DiscreteWorld::getDebugDrawables() {
+    return debugDrawer.flushDrawables();
+}
+
 
 void DiscreteWorld::setup() {
     collisionConfig = new btDefaultCollisionConfiguration();
@@ -59,5 +63,7 @@ void DiscreteWorld::setup() {
     constrainSolver = new btSequentialImpulseConstraintSolver();
     world = new btDiscreteDynamicsWorld(collisionDispatcher, broadphase, constrainSolver, collisionConfig);
     world->setGravity(btVector3(0.0f, 0.0f, -9.81f));
+    world->setDebugDrawer(&debugDrawer);
+    debugDrawer.setDebugMode(1);
 }
 
