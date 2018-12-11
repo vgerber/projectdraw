@@ -11,10 +11,10 @@ void DebugDrawer::reportErrorWarning(const char * warningString) {
 }
 
 void DebugDrawer::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance, int lifeTime, const btVector3 &color)  {
-    Drawable cube;
-    cube.setModel(primitives::generateQuad(0.1f, 0.1f, 0.1f, glm::vec4(toGLMVec3(color), 1.0)));
-    cube.setPosition(toGLMVec3(PointOnB));
-    drawables.push_back(cube);
+	geometry.color = glm::vec4(toGLMVec3(color), 1.0);
+	geometry.line(toGLMVec3(PointOnB), toGLMVec3(normalOnB * distance));
+	geometry.settings.drawType = DrawType::LINEG;
+	printf("Contact \n");
 }
 
 void DebugDrawer::draw3dText(const btVector3 &location, const char * textString) {
@@ -32,14 +32,15 @@ int DebugDrawer::getDebugMode() const {
 void DebugDrawer::clearLines() {
     //dispose all drawables
     //dont dispose geometry (always last element) .. will be reused
-    for(int i = 0; i < drawables.size()-1; i++) {
-        drawables[i].dispose();
-    }
+    /*for(int i = 0; i < drawables.size()-1; i++) {
+        *drawables[i].dispose();
+    }*/
     drawables.clear();
     geometry.clear();
 }
 
-const std::vector<Drawable> * DebugDrawer::flushDrawables() {
-    drawables.push_back(geometry);
-    return &drawables;
+std::vector<Drawable*> DebugDrawer::flushDrawables() {
+	drawables.clear();
+    drawables.push_back(&geometry);
+    return drawables;
 }

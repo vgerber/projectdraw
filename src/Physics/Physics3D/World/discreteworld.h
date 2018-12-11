@@ -20,10 +20,10 @@ public:
     void setQuality(int maxSteps, float fixedTimeStep);
 
     //do not manipulate them outside!
-    const std::vector<Drawable> * getDebugDrawables();
+    std::vector<Drawable*> getDebugDrawables();
 
 private:
-    DebugDrawer debugDrawer;
+    DebugDrawer * debugDrawer;
     int maxSimulationSteps = 10;
     float fixedSimulationStep = 1.0f / 60.0f;
     std::vector<RigidBody*> rigidBodies;

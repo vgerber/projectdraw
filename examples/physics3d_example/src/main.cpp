@@ -4,8 +4,8 @@
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
 
-const int WIDTH  = 500;
-const int HEIGHT = 500;
+const int WIDTH  = 1000;
+const int HEIGHT = 1000;
 
 sf::Window * activeWindow = nullptr;
 sf::Clock windowClock;
@@ -43,7 +43,7 @@ int main() {
     Drawable testObject;
     testObject.setModel(primitives::generateSphere(20, 20,  glm::vec4(0.4f, 0.8f, 0.4f, 1.0f)));
     testObject.setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
-    mainScene.addObject(testObject);
+    //mainScene.addObject(testObject);
 
     DirectionalLight sunLight;
     sunLight.change_direction(glm::vec3(-0.3, -1.0f, -1.0));
@@ -92,8 +92,18 @@ int main() {
 
 
         //update all elements
-        physicsWorld.update(std::max(deltaTime * 0.001f, 0.002f));
+        physicsWorld.update(std::max(deltaTime * 0.001f, 0.001f));
+
+		std::vector<Drawable*> debugDrawables = physicsWorld.getDebugDrawables();
+		if(debugDrawables.size() > 0)
+			mainScene.addObject(*debugDrawables[0]);
+
         mainScene.update(deltaTime);
+
+		mainScene.removeObject(*debugDrawables[0]);
+
+
+
         activeWindow->display();
 
         //recaluclate deltaTime

@@ -128,11 +128,12 @@ void Scene::removeObject(SceneObject &object)
 		}
 	}
 
+	bool found = false;
 	for (auto camera : cameras) {
 		camera.renderer->removeSceneObject(object);
 	}
 
-	printf("[Engine] [Scene] [Error] Scene doesn't accept %s\n", object.getId().c_str());
+	//printf("[Engine] [Scene] [Error] Scene doesn't accept %s\n", object.getId().c_str());
 }
 
 void Scene::removeObject(SceneObject & object, Camera & camera)

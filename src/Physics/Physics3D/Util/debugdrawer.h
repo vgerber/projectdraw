@@ -23,11 +23,11 @@ public:
 
     virtual void clearLines() override;
 
-    const std::vector<Drawable> * flushDrawables();
+    std::vector<Drawable*> flushDrawables();
 
 private:
     int debugMode = DBG_NoDebug;
-    std::vector<Drawable> drawables;
+    std::vector<Drawable*> drawables;
     Geometry geometry;
 
 };
