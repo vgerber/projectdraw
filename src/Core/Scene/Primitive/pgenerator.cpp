@@ -228,8 +228,8 @@ Model primitives::generateHeightfield(int width, int length, std::vector<float> 
 			int offset = vertices.size() / 8;
 
 			//normals
-			glm::vec3 normalTri1 = glm::vec3(0.0f, 1.0f, 0.0f);
-			glm::vec3 normalTri2 = glm::vec3(0.0f, 1.0f, 0.0f);
+			glm::vec3 normalTri1 = glm::vec3(0.0f, 0.0f, 1.0f);
+			glm::vec3 normalTri2 = glm::vec3(0.0f, 0.0f, 1.0f);
 
 			//first triangle
 			{
