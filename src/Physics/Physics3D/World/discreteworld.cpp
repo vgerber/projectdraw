@@ -4,21 +4,25 @@ DiscreteWorld::DiscreteWorld() {
     setup();
 }
 
-void DiscreteWorld::addPhysicsObject(PhyscisObject &physicsObject) {
-    if(RigidBody * rBody = dynamic_cast<RigidBody*>(&physicsObject)) {
+void DiscreteWorld::addCollisionObject(CollisionObject &collisionObject) {
+    if(RigidBody * rBody = dynamic_cast<RigidBody*>(&collisionObject)) {
         rigidBodies.push_back(rBody);
-        world->addRigidBody(rBody->getBody());
-        return;
+        static_cast<btDynamicsWorld*>(world)->addRigidBody(static_cast<btRigidBody*>(rBody->getCollisionObjectHandle()));
     }
-    if(TriggerVolume * tVolume = dynamic_cast<TriggerVolume*>(&physicsObject)) {
+    if(TriggerVolume * tVolume = dynamic_cast<TriggerVolume*>(&collisionObject)) {
         triggerVolumes.push_back(tVolume);
-        return;
+        world->addCollisionObject(tVolume->getCollisionObjectHandle());
     }
-    printf("Discrete World does not support this type\n");
+    if(RaycastVehicle * vehicle = dynamic_cast<RaycastVehicle*>(&collisionObject)) {
+        raycastVehicles.push_back(vehicle);
+        world->addCollisionObject(vehicle->getCollisionObjectHandle());
+        static_cast<btDynamicsWorld*>(world)->addVehicle(vehicle->getVehicleObjectHandle());
+    }
+    collisionObjects.push_back(&collisionObject);
 }
 
-void DiscreteWorld::removePhysicsObject(PhyscisObject &physicsObject) {
-    if(RigidBody * rBody = dynamic_cast<RigidBody*>(&physicsObject)) {
+void DiscreteWorld::removeCollisionObject(CollisionObject &collisionObject) {
+    if(RigidBody * rBody = dynamic_cast<RigidBody*>(&collisionObject)) {
         for(size_t i = 0; i < rigidBodies.size(); i++) {
             if(rigidBodies[i] == rBody) {
                 rigidBodies.erase(rigidBodies.begin() + i);
@@ -27,7 +31,7 @@ void DiscreteWorld::removePhysicsObject(PhyscisObject &physicsObject) {
         }
         return;
     }
-    if(TriggerVolume * tVolume = dynamic_cast<TriggerVolume*>(&physicsObject)) {
+    if(TriggerVolume * tVolume = dynamic_cast<TriggerVolume*>(&collisionObject)) {
         for(size_t i = 0; i < triggerVolumes.size(); i++) {
             if(triggerVolumes[i] == tVolume) {
                 triggerVolumes.erase(triggerVolumes.begin() + i);
@@ -36,14 +40,33 @@ void DiscreteWorld::removePhysicsObject(PhyscisObject &physicsObject) {
         }
         return;
     }
+    for(int i = 0; i < collisionObjects.size(); i++) {
+        if(collisionObjects[i] == &collisionObject) {
+            collisionObjects.erase(collisionObjects.begin() + i);
+            i--;
+        }
+    }
 }
 
 void DiscreteWorld::update(float delta) {
-    world->stepSimulation(delta, maxSimulationSteps, fixedSimulationStep);
+    static_cast<btDiscreteDynamicsWorld*>(world)->stepSimulation(delta, maxSimulationSteps, fixedSimulationStep);
     
-    for(auto rBody : rigidBodies) {
-        rBody->update();
+    for(auto collisionObject : collisionObjects) {
+        collisionObject->update();
     }
+
+    int numMainifolds = world->getDispatcher()->getNumManifolds();
+    for(int i = 0; i < numMainifolds; i++) {
+        btPersistentManifold * contactManifold = world->getDispatcher()->getManifoldByIndexInternal(i);
+        CollisionObject * objectA = static_cast<CollisionObject*>(contactManifold->getBody0()->getUserPointer());
+        CollisionObject * objectB = static_cast<CollisionObject*>(contactManifold->getBody1()->getUserPointer());
+        if(objectA->onCollide) {
+            objectA->onCollide(objectB);
+        }
+        if(objectB->onCollide) {
+            objectB->onCollide(objectA);
+        }
+    } 
 
 	world->debugDrawWorld();
 }
@@ -53,21 +76,17 @@ void DiscreteWorld::setQuality(int maxSteps, float fixedTimeStep) {
     fixedSimulationStep = fixedTimeStep;
 }
 
-std::vector<Drawable*> DiscreteWorld::getDebugDrawables() {
-    return debugDrawer->flushDrawables();
-}
-
-
 void DiscreteWorld::setup() {
     collisionConfig = new btDefaultCollisionConfiguration();
     collisionDispatcher = new btCollisionDispatcher(collisionConfig);
     broadphase = new btDbvtBroadphase();
+    broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
     constrainSolver = new btSequentialImpulseConstraintSolver();
     world = new btDiscreteDynamicsWorld(collisionDispatcher, broadphase, constrainSolver, collisionConfig);
-    world->setGravity(btVector3(0.0f, 0.0f, -9.81f));
-	debugDrawer = new DebugDrawer();
-	debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawContactPoints);
-    world->setDebugDrawer(debugDrawer);
+    static_cast<btDynamicsWorld*>(world)->setGravity(btVector3(0.0f, 0.0f, -10.0f));
+    world->setDebugDrawer(&debugDrawer);
+
+    //debugDrawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawContactPoints);
     
 }
 

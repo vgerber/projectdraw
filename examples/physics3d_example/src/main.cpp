@@ -4,8 +4,10 @@
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
 
-const int WIDTH  = 1000;
-const int HEIGHT = 1000;
+#include "vehicle.h"
+
+const int WIDTH  = 500;
+const int HEIGHT = 500;
 
 sf::Window * activeWindow = nullptr;
 sf::Clock windowClock;
@@ -13,6 +15,8 @@ float deltaTime = 0.0f;
 
 //returns false if activeWindow is closed
 bool handleEvent();
+
+std::vector<float> getHeightField(int width,  int length);
 
 int main() {
 
@@ -30,20 +34,20 @@ int main() {
 
 
     PerspectiveCamera freeCamera;
-    freeCamera.FarZ = 30.0f;
-    freeCamera.setPosition(glm::vec3(20.0f, 0.0f, 7.0f));
+    freeCamera.FarZ = 120.0f;
+    freeCamera.setPosition(glm::vec3(40.0f, 0.0f, 15.0f));
     freeCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
     mainScene.addObject(freeCamera);
 
     Drawable ground;
-    ground.setModel(primitives::generateQuad(10.0f, 10.0f, 0.2f, glm::vec4(0.7f, 0.7f, 0.7f, 1.0f)));
+    ground.setModel(primitives::generateQuad(40.0f, 40.0f, 0.2f, glm::vec4(0.7f, 0.7f, 0.7f, 1.0f)));
     ground.setPosition(glm::vec3(0.0f, 0.0f, -0.1f));
     mainScene.addObject(ground);
 
     Drawable testObject;
     testObject.setModel(primitives::generateSphere(20, 20,  glm::vec4(0.4f, 0.8f, 0.4f, 1.0f)));
     testObject.setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
-    //mainScene.addObject(testObject);
+    mainScene.addObject(testObject);
 
     DirectionalLight sunLight;
     sunLight.change_direction(glm::vec3(-0.3, -1.0f, -1.0));
@@ -55,20 +59,50 @@ int main() {
     
     
     DiscreteWorld physicsWorld;
+    mainScene.addObject(*physicsWorld.getDebugDrawable());
 
     collision::CollisionShape rTestBodyShape(collision::generateSphere(0.5f));
     RigidBody rTestBody(rTestBodyShape, 1.0f, RigidType::DYNAMIC);
     rTestBody.linkDrawable(testObject);
     rTestBody.setRestitution(1.0);
-    physicsWorld.addPhysicsObject(rTestBody);
+    physicsWorld.addCollisionObject(rTestBody);
 
 
 
     collision::CollisionShape rGroundShape(collision::generateCube(ground.getSize()));
     RigidBody rGroundBody(rGroundShape, 0.0f, RigidType::KINEMAITC);
     rGroundBody.linkDrawable(ground);
-    rGroundBody.setRestitution(0.8);
-    physicsWorld.addPhysicsObject(rGroundBody);
+    rGroundBody.setRestitution(0.5);
+    rGroundBody.onCollide = [&rTestBody](const CollisionObject* collisionObject) {
+        if(collisionObject == &rTestBody) {
+            //printf("TestBody Bounce!\n");
+            rTestBody.applyImpulse(glm::vec3(0.0, 0.0, 0.2));
+        }
+    };
+    physicsWorld.addCollisionObject(rGroundBody);
+
+    collision::CollisionShape tBoxShape(collision::generateCube(Size{0.0, 0.0, 0.0, 3.0, 3.0, 1.0}));
+    TriggerVolume tTestTrigger(tBoxShape, glm::vec3(0.0, 0.0, 2.0));
+    tTestTrigger.onCollide = [](const CollisionObject *) {
+        //printf("Object(s) entered!\n");
+    };
+    physicsWorld.addCollisionObject(tTestTrigger);
+
+    DemoVehicle vehicle1(physicsWorld, mainScene);
+
+    int width = 100;
+    int height = 100;
+    std::vector<float> heightData = getHeightField(width, height);
+
+    Drawable terrain;
+    terrain.setModel(primitives::generateHeightfield(width, height, heightData));
+    mainScene.addObject(terrain);
+
+    collision::CollisionShape rTerrainShape(collision::generateHeightField(heightData, width, height));
+    RigidBody rTerrain(rTerrainShape, 0.0, RigidType::STATIC);
+    rTerrain.linkDrawable(terrain);
+    physicsWorld.addCollisionObject(rTerrain);
+
 
 
     sf::Time elapsedTime = windowClock.getElapsedTime();
@@ -83,25 +117,22 @@ int main() {
 
 		//Keyboard events
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
-			ground.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, -10.0f * deltaTimeMilli));
+			ground.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, -5.0f * deltaTimeMilli));
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-			ground.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, 10.0f * deltaTimeMilli));
+			ground.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, 5.0f * deltaTimeMilli));
 		}
 		rGroundBody.refreshBody();
 
+        RaycastHitResult hitResult = physicsWorld.rayCastAll(glm::vec3(0.0, 10.0, 2.0), glm::vec3(0.0, -10.0, 2.0));
+        //printf("Raycast Hits %d\n", hitResult.hitLocations.size());
+
 
         //update all elements
+        vehicle1.update(deltaTimeMilli);
         physicsWorld.update(std::max(deltaTime * 0.001f, 0.001f));
-
-		std::vector<Drawable*> debugDrawables = physicsWorld.getDebugDrawables();
-		if(debugDrawables.size() > 0)
-			mainScene.addObject(*debugDrawables[0]);
-
+        //static_cast<Geometry*>(physicsWorld.getDebugDrawable())->line(hitResult.castStartLocation, hitResult.castEndLocation);
         mainScene.update(deltaTime);
-
-		mainScene.removeObject(*debugDrawables[0]);
-
 
 
         activeWindow->display();
@@ -129,4 +160,27 @@ bool handleEvent() {
     }
 
     return true;
+}
+
+std::vector<float> getHeightField(int width, int height) {
+    std::vector<float> data;
+
+    float halfX = width / 2;
+    float halfY = height / 2;
+    float offset = 30.0;
+    float maxValue = 20.0;
+
+    for(int x = 0; x < width; x++) {
+        for(int y = 0; y < height; y++) {
+            float xVal = (abs(x - halfX)) - offset;
+            xVal = std::max(xVal, 0.0f);
+            xVal = maxValue * (xVal / (halfX - offset));
+            float yVal = (abs(y - halfY)) - offset;
+            yVal = std::max(yVal, 0.0f);
+            yVal = maxValue * (yVal / (halfY - offset));
+            float depth = xVal + yVal;
+            data.push_back(depth);
+        } 
+    }
+    return data;
 }

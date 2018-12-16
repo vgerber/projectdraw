@@ -3,7 +3,7 @@
 
 #include "Core/Scene/drawable.h"
 
-#include "../physicsobject.h"
+#include "../collisionobject.h"
 #include "../../Collision/Shapes/cshape.h"
 
 typedef  unsigned int (uint);
@@ -15,7 +15,7 @@ enum RigidType
 	DYNAMIC
 };
 
-class RigidBody : public PhyscisObject {
+class RigidBody : public CollisionObject {
 public:
     bool visibleAABB = false;
 
@@ -61,9 +61,9 @@ public:
 
 	RigidType getRigidType();
 
-	btRigidBody* getBody();
+	btCollisionObject * getCollisionObjectHandle() override;
 	Drawable* getDrawable();
-private:
+protected:
 	glm::vec3 oldScale;
 	RigidType rType;
     collision::CollisionShape *shape = nullptr;

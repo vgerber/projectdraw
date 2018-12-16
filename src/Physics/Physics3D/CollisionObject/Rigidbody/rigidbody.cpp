@@ -25,10 +25,12 @@ RigidBody::RigidBody(collision::CollisionShape shape, float mass, RigidType type
 	btDefaultMotionState *myMotionState = new btDefaultMotionState(transform);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, this->shape->getShape(), localInertia);
 	rigidBody = new btRigidBody(rbInfo);	
-	//rigidBody->setContactStiffnessAndDamping(0.0, 0.0);
-	glGenVertexArrays(1, &aabbVAO);
-	glGenBuffers(1, &aabbVBO);		
-
+	
+	if(type == RigidType::KINEMAITC) {
+		rigidBody->setCollisionFlags(rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+		rigidBody->setActivationState(DISABLE_DEACTIVATION);
+	}
+	rigidBody->setUserPointer(this);
 }
 
 void RigidBody::update() {
@@ -200,8 +202,8 @@ RigidType RigidBody::getRigidType()
 	return rType;
 }
 
-btRigidBody* RigidBody::getBody() {
-    return rigidBody;
+btCollisionObject * RigidBody::getCollisionObjectHandle() {
+	return rigidBody;
 }
 
 Drawable * RigidBody::getDrawable()

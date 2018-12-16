@@ -215,35 +215,35 @@ Model primitives::generateQuad(GLfloat width, GLfloat height, GLfloat depth, glm
 	return Model(meshes, std::vector<sTexture>());
 }
 
-Model primitives::generate_hightfield(int width, int length, std::vector<float> data) {
+Model primitives::generateHeightfield(int width, int length, std::vector<float> data) {
 	std::vector<GLfloat> vertices;
 	std::vector<GLuint> indices;
 
-	int iZMap[6] = {0, 1, 1, 0, 1, 0};
-	int iXMap[6] = {0, 0, 1, 0, 1, 1};
+	int iYMap[6] = {0, 0, 1, 0, 1, 1};
+	int iXMap[6] = {0, 1, 1, 0, 1, 0};
 
 	for(int x = 0; x < width-1; x++) {
-		for(int z = 0; z < length-1; z++) {
+		for(int y = 0; y < length-1; y++) {
 
 			int offset = vertices.size() / 8;
 
 			//normals
-			glm::vec3 normalTri1 = glm::vec3(1.0f, 0.0f, 0.0f);
-			glm::vec3 normalTri2 = glm::vec3(1.0f, 0.0f, 0.0f);
+			glm::vec3 normalTri1 = glm::vec3(0.0f, 1.0f, 0.0f);
+			glm::vec3 normalTri2 = glm::vec3(0.0f, 1.0f, 0.0f);
 
 			//first triangle
 			{
 				glm::vec3 triVec1 = glm::vec3(
 					x + iXMap[1],
-					data[(x + iXMap[1]) + (z + iZMap[1]) * length],
-					z + iZMap[1]
+					y + iYMap[1],
+					data[(x + iXMap[1]) + (y + iYMap[1]) * length]
 				);
 				glm::vec3 triVec2 = glm::vec3(
 					x + iXMap[2],
-					data[(x + iXMap[2]) + (z + iZMap[2]) * length],
-					z + iZMap[2]
+					y + iYMap[2],
+					data[(x + iXMap[2]) + (y + iYMap[2]) * length]
 				);
-				glm::vec3 originVert = glm::vec3(x, data[x + z * length], z);
+				glm::vec3 originVert = glm::vec3(x, y, data[x + y * length]);
 
 				normalTri1 = glm::normalize(glm::cross((triVec1 - originVert), (triVec2 - originVert)));
 			}
@@ -251,23 +251,23 @@ Model primitives::generate_hightfield(int width, int length, std::vector<float> 
 			{
 				glm::vec3 triVec1 = glm::vec3(
 					x + iXMap[4],
-					data[(x + iXMap[4]) + (z + iZMap[4]) * length],
-					z + iZMap[4]
+					y + iYMap[4],
+					data[(x + iXMap[4]) + (y + iYMap[4]) * length]
 				);
 				glm::vec3 triVec2 = glm::vec3(
 					x + iXMap[5],
-					data[(x + iXMap[5]) + (z + iZMap[5]) * length],
-					z + iZMap[5]
+					y + iYMap[5],
+					data[(x + iXMap[5]) + (y + iYMap[5]) * length]
 				);
-				glm::vec3 originVert = glm::vec3(x, data[x + z * length], z);
+				glm::vec3 originVert = glm::vec3(x, y, data[x + y * length]);
 
 				normalTri2 = glm::normalize(glm::cross((triVec1 - originVert), (triVec2 - originVert)));
 			}
 
 			for(int i = 0; i < 6; i++) {
 				vertices.push_back(x + iXMap[i]);
-				vertices.push_back(data[(x + iXMap[i]) + (z + iZMap[i]) * length]);
-				vertices.push_back(z + iZMap[i]);
+				vertices.push_back(y + iYMap[i]);
+				vertices.push_back(data[(x + iXMap[i]) + (y + iYMap[i]) * length]);
 
 
 				glm::vec3 normal = (i < 3) ? normalTri1 : normalTri2;
@@ -279,7 +279,7 @@ Model primitives::generate_hightfield(int width, int length, std::vector<float> 
 
 				//texcoords
 				vertices.push_back((float)x / width);
-				vertices.push_back((float)z / length);
+				vertices.push_back((float)y / length);
 
 				indices.push_back(offset + i);
 			}

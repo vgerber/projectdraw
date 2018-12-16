@@ -14,7 +14,6 @@ void DebugDrawer::drawContactPoint(const btVector3 &PointOnB, const btVector3 &n
 	geometry.color = glm::vec4(toGLMVec3(color), 1.0);
 	geometry.line(toGLMVec3(PointOnB), toGLMVec3(normalOnB * distance));
 	geometry.settings.drawType = DrawType::LINEG;
-	printf("Contact \n");
 }
 
 void DebugDrawer::draw3dText(const btVector3 &location, const char * textString) {
@@ -30,17 +29,9 @@ int DebugDrawer::getDebugMode() const {
 }
 
 void DebugDrawer::clearLines() {
-    //dispose all drawables
-    //dont dispose geometry (always last element) .. will be reused
-    /*for(int i = 0; i < drawables.size()-1; i++) {
-        *drawables[i].dispose();
-    }*/
-    drawables.clear();
     geometry.clear();
 }
 
-std::vector<Drawable*> DebugDrawer::flushDrawables() {
-	drawables.clear();
-    drawables.push_back(&geometry);
-    return drawables;
+Drawable * DebugDrawer::getDebugDrawable() {
+    return &geometry;
 }

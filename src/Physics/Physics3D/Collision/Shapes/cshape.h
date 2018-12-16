@@ -26,5 +26,5 @@ namespace collision {
 
 	btCollisionShape* generateTriangleMesh(Model model);
 
-	btCollisionShape* generateHeightField(std::vector<float> data, int width, int length);
+	btCollisionShape* generateHeightField(std::vector<float> &data, int width, int length);
 }
