@@ -26,7 +26,7 @@ public:
 	void drawNormals(Shader shader);
 	void dispose();
 private:
-	std::vector<Model> subModels;
+	std::vector<Model*> subModels;
 
 	glm::mat4 baseTransform;
 	std::vector<sTexture> textures_loaded;

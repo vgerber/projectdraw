@@ -141,12 +141,29 @@ void Model::loadModel(std::string path)
 
 void Model::processNode(aiNode * node, const aiScene * scene)
 {
+	{
+		printf("\nHead Node %s %d\n", node->mName.C_Str(), node->mNumChildren);
+		aiMatrix4x4 transform = node->mTransformation;
+		printf("[%f %f %f %f]\n", transform.a1, transform.a2, transform.a3, transform.a4);
+		printf("[%f %f %f %f]\n", transform.b1, transform.b2, transform.b3, transform.b4);
+		printf("[%f %f %f %f]\n", transform.c1, transform.c2, transform.c3, transform.c4);
+		printf("[%f %f %f %f]\n\n", transform.d1, transform.d2, transform.d3, transform.d4);
+	}
 	for (GLuint i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		/*aiMatrix4x4 transform = node->mTransformation;
+		printf("Mesh Node %s\n", node->mName.C_Str());
+		printf("Transfrom \n");
+		printf("[%f %f %f %f]\n", transform.a1, transform.a2, transform.a3, transform.a4);
+		printf("[%f %f %f %f]\n", transform.b1, transform.b2, transform.b3, transform.b4);
+		printf("[%f %f %f %f]\n", transform.c1, transform.c2, transform.c3, transform.c4);
+		printf("[%f %f %f %f]\n", transform.d1, transform.d2, transform.d3, transform.d4);*/
 		this->meshes.push_back(this->process_mesh(mesh, scene));
 	}
 	for (GLuint i = 0; i < node->mNumChildren; i++) {
-		this->processNode(node->mChildren[i], scene);
+		Model * childModel = new Model();
+		childModel->processNode(node->mChildren[i], scene);
+		subModels.push_back(childModel);
 	}
 }
 

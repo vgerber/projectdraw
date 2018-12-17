@@ -10,7 +10,7 @@ DemoVehicle::DemoVehicle(DiscreteWorld &world, Scene &scene) {
     
     shape = new collision::CollisionShape(collision::generateCube(chassis.getSize()));
     vehicle = new RaycastVehicle(*shape, 1000.0, world);
-    vehicle->setMaxForwardForce(800.0f);
+    vehicle->setMaxForwardForce(3000.0f);
     vehicle->setMaxSteeringAngle(glm::radians(80.0f));
     vehicle->setMaxBrakeForce(40.0);
     world.addCollisionObject(*vehicle);

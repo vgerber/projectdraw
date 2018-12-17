@@ -77,7 +77,11 @@ int main() {
 	}
 	{
 		//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.3f, 0.8f, 0.3f, 1.0f)));
+#ifdef _WIN32
 		cube.setModel(Model("C:/Users/Vincent/Documents/Projects/Blender/Example/vehicle2.fbx"));
+#elif linux
+		cube.setModel(Model("/home/vincent/Development/Blender/Models/basic_car.fbx"));
+#endif
 		cube.setPosition(glm::vec3(-1.0f, -1.0f, 1.0f));
 		//cube.rotate(glm::radians(-90.0f), 0.0f, 0.0f);
 		scene.addObject(cube);
@@ -188,7 +192,7 @@ int main() {
 
 		//cube.rotate(1.0f * millis, 0.0f, 0.0f);
 		float scale = abs(cos(millis));
-		cube.scale(scale, scale, scale);
+		//cube.scale(scale, scale, scale);
 
 		{
 			Rotator rotator;
