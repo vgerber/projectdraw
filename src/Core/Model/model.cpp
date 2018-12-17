@@ -95,10 +95,18 @@ std::vector<BasicMesh> Model::getMeshes()
 	return meshes;
 }
 
+Moveable Model::getBaseTransform()
+{
+	return baseTransfrom;
+}
+
 void Model::draw(Shader shader, DrawType drawType)
 {
 	for (GLuint i = 0; i < this->meshes.size(); i++) {
 		this->meshes[i].draw(shader, drawType);
+	}
+	for (auto model : subModels) {
+		model->draw(shader, drawType);
 	}
 }
 
@@ -141,23 +149,45 @@ void Model::loadModel(std::string path)
 
 void Model::processNode(aiNode * node, const aiScene * scene)
 {
-	{
-		printf("\nHead Node %s %d\n", node->mName.C_Str(), node->mNumChildren);
-		aiMatrix4x4 transform = node->mTransformation;
-		printf("[%f %f %f %f]\n", transform.a1, transform.a2, transform.a3, transform.a4);
-		printf("[%f %f %f %f]\n", transform.b1, transform.b2, transform.b3, transform.b4);
-		printf("[%f %f %f %f]\n", transform.c1, transform.c2, transform.c3, transform.c4);
-		printf("[%f %f %f %f]\n\n", transform.d1, transform.d2, transform.d3, transform.d4);
+	modelName = std::string(node->mName.C_Str());
+	aiMatrix4x4 transform = node->mTransformation;
+	float unitSize = 1.0f;
+	if (node->mParent) {
+		if (!node->mParent->mParent) {
+			unitSize = 0.01f;
+		}
 	}
+	baseTransfrom.setPosition(glm::vec3(
+		transform.a4,
+		transform.b4,
+		transform.c4
+	) * unitSize);
+	baseTransfrom.scale(glm::vec3(
+		glm::length(glm::vec3(transform.a1, transform.b1, transform.c1)),
+		glm::length(glm::vec3(transform.a2, transform.b2, transform.c2)),
+		glm::length(glm::vec3(transform.a3, transform.b3, transform.c3))
+	) * unitSize);
+
+	glm::mat4 rotationMatrix(1.0f);
+	glm::vec3 scale = baseTransfrom.getScale();
+	rotationMatrix[0][0] = transform.a1 / scale.x;
+	rotationMatrix[0][1] = transform.a2 / scale.y;
+	rotationMatrix[0][2] = transform.a3 / scale.z;
+
+	rotationMatrix[1][0] = transform.b1 / scale.x;
+	rotationMatrix[1][1] = transform.b2 / scale.y;
+	rotationMatrix[1][2] = transform.b3 / scale.z;
+
+	rotationMatrix[2][0] = transform.c1 / scale.x;
+	rotationMatrix[2][1] = transform.c2 / scale.y;
+	rotationMatrix[2][2] = transform.c3 / scale.z;
+
+	baseTransfrom.rotate(Rotator(glm::toQuat(rotationMatrix), glm::vec3(0.0)));
+	printf("\nNode Name %s\n", modelName.c_str());
+	baseTransfrom.print();
+
 	for (GLuint i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		/*aiMatrix4x4 transform = node->mTransformation;
-		printf("Mesh Node %s\n", node->mName.C_Str());
-		printf("Transfrom \n");
-		printf("[%f %f %f %f]\n", transform.a1, transform.a2, transform.a3, transform.a4);
-		printf("[%f %f %f %f]\n", transform.b1, transform.b2, transform.b3, transform.b4);
-		printf("[%f %f %f %f]\n", transform.c1, transform.c2, transform.c3, transform.c4);
-		printf("[%f %f %f %f]\n", transform.d1, transform.d2, transform.d3, transform.d4);*/
 		this->meshes.push_back(this->process_mesh(mesh, scene));
 	}
 	for (GLuint i = 0; i < node->mNumChildren; i++) {

@@ -14,7 +14,7 @@ sf::Clock windowClock;
 float deltaTime = 0.0f;
 
 //returns false if activeWindow is closed
-bool handleEvent();
+bool handleEvent(Camera &camera, Scene &scene);
 
 std::vector<float> getHeightField(int width,  int length);
 
@@ -40,7 +40,7 @@ int main() {
     mainScene.addObject(freeCamera);
 
     Drawable ground;
-    ground.setModel(primitives::generateQuad(40.0f, 40.0f, 0.2f, glm::vec4(0.7f, 0.7f, 0.7f, 1.0f)));
+    ground.setModel(primitives::generateQuad(40.0f, 40.0f, 0.2f, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)));
     ground.setPosition(glm::vec3(0.0f, 0.0f, -0.1f));
     mainScene.addObject(ground);
 
@@ -108,7 +108,7 @@ int main() {
     sf::Time elapsedTime = windowClock.getElapsedTime();
     deltaTime = 0.0f;
     while(window.isOpen()) {
-        if(!handleEvent()) {
+        if(!handleEvent(freeCamera, mainScene)) {
             break;
         }
         clearScreen(glm::vec4(0.3f, 0.3f, 1.0f, 1.0f));
@@ -146,7 +146,7 @@ int main() {
 }
 
 
-bool handleEvent() {
+bool handleEvent(Camera &camera, Scene &scene) {
     sf::Event e;
     while(activeWindow->pollEvent(e)) {
         if(e.type == sf::Event::Closed) {
@@ -157,6 +157,12 @@ bool handleEvent() {
             activeWindow->close();
             return false;
         }
+		if (e.type == sf::Event::Resized) {
+			sf::Vector2u size = activeWindow->getSize();
+			scene.resize(size.x, size.y);
+			camera.Width = size.x;
+			camera.Height = size.y;
+		}
     }
 
     return true;

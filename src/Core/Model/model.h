@@ -6,6 +6,7 @@
 
 
 #include "../Mesh/basicmesh.h"
+#include "../Scene/Util/moveable.h"
 #include "box.h"
 
 class Model
@@ -21,14 +22,17 @@ public:
 	Size getSize();
 	std::vector<BasicMesh> getMeshes();
 
+	Moveable getBaseTransform();
+
 	void draw(Shader shader, DrawType drawType);
 	void drawInstancing(Shader shader, DrawType drawType, int amount);
 	void drawNormals(Shader shader);
 	void dispose();
 private:
 	std::vector<Model*> subModels;
-
-	glm::mat4 baseTransform;
+	std::string modelName = "";
+	Moveable baseTransfrom;
+	
 	std::vector<sTexture> textures_loaded;
 	std::vector<BasicMesh> meshes;
 	std::string directory;

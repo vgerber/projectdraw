@@ -181,7 +181,7 @@ set(ProjectDrawLibraries
 	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw_core.lib
 	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw_core.lib
 	debug 	   C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Debug/projectdraw_physics3d.lib
-	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw_physcis3d.lib
+	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw_physics3d.lib
 )
 
 add_library(projectdraw_core STATIC  ${ENGINE_SRC})

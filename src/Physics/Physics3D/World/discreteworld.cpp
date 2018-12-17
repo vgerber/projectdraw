@@ -5,18 +5,18 @@ DiscreteWorld::DiscreteWorld() {
 }
 
 void DiscreteWorld::addCollisionObject(CollisionObject &collisionObject) {
-    if(RigidBody * rBody = dynamic_cast<RigidBody*>(&collisionObject)) {
+	if (RaycastVehicle * vehicle = dynamic_cast<RaycastVehicle*>(&collisionObject)) {
+		raycastVehicles.push_back(vehicle);
+		static_cast<btDynamicsWorld*>(world)->addRigidBody(static_cast<btRigidBody*>(vehicle->getCollisionObjectHandle()));
+		static_cast<btDynamicsWorld*>(world)->addVehicle(vehicle->getVehicleObjectHandle());
+	}
+    else if(RigidBody * rBody = dynamic_cast<RigidBody*>(&collisionObject)) {
         rigidBodies.push_back(rBody);
         static_cast<btDynamicsWorld*>(world)->addRigidBody(static_cast<btRigidBody*>(rBody->getCollisionObjectHandle()));
     }
-    if(TriggerVolume * tVolume = dynamic_cast<TriggerVolume*>(&collisionObject)) {
+    else if(TriggerVolume * tVolume = dynamic_cast<TriggerVolume*>(&collisionObject)) {
         triggerVolumes.push_back(tVolume);
         world->addCollisionObject(tVolume->getCollisionObjectHandle());
-    }
-    if(RaycastVehicle * vehicle = dynamic_cast<RaycastVehicle*>(&collisionObject)) {
-        raycastVehicles.push_back(vehicle);
-        world->addCollisionObject(vehicle->getCollisionObjectHandle());
-        static_cast<btDynamicsWorld*>(world)->addVehicle(vehicle->getVehicleObjectHandle());
     }
     collisionObjects.push_back(&collisionObject);
 }

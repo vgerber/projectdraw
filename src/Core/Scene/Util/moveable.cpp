@@ -139,6 +139,15 @@ Rotator Moveable::getRotator()
 	return rotator;
 }
 
+void Moveable::print()
+{
+	printf("Transfrom\n");
+	printf("Translation (%f, %f, %f)\n", position.x, position.y, position.z);
+	glm::vec3 rotation = rotator.getRotationEuler();
+	printf("Rotation (%f, %f, %f) / (%f, %f, %f)\n", rotation.x, rotation.y, rotation.z, glm::degrees(rotation.x), glm::degrees(rotation.y), glm::degrees(rotation.z));
+	printf("Scale (%f, %f, %f)\n", vscale.x, vscale.y, vscale.z);
+}
+
 glm::vec3 Moveable::getScale()
 {
 	return vscale;
