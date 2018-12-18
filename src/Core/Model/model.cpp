@@ -97,7 +97,7 @@ std::vector<BasicMesh> Model::getMeshes()
 
 Moveable Model::getBaseTransform()
 {
-	return baseTransfrom;
+	return baseTransform;
 }
 
 void Model::draw(Shader shader, DrawType drawType)
@@ -150,49 +150,105 @@ void Model::loadModel(std::string path)
 void Model::processNode(aiNode * node, const aiScene * scene)
 {
 	modelName = std::string(node->mName.C_Str());
+	if(modelName.size() == 0) {
+		std::stringstream ss;
+		ss << this;
+		modelName = ss.str();
+	}
 	aiMatrix4x4 transform = node->mTransformation;
 	float unitSize = 1.0f;
 	if (node->mParent) {
 		if (!node->mParent->mParent) {
-			unitSize = 0.01f;
+			unitSize = 1.0f;
 		}
 	}
-	baseTransfrom.setPosition(glm::vec3(
+	baseTransform.setPosition(glm::vec3(
 		transform.a4,
 		transform.b4,
 		transform.c4
 	) * unitSize);
-	baseTransfrom.scale(glm::vec3(
+
+	glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0), baseTransform.getPosition());
+
+	baseTransform.scale(glm::vec3(
 		glm::length(glm::vec3(transform.a1, transform.b1, transform.c1)),
 		glm::length(glm::vec3(transform.a2, transform.b2, transform.c2)),
 		glm::length(glm::vec3(transform.a3, transform.b3, transform.c3))
 	) * unitSize);
+	
+	glm::vec3 scale = baseTransform.getScale() / unitSize;
+	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0), scale * unitSize);
 
-	glm::mat4 rotationMatrix(1.0f);
-	glm::vec3 scale = baseTransfrom.getScale();
+
+
+	glm::mat4 rotationMatrix = glm::mat4(1.0f);	
+	//matrix[column][row]
 	rotationMatrix[0][0] = transform.a1 / scale.x;
-	rotationMatrix[0][1] = transform.a2 / scale.y;
-	rotationMatrix[0][2] = transform.a3 / scale.z;
+	rotationMatrix[1][0] = transform.a2 / scale.y;
+	rotationMatrix[2][0] = transform.a3 / scale.z;
 
-	rotationMatrix[1][0] = transform.b1 / scale.x;
+	rotationMatrix[0][1] = transform.b1 / scale.x;
 	rotationMatrix[1][1] = transform.b2 / scale.y;
-	rotationMatrix[1][2] = transform.b3 / scale.z;
+	rotationMatrix[2][1] = transform.b3 / scale.z;
 
-	rotationMatrix[2][0] = transform.c1 / scale.x;
-	rotationMatrix[2][1] = transform.c2 / scale.y;
+	rotationMatrix[0][2] = transform.c1 / scale.x;
+	rotationMatrix[1][2] = transform.c2 / scale.y;
 	rotationMatrix[2][2] = transform.c3 / scale.z;
+	{
+		Rotator rotator = Rotator(glm::toQuat(rotationMatrix), glm::vec3(0.0));
+		glm::vec3 eulerRot = rotator.getRotationEuler();
+		glm::vec3 alignedRot(eulerRot.z, eulerRot.x, eulerRot.y);		
+		Rotator rotator2;
+		rotator2.rotateEuler(alignedRot);
+		baseTransform.rotate(rotator2);
+	}
 
-	baseTransfrom.rotate(Rotator(glm::toQuat(rotationMatrix), glm::vec3(0.0)));
 	printf("\nNode Name %s\n", modelName.c_str());
-	baseTransfrom.print();
+	if(parent) {
+		printf("Parent Name %s\n", parent->modelName.c_str());
+	}
+	else {
+		printf("--Root--\n");
+	}
+
+	baseTransformMatrix[0][0] = transform.a1;
+	baseTransformMatrix[1][0] = transform.a2;
+	baseTransformMatrix[2][0] = transform.a3;
+	baseTransformMatrix[3][0] = transform.a4;
+
+	baseTransformMatrix[0][1] = transform.b1;
+	baseTransformMatrix[1][1] = transform.b2;
+	baseTransformMatrix[2][1] = transform.b3;
+	baseTransformMatrix[3][1] = transform.b4;
+
+	baseTransformMatrix[0][2] = transform.c1;
+	baseTransformMatrix[1][2] = transform.c2;
+	baseTransformMatrix[2][2] = transform.c3;
+	baseTransformMatrix[3][2] = transform.c4;
+
+	baseTransformMatrix[0][3] = transform.d1;
+	baseTransformMatrix[1][3] = transform.d2;
+	baseTransformMatrix[2][3] = transform.d3;
+	baseTransformMatrix[3][3] = transform.d4;
+
+	//baseTransform.print();
 
 	for (GLuint i = 0; i < node->mNumMeshes; i++) {
+		printf("\nNew Mesh\n");
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		this->meshes.push_back(this->process_mesh(mesh, scene));
+		glm::mat4 baseTransformations = getTransformationTree();
+		printf("TRANSFROM\n");
+		printf("[%f, %f, %f, %f]\n", baseTransformations[0][0], baseTransformations[1][0], baseTransformations[2][0], baseTransformations[3][0]);
+		printf("[%f, %f, %f, %f]\n", baseTransformations[0][1], baseTransformations[1][1], baseTransformations[2][1], baseTransformations[3][1]);
+		printf("[%f, %f, %f, %f]\n", baseTransformations[0][2], baseTransformations[1][2], baseTransformations[2][2], baseTransformations[3][2]);
+		printf("[%f, %f, %f, %f]\n", baseTransformations[0][3], baseTransformations[1][3], baseTransformations[2][3], baseTransformations[3][3]);
+		this->meshes[i].applyTransformation(baseTransformations);
 	}
 	for (GLuint i = 0; i < node->mNumChildren; i++) {
 		Model * childModel = new Model();
-		childModel->processNode(node->mChildren[i], scene);
+		childModel->setParent(this);
+		childModel->processNode(node->mChildren[i], scene);		
 		subModels.push_back(childModel);
 	}
 }
@@ -312,4 +368,15 @@ GLint TextureFromFile(const char* path, std::string directory)
 	return textureID;
 	*/
 	return -1;
+}
+
+void Model::setParent(Model * parent) {
+	this->parent = parent;
+}
+
+glm::mat4 Model::getTransformationTree() {
+	if(parent) {
+		return baseTransformMatrix * parent->getTransformationTree();
+	}
+	return baseTransformMatrix;
 }

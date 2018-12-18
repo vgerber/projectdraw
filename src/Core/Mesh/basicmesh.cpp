@@ -95,6 +95,15 @@ void BasicMesh::add_offset(glm::vec3 offset)
 	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
 }
 
+void BasicMesh::applyTransformation(glm::mat4 transfrom) {
+	for (size_t i = 0; i < vertices.size(); i++) {
+		vertices[i].Position = glm::vec3(transfrom * glm::vec4(vertices[i].Position, 1.0));
+	}
+	glBindVertexArray(this->VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
+}
+
 GLuint BasicMesh::getVAO() {
 	return VAO;
 }

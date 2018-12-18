@@ -6,6 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <stdio.h>
+
 #include "rotator.h"
 #include "../../Model/box.h"
 
@@ -13,19 +15,6 @@
 http://www.opengl-tutorial.org/cn/intermediate-tutorials/tutorial-17-quaternions/
 
 */
-
-class Transform {
-public:
-
-
-	glm::mat4 getTransform();
-
-	void print();
-private:
-	glm::mat4 transform = glm::mat4(1.0f);
-
-	void updateMatrix();
-};
 
 
 class Moveable : public BoundingBox {

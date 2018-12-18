@@ -46,7 +46,9 @@ public:
 	void draw(Shader shader, DrawType drawType);
 	void drawInstancing(Shader shader, DrawType drawType, int amount);
 	void drawNormals(Shader normalShader);
+
 	void add_offset(glm::vec3 offset);
+	void applyTransformation(glm::mat4 transform);
 
 	void resize();
 	void dispose();

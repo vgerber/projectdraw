@@ -1,8 +1,12 @@
 #pragma once
+//#include <glm/gtx/matrix_decompose.hpp>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+#include <sstream>
+#include <string>
 
 
 #include "../Mesh/basicmesh.h"
@@ -31,7 +35,9 @@ public:
 private:
 	std::vector<Model*> subModels;
 	std::string modelName = "";
-	Moveable baseTransfrom;
+	Moveable baseTransform;
+	glm::mat4 baseTransformMatrix = glm::mat4(1.0);
+	Model * parent = nullptr;
 	
 	std::vector<sTexture> textures_loaded;
 	std::vector<BasicMesh> meshes;
@@ -41,7 +47,6 @@ private:
 	void processNode(aiNode* node, const aiScene* scene);
 	BasicMesh process_mesh(aiMesh* mesh, const aiScene* scene);
 	std::vector<sTexture> load_material_textures(aiMaterial* mat, aiTextureType type, std::string typeName);
-
-	
-
+	void setParent(Model * parent);
+	glm::mat4 getTransformationTree();
 };

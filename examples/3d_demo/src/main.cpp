@@ -31,7 +31,7 @@ int main() {
 	PerspectiveCamera camera;
 	camera.setPosition(glm::vec3(5.0f, 5.0f, 5.0f));
 	camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-	camera.FarZ = 30.0f;
+	camera.FarZ = 200.0f;
 	camera.Width = WIDTH;
 	camera.Height = HEIGHT;
 	scene.addObject(camera);
@@ -82,7 +82,10 @@ int main() {
 #elif linux
 		cube.setModel(Model("/home/vincent/Development/Blender/Models/basic_car.fbx"));
 #endif
-		cube.setPosition(glm::vec3(-1.0f, -1.0f, 1.0f));
+		cube.setPosition(glm::vec3(-1.0f, -1.0f, 2.0f));
+		Rotator rotator;
+		rotator.rotateAxis(glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+		//cube.rotate(rotator);
 		//cube.rotate(glm::radians(-90.0f), 0.0f, 0.0f);
 		scene.addObject(cube);
 	}
@@ -235,6 +238,7 @@ int main() {
 
 
 void moveDrawable(Drawable &drawable, Camera &camera, float delta) {
+	float camSpeed = 0.01f;;
 	float speed = 0.004f;
 	float steering = 0.004f;
 	float maxBanking = 80.0f;
@@ -288,4 +292,27 @@ void moveDrawable(Drawable &drawable, Camera &camera, float delta) {
 	}
 	*/
 
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+		camera.setPosition(camera.getPosition() + camera.getUp() * delta * camSpeed);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+		camera.setPosition(camera.getPosition() + -camera.getUp() * delta * camSpeed);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+		camera.setPosition(camera.getPosition() + camera.getRight() * delta * camSpeed);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+		camera.setPosition(camera.getPosition() + -camera.getRight() * delta * camSpeed);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::N)) {
+		camera.setPosition(camera.getPosition() + camera.getFront() * delta * camSpeed);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+		camera.setPosition(camera.getPosition() - camera.getFront() * delta * camSpeed);
+	}
 }
