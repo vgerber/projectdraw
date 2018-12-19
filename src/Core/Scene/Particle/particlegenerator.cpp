@@ -53,7 +53,7 @@ void ParticleGenerator::update(GLfloat deltaTime)
 				part.alive = true;
 				part.timer = 5.0f;
 				cycle_revive--;
-				part.position = position;
+				part.position = getPosition();
 				part.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 				//respawnTimer = part.timer / particles.size();
 			}

@@ -73,12 +73,6 @@ public:
 	void setShader(Shader shader, AbstractRenderer &renderer);
 	std::pair<Shader, int> getShader();
 
-	
-	Size getAABBBox();	
-	
-	void setCenter(glm::vec3 center) override;
-	void setCenterInWorld(glm::vec3 point) override;
-
 	//set view and camera matrix for mvp calculation
 	void setCameraMatrices(glm::mat4 cView, glm::mat4 cProj);
 

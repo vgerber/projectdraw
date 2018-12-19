@@ -19,7 +19,7 @@ void Text::draw()
 {
 	glDisable(GL_CULL_FACE);
 	shader.use();
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
 	glUniform3f(glGetUniformLocation(shader.getId(), "textColor"), color.x, color.y, color.z);
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);

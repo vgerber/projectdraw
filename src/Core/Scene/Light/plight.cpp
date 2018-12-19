@@ -33,6 +33,7 @@ void PointLight::beginShadowMapping()
 	glUniformMatrix4fv(glGetUniformLocation(shaderShadow.getId(), "shadowMatrices[4]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[4]));
 	glUniformMatrix4fv(glGetUniformLocation(shaderShadow.getId(), "shadowMatrices[5]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[5]));
 	glUniform1f(glGetUniformLocation(shaderShadow.getId(), "far_plane"), distance);
+	glm::vec3 position = getPosition();
 	glUniform3f(glGetUniformLocation(shaderShadow.getId(), "lightPos"), position.x, position.y, position.z);
 }
 
@@ -96,6 +97,7 @@ void PointLight::setup()
 
 void PointLight::setupShadowCube()
 {
+	glm::vec3 position = getPosition();
 	shadowTransforms.clear();
 	shadowTransforms.push_back(shadowProj * glm::lookAt(position, position + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
 	shadowTransforms.push_back(shadowProj * glm::lookAt(position, position + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));

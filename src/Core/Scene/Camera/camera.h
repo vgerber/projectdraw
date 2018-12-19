@@ -41,6 +41,7 @@ public:
 	Camera(glm::vec3 position);
 	~Camera();
 
+	void setPosition(float x, float y, float z);
 	void setPosition(glm::vec3 position) override;
 
 

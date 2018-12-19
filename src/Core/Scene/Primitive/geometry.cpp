@@ -24,8 +24,8 @@ void Geometry::draw()
 	glLineWidth(lineThickness);
 	glPointSize(pointThickness);
 
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * getModelMatrix()));
 	glBindVertexArray(VAO);
 	if (size != points.size()) {		
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);

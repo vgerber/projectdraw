@@ -95,7 +95,7 @@ struct SortDrawable {
 			}
 		}
 		else {
-			if (glm::distance2(d1->getPositionCenter(), cameraPosition) < glm::distance2(d2->getPositionCenter(), cameraPosition)) {
+			if (glm::distance2(d1->getPosition(), cameraPosition) < glm::distance2(d2->getPosition(), cameraPosition)) {
 				return true;
 			}
 		}

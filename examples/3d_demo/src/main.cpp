@@ -78,9 +78,9 @@ int main() {
 	{
 		//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.3f, 0.8f, 0.3f, 1.0f)));
 #ifdef _WIN32
-		cube.setModel(Model("C:/Users/Vincent/Documents/Projects/Blender/Example/vehicle_test.fbx"));
+		cube.setModel(Model("C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/examples/assests/basic_car.fbx"));
 #elif linux
-		cube.setModel(Model("/home/vincent/Development/Blender/Models/basic_car.fbx"));
+		cube.setModel(Model("/home/vincent/Development/Cpp/projectdraw_slim/examples/assets/basic_car.fbx"));
 #endif
 		cube.setPosition(glm::vec3(-1.0f, -1.0f, 2.0f));
 		Rotator rotator;

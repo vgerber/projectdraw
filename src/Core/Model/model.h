@@ -1,5 +1,6 @@
 #pragma once
-//#include <glm/gtx/matrix_decompose.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -26,7 +27,7 @@ public:
 	Size getSize();
 	std::vector<BasicMesh> getMeshes();
 
-	Moveable getBaseTransform();
+	Transform getBaseTransform();
 
 	void draw(Shader shader, DrawType drawType);
 	void drawInstancing(Shader shader, DrawType drawType, int amount);
@@ -35,8 +36,7 @@ public:
 private:
 	std::vector<Model*> subModels;
 	std::string modelName = "";
-	Moveable baseTransform;
-	glm::mat4 baseTransformMatrix = glm::mat4(1.0);
+	Transform baseTransform;
 	Model * parent = nullptr;
 	
 	std::vector<sTexture> textures_loaded;

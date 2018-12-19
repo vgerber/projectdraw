@@ -9,11 +9,11 @@ ViewFrustum PerspectiveCamera::getViewFrustum(int splits)
 {
 	float aspect = Width / Height;
 	ViewFrustum viewFrustum;
-	glm::vec3 nearCenter = position - (-front_vector * NearZ);
+	glm::vec3 nearCenter = getPosition() - (-front_vector * NearZ);
 
 	std::vector<glm::vec3> farSplits;
 	for (int i = 0; i < splits; i++) {
-		farSplits.push_back(position - (-front_vector * (FarZ / (i+1))));
+		farSplits.push_back(getPosition() - (-front_vector * (FarZ / (i+1))));
 	}
 
 	Size sizeFar;
@@ -42,7 +42,7 @@ ViewFrustum PerspectiveCamera::getViewFrustum(int splits)
 		else {
 			split = (FarZ / splits);
 		}
-		glm::vec3 splitCenter = position - (-front_vector * split);
+		glm::vec3 splitCenter = getPosition() - (-front_vector * split);
 
 		Size sizeSplit;
 		sizeSplit.height = 2.0f * tanf(glm::radians(FOV) / 2.0f) * split;
@@ -57,7 +57,7 @@ ViewFrustum PerspectiveCamera::getViewFrustum(int splits)
 		splits--;
 	}
 
-	viewFrustum.position = position;
+	viewFrustum.position = getPosition();
 	viewFrustum.front    = front_vector;
 	viewFrustum.up		 = up_vector;
 	viewFrustum.right	 = right_vector;

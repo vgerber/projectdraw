@@ -16,21 +16,42 @@ http://www.opengl-tutorial.org/cn/intermediate-tutorials/tutorial-17-quaternions
 
 */
 
+class Transform {
+public:
+	Transform();
+	Transform(glm::vec3 translation, Rotator rotator, glm::vec3 scale);
+
+	void translate(glm::vec3 translation);
+	void rotate(Rotator rotator);
+	void scale(glm::vec3 scaling);
+
+	glm::vec3 getTranslation();
+	glm::vec3 getScale();
+	Rotator getRotation();
+
+	glm::mat4 getInverse();
+	glm::mat4 getMatrix();
+
+	void print();
+private:
+	glm::vec3 translation = glm::vec3(0.0);
+	glm::vec3 scaling = glm::vec3(1.0);
+	Rotator rotator;
+	glm::mat4 transfromMatrix = glm::mat4(1.0);
+
+	void updateMatrix();
+};
 
 class Moveable : public BoundingBox {
 public:
 
 	glm::mat4 getModelMatrix();
-
-	virtual void setCenter(glm::vec3 center);
+	virtual void setPosition(float x, float y, float z);
 	virtual void setPosition(glm::vec3 position);
 	virtual void rotate(Rotator rotator);
-	virtual void translate(float x, float y, float z);
-	virtual void translate(glm::vec3 vtranslation);
 	virtual void scale(float x, float y, float z);
-	virtual void scale(glm::vec3 vscale);
-	
-	virtual void setCenterInWorld(glm::vec3 point);
+	virtual void scale(glm::vec3 scaling);
+
 
 	Size getSize()					   override;
 	void scaleToSize(Size size)		   override;
@@ -39,26 +60,12 @@ public:
 	void scaleToLength(float depth)    override;
 
 
-
-	glm::vec3 getCenter();
-	glm::vec3 getCenterPoint();
 	glm::vec3 getScale();	
 	glm::vec3 getPosition();
-	glm::vec3 getPositionCenter();
-
-	Rotator getRotator();
-
-	void print();
-	
+	Rotator getRotator();	
 protected:
 	Size size;
-	glm::vec3 position = glm::vec3(0.0f);
-	glm::vec3 vscale = glm::vec3(1.0f);
-	glm::vec3 vcenter = glm::vec3(0.5f);
-	glm::mat4 mmodel = glm::mat4(1.0f);
-	Rotator rotator;
+	Transform transform;
 
-
-	
-	virtual void updateModel();
+	virtual void transformChanged();
 };

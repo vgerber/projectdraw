@@ -69,7 +69,6 @@ void RigidBody::refreshDrawable()
 {
 	if (drawable) {
 		btTransform transform;
-		drawable->setCenter(glm::vec3(0.5f, 0.5f, 0.5f));
 		
 		transform = rigidBody->getWorldTransform();
 		glm::vec3 position = glm::vec3(transform.getOrigin().getX(), transform.getOrigin().getY(), transform.getOrigin().getZ());

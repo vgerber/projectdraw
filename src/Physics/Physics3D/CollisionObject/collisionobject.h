@@ -6,8 +6,10 @@
 #include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 
+#include "Core/Scene/Util/moveable.h"
 
-class CollisionObject {
+
+class CollisionObject : public Moveable {
 public:
     std::function<void(const CollisionObject*)> onCollide;
 

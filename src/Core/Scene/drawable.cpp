@@ -39,8 +39,8 @@ void Drawable::draw()
 	}
 */
 	if (settings.xrayVisible) {
-		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * getModelMatrix()));
 		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), settings.xrayUseLight);
 		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), settings.xrayCustomColor);
 		glm::vec4 color = settings.xrayColor;
@@ -69,8 +69,8 @@ void Drawable::draw()
 	
 
 	if (settings.outlineVisible) {
-		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * getModelMatrix()));
 		glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 0.0f);
 		glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 1);
 		glm::vec4 color = settings.outlineColor;
@@ -99,8 +99,8 @@ void Drawable::draw()
 
 		scale(outlineSize.width, outlineSize.height, outlineSize.depth);
 		
-		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
-		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * getModelMatrix()));
 		//setPosition(getPosition() + glm::vec3(-0.5f * thickness));
 		
 		glStencilFunc(GL_EQUAL, 0, 0xFF);
@@ -117,8 +117,8 @@ void Drawable::draw()
 
 	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 1.0f);
 	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * getModelMatrix()));
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
 	
 	glStencilFunc(GL_EQUAL, 0, 0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -131,8 +131,8 @@ void Drawable::draw()
 void Drawable::drawRaw()
 {
 	shader.use();
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * mmodel));
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * getModelMatrix()));
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
 	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 0.0f);
 	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
 	objModel.draw(shader, settings.drawType);
@@ -140,7 +140,7 @@ void Drawable::drawRaw()
 
 void Drawable::drawNormals(Shader shader)
 {
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
 	objModel.drawNormals(shader);
 }
 
@@ -148,7 +148,7 @@ void Drawable::drawBox(Shader shader)
 {
 	shader.use();
 	glUniform4f(glGetUniformLocation(shader.getId(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mmodel));
+	glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
 
 	glBindVertexArray(this->boxVAO);
 	glDrawArrays(GL_LINES, 0, 30);
@@ -161,77 +161,7 @@ void Drawable::setup()
 	glGenVertexArrays(1, &this->boxVAO);
 	glGenBuffers(1, &this->boxVBO);
 
-	updateModel();
-	loadBox();
-}
-
-
-
-Size Drawable::getAABBBox()
-{
-	glm::vec4 box[8] = {
-		mmodel * glm::vec4(size.x,				size.y,				  size.z,			   1.0f),
-		mmodel * glm::vec4(size.x + size.width, size.y,				  size.z,			   1.0f),
-		mmodel * glm::vec4(size.x,				size.y + size.height, size.z,			   1.0f),
-		mmodel * glm::vec4(size.x + size.width, size.y + size.height, size.z,			   1.0f),
-		mmodel * glm::vec4(size.x,				size.y,				  size.z + size.depth, 1.0f),
-		mmodel * glm::vec4(size.x + size.width, size.y,				  size.z + size.depth, 1.0f),
-		mmodel * glm::vec4(size.x,				size.y + size.height, size.z + size.depth, 1.0f),
-		mmodel * glm::vec4(size.x + size.width,	size.y + size.height, size.z + size.depth, 1.0f)
-	};
-	Size box_size;
-	bool is_first = true;
-	for (auto v : box) {
-		//v *= glm::vec4(vscale, 1.0f);
-		if (is_first) {
-			box_size.x = v.x;
-			box_size.y = v.y;
-			box_size.z = v.z;
-			box_size.width = v.x;
-			box_size.height = v.y;
-			box_size.depth = v.z;			
-			is_first = false;
-			continue;
-		}
-		if (v.x < box_size.x) {
-			box_size.x = v.x;
-		}
-		//max width
-		if (v.x > box_size.width) {
-			box_size.width = v.x;
-		}
-		//min y
-		if (v.y < box_size.y) {
-			box_size.y = v.y;
-		}
-		//max height
-		if (v.y > box_size.height) {
-			box_size.height = v.y;
-		}
-		//min z
-		if (v.z < box_size.z) {
-			box_size.z = v.z;
-		}
-		//max length
-		if (v.z > box_size.depth) {
-			box_size.depth = v.z;
-		}
-	}
-	box_size.width -= box_size.x;
-	box_size.height -= box_size.y;
-	box_size.depth -= box_size.z;
-	return box_size;
-}
-
-void Drawable::setCenter(glm::vec3 center)
-{
-	Moveable::setCenter(center);
-	loadBox();
-}
-
-void Drawable::setCenterInWorld(glm::vec3 point)
-{
-	Moveable::setCenterInWorld(point);
+	transform = Transform();
 	loadBox();
 }
 
@@ -253,10 +183,8 @@ Model * Drawable::getModelPtr()
 
 void Drawable::setModel(Model model)
 {
-	vscale = glm::vec3(1.0f);
 	objModel = model;
 	size = objModel.getSize();
-	updateModel();
 	loadBox();
 }
 
@@ -322,14 +250,14 @@ void Drawable::loadBox()
 		size.x,				 size.y + size.height, size.z,
 		
 		//center axis
-		vcenter.x * size.width - max_center_size, vcenter.y * size.height, vcenter.z * size.depth,
+		/*vcenter.x * size.width - max_center_size, vcenter.y * size.height, vcenter.z * size.depth,
 		vcenter.x * size.width + max_center_size, vcenter.y * size.height, vcenter.z * size.depth,
 
 		vcenter.x * size.width, vcenter.y * size.height - max_center_size, vcenter.z * size.depth,
 		vcenter.x * size.width, vcenter.y * size.height + max_center_size, vcenter.z * size.depth,
 
 		vcenter.x * size.width, vcenter.y * size.height, vcenter.z * size.depth - max_center_size,
-		vcenter.x * size.width, vcenter.y * size.height, vcenter.z * size.depth + max_center_size
+		vcenter.x * size.width, vcenter.y * size.height, vcenter.z * size.depth + max_center_size*/
 	};
 
 	glBindVertexArray(boxVAO);

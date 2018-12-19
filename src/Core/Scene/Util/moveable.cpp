@@ -1,66 +1,107 @@
 #include "moveable.h"
 
+Transform::Transform() {
+	
+}
+
+Transform::Transform(glm::vec3 translation, Rotator rotator, glm::vec3 scale) {
+	this->translation = translation;
+	this->rotator = rotator;
+	this->scaling = scale;
+	updateMatrix();
+}
+
+void Transform::translate(glm::vec3 translation) {
+	this->translation = translation;
+	updateMatrix();
+}
+
+void Transform::scale(glm::vec3 scaling) {
+	this->scaling = scaling;
+	updateMatrix();
+}
+
+void Transform::rotate(Rotator rotator) {
+	this->rotator = rotator;
+	updateMatrix();
+}
+
+glm::vec3 Transform::getTranslation() {
+	return translation;
+}
+
+glm::vec3 Transform::getScale() {
+	return scaling;
+}
+
+Rotator Transform::getRotation() {
+	return rotator;
+}
+
+glm::mat4 Transform::getInverse() {
+	return glm::inverse(transfromMatrix);
+}
+
+glm::mat4 Transform::getMatrix() {
+	return transfromMatrix;
+}
+
+void Transform::print() {
+	printf("Transfrom\n");
+	printf("Translation (%f, %f, %f)\n", translation.x, translation.y, translation.z);
+	glm::vec3 rotation = rotator.getRotationEuler();
+	printf("Rotation (%f, %f, %f) / (%f, %f, %f)\n", rotation.x, rotation.y, rotation.z, glm::degrees(rotation.x), glm::degrees(rotation.y), glm::degrees(rotation.z));
+	printf("Scale (%f, %f, %f)\n", scaling.x, scaling.y, scaling.z);
+}
+
+void Transform::updateMatrix() {
+	transfromMatrix =
+		glm::translate(glm::mat4(1.0), translation) *
+		rotator.getRotationMatrix() *
+		glm::scale(glm::mat4(1.0), scaling);
+}
+
+
 glm::mat4 Moveable::getModelMatrix()
 {
-	return mmodel;
+	return transform.getMatrix();
 }
 
-
-void Moveable::setCenter(glm::vec3 center)
+void Moveable::setPosition(float x, float y, float z)
 {
-	this->vcenter = center;
+	transform.translate(glm::vec3(x, y, z));
 }
 
-void Moveable::setPosition(glm::vec3 position)
+void Moveable::setPosition(glm::vec3 translation)
 {
-	translate(position - this->position);
+	transform.translate(translation);
+	transformChanged();
 }
 
 void Moveable::rotate(Rotator rotator)
 {
-	this->rotator = rotator;
-	updateModel();
-}
-
-void Moveable::translate(float x, float y, float z)
-{
-	position += glm::vec3(x, y, z);
-	updateModel();
-}
-
-void Moveable::translate(glm::vec3 vtranslation)
-{
-	position += vtranslation;
-	updateModel();
+	transform.rotate(rotator);
+	transformChanged();
 }
 
 void Moveable::scale(float x, float y, float z) {
-	vscale = glm::vec3(x, y, z);
-	updateModel();
-
+	transform.scale(glm::vec3(x, y, z));
 }
 
-void Moveable::scale(glm::vec3 vscale)
+void Moveable::scale(glm::vec3 scaling)
 {
-	this->vscale = vscale;
-	updateModel();
-}
-
-void Moveable::setCenterInWorld(glm::vec3 point)
-{
-	glm::vec3 dPoint = point - position;
-	vcenter.x = dPoint.x / (size.width != 0.0f ? size.width : 1.0f);
-	vcenter.y = dPoint.y / (size.height != 0.0f ? size.height : 1.0f);
-	vcenter.z = dPoint.z / (size.depth != 0.0f ? size.depth : 1.0f);
+	transform.scale(scaling);
+	transformChanged();
 }
 
 Size Moveable::getSize()
 {
+	glm::vec3 scaling = transform.getScale();
 	Size scaled_size;
 	scaled_size = size;
-	scaled_size.width *= vscale.x;
-	scaled_size.height *= vscale.y;
-	scaled_size.depth *= vscale.z;
+	scaled_size.width *= scaling.x;
+	scaled_size.height *= scaling.y;
+	scaled_size.depth *= scaling.z;
 	return scaled_size;
 }
 
@@ -75,13 +116,15 @@ void Moveable::scaleToSize(Size size)
 	if (std::isnan(size.depth)) {
 		size.depth = 1.0f;
 	}
+	glm::vec3 scaling = transform.getScale();
 	if (this->size.width > 0.0f)
-		vscale.x = (size.width / this->size.width);
+		scaling.x = (size.width / this->size.width);
 	if (this->size.height > 0.0f)
-		vscale.y = (size.height / this->size.height);
+		scaling.y = (size.height / this->size.height);
 	if (this->size.depth > 0.0f)
-		vscale.z = (size.depth / this->size.depth);
-	updateModel();
+		scaling.z = (size.depth / this->size.depth);
+	transform.scale(scaling);
+	transformChanged();
 }
 
 void Moveable::scaleToWidth(float width)
@@ -114,77 +157,21 @@ void Moveable::scaleToLength(float depth)
 	scaleToSize(new_size);
 }
 
-
-glm::vec3 Moveable::getCenter()
-{
-	return vcenter;
-}
-
-glm::vec3 Moveable::getCenterPoint()
-{
-	return position + glm::vec3(size.width, size.height, size.depth) * vcenter;
-}
-
 glm::vec3 Moveable::getPosition()
 {
-	return position;
-}
-
-glm::vec3 Moveable::getPositionCenter() {
-	return position + glm::vec3(size.width, size.height, size.depth) * glm::vec3(0.5f, 0.5f, 0.5f) * vscale;
+	return transform.getTranslation();
 }
 
 Rotator Moveable::getRotator()
 {
-	return rotator;
-}
-
-void Moveable::print()
-{
-	printf("Transfrom\n");
-	printf("Translation (%f, %f, %f)\n", position.x, position.y, position.z);
-	glm::vec3 rotation = rotator.getRotationEuler();
-	printf("Rotation (%f, %f, %f) / (%f, %f, %f)\n", rotation.x, rotation.y, rotation.z, glm::degrees(rotation.x), glm::degrees(rotation.y), glm::degrees(rotation.z));
-	printf("Scale (%f, %f, %f)\n", vscale.x, vscale.y, vscale.z);
+	return transform.getRotation();
 }
 
 glm::vec3 Moveable::getScale()
 {
-	return vscale;
+	return transform.getScale();
 }
 
-
-void Moveable::updateModel()
-{
-	mmodel = glm::mat4(1.0f);
-	/*
-	glm::vec3 center_translation = glm::vec3(
-		vcenter.x * size.width * vscale.x,
-		vcenter.y * size.height * vscale.y,
-		vcenter.z * size.depth * vscale.z);
-	*/
-	glm::vec3 center_translation = glm::vec3(
-		size.x,
-		size.y,
-		size.z
-	);
-	glm::mat4 rotation = rotator.getRotationMatrix();
-	/*
-		glm::translate(glm::mat4(1.0f), rotator.getOrigin()) *
-		rotator.getRotationMatrix() * 
-		glm::translate(glm::mat4(1.0f), -rotator.getOrigin());
-	*/
-
-	/*rotation = glm::translate(glm::mat4(1.0f), center_translation)
-		* rotation
-		* glm::translate(glm::mat4(1.0f), -center_translation);
-	*/
-
-	/*
-	glm::mat4 rotation = glm::mat4(1.0f);
-	rotation = glm::rotate(rotation, vrotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-	rotation = glm::rotate(rotation, vrotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-	rotation = glm::rotate(rotation, vrotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-	*/
-	mmodel = glm::translate(glm::mat4(1.0f), position) * rotation * glm::scale(glm::mat4(1.0f), vscale);
+void Moveable::transformChanged() {
+	
 }

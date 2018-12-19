@@ -32,10 +32,10 @@ btCollisionObject * TriggerVolume::getCollisionObjectHandle() {
     return static_cast<btCollisionObject*>(ghostObject);
 }
 
-void TriggerVolume::updateModel() {
+void TriggerVolume::transformChanged() {
     btTransform transform;
-    transform.setOrigin(toBtVec3(position));
-    glm::vec3 rotationEuler = rotator.getRotationEuler();
+    transform.setOrigin(toBtVec3(getPosition()));
+    glm::vec3 rotationEuler = getRotator().getRotationEuler();
     btQuaternion quaternion(rotationEuler.x, rotationEuler.y, rotationEuler.z);
     transform.setRotation(quaternion);
     ghostObject->setWorldTransform(transform);

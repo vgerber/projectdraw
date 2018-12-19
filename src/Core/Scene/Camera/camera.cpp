@@ -11,6 +11,10 @@ Camera::~Camera()
 {
 }
 
+void Camera::setPosition(float x, float y, float z) {
+	setPosition(glm::vec3(x, y, z));
+}
+
 void Camera::setPosition(glm::vec3 position)
 {	
 	SceneObject::setPosition(position);
@@ -21,14 +25,14 @@ void Camera::setPosition(glm::vec3 position)
 // Constructor with vectors
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f))
 {
-	this->position = position;
+	setPosition(position);
 	this->world_up_vector = up;
 	this->updateCameraVectors();
 }
 // Constructor with scalar values
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f))
 {
-	this->position = glm::vec3(posX, posY, posZ);
+	setPosition(posX, posY, posZ);
 	this->world_up_vector = glm::vec3(upX, upY, upZ);
 	this->updateCameraVectors();
 }
@@ -71,7 +75,7 @@ glm::vec3 Camera::getUp()
 void Camera::lookAt(glm::vec3 target)
 {
 
-	glm::vec3 front_default = position;
+	glm::vec3 front_default = getPosition();
 	glm::vec3 front_diff = glm::normalize(target - front_default);
 	
 	front_vector = front_diff;
@@ -91,5 +95,5 @@ void Camera::updateCameraVectors()
 	this->right_vector = glm::normalize(glm::cross(this->front_vector, this->world_up_vector));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
 	this->up_vector = glm::normalize(glm::cross(this->right_vector, this->front_vector));
 
-	viewMatrix = glm::lookAt(this->position, this->position + this->front_vector, up_vector);
+	viewMatrix = glm::lookAt(getPosition(), getPosition() + this->front_vector, up_vector);
 }

@@ -9,7 +9,7 @@
 #include "Physics/Physics3D/Collision/Shapes/cshape.h"
 #include "Physics/Physics3D/World/collisionworld.h"
 
-class TriggerVolume : public CollisionObject, public Moveable {
+class TriggerVolume : public CollisionObject {
 public:
 
     TriggerVolume(collision::CollisionShape shape, glm::vec3 position);
@@ -23,6 +23,6 @@ private:
     int lastOverlappingObjects = 0;
     btGhostObject * ghostObject;
 
-    virtual void updateModel() override;
+    virtual void transformChanged() override;
 
 };
