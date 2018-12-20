@@ -85,59 +85,6 @@ void RigidBody::refreshDrawable()
 	}
 }
 
-void RigidBody::drawAABB(Shader shader) {
-	btVector3 min, max;
-	rigidBody->getAabb(min, max);
-
-	Size size;
-	size.x = min.getX();
-	size.y = min.getY();
-	size.z = min.getZ();
-	size.width = max.getX() - size.x;
-	size.height = max.getY() - size.y;
-	size.depth = max.getZ() - size.z;
-
-	GLfloat vertices_box[] = {
-		size.x,				 size.y,			   size.z,
-		size.x + size.width, size.y,			   size.z,
-		size.x,				 size.y + size.height, size.z + size.depth,
-		size.x + size.width, size.y + size.height, size.z + size.depth,
-		size.x,				 size.y + size.height, size.z,
-		size.x + size.width, size.y + size.height, size.z,
-		size.x,				 size.y,			   size.z + size.depth,
-		size.x + size.width, size.y,			   size.z + size.depth,
-
-		size.x + size.width, size.y,			   size.z,
-		size.x + size.width, size.y,			   size.z + size.depth,
-		size.x + size.width, size.y + size.height, size.z,
-		size.x + size.width, size.y + size.height, size.z + size.depth,
-		size.x,				 size.y + size.height, size.z,
-		size.x,				 size.y + size.height, size.z + size.depth,
-		size.x,				 size.y,			   size.z,
-		size.x,				 size.y,			   size.z + size.depth,
-
-		size.x + size.width, size.y,			   size.z,
-		size.x + size.width, size.y + size.height, size.z,
-		size.x + size.width, size.y,			   size.z + size.depth,
-		size.x + size.width, size.y + size.height, size.z + size.depth,
-		size.x,				 size.y,			   size.z + size.depth,
-		size.x,				 size.y + size.height, size.z + size.depth,
-		size.x,				 size.y,			   size.z,
-		size.x,				 size.y + size.height, size.z,
-	};
-
-	glBindVertexArray(aabbVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, aabbVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_box), &vertices_box, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-
-	glDrawArrays(GL_LINES, 0, 24);
-	glBindVertexArray(0);
-
-
-}
-
 void RigidBody::dispose()
 {
 	delete rigidBody->getMotionState();
@@ -221,5 +168,19 @@ void RigidBody::scaleShape(glm::vec3 scale)
 		oldScale = drawable->getScale();
 		glm::vec3 scale = drawable->getScale();
 		shape->getShape()->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
+	}
+}
+
+void RigidBody::transformChanged()
+{
+	//rigidBody->clearForces();
+	btTransform worldTransform = btTransform::getIdentity();
+	worldTransform.setOrigin(toBtVec3(transform.getTranslation()));
+	glm::quat rot = transform.getRotation().getRotation();
+	btQuaternion quaternion(rot.x, rot.y, rot.z, rot.w);
+	worldTransform.setRotation(quaternion);
+	rigidBody->setWorldTransform(worldTransform);
+	if (rigidBody->getMotionState()) {
+		rigidBody->getMotionState()->setWorldTransform(worldTransform);
 	}
 }

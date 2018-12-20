@@ -117,12 +117,12 @@ int main() {
 
 		//Keyboard events
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
-			ground.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, -5.0f * deltaTimeMilli));
+			rGroundBody.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, -5.0f * deltaTimeMilli));
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-			ground.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, 5.0f * deltaTimeMilli));
+			rGroundBody.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, 5.0f * deltaTimeMilli));
 		}
-		rGroundBody.refreshBody();
+		//rGroundBody.refreshBody();
 
         RaycastHitResult hitResult = physicsWorld.rayCastAll(glm::vec3(0.0, 10.0, 2.0), glm::vec3(0.0, -10.0, 2.0));
         //printf("Raycast Hits %d\n", hitResult.hitLocations.size());

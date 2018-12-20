@@ -29,7 +29,6 @@ public:
 	void refreshBody();
 	void refreshDrawable();
 
-    void drawAABB(Shader shader);
 
 	void dispose();
 
@@ -70,7 +69,7 @@ protected:
     btRigidBody* rigidBody = nullptr;
 	Drawable* drawable = nullptr;
 
-    GLuint aabbVAO, aabbVBO;
-
 	void scaleShape(glm::vec3 scale);
+
+	virtual void transformChanged() override;
 };

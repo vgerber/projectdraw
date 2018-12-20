@@ -30,8 +30,8 @@ DemoVehicle::DemoVehicle(DiscreteWorld &world, Scene &scene) {
         wheel.contactPoint = contactPoints[i];
         wheel.radius = wheels[i].getSize().depth * 0.5;
         wheel.width = wheels[i].getSize().width;
-        wheel.suspensionStiffness = 10.0;
-        wheel.suspensionRestLength = 0.05;
+        wheel.suspensionStiffness = 100.0;
+        wheel.suspensionRestLength = 0.00;
         wheel.dampingRelaxation = 1.0;
         wheel.dampingCompression = 1.0;
         wheel.drawable = &wheels[i];
