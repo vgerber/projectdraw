@@ -19,13 +19,14 @@ btCollisionShape* collision::generateCube(Size size) {
     return new btBoxShape(btVector3(size.width * .5f, size.height * .5f, size.depth * .5f));
 }
 
-btCollisionShape* collision::generateSphere(GLfloat radius) {
+btCollisionShape* collision::generateSphere(float radius) {
     return new btSphereShape(btScalar(radius));
 }
 
-btCollisionShape * collision::generateTriangleMesh(Model model)
+btCollisionShape * collision::generateTriangleMesh(Mesh mesh)
 {
-	std::vector<BasicMesh> meshes = model.getMeshes();
+	/*
+	std::vector<Mesh> meshes = model.getMeshes();
 	btTriangleMesh *triangleMesh = new btTriangleMesh();
 
 	for (BasicMesh mesh : meshes) {
@@ -43,6 +44,8 @@ btCollisionShape * collision::generateTriangleMesh(Model model)
 	}
 
 	return new btBvhTriangleMeshShape(triangleMesh, true);
+	*/
+	return nullptr;
 }
 
 btCollisionShape * collision::generateHeightField(std::vector<float> &data, int width, int length)

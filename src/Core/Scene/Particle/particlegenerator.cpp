@@ -1,10 +1,10 @@
 #include "particlegenerator.h"
 
-ParticleGenerator::ParticleGenerator(Drawable drawable, int particleCount)
+ParticleGenerator::ParticleGenerator(Model &model, int particleCount)
 {
-	this->drawableParticle = drawable;
+	this->particleModel = &model;
 	particles = std::vector<Particle>(particleCount);
-	instancer = new Instancer(this->drawableParticle.getModel(), particleCount);
+	instancer = new Instancer(this->particleModel, particleCount);
 }
 
 void ParticleGenerator::draw()
@@ -14,11 +14,11 @@ void ParticleGenerator::draw()
 	for (size_t i = 0; i < particles.size(); i++) {
 		Particle part = particles[i];
 		if (part.alive) {
-			drawableParticle.setPosition(part.position);
+			particleModel->setPosition(part.position);
 			//drawableParticle.rotate(part.rotation);
-			drawableParticle.scale(part.scale);
+			particleModel->scale(part.scale);
 
-			matrices[i] = drawableParticle.getModelMatrix();
+			matrices[i] = particleModel->getModelMatrix();
 		}
 		else {
 			matrices[i] = glm::mat4(0);
@@ -63,7 +63,7 @@ void ParticleGenerator::update(GLfloat deltaTime)
 
 void ParticleGenerator::dispose()
 {
-	drawableParticle.dispose();
+	particleModel->dispose();
 }
 
 ParticleGenerator::~ParticleGenerator()

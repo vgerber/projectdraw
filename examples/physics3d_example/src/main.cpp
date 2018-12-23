@@ -19,7 +19,7 @@ bool handleEvent(Camera &camera, Scene &scene);
 std::vector<float> getHeightField(int width,  int length);
 
 int main() {
-
+	/*
     sf::ContextSettings ctxSetting;
     ctxSetting.majorVersion = 3;
     ctxSetting.minorVersion = 3;
@@ -38,14 +38,13 @@ int main() {
     freeCamera.setPosition(glm::vec3(40.0f, 0.0f, 15.0f));
     freeCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
     mainScene.addObject(freeCamera);
-
-    Drawable ground;
-    ground.setModel(primitives::generateQuad(40.0f, 40.0f, 0.2f, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)));
+	
+    Mesh ground = pd::generateQuad(40.0f, 40.0f, 0.2f, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
     ground.setPosition(glm::vec3(0.0f, 0.0f, -0.1f));
     mainScene.addObject(ground);
 
-    Drawable testObject;
-    testObject.setModel(primitives::generateSphere(20, 20,  glm::vec4(0.4f, 0.8f, 0.4f, 1.0f)));
+	Mesh testObject;
+    testObject = pd::generateSphere(20, 20,  glm::vec4(0.4f, 0.8f, 0.4f, 1.0f));
     testObject.setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
     mainScene.addObject(testObject);
 
@@ -94,8 +93,8 @@ int main() {
     int height = 100;
     std::vector<float> heightData = getHeightField(width, height);
 
-    Drawable terrain;
-    terrain.setModel(primitives::generateHeightfield(width, height, heightData));
+    Mesh terrain;
+    terrain = *pd::generateHeightfield(width, height, heightData));
     mainScene.addObject(terrain);
 
     collision::CollisionShape rTerrainShape(collision::generateHeightField(heightData, width, height));
@@ -141,7 +140,7 @@ int main() {
         deltaTime = (windowClock.getElapsedTime()- elapsedTime).asMilliseconds();
         elapsedTime = windowClock.getElapsedTime();
     }
-
+	*/
     return 0;
 }
 

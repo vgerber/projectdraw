@@ -39,7 +39,6 @@ void DeferredRenderer::addSceneObject(SceneObject & sceneObject)
 	if (DirectionalLight *dLight = dynamic_cast<DirectionalLight *>(&sceneObject))
 	{
 		directionalLight = dLight;
-		directionalLight->setShader(shaderLight, *this);
 		return;
 	}
 
@@ -58,14 +57,12 @@ void DeferredRenderer::addSceneObject(SceneObject & sceneObject)
 	if (SpotLight *sLight = dynamic_cast<SpotLight *>(&sceneObject))
 	{
 		spotLights.push_back(sLight);
-		sLight->setShader(shaderLight, *this);
 		return;
 	}
 
 	if (PointLight *pLight = dynamic_cast<PointLight *>(&sceneObject))
 	{
 		pointLights.push_back(pLight);
-		pLight->setShader(shaderLight, *this);
 		return;
 	}
 
@@ -299,14 +296,14 @@ void DeferredRenderer::renderObjects()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	//draw 3d pointlight object
-	shaderLight.use();
+	/*shaderLight.use();
 	for (auto plight : pointLights)
 	{
 		glUniform1f(glGetUniformLocation(shaderLight.getId(), "intensity"), plight->intensity);
 		glUniform3f(glGetUniformLocation(shaderLight.getId(), "color"), plight->diffuse.r, plight->diffuse.g, plight->diffuse.b);
 		plight->setCameraMatrices(camera->getViewMatrix(), camera->getCameraMatrix());
 		plight->draw();
-	}
+	}*/
 
 	shaderInstancing.use();
 	for (auto instancer : instancers)
@@ -934,18 +931,6 @@ void DeferredRenderer::dispose() {
 
 void DeferredRenderer::refreshShaderRenderer()
 {
-	if (directionalLight) {
-		directionalLight->setShader(shaderLight, *this);
-	}
-
-	for (auto &plight : pointLights) {
-		plight->setShader(shaderLight, *this);
-	}
-
-	for (auto &slight : spotLights) {
-		slight->setShader(shaderLight, *this);
-	}
-
 	for (auto &drawable : objects) {
 		if (dynamic_cast<Text*>(drawable))
 			drawable->setShader(shaderFont, *this);

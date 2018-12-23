@@ -4,13 +4,6 @@ Light::Light()
 {
 }
 
-void Light::draw()
-{
-	glUniform1f(glGetUniformLocation(shader.getId(), "intensity"), intensity);
-	Drawable::draw();
-}
-
-
 void Light::apply(Shader shader, std::string target)
 {
 	glUniform1i(glGetUniformLocation(shader.getId(), (target + ".drawShadow").c_str()), shadow);

@@ -60,10 +60,10 @@ int main() {
 	
 	
 	
-	Drawable quad, cube, sphere;
+	Mesh quad, cube, sphere;
 	{
 		//cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
-		quad.setModel(primitives::generateQuad(2.0f, 1.0f, 1.0f, glm::vec4(0.5f, 1.0f, 0.4f, 1.0f)));
+		quad = *pd::generateQuad(2.0f, 1.0f, 1.0f, glm::vec4(0.5f, 1.0f, 0.4f, 1.0f));
 		//cylinder.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
 		quad.setPosition(glm::vec3(-1.0f, 0.0f, 2.0f));
 		quad.settings.outlineVisible = true;
@@ -78,28 +78,27 @@ int main() {
 	{
 		//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.3f, 0.8f, 0.3f, 1.0f)));
 #ifdef _WIN32
-		cube.setModel(Model("C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/examples/assets/basic_car.fbx"));
+		cube = Mesh("C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/examples/assets/basic_car.fbx");
 #elif linux
-		cube.setModel(Model("/home/vincent/Development/Cpp/projectdraw_slim/examples/assets/basic_car.fbx"));
+		cube = Mesh("/home/vincent/Development/Cpp/projectdraw_slim/examples/assets/basic_car.fbx");
 #endif
 		cube.setPosition(glm::vec3(-1.0f, -1.0f, 2.0f));
 		Rotator rotator;
 		rotator.rotateAxis(glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
-		//cube.rotate(rotator);
-		//cube.rotate(glm::radians(-90.0f), 0.0f, 0.0f);
 		scene.addObject(cube);
 	}
 	{
 		//sphere.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
-		sphere.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.8f, 0.5f, 0.8f, 1.0f)));
+		sphere = *pd::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.8f, 0.5f, 0.8f, 1.0f));
 		sphere.setPosition(glm::vec3(1.0f, 1.0f, 1.0f));
 		scene.addObject(sphere);
 	}
 
-	Drawable ground;
-	ground.setModel(primitives::generateQuad(20.0f, 20.0f, 0.2f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f)));
+	Mesh ground;
+	ground = *pd::generateQuad(20.0f, 20.0f, 0.2f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
 	ground.setPosition(glm::vec3(0, 0.0f, -0.1f));
 	scene.addObject(ground);
+
 
 	
 	DirectionalLight sunLight;
@@ -117,7 +116,7 @@ int main() {
 	poleLight.diffuse = glm::vec3(0.01f, 0.01f, 1.0f);
 	poleLight.specular = poleLight.diffuse;
 	poleLight.intensity = 1.0f;
-	poleLight.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
+	//poleLight.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
 	poleLight.shadow = true;
 	scene.addObject(poleLight);
 
@@ -127,7 +126,7 @@ int main() {
 	poleLight2.diffuse = poleLight.diffuse;
 	poleLight2.specular = poleLight2.diffuse;
 	poleLight2.intensity = 1.0f;
-	poleLight2.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
+	//poleLight2.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
 	poleLight2.shadow = true;
 	scene.addObject(poleLight2);
 	
@@ -206,7 +205,6 @@ int main() {
 			quad.rotate(quadRotator);
 
 		}
-
 		
 		
 		

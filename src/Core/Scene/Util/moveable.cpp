@@ -46,6 +46,15 @@ glm::mat4 Transform::getMatrix() {
 	return transfromMatrix;
 }
 
+Transform Transform::operator*(const Transform & transform)
+{
+	glm::vec3 translation;
+	glm::vec3 scaling;
+	glm::quat rotation;
+	glm::decompose(this->transfromMatrix * transform.transfromMatrix, scaling, rotation, translation, glm::vec3(), glm::vec4());
+	return Transform(translation, Rotator(rotation, glm::vec3(0.0f)), scaling);
+}
+
 void Transform::print() {
 	printf("Transfrom\n");
 	printf("Translation (%f, %f, %f)\n", translation.x, translation.y, translation.z);

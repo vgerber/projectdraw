@@ -12,8 +12,8 @@ public:
     void update(float delta);
 
 private:
-    Drawable chassis;
-    Drawable wheels[4];
+    Mesh chassis;
+    Mesh wheels[4];
     collision::CollisionShape * shape;
     RaycastVehicle * vehicle;
 };

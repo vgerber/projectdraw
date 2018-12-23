@@ -29,13 +29,13 @@ void TextureScene::draw(float delta)
 		glUniform1i(tex_pos, 0);
 		texture->activate(0);
 
-		textureHolder.draw();
+		//textureHolder.draw();
 	}
 }
 
 void TextureScene::resize(int width, int height)
 {
-	if (screen_width != width || screen_height != height || true)
+	/*if (screen_width != width || screen_height != height || true)
 	{
 		screen_width = width;
 		screen_height = height;
@@ -69,6 +69,7 @@ void TextureScene::resize(int width, int height)
 		camera->Width = camWidth;
 		camera->Height = camHeight;
 	}
+	*/
 }
 
 void TextureScene::dispose()
@@ -110,7 +111,7 @@ void TextureScene::removeTexture(Texture &texture)
 
 void TextureScene::setTexture(Texture *texture)
 {
-	float width = this->texture ? this->texture->getWidth() : 0.0f;
+	/*float width = this->texture ? this->texture->getWidth() : 0.0f;
 	float height = this->texture ? this->texture->getHeight() : 0.0f;
 	this->texture = texture;
 
@@ -121,7 +122,7 @@ void TextureScene::setTexture(Texture *texture)
 	if (reloadSize)
 	{
 		resize(screen_width, screen_height);
-	}
+	}*/
 }
 
 void TextureScene::setup()

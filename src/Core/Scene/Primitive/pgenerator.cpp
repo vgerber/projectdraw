@@ -1,6 +1,6 @@
 #include "pgenerator.h"
 
-Model primitives::generateRectangle(GLfloat width, GLfloat height, glm::vec4 color = glm::vec4(0.0f))
+Mesh * pd::generateRectangle(GLfloat width, GLfloat height, glm::vec4 color = glm::vec4(0.0f))
 {
 	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
 	std::vector<GLfloat> vertices = {
@@ -36,14 +36,10 @@ Model primitives::generateRectangle(GLfloat width, GLfloat height, glm::vec4 col
 		vertices_vertex.push_back(vertex);
 	}
 
-	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
-
-	std::vector<BasicMesh> meshes = { mesh };
-
-	return Model(meshes, std::vector<sTexture>());
+	return new  Mesh(vertices_vertex, indices);
 }
 
-Model primitives::generateCircle(GLfloat radius, GLfloat quality, glm::vec4 color)
+Mesh * pd::generateCircle(GLfloat radius, GLfloat quality, glm::vec4 color)
 {
 	if (quality < 3.0f) {
 		quality = 3.0f;
@@ -133,14 +129,10 @@ Model primitives::generateCircle(GLfloat radius, GLfloat quality, glm::vec4 colo
 		vertices_vertex.push_back(vertex);
 	}
 
-	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
-
-	std::vector<BasicMesh> meshes = { mesh };
-
-	return Model(meshes, std::vector<sTexture>());
+	return new Mesh(vertices_vertex, indices);
 }
 
-Model primitives::generateQuad(GLfloat width, GLfloat height, GLfloat depth, glm::vec4 color)
+Mesh * pd::generateQuad(GLfloat width, GLfloat height, GLfloat depth, glm::vec4 color)
 {
 	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
 	std::vector<GLfloat> vertices = {
@@ -207,15 +199,12 @@ Model primitives::generateQuad(GLfloat width, GLfloat height, GLfloat depth, glm
 		vertex.Color = color;
 		vertices_vertex.push_back(vertex);
 	}
-
-	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
-
-	std::vector<BasicMesh> meshes = { mesh };
-
-	return Model(meshes, std::vector<sTexture>());
+	Mesh * mesh = new Mesh(vertices_vertex, indices);
+	mesh->applyMeshRecenter(glm::vec3(0.0f));
+	return mesh;
 }
 
-Model primitives::generateHeightfield(int width, int length, std::vector<float> data) {
+Mesh * pd::generateHeightfield(int width, int length, std::vector<float> data) {
 	std::vector<GLfloat> vertices;
 	std::vector<GLuint> indices;
 
@@ -297,14 +286,10 @@ Model primitives::generateHeightfield(int width, int length, std::vector<float> 
 		vertices_vertex.push_back(vertex);
 	}
 
-	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
-
-	std::vector<BasicMesh> meshes = { mesh };
-
-	return Model(meshes, std::vector<sTexture>());
+	return new Mesh(vertices_vertex, indices);
 }
 
-Model primitives::generateHeightfieldStep(int width, int length, std::vector<float> data, glm::vec4 color) {
+Mesh * pd::generateHeightfieldStep(int width, int length, std::vector<float> data, glm::vec4 color) {
 	std::vector<GLfloat> vertices;
 	std::vector<GLuint> indices;
 
@@ -451,11 +436,7 @@ Model primitives::generateHeightfieldStep(int width, int length, std::vector<flo
 		vertices_vertex.push_back(vertex);
 	}
 
-	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
-
-	std::vector<BasicMesh> meshes = { mesh };
-
-	return Model(meshes, std::vector<sTexture>());
+	return new Mesh(vertices_vertex, indices);
 }
 
 glm::vec3 normalize(glm::vec3 a, glm::vec3 b, float length) {
@@ -479,7 +460,7 @@ glm::vec3 getSpherePoint(double lat, double lng, double radius) {
 	);
 }
 
-Model primitives::generateSphere(int lats, int longs, glm::vec4 color)
+Mesh * pd::generateSphere(int lats, int longs, glm::vec4 color)
 {
 	int i, j;
 	std::vector<GLfloat> vertices;
@@ -586,14 +567,10 @@ Model primitives::generateSphere(int lats, int longs, glm::vec4 color)
 		vertices_vertex.push_back(vertex);
 	}
 
-	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
-
-	std::vector<BasicMesh> meshes = { mesh };
-
-	return Model(meshes, std::vector<sTexture>());
+	return new Mesh(vertices_vertex, indices);
 }
 
-Model primitives::generateCone(float radius, float height, float quality, glm::vec4 color)
+Mesh * pd::generateCone(float radius, float height, float quality, glm::vec4 color)
 {
 	if (quality < 3.0f) {
 		quality = 3.0f;
@@ -724,14 +701,10 @@ Model primitives::generateCone(float radius, float height, float quality, glm::v
 		vertices_vertex.push_back(vertex);
 	}
 
-	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
-
-	std::vector<BasicMesh> meshes = { mesh };
-
-	return Model(meshes, std::vector<sTexture>());
+	return new Mesh(vertices_vertex, indices);
 }
 
-Model primitives::generateCylinder(float radius, float height, float quality, glm::vec4 color)
+Mesh * pd::generateCylinder(float radius, float height, float quality, glm::vec4 color)
 {
 		if (quality < 3.0f) {
 		quality = 3.0f;
@@ -820,14 +793,10 @@ Model primitives::generateCylinder(float radius, float height, float quality, gl
 		vertices_vertex.push_back(vertex);
 	}
 
-	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
-
-	std::vector<BasicMesh> meshes = { mesh };
-
-	return Model(meshes, std::vector<sTexture>());
+	return new Mesh(vertices_vertex, indices);
 }
 
-std::vector<Point> primitives::geometryCircle(float radius, float quality, glm::vec4 color)
+Geometry * pd::geometryCircle(float radius, float quality, glm::vec4 color)
 {
 	if (quality < 3.0f) {
 		quality = 3.0f;
@@ -851,6 +820,5 @@ std::vector<Point> primitives::geometryCircle(float radius, float quality, glm::
 
 		vertices.push_back(p);
 	}
-
-	return vertices;
+	return new Geometry(vertices);
 }

@@ -5,6 +5,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include <stdio.h>
 
@@ -31,6 +32,8 @@ public:
 
 	glm::mat4 getInverse();
 	glm::mat4 getMatrix();
+
+	Transform operator* (const Transform &transform);
 
 	void print();
 private:

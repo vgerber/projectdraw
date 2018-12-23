@@ -24,7 +24,7 @@ void PointLight::beginShadowMapping()
 	glCullFace(GL_FRONT);
 	shaderShadow.use();
 	glViewport(0, 0, SHADOW_C_WIDTH, SHADOW_C_HEIGHT);
-	glBindFramebuffer(GL_FRAMEBUFFER, depthCubemapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMap.depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glUniformMatrix4fv(glGetUniformLocation(shaderShadow.getId(), "shadowMatrices[0]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[0]));
 	glUniformMatrix4fv(glGetUniformLocation(shaderShadow.getId(), "shadowMatrices[1]"), 1, GL_FALSE, glm::value_ptr(shadowTransforms[1]));
@@ -61,10 +61,15 @@ float PointLight::getDistance() {
 	return distance;
 }
 
+void PointLight::dispose()
+{
+	depthMap.dispose();
+}
+
 void PointLight::setup()
 {
-	glGenTextures(1, &depthCubeMap);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap);
+	glGenTextures(1, &depthMap.depthMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthMap.depthMap);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -75,9 +80,9 @@ void PointLight::setup()
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_C_WIDTH, SHADOW_C_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	}
 
-	glGenFramebuffers(1, &depthCubemapFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, depthCubemapFBO);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubeMap, 0);
+	glGenFramebuffers(1, &depthMap.depthMapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMap.depthMapFBO);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMap.depthMap, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -108,5 +113,5 @@ void PointLight::setupShadowCube()
 }
 
 GLuint PointLight::getShadowCubeMap() {
-	return depthCubeMap;
+	return depthMap.depthMap;
 }

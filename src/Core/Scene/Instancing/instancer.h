@@ -4,11 +4,11 @@
 #include <glm/glm.hpp>
 
 
-#include "../../Model/model.h"
+#include "Core/Mesh/basicmesh.h"
 
 class Instancer {
 public:
-	Instancer(Model model, int count);
+	Instancer(Model * model, int count);
 
 	void draw(Shader shader);
 
@@ -20,7 +20,7 @@ public:
 	void dispose();
 private:
 	GLuint matrixBuffer;
-	Model model;
+	Model * model;
 	std::vector<glm::mat4> modelMatrices;
 	Shader shader;
 

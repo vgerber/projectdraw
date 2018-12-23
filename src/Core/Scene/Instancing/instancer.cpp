@@ -1,6 +1,6 @@
 #include "instancer.h"
 
-Instancer::Instancer(Model model, int count)
+Instancer::Instancer(Model * model, int count)
 {
 	this->model = model;
 	for (int i = 0; i < count; i++) {
@@ -14,7 +14,7 @@ Instancer::Instancer(Model model, int count)
 void Instancer::draw(Shader shader) {
 	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 1.0f);
 	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
-	model.drawInstancing(shader, DrawType::TRIANGLEG, modelMatrices.size());
+	model->drawInstancing(shader, DrawType::TRIANGLEG, modelMatrices.size());
 }
 
 glm::mat4 Instancer::getModelMatrix(int index)
@@ -44,13 +44,14 @@ void Instancer::dispose()
 }
 
 void Instancer::resize() {
+	/*
 	glBindBuffer(GL_ARRAY_BUFFER, matrixBuffer);
  	glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
 
-	std::vector<BasicMesh> meshes = model.getMeshes();
+	std::vector<Mesh*> meshes = model->getMeshes();
 	for (size_t i = 0; i < meshes.size(); i++) {
-		BasicMesh mesh = meshes[i];
-		GLuint VAO = mesh.getVAO();
+		Mesh * mesh = meshes[i];
+		GLuint VAO = mesh->getVAO();
 		glBindVertexArray(VAO);
 
 		// set attribute pointers for matrix (4 times vec4)
@@ -70,4 +71,5 @@ void Instancer::resize() {
 
 		glBindVertexArray(0);
 	}
+	*/
 }

@@ -3,7 +3,7 @@
 #include <btBulletCollisionCommon.h>
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 
-#include "Core/Model/model.h"
+#include "Core/Mesh/basicmesh.h"
 
 #include "../../Util/conversion.h"
 
@@ -24,7 +24,7 @@ namespace collision {
 
 	btCollisionShape* generateSphere(float radius);
 
-	btCollisionShape* generateTriangleMesh(Model model);
+	btCollisionShape* generateTriangleMesh(Mesh mesh);
 
 	btCollisionShape* generateHeightField(std::vector<float> &data, int width, int length);
 }

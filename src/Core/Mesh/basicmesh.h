@@ -9,14 +9,9 @@
 #include <assimp/Importer.hpp>
 
 #include "../Shader/shader.h"
+#include "Core/Model/model.h"
 
 #include <vector>
-
-enum DrawType {
-	TRIANGLEG,
-	POINTG,
-	LINEG,
-};
 
 struct Vertex {
 	glm::vec3 Position;
@@ -36,27 +31,28 @@ struct ColorTexture {
 	std::string Type;
 };
 
-class BasicMesh
+class Mesh : public Model
 {
 public:
-	BasicMesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<sTexture> textures);
-	BasicMesh(std::vector<Vertex> vertices, std::vector<GLuint> indices);
-	~BasicMesh();
+	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<sTexture> textures);
+	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices);
+	Mesh(std::string path);
+	Mesh();
+	
+	///modifies all vertices with the offset
+	void applyMeshOffset(glm::vec3 offset);
 
-	void draw(Shader shader, DrawType drawType);
-	void drawInstancing(Shader shader, DrawType drawType, int amount);
-	void drawNormals(Shader normalShader);
+	///modifies all vertices with the transformation
+	void applyMeshTransformation(Transform transform);
 
-	void add_offset(glm::vec3 offset);
-	void applyTransformation(glm::mat4 transform);
+	void applyMeshRecenter(glm::vec3 centerPoint);
 
-	void resize();
+	virtual Size getSize() override;
+
 	void dispose();
 
 	void setVertices(std::vector<Vertex> vertices);
-
-	GLuint getVAO();
-
+	
 	std::vector<Vertex> getVertices();
 	std::vector<GLuint> getIndices();
 	std::vector<sTexture> getTextures();
@@ -67,5 +63,29 @@ protected:
 	std::vector<GLuint> indices;
 	std::vector<sTexture> textures;
 
+	virtual void drawModel(Shader shader, DrawType drawType)					   override;
+	virtual void drawModelInstancing(Shader shader, DrawType drawType, int amount) override;
+	virtual void drawModelNormals(Shader normalShader)							   override;
+	virtual void drawModelBox(Shader boxShader)									   override;
+
+	///load mesh data from file
+	void loadMesh(std::string path);
+
+	///process assimp node
+	void processNode(aiNode* node, const aiScene* scene);
+
+	///extract mesh from node
+	void processMesh(aiMesh* mesh, const aiScene* scene);
+
+
+	//std::vector<sTexture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+	
+	///set parent mesh
+	virtual void setParent(Model * parent) override;
+
 	void setupMesh();
+
+	void reloadMeshData();
+
+	void reloadSize();
 };

@@ -17,10 +17,11 @@ public:
 
 	void setDistance(float distance);
 	float getDistance();
+
+	void dispose() override;
 private:
-	GLuint depthCubeMap;
+	DepthMap depthMap;
 	const GLuint SHADOW_C_WIDTH = 1024, SHADOW_C_HEIGHT = 1024;
-	GLuint depthCubemapFBO;
 	GLfloat aspect = (GLfloat)SHADOW_C_WIDTH / (GLfloat)SHADOW_C_HEIGHT;
 	GLfloat nearPlane = 0.0f;
 	GLfloat distance = 6.0f;

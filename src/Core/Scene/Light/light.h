@@ -13,7 +13,7 @@ public:
 	void dispose();
 };
 
-class Light : public Drawable
+class Light : public SceneObject
 {
 public:
 	bool shadow = false;
@@ -24,12 +24,9 @@ public:
 
 	Light();
 
-	virtual void draw() override;
-
 	void apply(Shader shader, std::string target);
 
 	Shader getShaderShadow();
-
 protected:
 
 	Shader shaderShadow;

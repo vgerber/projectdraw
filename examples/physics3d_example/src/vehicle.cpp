@@ -1,5 +1,5 @@
 #include "vehicle.h"
-
+/*
 DemoVehicle::DemoVehicle(DiscreteWorld &world, Scene &scene) {
     chassis.setModel(primitives::generateQuad(2.0, 3.0, 1.0, glm::vec4(1.0, 0.5, 0.5, 1.0)));
     scene.addObject(chassis);
@@ -58,4 +58,4 @@ void DemoVehicle::update(float delta) {
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
         vehicle->brake(1.0);
     }
-}
+}*/

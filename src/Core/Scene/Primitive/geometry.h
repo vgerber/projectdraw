@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../drawable.h"
+#include "Core/Model/model.h"
 
 struct Point {
 	glm::vec3 position;
 	glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 };
 
-class Geometry : public Drawable
+class Geometry : public Model
 {
 public:
 	int lineThickness = 1;
@@ -15,9 +15,9 @@ public:
 	glm::vec4 color;
 
 	Geometry();
-	~Geometry();
-	void draw() override;
-	void drawNormals(Shader shader) override;
+	Geometry(std::vector<Point> points);
+
+	Size getSize();
 	
 	void lineTo(Point point);
 	void lineTo(glm::vec3 point);
@@ -32,8 +32,23 @@ public:
 	std::vector<Point> getPoints();
 
 	void clear();
-private:
+protected:
 	std::vector<Point> points;
 	int size = 0;
 	GLuint VAO, VBO;
+
+
+	///draw meshes + submeshes
+	virtual void drawModel(Shader shader, DrawType type);
+
+	///instancing  meshes + submeshes
+	virtual void drawModelInstancing(Shader shader, DrawType type, int amount);
+
+	///draw mesh normals + submesh normals
+	virtual void drawModelNormals(Shader shader);
+
+	///draw mesh bounding box
+	virtual void drawModelBox(Shader shader);
+
+	virtual void setup();
 };

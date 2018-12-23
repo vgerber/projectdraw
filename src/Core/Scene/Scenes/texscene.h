@@ -20,7 +20,7 @@ public:
 
 private:
 	Texture * texture = nullptr;
-	Drawable textureHolder;
+	//Drawable textureHolder;
 
 	OrthographicCamera * camera = nullptr;
 
