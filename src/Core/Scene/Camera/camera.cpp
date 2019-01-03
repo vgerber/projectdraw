@@ -1,42 +1,18 @@
 #include "camera.h"
 
 
-
-Camera::Camera(glm::vec3 position)
+// Constructor with scalar values
+Camera::Camera(glm::vec3 position, glm::vec3 forward, glm::vec3 up)
 {
-	SceneObject::setPosition(position);
+	setPosition(position);
+	setForward(forward);
+	setUp(up);
+	this->updateViewMatrix();
 }
 
 Camera::~Camera()
 {
 }
-
-void Camera::setPosition(float x, float y, float z) {
-	setPosition(glm::vec3(x, y, z));
-}
-
-void Camera::setPosition(glm::vec3 position)
-{	
-	SceneObject::setPosition(position);
-	updateCameraVectors();	
-}
-
-
-// Constructor with vectors
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f))
-{
-	setPosition(position);
-	this->world_up_vector = up;
-	this->updateCameraVectors();
-}
-// Constructor with scalar values
-Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f))
-{
-	setPosition(posX, posY, posZ);
-	this->world_up_vector = glm::vec3(upX, upY, upZ);
-	this->updateCameraVectors();
-}
-
 
 // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
 glm::mat4 Camera::getViewMatrix()
@@ -44,56 +20,55 @@ glm::mat4 Camera::getViewMatrix()
 	return viewMatrix;
 }
 
-void Camera::setFront(glm::vec3 frontV)
-{
-	front_vector = frontV;
-	updateCameraVectors();
+glm::mat4 Camera::getProjectionMatrix() {
+	return projMatrix;
 }
 
-void Camera::setUp(glm::vec3 upV)
-{
-	up_vector = upV;
-	updateCameraVectors();
+void Camera::setSize(float width, float height) {
+	this->width = width;
+	this->height = height;
+	updateProjectionMatrix();
 }
 
-
-glm::vec3 Camera::getFront()
-{
-	return front_vector;
+void Camera::setClipping(float near, float far) {
+	this->nearZ = near;
+	this->farZ = far;
+	updateProjectionMatrix();
 }
 
-glm::vec3 Camera::getRight()
-{
-	return right_vector;
+float Camera::getWidth() {
+	return width;
 }
 
-glm::vec3 Camera::getUp()
-{
-	return up_vector;
+float Camera::getHeight() {
+	return height;
 }
 
-void Camera::lookAt(glm::vec3 target)
-{
-
-	glm::vec3 front_default = getPosition();
-	glm::vec3 front_diff = glm::normalize(target - front_default);
-	
-	front_vector = front_diff;
-	updateCameraVectors();
+float Camera::getClippingNear() {
+	return nearZ;
 }
 
-void Camera::dispose()
-{
+float Camera::getClippingFar() {
+	return farZ;
 }
 
-void Camera::updateCameraVectors()
+void Camera::updateViewMatrix()
 {
 	// Also re-calculate the Right and Up vector
-	viewMatrix = glm::mat4(0.0f);
-	
+	glm::vec3 pos = getWorldTransform().getTranslation();
+	//transform direction vecotrs to world
+	glm::mat4 worldRotation = getWorldTransform().getRotation().getRotationMatrix();
+	glm::vec3 worldForward = worldRotation * glm::vec4(getBaseForward(), 0.0);
+	glm::vec3 worldUp = worldRotation * glm::vec4(getBaseUp(), 0.0);
+	viewMatrix = glm::lookAt(pos, pos + worldForward, worldUp);
+}
 
-	this->right_vector = glm::normalize(glm::cross(this->front_vector, this->world_up_vector));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-	this->up_vector = glm::normalize(glm::cross(this->right_vector, this->front_vector));
+void Camera::transformChanged() {
+	SceneObject::transformChanged();
+	updateViewMatrix();
+}
 
-	viewMatrix = glm::lookAt(getPosition(), getPosition() + this->front_vector, up_vector);
+void Camera::updateDirection(Transform transform) {
+	SceneObject::updateDirection(transform);
+	updateViewMatrix();
 }

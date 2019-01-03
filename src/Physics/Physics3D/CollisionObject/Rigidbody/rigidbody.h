@@ -62,14 +62,18 @@ public:
 
 	btCollisionObject * getCollisionObjectHandle() override;
 	Drawable* getDrawable();
+
+	Transform getWorldTransform() override;
 protected:
 	glm::vec3 oldScale;
 	RigidType rType;
     collision::CollisionShape *shape = nullptr;
-    btRigidBody* rigidBody = nullptr;
 	Drawable* drawable = nullptr;
 
 	void scaleShape(glm::vec3 scale);
 
 	virtual void transformChanged() override;
+private:
+	///pointing to collisionObject member (reduce cast calls)
+	btRigidBody * rigidBody = nullptr;
 };

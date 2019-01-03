@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Core/Model/model.h"
+#include "Core/Scene/drawable.h"
 
 struct Point {
 	glm::vec3 position;
 	glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 };
 
-class Geometry : public Model
+class Geometry : public Drawable
 {
 public:
 	int lineThickness = 1;
@@ -39,16 +39,16 @@ protected:
 
 
 	///draw meshes + submeshes
-	virtual void drawModel(Shader shader, DrawType type);
+	virtual void drawModel(Shader shader, DrawType type) override;
 
 	///instancing  meshes + submeshes
-	virtual void drawModelInstancing(Shader shader, DrawType type, int amount);
+	virtual void drawModelInstancing(Shader shader, DrawType type, int amount) override;
 
 	///draw mesh normals + submesh normals
-	virtual void drawModelNormals(Shader shader);
+	virtual void drawModelNormals(Shader shader) override;
 
 	///draw mesh bounding box
-	virtual void drawModelBox(Shader shader);
+	virtual void drawModelBox(Shader shader) override;
 
 	virtual void setup();
 };

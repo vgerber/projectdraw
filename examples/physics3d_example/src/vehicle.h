@@ -9,11 +9,14 @@ class DemoVehicle {
 public:
     DemoVehicle(DiscreteWorld &world, Scene &scene);
 
+    RaycastVehicle * getVehicleHandle();
+
     void update(float delta);
 
 private:
-    Mesh chassis;
-    Mesh wheels[4];
+    Mesh vehicleMesh;
+    Mesh * chassis;
+    Mesh * wheels[4];
     collision::CollisionShape * shape;
     RaycastVehicle * vehicle;
 };

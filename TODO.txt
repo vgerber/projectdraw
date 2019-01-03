@@ -7,7 +7,7 @@ Window			=SFML		[v2.5] (old GLFW)
 Physics			=Bullet3	[v3]
 Objects-Loading	=Assimp		[v4.1]
 Font			=FreeType	[v2.9.1]
-Texture			=SOIL		[15.08.2018]
+Texture			=stb		[latest Git repo 25.12.2018]
 
 
 --------------------------------------------------------------------
@@ -18,21 +18,22 @@ Texture			=SOIL		[15.08.2018]
 
 Priority: [B1..high, -, B6..low]
 
-B1		-Shader cleanup
+D		-Shader cleanup
 B6		-Objects on other rigidbody cant be raytraced (clicked whatever..)
-B2		-Light draw limit exception unhandled
-F		-Drawing Groups  e.g. for grouped stencil test
-F(90%)	-Particle Instancing
+D		-Light draw limit exception unhandled
+F(80%)		-Drawing Groups  e.g. for grouped stencil test
+F(10%)	-Particle Instancing
 F		-Variance SHadow Mapping (at the moment CSM/PCF)
-F(70%)  -Bullet3 Debug Mode
+F(99%)  -Bullet3 Debug Mode 
 P		-preallocate Uniforms
 F		-polish engine setup
 F		-polish vehicle class
 F		-texture wrapper (load/animate/manage)
 P		-Better Memory Management (Automatic Allocate/Free), SmartPointer
-F		-Rotate to axis
+D		-Rotate to axis
 F		-Animator
 F(20%)	-Rings (2D), Half Ring
+B1		-Bullet object position update only synch by set not by get (changed by bullet engine)
 
 
 D		-Cylinder, Spheres

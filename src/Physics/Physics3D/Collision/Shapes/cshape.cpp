@@ -25,27 +25,21 @@ btCollisionShape* collision::generateSphere(float radius) {
 
 btCollisionShape * collision::generateTriangleMesh(Mesh mesh)
 {
-	/*
-	std::vector<Mesh> meshes = model.getMeshes();
 	btTriangleMesh *triangleMesh = new btTriangleMesh();
+	
+	std::vector<Vertex> vertices = mesh.getVertices();
+	std::vector<GLuint> indices = mesh.getIndices();
 
-	for (BasicMesh mesh : meshes) {
-		std::vector<Vertex> vertices = mesh.getVertices();
-		std::vector<GLuint> indices = mesh.getIndices();
-
-		for (size_t i = 0; i < indices.size(); i += 3) {
-			triangleMesh->addTriangle(
-				toBtVec3(vertices[indices[i]].Position),
-				toBtVec3(vertices[indices[i+1]].Position),
-				toBtVec3(vertices[indices[i+2]].Position),
-				true
-			);
-		}
+	for (size_t i = 0; i < indices.size(); i += 3) {
+		triangleMesh->addTriangle(
+			toBtVec3(vertices[indices[i]].Position),
+			toBtVec3(vertices[indices[i+1]].Position),
+			toBtVec3(vertices[indices[i+2]].Position),
+			true
+		);
 	}
 
 	return new btBvhTriangleMeshShape(triangleMesh, true);
-	*/
-	return nullptr;
 }
 
 btCollisionShape * collision::generateHeightField(std::vector<float> &data, int width, int length)

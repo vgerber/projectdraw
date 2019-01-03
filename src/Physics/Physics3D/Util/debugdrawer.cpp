@@ -3,7 +3,6 @@
 void DebugDrawer::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
     geometry.color = glm::vec4(toGLMVec3(color), 1.0);
     geometry.line(toGLMVec3(from), toGLMVec3(to));
-    geometry.settings.drawType = DrawType::LINEG;
 }
 
 void DebugDrawer::reportErrorWarning(const char * warningString) {

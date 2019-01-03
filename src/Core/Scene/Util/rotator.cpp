@@ -11,6 +11,16 @@ Rotator::Rotator(glm::quat rotation, glm::vec3 origin)
 	this->origin = origin;
 }
 
+Rotator::Rotator(float radians, glm::vec3 rotationAxis) {
+    rotateAxis(radians, rotationAxis);
+    this->origin = glm::vec3(0.0f, 0.0f, 0.0f);
+}
+
+Rotator::Rotator(float x, float y, float z) {
+    rotateEuler(x, y, z);
+    this->origin = glm::vec3(0.0f, 0.0f, 0.0f);
+}
+
 void Rotator::setOrigin(float x, float y, float z)
 {
 	setOrigin(glm::vec3(x, y, z));
@@ -81,6 +91,8 @@ void Rotator::vectorRotation(glm::vec3 vecFrom, glm::vec3 vecTo) {
         rotationAxis.x * invs,
         rotationAxis.y * invs,
         rotationAxis.z * invs);
+    //this->rotation = glm::rotation(vecFrom, vecTo);
+    //rotateEuler(getRotationEuler() * glm::vec3(0.0f, 1.0f, 1.0f));
 }
 
 void Rotator::interpolate(glm::quat rotation, float factor) {

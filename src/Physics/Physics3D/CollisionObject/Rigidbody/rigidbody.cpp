@@ -1,8 +1,6 @@
 #include "rigidbody.h"
 
 RigidBody::RigidBody() {
-    rigidBody = nullptr;
-    shape = nullptr;
 }
 
 RigidBody::RigidBody(collision::CollisionShape shape, float mass, RigidType type) {
@@ -24,7 +22,8 @@ RigidBody::RigidBody(collision::CollisionShape shape, float mass, RigidType type
 
 	btDefaultMotionState *myMotionState = new btDefaultMotionState(transform);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, this->shape->getShape(), localInertia);
-	rigidBody = new btRigidBody(rbInfo);	
+	collisionObject = new btRigidBody(rbInfo);	
+	rigidBody = static_cast<btRigidBody*>(collisionObject);
 	
 	if(type == RigidType::KINEMAITC) {
 		rigidBody->setCollisionFlags(rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
@@ -34,6 +33,7 @@ RigidBody::RigidBody(collision::CollisionShape shape, float mass, RigidType type
 }
 
 void RigidBody::update() {
+	CollisionObject::update();
 	refreshDrawable();
 }
 
@@ -41,7 +41,6 @@ void RigidBody::linkDrawable(Drawable &drawable)
 {
 	this->drawable = &drawable;
 	oldScale = drawable.getScale();
-
 	scaleShape(drawable.getScale());
 
 	refreshBody();
@@ -155,6 +154,16 @@ btCollisionObject * RigidBody::getCollisionObjectHandle() {
 Drawable * RigidBody::getDrawable()
 {
 	return drawable;
+}
+
+Transform RigidBody::getWorldTransform() {
+	btTransform bodyTransform;
+	rigidBody->getMotionState()->getWorldTransform(bodyTransform);
+    btQuaternion bodyRotation = bodyTransform.getRotation();
+    Transform newTransform;
+    newTransform.translate(toGLMVec3(bodyTransform.getOrigin()));
+    newTransform.rotate(Rotator(glm::quat(bodyRotation.x(), bodyRotation.y(), bodyRotation.z(), bodyRotation.w()), glm::vec3(0.0)));
+    return newTransform;
 }
 
 void RigidBody::scaleShape(glm::vec3 scale)

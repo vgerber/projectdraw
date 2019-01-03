@@ -1,8 +1,8 @@
 #pragma once
 #include "camera.h"
-#include "../Primitive/primitives.h"
-#include "../Renderer/r_deferred.h"
-#include "../Renderer/arenderer.h"
+#include "Core/Mesh/Primitives/primitives.h"
+#include "Core/Scene/Renderer/r_deferred.h"
+#include "Core/Scene/Renderer/arenderer.h"
 
 struct SceneCameraConfig {
 	bool debugVisible = true;

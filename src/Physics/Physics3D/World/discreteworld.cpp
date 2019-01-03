@@ -86,7 +86,7 @@ void DiscreteWorld::setup() {
     static_cast<btDynamicsWorld*>(world)->setGravity(btVector3(0.0f, 0.0f, -10.0f));
     world->setDebugDrawer(&debugDrawer);
 
-    //debugDrawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb | btIDebugDraw::DBG_DrawContactPoints);
+    debugDrawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb);
     
 }
 

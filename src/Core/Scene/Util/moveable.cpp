@@ -11,6 +11,15 @@ Transform::Transform(glm::vec3 translation, Rotator rotator, glm::vec3 scale) {
 	updateMatrix();
 }
 
+Transform::Transform(glm::mat4 transform) {
+	glm::quat rotation;
+	glm::vec3 skew;
+	glm::vec4 persp;
+	glm::decompose(transform, this->scaling, rotation, this->translation, skew, persp);
+	this->rotator = Rotator(rotation, glm::vec3(0.0));
+	updateMatrix();
+}
+
 void Transform::translate(glm::vec3 translation) {
 	this->translation = translation;
 	updateMatrix();
@@ -39,11 +48,11 @@ Rotator Transform::getRotation() {
 }
 
 glm::mat4 Transform::getInverse() {
-	return glm::inverse(transfromMatrix);
+	return glm::inverse(transformMatrix);
 }
 
 glm::mat4 Transform::getMatrix() {
-	return transfromMatrix;
+	return transformMatrix;
 }
 
 Transform Transform::operator*(const Transform & transform)
@@ -51,7 +60,10 @@ Transform Transform::operator*(const Transform & transform)
 	glm::vec3 translation;
 	glm::vec3 scaling;
 	glm::quat rotation;
-	glm::decompose(this->transfromMatrix * transform.transfromMatrix, scaling, rotation, translation, glm::vec3(), glm::vec4());
+	glm::vec3 skew;
+	glm::vec4 persp;
+	glm::mat4 combinedMatrix = transform.transformMatrix * this->transformMatrix;
+	glm::decompose(combinedMatrix, scaling, rotation, translation, skew, persp);
 	return Transform(translation, Rotator(rotation, glm::vec3(0.0f)), scaling);
 }
 
@@ -59,12 +71,12 @@ void Transform::print() {
 	printf("Transfrom\n");
 	printf("Translation (%f, %f, %f)\n", translation.x, translation.y, translation.z);
 	glm::vec3 rotation = rotator.getRotationEuler();
-	printf("Rotation (%f, %f, %f) / (%f, %f, %f)\n", rotation.x, rotation.y, rotation.z, glm::degrees(rotation.x), glm::degrees(rotation.y), glm::degrees(rotation.z));
+	printf("Rotation RAD(%f, %f, %f) DEG(%f, %f, %f)\n", rotation.x, rotation.y, rotation.z, glm::degrees(rotation.x), glm::degrees(rotation.y), glm::degrees(rotation.z));
 	printf("Scale (%f, %f, %f)\n", scaling.x, scaling.y, scaling.z);
 }
 
 void Transform::updateMatrix() {
-	transfromMatrix =
+	transformMatrix =
 		glm::translate(glm::mat4(1.0), translation) *
 		rotator.getRotationMatrix() *
 		glm::scale(glm::mat4(1.0), scaling);
@@ -76,9 +88,13 @@ glm::mat4 Moveable::getModelMatrix()
 	return transform.getMatrix();
 }
 
+Transform Moveable::getTransform() {
+	return transform;
+}
+
 void Moveable::setPosition(float x, float y, float z)
 {
-	transform.translate(glm::vec3(x, y, z));
+	setPosition(glm::vec3(x, y, z));
 }
 
 void Moveable::setPosition(glm::vec3 translation)
@@ -94,13 +110,54 @@ void Moveable::rotate(Rotator rotator)
 }
 
 void Moveable::scale(float x, float y, float z) {
-	transform.scale(glm::vec3(x, y, z));
+	scale(glm::vec3(x, y, z));
 }
 
 void Moveable::scale(glm::vec3 scaling)
 {
 	transform.scale(scaling);
 	transformChanged();
+}
+
+void Moveable::setTransform(Transform transform) {
+	this->transform = transform;
+	transformChanged();
+}
+
+void Moveable::setForward(glm::vec3 forwardDirection) {
+	this->forward = glm::normalize(forwardDirection);
+	this->right = glm::cross(this->forward, this->up);
+	updateDirection(transform);
+}
+
+void Moveable::setUp(glm::vec3 upDirection) {
+	this->up = glm::normalize(upDirection);
+	this->right = glm::cross(this->forward, this->up);
+	updateDirection(transform);
+}
+
+glm::vec3 Moveable::getForward() {
+	return transForward;
+}
+
+glm::vec3 Moveable::getUp() {
+	return transUp;
+}
+
+glm::vec3 Moveable::getRight() {
+	return transRight;
+}
+
+glm::vec3 Moveable::getBaseForward() {
+	return forward;
+}
+
+glm::vec3 Moveable::getBaseUp() {
+	return up;
+}
+
+glm::vec3 Moveable::getBaseRight() {
+	return right;
 }
 
 Size Moveable::getSize()
@@ -182,5 +239,25 @@ glm::vec3 Moveable::getScale()
 }
 
 void Moveable::transformChanged() {
-	
+	updateDirection(transform);
+}
+
+void Moveable::updateDirection(Transform transform) {
+	assert(glm::length2(forward) != 0.0f);
+	assert(glm::length2(up) != 0.0f);
+	assert(glm::length2(right) != 0.0f);
+	if(glm::length2(forward) == 0.0f) {
+		printf("[Warning] Forward is zero\n");
+	}
+	if(glm::length2(up) == 0.0f) {
+		printf("[Warning] Up is zero\n");
+	}
+	if(glm::length2(right) == 0.0f) {
+		printf("[Warning] Right is zero\n");
+	}
+
+	glm::mat4 rotationMatrix = transform.getRotation().getRotationMatrix();	
+	transForward = rotationMatrix * glm::vec4(forward, 0.0);
+	transUp      = rotationMatrix * glm::vec4(up, 0.0);
+	transRight   = rotationMatrix * glm::vec4(right, 0.0);	
 }

@@ -18,7 +18,7 @@
 #include "Scene/Camera/orthocamera.h"
 
 //primitves
-#include "Scene/Primitive/primitives.h"
+#include "Mesh/Primitives/primitives.h"
 
 //lighting
 #include "Scene/Light/dlight.h"

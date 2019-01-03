@@ -289,10 +289,11 @@ void DeferredRenderer::renderObjects()
 	glStencilMask(0x00);
 
 	//bind global camera matrices and properties
+	float farZ = camera->getClippingFar();
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(camera->getViewMatrix()));
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera->getCameraMatrix()));
-	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(GLfloat), &camera->FarZ);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera->getProjectionMatrix()));
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(GLfloat), &farZ);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	//draw 3d pointlight object
@@ -316,7 +317,7 @@ void DeferredRenderer::renderObjects()
 	//draw all drawables
 	for (auto drawable : objects)
 	{
-		drawable->setCameraMatrices(camera->getViewMatrix(), camera->getCameraMatrix());
+		drawable->setCameraMatrices(camera->getViewMatrix(), camera->getProjectionMatrix());
 		drawable->draw();
 	}
 
@@ -403,7 +404,7 @@ void DeferredRenderer::renderLight()
 					glGetUniformLocation(directionalLight->getShaderShadow().getId(), "model"), 
 					1, 
 					GL_FALSE, 
-					glm::value_ptr(drawable->getModelMatrix()
+					glm::value_ptr(drawable->getWorldTransform().getMatrix()
 					)
 				);
 				{
@@ -532,8 +533,8 @@ void DeferredRenderer::renderLight()
 		
 		for (int i = 0; i < directionalLight->getCSMSlices(); i++)
 		{
-			glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 5 + i);
-			glActiveTexture(GL_TEXTURE5 + i);
+			glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 4 + i);
+			glActiveTexture(GL_TEXTURE4 + i);
 			glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
 		}
 		

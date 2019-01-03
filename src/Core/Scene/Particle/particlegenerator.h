@@ -18,7 +18,7 @@ struct Particle {
 
 class ParticleGenerator : public Drawable, public Animatable {
 public:
-	ParticleGenerator(Model &model, int particleCount);
+	ParticleGenerator(Drawable &drawable, int particleCount);
 
 	void draw() override;
 	void update(GLfloat deltaTime) override;
@@ -28,7 +28,7 @@ public:
 	~ParticleGenerator();
 private:
 	Instancer* instancer = nullptr;
-	Model * particleModel;
+	Drawable * particleDrawable;
 	std::vector<Particle> particles;
 	bool replay = false;
 	float respawnTimer = 0.0f;

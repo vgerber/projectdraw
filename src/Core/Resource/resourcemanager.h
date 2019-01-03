@@ -2,8 +2,8 @@
 
 #include <map>
 
-#include "../Shader/shader.h"
-#include "Core/Mesh/basicmesh.h"
+#include "Core/Shader/shader.h"
+#include "Core/Mesh/Primitives/basicmesh.h"
 
 
 #ifdef _WIN32

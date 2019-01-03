@@ -15,7 +15,9 @@
 class Rotator {
 public:
     Rotator();
-    Rotator(glm::quat rotation, glm::vec3 origin);
+    Rotator(glm::quat rotation, glm::vec3 origin=glm::vec3(0.0f));
+	Rotator(float radians, glm::vec3 rotationAxis);
+	Rotator(float x, float y, float z);
 
 	/*
 	Set Center of Rotation

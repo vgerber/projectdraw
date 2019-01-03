@@ -3,7 +3,7 @@
 #include <btBulletCollisionCommon.h>
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 
-#include "Core/Mesh/basicmesh.h"
+#include "Core/Mesh/Primitives/basicmesh.h"
 
 #include "../../Util/conversion.h"
 

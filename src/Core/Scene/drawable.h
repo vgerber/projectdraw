@@ -22,6 +22,9 @@ enum DrawType {
 struct DrawableInfo {
 	//Drawing
 	DrawType drawType = DrawType::TRIANGLEG;
+	bool useLight = true;
+	bool useCustomColor = false;
+	glm::vec4 customColor = glm::vec4(1.0f);
 
 	//Normals
 	bool normalVisible = false;
@@ -54,36 +57,66 @@ public:
 
 	DrawableInfo settings;
 
-	///free all gl resources
-	virtual void dispose() = 0;
+	virtual Size getSize() = 0;
 
-	///draw object with all settings
-	virtual void draw() = 0;
+	///Draw model with drawing settings
+	virtual void draw();
 
-	///draw plain object geometry
-	virtual void drawRaw() = 0;
+	///Draw model as plain geometry (without features)
+	virtual void drawRaw();
 
-	///draw normals for each vertex
-	virtual void drawNormals(Shader shader) = 0;
+	///Draw with instancing
+	virtual void drawInstancing(Shader shader, DrawType drawType, int amount);
 
-	///draw bounding box (not aabb) and rotation center
-	virtual void drawBox(Shader shader) = 0;
+	///Draw model normals
+	virtual void drawNormals(Shader shader);
 
-	///set mesh shader
-	///mesh shader will be set by the renderer
-	void setShader(Shader shader, AbstractRenderer &renderer);
+	///Draw bounding box with model center (not aabb)
+	virtual void drawBox(Shader shader);
+
+	///Set camera matrices
+	virtual void setCameraMatrices(glm::mat4 cView, glm::mat4 cProj);
+
+	///Set shader for model
+	///shader will be set by renderer
+	virtual void setShader(Shader shader, AbstractRenderer &renderer);
 
 	///get mesh shader
 	std::pair<Shader, int> getShader();
 
-	///set view and camera matrix for mvp calculation
-	virtual void setCameraMatrices(glm::mat4 cView, glm::mat4 cProj);		
+	///Destroy aquired resources
+	void dispose();	
 
 protected:
 	glm::mat4 cameraView = glm::mat4(1.0);
 	glm::mat4 cameraProj = glm::mat4(1.0);
 	int currentRenderer;
 
-	//shader for drawing the mesh
+	///shader for drawing the mesh
 	Shader shader;
+
+	///draw meshes + submeshes
+	virtual void drawTree(Shader shader, DrawType type);
+
+	///instancing  meshes + submeshes
+	virtual void drawTreeInstancing(Shader shader, DrawType type, int amount);
+
+	///draw mesh normals + submesh normals
+	virtual void drawTreeNormals(Shader shader);
+
+	///draw mesh normals + submesh normals
+	virtual void drawTreeBoxes(Shader shader);
+
+	///draw meshes + submeshes
+	virtual void drawModel(Shader shader, DrawType type) = 0;
+
+	///instancing  meshes + submeshes
+	virtual void drawModelInstancing(Shader shader, DrawType type, int amount) = 0;
+
+	///draw mesh normals + submesh normals
+	virtual void drawModelNormals(Shader shader) = 0;
+
+	///draw mesh bounding box
+	virtual void drawModelBox(Shader shader) = 0;
+private:
 };

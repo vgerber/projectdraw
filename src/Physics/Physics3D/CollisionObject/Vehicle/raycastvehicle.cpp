@@ -3,7 +3,18 @@
 RaycastVehicle::RaycastVehicle(collision::CollisionShape chassisShape, float mass, DiscreteWorld &world) : RigidBody(chassisShape, mass, RigidType::DYNAMIC) {
     raycastVehcileRaycaster = new btDefaultVehicleRaycaster(static_cast<btDiscreteDynamicsWorld*>(world.getWorldHandle()));
     raycastVehicleTuning = new btRaycastVehicle::btVehicleTuning();
+    btRigidBody * rigidBody = static_cast<btRigidBody*>(collisionObject);
     raycastVehicle = new btRaycastVehicle(*raycastVehicleTuning, rigidBody, raycastVehcileRaycaster);
+    raycastVehicle->setCoordinateSystem(1, 2, 0);
+    rigidBody->setActivationState(DISABLE_DEACTIVATION);
+    //setForward(toGLMVec3(raycastVehicle->getForwardVector()));
+    
+
+    //rotate forward to x forward
+    /*Rotator forwardRotator;
+    forwardRotator.vectorRotation(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    printf("%f\n", glm::degrees(forwardRotator.getRotationEuler().z));
+    rotate(forwardRotator);*/
 }
 
 void RaycastVehicle::addWheel(RaycastVehicleWheel wheel) {
@@ -50,11 +61,10 @@ void RaycastVehicle::move(float forward) {
     }    
 }
 
-void RaycastVehicle::steer(float right) {
-    float angle = right;
+void RaycastVehicle::steer(float value) {
     for(int i = 0; i < wheels.size(); i++) {
         if(wheels[i].canSteer) {
-            raycastVehicle->setSteeringValue(right, i);
+            raycastVehicle->setSteeringValue(value, i);
         }
     }
 }
@@ -81,6 +91,7 @@ void RaycastVehicle::setMaxSteeringAngle(float radians) {
 }
 
 void RaycastVehicle::update() {
+    //this->transform = getWorldTransform();
     btTransform chassisTransform = raycastVehicle->getChassisWorldTransform();
     btQuaternion chassisRotation = chassisTransform.getRotation();
     Rotator chassisRotator;

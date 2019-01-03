@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Mesh/basicmesh.h"
-#include "geometry.h"
+#include "Core/Mesh/Primitives/basicmesh.h"
+#include "Core/Mesh/Primitives/geometry.h"
 
 #include <cmath>
 #include <functional>

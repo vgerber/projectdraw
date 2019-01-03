@@ -1,8 +1,8 @@
 #include "instancer.h"
 
-Instancer::Instancer(Model * model, int count)
+Instancer::Instancer(Drawable * drawable, int count)
 {
-	this->model = model;
+	this->drawable = drawable;
 	for (int i = 0; i < count; i++) {
 		modelMatrices.push_back(glm::mat4(1));
 	}
@@ -14,7 +14,7 @@ Instancer::Instancer(Model * model, int count)
 void Instancer::draw(Shader shader) {
 	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 1.0f);
 	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
-	model->drawInstancing(shader, DrawType::TRIANGLEG, modelMatrices.size());
+	drawable->drawInstancing(shader, DrawType::TRIANGLEG, modelMatrices.size());
 }
 
 glm::mat4 Instancer::getModelMatrix(int index)

@@ -24,7 +24,7 @@ void TextureScene::draw(float delta)
 
 		shader.use();
 		glUniformMatrix4fv(view_mat_pos, 1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
-		glUniformMatrix4fv(proj_mat_pos, 1, GL_FALSE, glm::value_ptr(camera->getCameraMatrix()));
+		glUniformMatrix4fv(proj_mat_pos, 1, GL_FALSE, glm::value_ptr(camera->getProjectionMatrix()));
 
 		glUniform1i(tex_pos, 0);
 		texture->activate(0);

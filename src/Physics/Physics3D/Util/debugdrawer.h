@@ -4,7 +4,7 @@
 
 #include <LinearMath/btIDebugDraw.h>
 
-#include "Core/Scene/Primitive/primitives.h"
+#include "Core/Mesh/Primitives/primitives.h"
 #include "Physics/Physics3D/Util/conversion.h"
 
 class DebugDrawer : public btIDebugDraw {

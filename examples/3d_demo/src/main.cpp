@@ -6,11 +6,6 @@
 const int WIDTH = 400;
 const int HEIGHT = 400;
 
-glm::vec3 forwardVec = glm::vec3(1.0f, 0.0f, 0.0f);
-glm::vec3 rightVec = glm::vec3(0.0, 1.0, 0.0);
-glm::vec3 upVec = glm::vec3(0.0, 0.0, 1.0);
-glm::vec3 origforwardVec = glm::vec3(1.0f, 0.0f, 0.0f);
-glm::vec3 steerVec = glm::vec3(0.0f, 0.01f, 0.00f);
 float bankingAngle = 0.0f;
 
 void moveDrawable(Drawable &drawable, Camera &camera, float delta);
@@ -29,11 +24,20 @@ int main() {
 
 	
 	PerspectiveCamera camera;
-	camera.setPosition(glm::vec3(5.0f, 5.0f, 5.0f));
-	camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-	camera.FarZ = 200.0f;
-	camera.Width = WIDTH;
-	camera.Height = HEIGHT;
+	camera.setClipping(camera.getClippingNear(), 200.0f);
+	camera.setSize(WIDTH, HEIGHT);
+	camera.setPosition(glm::vec3(-4.0f, 0.0f, 2.0f));
+	{
+		Rotator camRotator;
+		camRotator.rotateAxis(glm::radians(-45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		camRotator.vectorRotation(camera.getForward(), -glm::normalize(camera.getPosition()));
+		glm::vec3 euler = camRotator.getRotationEuler();
+		euler.x = 0.0;
+		camRotator.rotateEuler(euler);
+		//camera.rotate(camRotator);
+	}
+	//camera.setForward(glm::vec3(0.0f, 0.0f, 0.0f) - camera.getPosition());
+	
 	scene.addObject(camera);
 	{
 		SceneCameraConfig scConfig = scene.getCameraConfig(camera);
@@ -45,10 +49,9 @@ int main() {
 	
 	PerspectiveCamera rotatingCamera;
 	rotatingCamera.setPosition(glm::vec3(0.0f, 5.0f, -5.0f));
-	rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-	rotatingCamera.FarZ = 30.0f;
-	rotatingCamera.Width = WIDTH;
-	rotatingCamera.Height = HEIGHT;
+	rotatingCamera.setForward(glm::vec3(0.0f, 0.0f, 0.0f) - rotatingCamera.getPosition());
+	rotatingCamera.setClipping(rotatingCamera.getClippingNear(), 30.0f);
+	rotatingCamera.setSize(WIDTH, HEIGHT);
 	/*scene.addObject(rotatingCamera, Size{ -1.0f, -1.0f, 0.0f, .5f, .5f, 0.0f });
 	{
 		SceneCameraConfig scConfig = scene.getCameraConfig(rotatingCamera);
@@ -74,17 +77,18 @@ int main() {
 		quad.settings.xrayColor = glm::vec4(1.0, 0.0, 0.0, 1.0);
 		quad.settings.xrayDrawType = DrawType::LINEG;
 		scene.addObject(quad);
+		quad.addChild(&camera);
 	}
+
+	Transform wheelBaseTransform;
 	{
-		//cube.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.3f, 0.8f, 0.3f, 1.0f)));
 #ifdef _WIN32
 		cube = Mesh("C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/examples/assets/basic_car.fbx");
 #elif linux
 		cube = Mesh("/home/vincent/Development/Cpp/projectdraw_slim/examples/assets/basic_car.fbx");
 #endif
-		cube.setPosition(glm::vec3(-1.0f, -1.0f, 2.0f));
-		Rotator rotator;
-		rotator.rotateAxis(glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+		//cube.setPosition(glm::vec3(-1.0f, -1.0f, 1.0f));
+		wheelBaseTransform = (static_cast<Mesh*>(cube.getChild("WheelFrontR")))->getTransform();
 		scene.addObject(cube);
 	}
 	{
@@ -106,7 +110,7 @@ int main() {
 	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
 	sunLight.change_direction(glm::vec3(1.0f, 1.0f, -1.0f));
 	sunLight.intensity = 0.1f;
-	sunLight.shadow = true;
+	sunLight.shadow = false;
 	scene.addObject(sunLight);
 	
 
@@ -117,7 +121,7 @@ int main() {
 	poleLight.specular = poleLight.diffuse;
 	poleLight.intensity = 1.0f;
 	//poleLight.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
-	poleLight.shadow = true;
+	poleLight.shadow = false;
 	scene.addObject(poleLight);
 
 	PointLight poleLight2;
@@ -127,7 +131,7 @@ int main() {
 	poleLight2.specular = poleLight2.diffuse;
 	poleLight2.intensity = 1.0f;
 	//poleLight2.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
-	poleLight2.shadow = true;
+	poleLight2.shadow = false;
 	scene.addObject(poleLight2);
 	
 	
@@ -141,7 +145,7 @@ int main() {
 	flashLight.setPosition(glm::vec3(0.0, 0.0, 10.0));
 	flashLight.direction = glm::vec3(0.0, -1.0, 0.0);
 	flashLight.intensity = 0.6;
-	flashLight.shadow = true;
+	flashLight.shadow = false;
 	scene.addObject(flashLight);
 
 	SpotLight flashLight2;
@@ -154,7 +158,7 @@ int main() {
 	flashLight2.setPosition(glm::vec3(-3.0, 2.0, 3.0));
 	flashLight2.direction = glm::normalize(-flashLight2.getPosition());
 	flashLight2.intensity = 0.3;
-	flashLight2.shadow = true;
+	flashLight2.shadow = false;
 	scene.addObject(flashLight2);
 	
 
@@ -173,8 +177,7 @@ int main() {
 			if (e.type == sf::Event::Resized) {
 				sf::Vector2u size = window.getSize();
 				scene.resize(size.x, size.y);
-				camera.Width = size.x;
-				camera.Height = size.y;
+				camera.setSize(size.x, size.y);
 			}
 		}
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
@@ -183,7 +186,7 @@ int main() {
 		
 		//rotate camera around scene		
 		rotatingCamera.setPosition(glm::vec3(10.0f * cos(millis), 5.0f, 10.0f * sin(millis)));
-		rotatingCamera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+		rotatingCamera.setForward(glm::vec3(0.0f, 0.0f, 0.0f) - rotatingCamera.getPosition());
 		
 		flashLight.direction = glm::vec3(0.2f * cos(millis), 0.2f * sin(millis), -1.0f);
 		
@@ -192,22 +195,27 @@ int main() {
 
 		sunLight.change_direction(glm::vec3(1.0f * cos(millis), 1.0f * sin(millis), -1.0f));
 
-		//cube.rotate(1.0f * millis, 0.0f, 0.0f);
-		float scale = abs(cos(millis));
-		//cube.scale(scale, scale, scale);
+		 {
+			Drawable * backWheel = static_cast<Drawable*>(cube.getChild("WheelFrontR"));
+			//backWheel->setPosition(sin(millis * 1.0f), cos(millis * 1.0f), 0.0f);
+			//wheelBaseTransform.print();
+
+			Rotator rotator(glm::radians(-millis * 100.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			rotator.applyRotation(Rotator(glm::radians(-45.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+			backWheel->rotate(rotator);
+			backWheel->setPosition(wheelBaseTransform.getTranslation() + glm::vec3(0.0f, 0.0f, 2.0f));
+			cube.setPosition(0.0f, 1.0f, 2.0f);
+		 }
 
 		{
 			Rotator rotator;
-			rotator.rotateAxis(glm::radians(bankingAngle), forwardVec);
+			rotator.rotateAxis(glm::radians(bankingAngle), quad.getForward());
 			Rotator quadRotator; // = quad.getRotator();
-			quadRotator.vectorRotation(origforwardVec, forwardVec);
+			quadRotator.vectorRotation(quad.getBaseForward(), quad.getForward());
 			quadRotator.applyRotation(rotator);
 			quad.rotate(quadRotator);
 
-		}
-		
-		
-		
+		}		
 		{
 			Rotator rotator, rotator2, rotator3;
 			sphere.setPosition(quad.getPosition() + glm::vec3(1.5f, 1.5f, 0.0f));
@@ -221,9 +229,7 @@ int main() {
 			rotator3.applyRotation(rotator);
 
 			sphere.rotate(rotator3);
-		}	
-
-
+		}
 
 		scene.update(delta);
 		window.display();
@@ -240,38 +246,44 @@ void moveDrawable(Drawable &drawable, Camera &camera, float delta) {
 	float camSpeed = 0.01f;;
 	float speed = 0.004f;
 	float steering = 0.004f;
-	float maxBanking = 80.0f;
+	float maxBanking = 30.0f;
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-		glm::vec3 move = forwardVec;
+		glm::vec3 move = drawable.getForward();
 		drawable.setPosition(drawable.getPosition() + move * delta * speed);
-		bankingAngle *= 0.85;
+		bankingAngle = 0.0;
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-		glm::vec3 move = -forwardVec;
+		glm::vec3 move = -drawable.getForward();
 		drawable.setPosition(drawable.getPosition() + move * delta * speed);
-		bankingAngle *= 0.85;
+		bankingAngle = 0.0;
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-		rightVec = glm::cross(forwardVec, upVec);
-		forwardVec = glm::normalize(forwardVec - rightVec * delta * steering);
-		bankingAngle = std::max(bankingAngle - maxBanking * delta * steering, -maxBanking);
+		Rotator baseRotator = drawable.getRotator();
+		Rotator steerRotator;
+		steerRotator.rotateAxis(glm::radians(0.1f) * delta, glm::vec3(0.0f, 0.0f, 1.0f));
+		baseRotator.applyRotation(steerRotator);
+		drawable.rotate(baseRotator);
+		bankingAngle = -maxBanking; // std::max(bankingAngle - maxBanking * delta * steering, -maxBanking);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-		rightVec = glm::cross(forwardVec, upVec);
-		forwardVec = glm::normalize(forwardVec + rightVec * delta * steering);
-		bankingAngle = std::min(bankingAngle + maxBanking * delta * steering, maxBanking);
+		Rotator baseRotator = drawable.getRotator();
+		Rotator steerRotator;
+		steerRotator.rotateAxis(-glm::radians(0.1f) * delta, glm::vec3(0.0f, 0.0f, 1.0f));
+		baseRotator.applyRotation(steerRotator);
+		drawable.rotate(baseRotator);
+		bankingAngle = maxBanking;//std::min(bankingAngle + maxBanking * delta * steering, maxBanking);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-		glm::vec3 move = upVec;
+		glm::vec3 move = drawable.getUp();
 		drawable.setPosition(drawable.getPosition() + move * delta * speed);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
-		glm::vec3 move = upVec;
+		glm::vec3 move = drawable.getUp();
 		drawable.setPosition(drawable.getPosition() - move * delta * speed);
 	}
 	/*
@@ -308,10 +320,10 @@ void moveDrawable(Drawable &drawable, Camera &camera, float delta) {
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::N)) {
-		camera.setPosition(camera.getPosition() + camera.getFront() * delta * camSpeed);
+		camera.setPosition(camera.getPosition() + camera.getForward() * delta * camSpeed);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
-		camera.setPosition(camera.getPosition() - camera.getFront() * delta * camSpeed);
+		camera.setPosition(camera.getPosition() - camera.getForward() * delta * camSpeed);
 	}
 }

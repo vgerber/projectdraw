@@ -7,17 +7,25 @@
 #include <glm/glm.hpp>
 
 #include "Core/Scene/Util/moveable.h"
+#include "Physics/Physics3D/Util/conversion.h"
 
 
 class CollisionObject : public Moveable {
 public:
-    std::function<void(const CollisionObject*)> onCollide;
+    std::function<void(CollisionObject*)> onCollide;
 
-    virtual void update() = 0;
+    virtual void update();
 
-    virtual btCollisionObject * getCollisionObjectHandle() = 0;
+    virtual btCollisionObject * getCollisionObjectHandle();
+
+    virtual Transform getWorldTransform();
+
+    void setUserPointer(void * userPtr);
+    void * getUserPointer() const;
 
 protected:
+    void * userPtr = nullptr;
+    btCollisionObject * collisionObject = nullptr;
 };
 
 struct CollisionResult {

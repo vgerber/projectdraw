@@ -6,10 +6,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <assimp/Importer.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_decompose.hpp>
 
-#include "../Shader/shader.h"
-#include "Core/Model/model.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+#include "Core/Shader/shader.h"
+#include "Core/Scene/drawable.h"
 
 #include <vector>
 
@@ -31,7 +36,7 @@ struct ColorTexture {
 	std::string Type;
 };
 
-class Mesh : public Model
+class Mesh : public Drawable
 {
 public:
 	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<sTexture> textures);
@@ -77,11 +82,8 @@ protected:
 	///extract mesh from node
 	void processMesh(aiMesh* mesh, const aiScene* scene);
 
-
-	//std::vector<sTexture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
-	
-	///set parent mesh
-	virtual void setParent(Model * parent) override;
+	///remove empty mesh nodes and restructre children
+	void collapseEmptyMeshes();
 
 	void setupMesh();
 

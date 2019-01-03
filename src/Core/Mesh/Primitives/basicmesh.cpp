@@ -57,8 +57,8 @@ void Mesh::applyMeshRecenter(glm::vec3 centerPoint)
 {	
 	glm::vec3 currentCenter(
 		size.x + 0.5f * size.width,
-		size.z + 0.5f * size.height,
-		size.y + 0.5f * size.depth
+		size.y + 0.5f * size.height,
+		size.z + 0.5f * size.depth
 	);
 	applyMeshOffset(centerPoint - currentCenter);
 }
@@ -102,7 +102,7 @@ void Mesh::drawModel(Shader shader, DrawType drawType)
 	if (vertices.size() == 0) {
 		return;
 	}
-	//glUseProgram(shader.GetProgrammId());
+	
 	GLuint diffuseNr = 1;
 	GLuint specularNr = 1;
 	for (GLuint i = 0; i < this->textures.size(); i++) {
@@ -180,26 +180,18 @@ void Mesh::loadMesh(std::string path)
 		return;
 	}
 
-	this->directory = path.substr(0, path.find_last_of('/'));
-
 	this->processNode(scene->mRootNode, scene);
 }
 
 void Mesh::processNode(aiNode * node, const aiScene * scene)
 {
-	modelName = std::string(node->mName.C_Str());
-	if (modelName.size() == 0) {
+	id = std::string(node->mName.C_Str());
+	if (id.size() == 0) {
 		std::stringstream ss;
 		ss << this;
-		modelName = ss.str();
+		id = ss.str();
 	}
 	aiMatrix4x4 transform = node->mTransformation;
-	float unitSize = 1.0f;
-	if (node->mParent) {
-		if (!node->mParent->mParent) {
-			unitSize = 1.0f;
-		}
-	}
 
 	glm::mat4 baseTransformMatrix = glm::mat4(0.0f);
 	baseTransformMatrix[0][0] = transform.a1;
@@ -228,25 +220,29 @@ void Mesh::processNode(aiNode * node, const aiScene * scene)
 	glm::vec3 skew;
 	glm::vec4 persp;
 	glm::decompose(baseTransformMatrix, scale, rotation, translation, skew, persp);
-	baseTransform.translate(translation);
+	Transform baseTransform;
+	setPosition(translation);
+	//baseTransform.translate(translation);
 	baseTransform.rotate(Rotator(rotation, glm::vec3(0.0)));
 	baseTransform.scale(scale);
-
 	//baseTransform.print();
 
 	for (GLuint i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		processMesh(mesh, scene);
-		//this->meshes.push_back(this->processMesh(mesh, scene));
-		//glm::mat4 baseTransformations = getTransformationTree();
-		//applyMeshTransformation(Transform().getMatrix());
+		applyMeshTransformation(parentTransform * baseTransform);
 	}
 	for (GLuint i = 0; i < node->mNumChildren; i++) {
 		Mesh * childMesh = new Mesh();
-		childMesh->setParent(this);
-		childMesh->processNode(node->mChildren[i], scene);
+		childMesh->parentTransform = baseTransform * this->parentTransform;
+		childMesh->processNode(node->mChildren[i], scene);		
 		children.push_back(childMesh);
 	}
+	//clear transformation nodes
+	collapseEmptyMeshes();
+	//transformChanged();
+	reloadMeshData();
+	reloadSize();
 }
 
 void Mesh::processMesh(aiMesh * mesh, const aiScene * scene)
@@ -312,6 +308,27 @@ void Mesh::processMesh(aiMesh * mesh, const aiScene * scene)
 	//return new Mesh(vertices, indices, textures);
 }
 
+void Mesh::collapseEmptyMeshes() {
+	for(size_t i = 0; i < children.size(); i++) {
+		Mesh * childMesh = static_cast<Mesh*>(children[i]);
+		childMesh->collapseEmptyMeshes();
+		if(childMesh->vertices.size() == 0) {
+			for(auto child : childMesh->children) {
+				//move children of childMesh to new parent (this)
+				child->setTransform(childMesh->getTransform() * child->getTransform());
+				this->children.push_back(child);
+			}
+			childMesh->children.clear();
+			childMesh->dispose();
+			this->children.erase(this->children.begin() + i);
+			delete childMesh;
+			i--;
+		}
+	}
+	//update parent transforms
+	transformChanged();
+}
+
 /*
 std::vector<sTexture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType type, std::string typeName)
 {
@@ -343,12 +360,7 @@ std::vector<sTexture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureTyp
 	}
 	return textures;
 }
-*/
-
-void Mesh::setParent(Model * parent)
-{
-	this->parent = parent;
-}
+*/ 
 
 void Mesh::setupMesh()
 {

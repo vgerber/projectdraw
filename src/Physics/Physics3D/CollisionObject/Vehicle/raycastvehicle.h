@@ -19,7 +19,7 @@ struct RaycastVehicleWheel {
     //true if wheel can apply force to vehicle
     bool canAccelerate = false;
 
-    glm::vec3 rotatingAxel = glm::vec3(1.0, 0.0, 0.0);
+    glm::vec3 rotatingAxel = glm::vec3(0.0, -1.0, 0.0);
     glm::vec3 rayDirection = glm::vec3(0.0, 0.0, -1.0);
     glm::vec3 contactPoint = glm::vec3(0.0);
 
@@ -47,7 +47,7 @@ public:
     void updateWheel(int index, RaycastVehicleWheel wheel);
 
     virtual void move(float forward  = 1.0f);
-    virtual void steer(float right = 1.0f);
+    virtual void steer(float value = 1.0f);
     virtual void brake(float brake = 1.0);
 
     void setMaxForwardForce(float force);

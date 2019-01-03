@@ -4,9 +4,13 @@
 
 class PerspectiveCamera : public Camera {
 public:
-    float FOV = 45.0f;
+    PerspectiveCamera();
+    void setFieldOfView(float fov);
+    float getFieldOfView();
 
-    glm::mat4 getCameraMatrix();
     ViewFrustum getViewFrustum(int splits);
 private:
+    float fov = 45.0f;
+protected:
+    virtual void updateProjectionMatrix() override;
 };
