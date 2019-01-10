@@ -29,7 +29,7 @@ void DeferredRenderer::render()
 
 	applyBloom();
 
-	applyAntialias();
+	//applyAntialias();
 
 	applyHDR();
 }
@@ -155,36 +155,52 @@ void DeferredRenderer::resize(int width, int height) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBufferPosition, 0);
+		/*glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, gBufferPosition);
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, AASamples, GL_RGBA16F, getWidth(), getHeight(), GL_TRUE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, gBufferPosition, 0);*/
 
 		glBindTexture(GL_TEXTURE_2D, gBufferNormal);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, getWidth(), getHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gBufferNormal, 0);
+		/*glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, gBufferNormal);
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, AASamples, GL_RGBA16F, getWidth(), getHeight(), GL_TRUE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D_MULTISAMPLE, gBufferNormal, 0);*/
 
 		glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, getWidth(), getHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gBufferAlbedo, 0);
+		/*glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, gBufferAlbedo);
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, AASamples, GL_RGBA16F, getWidth(), getHeight(), GL_TRUE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D_MULTISAMPLE, gBufferAlbedo, 0);*/
 
 		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWidth(), getHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gBufferOption1, 0);
+		/*glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, gBufferOption1);
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, AASamples, GL_RGBA, getWidth(), getHeight(), GL_TRUE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D_MULTISAMPLE, gBufferOption1, 0);*/
 
 		glBindTexture(GL_TEXTURE_2D, gBufferGlow);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, getWidth(), getHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, gBufferGlow, 0);
+		/*glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, gBufferGlow);
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, AASamples, GL_RGBA16F, getWidth(), getHeight(), GL_TRUE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D_MULTISAMPLE, gBufferGlow, 0);*/
 
 		GLuint gAttachments[5] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
 		glDrawBuffers(5, gAttachments);
 
 		glBindRenderbuffer(GL_RENDERBUFFER, rboGDepth);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getWidth(), getHeight());
+		//glRenderbufferStorageMultisample(GL_RENDERBUFFER, AASamples, GL_DEPTH24_STENCIL8, getWidth(), getHeight());
 		// - Attach buffers
 
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboGDepth);
@@ -236,8 +252,11 @@ void DeferredRenderer::resize(int width, int height) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindTexture(GL_TEXTURE_2D, 0);
+		//glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, screenRectTexture);
+		//glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, AASamples, GL_RGBA16F, getWidth(), getHeight(), GL_TRUE);
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenRectTexture, 0);
+		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, screenRectTexture, 0);
 		GLuint attachments[1] = { GL_COLOR_ATTACHMENT0 };
 		glDrawBuffers(1, attachments);
 
@@ -252,6 +271,10 @@ void DeferredRenderer::resize(int width, int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	/*glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, tmpRenderTexture);
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, AASamples, GL_RGBA16F, getWidth(), getHeight(), GL_TRUE);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);*/
 }
 
 void DeferredRenderer::renderObjects()
@@ -281,6 +304,9 @@ void DeferredRenderer::renderObjects()
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
+	/*glBindFramebuffer(GL_READ_FRAMEBUFFER, gBufferFBO);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, getWidth(), getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);*/
 	glViewport(0, 0, getWidth(), getHeight());
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -948,6 +974,7 @@ int DeferredRenderer::getRendererType()
 }
 
 void DeferredRenderer::setup() {
+	glEnable(GL_MULTISAMPLE);
 	renderMode = RenderMode::FILLR;
 
 	glGenFramebuffers(1, &gBufferFBO);
@@ -961,7 +988,7 @@ void DeferredRenderer::setup() {
 	glGenTextures(1, &gBufferGlow);
 	glGenTextures(1, &screenRectTexture);
 	glGenTextures(1, &tmpRenderTexture);
-
+	
 
 	for (int i = 0; i < bloomSample; i++) {
 		glGenTextures(1, &bloomTextures[i]);

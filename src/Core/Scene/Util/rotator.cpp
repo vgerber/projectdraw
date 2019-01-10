@@ -47,6 +47,11 @@ void Rotator::rotateAxis(float radians, glm::vec3 rotationAxis) {
 	rotation = glm::angleAxis(radians, rotationAxis);
 }
 
+glm::vec3 Rotator::rotatePoint(glm::vec3 point)
+{	
+	return getRotationMatrix() * glm::vec4(point, 0.0f);
+}
+
 void Rotator::applyRotation(glm::quat rotation) {
     this->rotation = rotation * this->rotation;
 }

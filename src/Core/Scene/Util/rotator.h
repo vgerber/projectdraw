@@ -41,6 +41,9 @@ public:
 	*/
     void rotateAxis(float radians, glm::vec3 rotationAxis);
 
+	///Rotate point
+	glm::vec3 rotatePoint(glm::vec3 point);
+
 	/*
 	Apply a new rotation to the existing one
 

@@ -5,7 +5,7 @@ RaycastVehicle::RaycastVehicle(collision::CollisionShape chassisShape, float mas
     raycastVehicleTuning = new btRaycastVehicle::btVehicleTuning();
     btRigidBody * rigidBody = static_cast<btRigidBody*>(collisionObject);
     raycastVehicle = new btRaycastVehicle(*raycastVehicleTuning, rigidBody, raycastVehcileRaycaster);
-    raycastVehicle->setCoordinateSystem(1, 2, 0);
+    //raycastVehicle->setCoordinateSystem(1, 2, 0);
     rigidBody->setActivationState(DISABLE_DEACTIVATION);
     //setForward(toGLMVec3(raycastVehicle->getForwardVector()));
     

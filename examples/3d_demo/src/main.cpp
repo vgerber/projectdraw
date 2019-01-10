@@ -16,8 +16,11 @@ int main() {
 	settings.majorVersion = 3;
 	settings.minorVersion = 3;
 	settings.depthBits = 24;
+	settings.antialiasingLevel = 4;
 	sf::Window window(sf::VideoMode(WIDTH, HEIGHT), "3D Demo", sf::Style::Default, settings);
 	initCore();
+
+	
 
 	Scene scene(WIDTH, HEIGHT);
 	   

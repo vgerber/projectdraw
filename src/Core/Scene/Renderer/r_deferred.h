@@ -139,6 +139,8 @@ protected:
 	static const int ShaderSpotLightShadowSize = 10;
 	static const int ShaderSpotLightSize = 100;
 
+	static const int AASamples = 4;
+
 	//light shaders
 	Shader shaderDLight;
 	Shader shaderDLightShadow;
