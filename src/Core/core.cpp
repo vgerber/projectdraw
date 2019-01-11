@@ -37,7 +37,9 @@ void initCore() {
 	
 	loadTextureShaders();
 
-	loadPostprocessing();
+	loadPostprocessingShaders();
+
+	loadExperimentalShaders();
 
 }
 
@@ -54,8 +56,6 @@ void loadDeferredShaders()
 	};
 	shader_normal_geometry.load();
 	ResourceManager::storeShader(ShaderName::Deferred::Debug::Normal, shader_normal_geometry);
-
-
 
 	//Mesh
 	Shader shaderBasic;
@@ -198,7 +198,7 @@ void loadTextureShaders()
 	ResourceManager::storeShader(ShaderName::Texture::Basic, shader_texture);
 }
 
-void loadPostprocessing() {
+void loadPostprocessingShaders() {
 	printf("\n[Shader] load POSTPROCESSING shaders\n");
 	//Antialias
 	Shader shaderAntialiasFXAA;
@@ -237,6 +237,15 @@ void loadPostprocessing() {
 
 }
 
+void loadExperimentalShaders() {
+	Shader shaderOpenglTestBasic;
+	shaderOpenglTestBasic.layers = {
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/basic.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/basic.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderOpenglTestBasic.load();
+	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::Basic, shaderOpenglTestBasic);
+}
 
 void clearScreen(glm::vec4 color) {
 	glClearColor(color.r, color.g, color.b, color.a);

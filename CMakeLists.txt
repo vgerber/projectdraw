@@ -35,6 +35,11 @@ file(GLOB_RECURSE EXAMPLE_PHYSICS3D_SRC
 	"examples/physics3d_example/*.cpp"
 )
 
+file(GLOB_RECURSE EXPERIMENTAL_OPENGL
+	"test/opengl_test/*.h"
+	"test/opengl_test/*.cpp"
+)
+
 if (UNIX)
 
 set(BulletLibraries
@@ -130,6 +135,24 @@ include_directories(
 add_executable(physics3d_example ${EXAMPLE_PHYSICS3D_SRC})
 
 target_link_libraries(physics3d_example
+	sfml-graphics
+	sfml-window
+	sfml-system
+	/home/vincent/Development/Cpp/projectdraw_slim/build/libprojectdraw_core.a
+	/home/vincent/Development/Cpp/projectdraw_slim/build/libprojectdraw_physics3d.a
+	${FREETYPE_LIBRARIES} 
+	${OPENGL_LIBRARIES}
+	${GLEW_LIBRARIES} 
+	${BulletLibraries}
+
+	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/code/libassimp.so 
+	optimized /home/vincent/Development/Lib/Cpp/assimp-master/Release/code/libassimp.so 
+)
+
+#Experimental
+add_executable(opengl_test ${EXPERIMENTAL_OPENGL})
+
+target_link_libraries(opengl_test
 	sfml-graphics
 	sfml-window
 	sfml-system

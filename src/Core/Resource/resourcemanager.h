@@ -67,7 +67,13 @@ namespace ShaderName {
 		const std::string PerspCube = "DepthPC";
 		const std::string Ortho     = "DepthO";
 	}
-}
+
+	namespace Experimental {
+		namespace OpenglTest {
+			const std::string Basic = "ExperimentalOpenglTestBasic";
+		}
+	}
+ }
 
 class ResourceManager {
 public:
