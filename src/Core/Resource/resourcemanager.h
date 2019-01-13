@@ -71,6 +71,7 @@ namespace ShaderName {
 	namespace Experimental {
 		namespace OpenglTest {
 			const std::string Basic = "ExperimentalOpenglTestBasic";
+			const std::string BasicPostProcessing = "ExperimentalOpenglTestBasicPostProcessing";
 		}
 	}
  }

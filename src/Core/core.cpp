@@ -238,6 +238,7 @@ void loadPostprocessingShaders() {
 }
 
 void loadExperimentalShaders() {
+	printf("\n[Shader] load Experimental shaders\n");
 	Shader shaderOpenglTestBasic;
 	shaderOpenglTestBasic.layers = {
 		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/basic.vertex").c_str(), ShaderType::VERTEX },
@@ -245,6 +246,14 @@ void loadExperimentalShaders() {
 	};
 	shaderOpenglTestBasic.load();
 	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::Basic, shaderOpenglTestBasic);
+
+	Shader shaderOpenglTestBasicPostProcessing;
+	shaderOpenglTestBasicPostProcessing.layers = {
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/basic_postprocessing.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/basic_postprocessing.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderOpenglTestBasicPostProcessing.load();
+	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::BasicPostProcessing, shaderOpenglTestBasicPostProcessing);
 }
 
 void clearScreen(glm::vec4 color) {
