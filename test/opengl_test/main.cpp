@@ -16,7 +16,7 @@ int main() {
     ctxSetting.minorVersion = 3;
     ctxSetting.depthBits = 24;
     ctxSetting.stencilBits = 8;
-    ctxSetting.antialiasingLevel = 4;
+    ctxSetting.antialiasingLevel = 0;
 
     sf::Window window(sf::VideoMode(WIDTH, HEIGHT), "Experimental", sf::Style::Default , ctxSetting);
     initCore();

@@ -288,6 +288,7 @@ void DeferredRenderer::renderObjects()
 	glUniformBlockBinding(shaderFont.getId(), glGetUniformBlockIndex(shaderFont.getId(), "Matrices"), getRendererId());
 	glUniformBlockBinding(shaderLight.getId(), glGetUniformBlockIndex(shaderLight.getId(), "Matrices"), getRendererId());
 	glUniformBlockBinding(shaderInstancing.getId(), glGetUniformBlockIndex(shaderInstancing.getId(), "Matrices"), getRendererId());
+	glUniformBlockBinding(shaderNormals.getId(), glGetUniformBlockIndex(shaderNormals.getId(), "Matrices"), getRendererId());
 
 
 	int polygonMode = GL_FILL;
@@ -493,7 +494,7 @@ void DeferredRenderer::renderDrawableNormals(Drawable * drawable) {
 	if(drawable) {
 		glUniformMatrix4fv(glGetUniformLocation(shaderNormals.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getWorldTransform().getMatrix()));
 		glUniformMatrix4fv(glGetUniformLocation(shaderNormals.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(drawable->getMVPMatrix()));
-		drawable->draw(DrawType::POINTG);
+		drawable->draw(DrawType::TRIANGLEG);
 		for(auto child : drawable->getChildren()) {
 			renderDrawableNormals(dynamic_cast<Drawable*>(child));
 		}
