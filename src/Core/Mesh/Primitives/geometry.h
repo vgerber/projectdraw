@@ -31,24 +31,17 @@ public:
 	void removePoint(Point point);
 	std::vector<Point> getPoints();
 
+	///draw meshes + submeshes
+	virtual void draw(DrawType type = DrawType::LINEG) override;
+
+	///instancing  meshes + submeshes
+	virtual void drawInstancing(int amount, DrawType type = DrawType::LINEG) override;
+
 	void clear();
 protected:
 	std::vector<Point> points;
 	int size = 0;
 	GLuint VAO, VBO;
-
-
-	///draw meshes + submeshes
-	virtual void drawModel(Shader shader, DrawType type) override;
-
-	///instancing  meshes + submeshes
-	virtual void drawModelInstancing(Shader shader, DrawType type, int amount) override;
-
-	///draw mesh normals + submesh normals
-	virtual void drawModelNormals(Shader shader) override;
-
-	///draw mesh bounding box
-	virtual void drawModelBox(Shader shader) override;
 
 	virtual void setup();
 };

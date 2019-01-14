@@ -20,7 +20,7 @@ class ParticleGenerator : public Drawable, public Animatable {
 public:
 	ParticleGenerator(Drawable &drawable, int particleCount);
 
-	void draw() override;
+	void draw(DrawType drawType = DrawType::TRIANGLEG) override;
 	void update(GLfloat deltaTime) override;
 
 	virtual void dispose();

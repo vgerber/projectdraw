@@ -7,7 +7,9 @@ class Text : public Drawable {
 public:
 	Text(std::string font_path, GLuint size);
 
-	void draw();
+	void draw(DrawType drawType = DrawType::TRIANGLEG) 						 override;
+
+	void drawInstancing(int amount, DrawType drawType = DrawType::TRIANGLEG) override;
 
 	void setColor(glm::vec4 color);
 	void setColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a);

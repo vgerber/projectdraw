@@ -97,12 +97,12 @@ std::vector<sTexture> Mesh::getTextures()
 	return textures;
 }
 
-void Mesh::drawModel(Shader shader, DrawType drawType)
+void Mesh::draw(DrawType drawType)
 {
 	if (vertices.size() == 0) {
 		return;
 	}
-	
+	/*
 	GLuint diffuseNr = 1;
 	GLuint specularNr = 1;
 	for (GLuint i = 0; i < this->textures.size(); i++) {
@@ -119,7 +119,7 @@ void Mesh::drawModel(Shader shader, DrawType drawType)
 		// And finally bind the texture
 		glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
 	}
-
+	*/
 	// Also set each mesh's shininess property to a default value (if you want you could extend this to another mesh property and possibly change this value)
 	//glUniform1f(glGetUniformLocation(shader.GetProgrammId(), "material.shininess"), 16.0f);
 
@@ -143,7 +143,7 @@ void Mesh::drawModel(Shader shader, DrawType drawType)
 	}
 }
 
-void Mesh::drawModelInstancing(Shader shader, DrawType drawType, int amount)
+void Mesh::drawInstancing(int amount, DrawType drawType)
 {
 	glBindVertexArray(this->VAO);
 	if (drawType == DrawType::LINEG) {
@@ -155,17 +155,6 @@ void Mesh::drawModelInstancing(Shader shader, DrawType drawType, int amount)
 	else {
 		glDrawElementsInstanced(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0, amount);
 	}
-}
-
-void Mesh::drawModelNormals(Shader normalShader)
-{
-	glBindVertexArray(this->VAO);
-	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-}
-
-void Mesh::drawModelBox(Shader boxShader)
-{
 }
 
 

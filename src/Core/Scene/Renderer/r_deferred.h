@@ -210,6 +210,21 @@ protected:
 
 	virtual void renderObjects() override;
 
+	///Draw drawable with drawing settings
+	virtual void renderDrawable(Drawable * drawable, DrawType drawType = DrawType::TRIANGLEG);
+
+	///Draw drawable as plain geometry (without features)
+	virtual void renderDrawableRaw(Drawable * drawable, DrawType drawType = DrawType::TRIANGLEG);
+
+	///Draw with instancing
+	//virtual void drawInstancing(int amount, DrawType drawType = DrawType::TRIANGLEG);
+
+	///Draw model normals
+	virtual void renderDrawableNormals(Drawable * drawable);
+
+	///Draw bounding box with model center (not aabb)
+	virtual void renderDrawableBox(Drawable * drawable);
+
 	virtual void renderLight() override;
 
 	virtual void applyAntialias();

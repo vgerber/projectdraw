@@ -30,6 +30,9 @@ void SceneObject::addChild(SceneObject * sceneObject) {
 	transformChanged();
 }
 
+std::vector<SceneObject*> SceneObject::getChildren() {
+	return children;
+}
 
 std::string SceneObject::getId()
 {

@@ -80,15 +80,8 @@ std::vector<Point> Geometry::getPoints()
 	return points;
 }
 
-void Geometry::clear() {
-	points.clear();
-	size = 0;
-}
-
-void Geometry::drawModel(Shader shader, DrawType type)
+void Geometry::draw(DrawType type)
 {
-	shader.use();
-
 	glLineWidth(lineThickness);
 	glPointSize(pointThickness);
 
@@ -117,16 +110,13 @@ void Geometry::drawModel(Shader shader, DrawType type)
 	glBindVertexArray(0);
 }
 
-void Geometry::drawModelInstancing(Shader shader, DrawType type, int amount)
+void Geometry::drawInstancing(int amount, DrawType type)
 {
 }
 
-void Geometry::drawModelNormals(Shader shader)
-{
-}
-
-void Geometry::drawModelBox(Shader shader)
-{
+void Geometry::clear() {
+	points.clear();
+	size = 0;
 }
 
 void Geometry::setup()

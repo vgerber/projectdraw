@@ -68,10 +68,8 @@ protected:
 	std::vector<GLuint> indices;
 	std::vector<sTexture> textures;
 
-	virtual void drawModel(Shader shader, DrawType drawType)					   override;
-	virtual void drawModelInstancing(Shader shader, DrawType drawType, int amount) override;
-	virtual void drawModelNormals(Shader normalShader)							   override;
-	virtual void drawModelBox(Shader boxShader)									   override;
+	virtual void draw(DrawType drawType = DrawType::TRIANGLEG)					     override;
+	virtual void drawInstancing(int amount, DrawType drawType = DrawType::TRIANGLEG) override;
 
 	///load mesh data from file
 	void loadMesh(std::string path);

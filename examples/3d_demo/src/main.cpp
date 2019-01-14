@@ -92,6 +92,7 @@ int main() {
 #endif
 		//cube.setPosition(glm::vec3(-1.0f, -1.0f, 1.0f));
 		wheelBaseTransform = (static_cast<Mesh*>(cube.getChild("WheelFrontR")))->getTransform();
+		cube.settings.normalVisible = true;
 		scene.addObject(cube);
 	}
 	{

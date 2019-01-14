@@ -13,6 +13,8 @@ public:
 	SceneObject * getChild(std::string id);
 	void addChild(SceneObject * sceneObject);
 
+	std::vector<SceneObject*> getChildren();
+
 	std::string getId();
 
 	///free any allocated memory

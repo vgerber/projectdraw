@@ -10,7 +10,7 @@ class Instancer {
 public:
 	Instancer(Drawable * drawable, int count);
 
-	void draw(Shader shader);
+	void draw(DrawType drawType = DrawType::TRIANGLEG);
 
 	glm::mat4 getModelMatrix(int index);
 	std::vector<glm::mat4> getModelMatrices();
