@@ -6,7 +6,7 @@
         {
             "label": "build release",
             "type": "shell",
-            "command": "cd build/ && cmake -DCMAKE_BUILD_TYPE=Release .. && make",
+            "command": "cd build/release/ && cmake -DCMAKE_BUILD_TYPE=Release ../.. && make",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -16,7 +16,7 @@
         {
             "label": "build debug",
             "type": "shell",
-            "command": "cd build/ && cmake  -DCMAKE_BUILD_TYPE=Debug .. && make",
+            "command": "cd build/debug/ && cmake  -DCMAKE_BUILD_TYPE=Debug ../.. && make",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -26,14 +26,14 @@
         {
             "label": "run 3d_example",
             "type": "shell",
-            "command": "./build/3d_example",
+            "command": "./build/release/3d_example",
             "problemMatcher": [],
             "dependsOn": "build release"
         },
         {
             "label": "run physics3d_example",
             "type": "shell",
-            "command": "./build/physics3d_example",
+            "command": "./build/release/physics3d_example",
             "problemMatcher": [],
             "dependsOn": "build release"
         },
@@ -41,7 +41,7 @@
         {
             "label": "run opengl_test",
             "type": "shell",
-            "command": "./build/opengl_test",
+            "command": "./build/release/opengl_test",
             "problemMatcher": [],
             "dependsOn": "build release"
         }

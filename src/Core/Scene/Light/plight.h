@@ -9,15 +9,26 @@ public:
 	GLfloat attenuationQuadratic = 0.007f;
 
 	PointLight();
-	void apply(Shader shader, std::string target);
+
+	///bind opengl resources for shadow mapping
 	void beginShadowMapping();
+
+	///unbind opengl resources and complete mapping
 	void endShadowMapping();
-	GLuint getShadowCubeMap();
+
+	///get depth map from shadow mapping (as cubemap)
+	DepthMap getCubeDepthMap();
+
+	///set position of light (recalcs cubemap matrices)
 	void setPosition(glm::vec3 position);
 
+	///set maximum light distance
 	void setDistance(float distance);
+
+	///get maximum light distance
 	float getDistance();
 
+	///free opengl resources
 	void dispose() override;
 private:
 	DepthMap depthMap;

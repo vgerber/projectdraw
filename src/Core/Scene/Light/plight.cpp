@@ -4,19 +4,6 @@ PointLight::PointLight() {
 	setup();
 }
 
-void PointLight::apply(Shader shader, std::string target)
-{
-	Light::apply(shader, target);
-
-	//glm::vec4 Mpos = mmodel * glm::vec4(size.width * 0.5f, size.height * 0.5f, size.depth * 0.5f, 1.0f);
-	glm::vec3 pos = getPosition();
-	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".position").c_str()), pos.x, pos.y, pos.z);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".radius").c_str()), distance);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".constant").c_str()), attenuationConstant);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".linear").c_str()), attenuationLinear);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".quadratic").c_str()), attenuationQuadratic);
-}
-
 void PointLight::beginShadowMapping()
 {
 	glEnable(GL_DEPTH_TEST);
@@ -112,6 +99,6 @@ void PointLight::setupShadowCube()
 	shadowTransforms.push_back(shadowProj * glm::lookAt(position, position + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
 }
 
-GLuint PointLight::getShadowCubeMap() {
-	return depthMap.depthMap;
+DepthMap PointLight::getCubeDepthMap() {
+	return depthMap;
 }

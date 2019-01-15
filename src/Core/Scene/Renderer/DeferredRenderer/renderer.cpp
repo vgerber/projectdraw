@@ -1,4 +1,4 @@
-#include "r_deferred.h"
+#include "renderer.h"
 
 DeferredRenderer::DeferredRenderer(int width, int height, Camera &camera) : AbstractRenderer(width, height, camera)
 {
@@ -29,9 +29,9 @@ void DeferredRenderer::render()
 
 	applyBloom();
 
-	//applyAntialias();
+	applyAntialias();
 
-	applyHDR();
+	//applyHDR();
 }
 
 void DeferredRenderer::addSceneObject(SceneObject & sceneObject)
@@ -549,14 +549,7 @@ void DeferredRenderer::renderLight()
 
 			for (auto drawable : objects)
 			{
-				{
-					//replace drawable mesh shader with light shadow shader and back
-					Shader lightShader = directionalLight->getShaderShadow();
-					glUniform1f(glGetUniformLocation(lightShader.getId(), "useLight"), 0.0f);
-					glUniform1i(glGetUniformLocation(lightShader.getId(), "enableCustomColor"), 0);
-					renderDrawableRaw(drawable, DrawType::TRIANGLEG);
-
-				}
+				renderDrawableRaw(drawable, DrawType::TRIANGLEG);
 			}
 			directionalLight->endShadowMapping();
 		}
@@ -588,9 +581,6 @@ void DeferredRenderer::renderLight()
 					if(glm::length(drawable->getPosition() - plight->getPosition()) < plight->getDistance()) {
 						//draw each drawable to depth buffer if it is within the distance of the light and apply 
 						//the corresponding depth shader
-						Shader lightShader = directionalLight->getShaderShadow();
-						glUniform1f(glGetUniformLocation(lightShader.getId(), "useLight"), 0.0f);
-						glUniform1i(glGetUniformLocation(lightShader.getId(), "enableCustomColor"), 0);
 						renderDrawableRaw(drawable, DrawType::TRIANGLEG);
 					}
 				}
@@ -626,9 +616,6 @@ void DeferredRenderer::renderLight()
 					if(slight->getDistance() > glm::length(drawable->getPosition() - slight->getPosition())) {
 						//draw each drawable to depth buffer if it is within the distance of the light and apply 
 						//the corresponding depth shader
-						Shader lightShader = directionalLight->getShaderShadow();
-						glUniform1f(glGetUniformLocation(lightShader.getId(), "useLight"), 0.0f);
-						glUniform1i(glGetUniformLocation(lightShader.getId(), "enableCustomColor"), 0);
 						renderDrawableRaw(drawable, DrawType::TRIANGLEG);
 					}
 				}
@@ -657,9 +644,9 @@ void DeferredRenderer::renderLight()
 		glUniform3f(glGetUniformLocation(shaderDLightShadow.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
 
 		glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), "gPosition"), 0);
-		glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), "gNormal"), 1);
-		glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), "gAlbedo"), 2);
-		glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), "gOption1"), 3);
+		glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), "gNormal"),   1);
+		glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), "gAlbedo"),   2);
+		glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), "gOption1"),  3);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gBufferPosition);
@@ -670,14 +657,7 @@ void DeferredRenderer::renderLight()
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
 
-		directionalLight->apply(shaderDLightShadow, "dirLight");
-		
-		for (int i = 0; i < directionalLight->getCSMSlices(); i++)
-		{
-			glUniform1i(glGetUniformLocation(shaderDLightShadow.getId(), ("dirLight.shadowMap[" + std::to_string(i) + "]").c_str()), 4 + i);
-			glActiveTexture(GL_TEXTURE4 + i);
-			glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowMap(i));
-		}
+		setDirectionalLightUniforms(shaderDLightShadow, *directionalLight, 4);
 		
 		//set back to fill mode for texture rendering
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -730,12 +710,8 @@ void DeferredRenderer::renderLight()
 				continue;
 			}
 
-			//set pointlight uniforms
-			pLight->apply(shaderPLightShadow, "pointLight[" + std::to_string(pLightCount) + "]");			
-			std::string shadowLoc = ("pointLight[" + std::to_string(pLightCount) + "].shadowCubeMap");
-			glUniform1i(glGetUniformLocation(shaderPLightShadow.getId(), shadowLoc.c_str()), 5);				
-			glActiveTexture(GL_TEXTURE5);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, pLight->getShadowCubeMap());
+			//set pointlight uniforms		
+			setPointLightUniforms(shaderPLightShadow, *pLight, 5, pLightCount);
 
 			pLightCount++;
 			//draw current set point ligts if array limit or last index is reached
@@ -787,7 +763,7 @@ void DeferredRenderer::renderLight()
 				continue;
 			}
 
-			pLight->apply(shaderPLight, "pointLight[" + std::to_string(pLightCount) + "]");
+			setPointLightUniforms(shaderPLight, *pLight, 5, pLightCount);
 			pLightCount++;
 
 			//draw lights if maximum of array or last element is reached
@@ -844,11 +820,7 @@ void DeferredRenderer::renderLight()
 				continue;
 			}
 
-			sLight->apply(shaderSLightShadow, "spotLight[" + std::to_string(sLightCount) + "]");
-			std::string shadowLoc = ("spotLight[" + std::to_string(sLightCount) + "].shadowMap");
-			glUniform1i(glGetUniformLocation(shaderSLightShadow.getId(), shadowLoc.c_str()), 5 + sLightCount);
-			glActiveTexture(GL_TEXTURE5 + sLightCount);
-			glBindTexture(GL_TEXTURE_2D, sLight->getShadowMap());
+			setSpotLightUniforms(shaderSLightShadow, *sLight, 5 + sLightCount, sLightCount);
 
 			sLightCount++;
 			if(sLightCount == ShaderSpotLightShadowSize || sLightIndex == spotLightShadowCount-1) {
@@ -891,7 +863,7 @@ void DeferredRenderer::renderLight()
 		int sLightCount = 0;
 		for(int sLightIndex = spotLightShadowCount; sLightIndex < spotLights.size(); sLightIndex++) {
 			SpotLight * sLight = spotLights[sLightIndex];
-			sLight->apply(shaderSLight, "spotLight[" + std::to_string(sLightCount) + "]");
+			setSpotLightUniforms(shaderSLight, *sLight, 5, sLightCount);
 
 			if(sLight->intensity == 0.0) {
 				continue;

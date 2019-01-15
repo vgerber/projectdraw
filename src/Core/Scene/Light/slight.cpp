@@ -32,12 +32,6 @@ void SpotLight::endShadowMapping()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-
-GLuint SpotLight::getShadowMap()
-{
-	return depthMap.depthMap;
-}
-
 void SpotLight::setDirection(glm::vec3 direction)
 {
 	this->direction = direction;
@@ -56,23 +50,8 @@ float SpotLight::getDistance() {
 	return distance;
 }
 
-void SpotLight::apply(Shader shader, std::string target)
-{
-	Light::apply(shader, target);
-	glm::vec3 position = getPosition();
-	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".position").c_str()), position.x, position.y, position.z);
-	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".direction").c_str()), direction.x, direction.y, direction.z);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".cutOff").c_str()), glm::cos(cutOff));
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".outerCutOff").c_str()), glm::cos(outerCutOff));
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".farPlane").c_str()), distance);
-
-	if (shadow) {
-		glUniformMatrix4fv(
-			glGetUniformLocation(shader.getId(), (target + ".lightSpaceMatrix").c_str()),
-			1,
-			GL_FALSE,
-			glm::value_ptr(depthMap.lightSpaceMatrix));
-	}
+DepthMap SpotLight::getDepthMap() {
+	return depthMap;
 }
 
 void SpotLight::setCutOff(float inner, float outer)

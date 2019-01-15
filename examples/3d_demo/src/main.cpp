@@ -112,7 +112,7 @@ int main() {
 	DirectionalLight sunLight;
 	sunLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-	sunLight.change_direction(glm::vec3(1.0f, 1.0f, -1.0f));
+	sunLight.changeDirection(glm::vec3(1.0f, 1.0f, -1.0f));
 	sunLight.intensity = 0.1f;
 	sunLight.shadow = false;
 	scene.addObject(sunLight);
@@ -197,7 +197,7 @@ int main() {
 		poleLight.intensity = sin(millis * 10) * 0.5 + 1.0;
 		poleLight2.intensity = sin(millis * 10 + 1.6) * 0.5 + 1.0;
 
-		sunLight.change_direction(glm::vec3(1.0f * cos(millis), 1.0f * sin(millis), -1.0f));
+		sunLight.changeDirection(glm::vec3(1.0f * cos(millis), 1.0f * sin(millis), -1.0f));
 
 		 {
 			Drawable * backWheel = static_cast<Drawable*>(cube.getChild("WheelFrontR"));

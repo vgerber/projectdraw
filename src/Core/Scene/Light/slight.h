@@ -14,19 +14,32 @@ public:
 
 	SpotLight();
 
+	///bind opengl resources for shadow mapping
 	void beginShadowMapping();
+
+	///unbind opengl resources and complete shadow mapping
 	void endShadowMapping();
 
-	GLuint getShadowMap();
-
+	///set ray direction
 	void setDirection(glm::vec3 direction);
+
+	///get ray direction
 	glm::vec3 getDirection();
+
+	///set maximum light distance
 	void setDistance(float distance);
+	
+	///get maximum light distance
 	float getDistance();
 
-	void apply(Shader shader, std::string target);
+	///get depth map from shadow mapping
+	DepthMap getDepthMap();
+
+	///set light cutoff
 	void setCutOff(float inner, float outer);
-	void dispose();
+
+	///free opengl resources
+	virtual void dispose() override;
 private:
 	DepthMap depthMap;
 	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;

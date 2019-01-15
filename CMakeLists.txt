@@ -88,7 +88,8 @@ include_directories(
 
 target_link_libraries(projectdraw_physics3d
 	${BulletLibraries}
-	/home/vincent/Development/Cpp/projectdraw_slim/build/projectdraw_core.a
+	debug /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_core.a
+	optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_core.a
 )
 
 
@@ -107,12 +108,13 @@ include_directories(
 )
 
 add_executable(3d_example ${EXAMPLE_3D_SRC})
-
+add_dependencies(3d_example projectdraw_core)
 target_link_libraries(3d_example
 	sfml-graphics
 	sfml-window
 	sfml-system
-	/home/vincent/Development/Cpp/projectdraw_slim/build/libprojectdraw_core.a
+	debug /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_core.a
+	optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_core.a
 	${FREETYPE_LIBRARIES} 
 	${OPENGL_LIBRARIES}
 	${GLEW_LIBRARIES} 
@@ -122,7 +124,7 @@ target_link_libraries(3d_example
 )
 
 
-#Scene3D Example
+#Physics3D Example
 include_directories(
 	/home/vincent/Development/Lib/Cpp/glm-0.9.9.0/
 	/home/vincent/Development/Cpp/projectdraw_slim/src/
@@ -133,13 +135,15 @@ include_directories(
 )
 
 add_executable(physics3d_example ${EXAMPLE_PHYSICS3D_SRC})
-
+add_dependencies(physics3d_example projectdraw_core projectdraw_physics3d)
 target_link_libraries(physics3d_example
 	sfml-graphics
 	sfml-window
 	sfml-system
-	/home/vincent/Development/Cpp/projectdraw_slim/build/libprojectdraw_core.a
-	/home/vincent/Development/Cpp/projectdraw_slim/build/libprojectdraw_physics3d.a
+	debug /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_core.a
+	debug /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_physics3d.a
+	optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_core.a
+	optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_physics3d.a
 	${FREETYPE_LIBRARIES} 
 	${OPENGL_LIBRARIES}
 	${GLEW_LIBRARIES} 
@@ -151,13 +155,15 @@ target_link_libraries(physics3d_example
 
 #Experimental
 add_executable(opengl_test ${EXPERIMENTAL_OPENGL})
-
+add_dependencies(opengl_test projectdraw_core projectdraw_physics3d)
 target_link_libraries(opengl_test
 	sfml-graphics
 	sfml-window
 	sfml-system
-	/home/vincent/Development/Cpp/projectdraw_slim/build/libprojectdraw_core.a
-	/home/vincent/Development/Cpp/projectdraw_slim/build/libprojectdraw_physics3d.a
+	debug /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_core.a
+	debug /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_physics3d.a
+	optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_core.a
+	optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_physics3d.a
 	${FREETYPE_LIBRARIES} 
 	${OPENGL_LIBRARIES}
 	${GLEW_LIBRARIES} 

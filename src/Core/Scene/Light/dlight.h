@@ -6,24 +6,38 @@
 
 class DirectionalLight : public Light {
 public:
-	glm::vec3 minVec;
-	glm::vec3 maxVec;
 
 	DirectionalLight();
-	void change_direction(glm::vec3 direction);
-	glm::vec3 get_direction();
-	void apply(Shader shader, std::string target);
 
+	///change ray direction
+	void changeDirection(glm::vec3 direction);
+
+	///get ray direction
+	glm::vec3 getDirection();
+
+	///set camera viewfrustum for csm
 	void setViewFrustum(ViewFrustum viewFrustum);
 
+	///bind all opengl resource for shadowmapping
 	void beginShadowMapping(int slice = 1);
+
+	///unbind all resources for shadowmapping and complete mapping
 	void endShadowMapping();
 
-	GLuint getShadowMap(int slice = 0);
+	///get all depth maps from cascaded shadow mapping
+	std::vector<DepthMap> getDepthMaps();
+
+	///get maximum distance
+	float getDistance();
+
+	///get count of csm splits/slices
 	const int getCSMSlices();
 
-	void dispose();
+	///free opengl memory
+	virtual void dispose() override;
 private:
+	glm::vec3 minVec;
+	glm::vec3 maxVec;
 	const int csmSlices = 3;
 	std::vector<DepthMap> depthMaps;
 	GLfloat distance = 0.0f;

@@ -1,17 +1,18 @@
 #pragma once
 
 
-#include "../../core.h"
-#include "../Camera/camera.h"
-#include "../Camera/scenecamera.h"
-#include "../drawable.h"
-#include "../Light/lights.h"
-#include "../Particle/particlegenerator.h"
-#include "../Instancing/instancer.h"
-#include "../Animation/animatable.h"
-#include "../Text/text.h"
+#include "Core/core.h"
+#include "Core/Scene/Camera/camera.h"
+#include "Core/Scene/Camera/scenecamera.h"
+#include "Core/Scene/drawable.h"
+#include "Core/Scene/Light/lights.h"
+#include "Core/Scene/Particle/particlegenerator.h"
+#include "Core/Scene/Instancing/instancer.h"
+#include "Core/Scene/Animation/animatable.h"
+#include "Core/Scene/Text/text.h"
 
-#include "arenderer.h"
+#include "Core/Scene/Renderer/arenderer.h"
+#include "Core/Scene/Renderer/DeferredRenderer/light_util.h"
 
 struct SortPointLights {
 	glm::vec3 cameraPosition;

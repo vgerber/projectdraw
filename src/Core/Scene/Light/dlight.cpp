@@ -5,29 +5,14 @@ DirectionalLight::DirectionalLight()
 	setup();
 }
 
-void DirectionalLight::change_direction(glm::vec3 direction)
+void DirectionalLight::changeDirection(glm::vec3 direction)
 {
 	this->direction = direction;
 }
 
-glm::vec3 DirectionalLight::get_direction()
+glm::vec3 DirectionalLight::getDirection()
 {
 	return direction;
-}
-
-void DirectionalLight::apply(Shader shader, std::string target)
-{
-	Light::apply(shader, target);
-
-	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".direction").c_str()), direction.x, direction.y, direction.z);
-	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".farPlane").c_str()), distance);
-	for (size_t i = 0; i < depthMaps.size(); i++) {		
-		glUniformMatrix4fv(
-			glGetUniformLocation(shader.getId(), (target + ".lightSpaceMatrix[" + std::to_string(i) + "]").c_str()),
-			1,
-			GL_FALSE,
-			glm::value_ptr(depthMaps[i].lightSpaceMatrix));
-	}
 }
 
 void DirectionalLight::setViewFrustum(ViewFrustum viewFrustum)
@@ -234,9 +219,12 @@ void DirectionalLight::endShadowMapping()
 	glEnable(GL_DEPTH_TEST);
 }
 
-GLuint DirectionalLight::getShadowMap(int slice)
-{
-	return depthMaps[slice].depthMap;
+std::vector<DepthMap> DirectionalLight::getDepthMaps() {
+	return depthMaps;
+}
+
+float DirectionalLight::getDistance() {
+	return distance;
 }
 
 const int DirectionalLight::getCSMSlices()
