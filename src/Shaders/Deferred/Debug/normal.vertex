@@ -10,7 +10,7 @@ layout (std140) uniform Matrices {
 };
 
 out VS_OUT {
-	vec3 Normal;
+	vec4 Normal;
 } vs_out;
 
 uniform mat4 model;
@@ -18,7 +18,7 @@ uniform mat4 mvp;
 
 
 void main() {
-	gl_Position = mvp * vec4(position.x, position.y, position.z, 1.0f);
-	mat3 normalMatrix = mat3(transpose(inverse(view * model)));
-	vs_out.Normal = normalize(vec3(projection * vec4(normalMatrix * normal, 1.0)));
+	gl_Position = mvp * vec4(position, 1.0f);
+	mat4 normalMatrix = mat4(mat3(transpose(inverse(model))));
+	vs_out.Normal = normalize(projection * view * normalMatrix * vec4(normal, 0.0));
 }
