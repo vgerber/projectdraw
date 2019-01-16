@@ -8,7 +8,7 @@
 namespace texture {
 
 	class Filter {
-		void apply()
+		void apply();
 	};
 
 }

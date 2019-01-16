@@ -22,16 +22,37 @@ uniform vec4 customColor = vec4(1.0);
 
 uniform float glow = 0.0;
 
+uniform float alphaDiscardThreshold = 0.1;
+
+uniform int enableDiffuseTexture = 0;
+uniform int enableSpecularTexture = 0;
+
+uniform sampler2D diffuseTexture;
+uniform sampler2D specularTexture;
 
 void main() {
 	vec3 normal = normalize(fs_in.Normal);
-
-	if(enableCustomColor == 0) {
-		Albedo = fs_in.Color;
+ 
+	vec4 albedoColor;
+	//set color from texture (if not enabled color will be vertex color or custom set color)
+	if(enableDiffuseTexture == 1) {
+		albedoColor = vec4(1.0, 0.0, 0.0, texture(diffuseTexture, fs_in.TexCoords).r);
+		if(albedoColor.a <= alphaDiscardThreshold) {
+			discard;
+		}
 	}
 	else {
-		Albedo = customColor;
+		if(enableCustomColor == 0) {
+			albedoColor = fs_in.Color;
+		}
+		else {
+			albedoColor = customColor;
+		}
 	}
+	if(enableSpecularTexture == 1) {
+		albedoColor.a = texture(specularTexture, fs_in.TexCoords).r;
+	}
+	Albedo = albedoColor;
 	Position = vec4(vec3(fs_in.FragPos.xyz), 1.0);
 	Normal = vec4(normal, 1.0);
 	Option1 = vec4(useLight, fs_in.Depth, 0.0, 1.0);

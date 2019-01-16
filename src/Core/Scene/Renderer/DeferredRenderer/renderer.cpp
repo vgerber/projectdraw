@@ -23,6 +23,7 @@ void DeferredRenderer::render()
 	glViewport(0, 0, getWidth(), getHeight());
 	glEnable(GL_DEPTH_TEST);
 
+
 	renderObjects();
 
 	renderLight();
@@ -282,7 +283,7 @@ void DeferredRenderer::renderObjects()
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	//sort objects for stencil testing
-	std::sort(objects.begin(), objects.end(), SortDrawable(camera->getPosition()));
+	//std::sort(objects.begin(), objects.end(), SortDrawable(camera->getPosition()));
 
 	glUniformBlockBinding(shaderBasic.getId(), glGetUniformBlockIndex(shaderBasic.getId(), "Matrices"), getRendererId());
 	glUniformBlockBinding(shaderFont.getId(), glGetUniformBlockIndex(shaderFont.getId(), "Matrices"), getRendererId());
@@ -348,7 +349,6 @@ void DeferredRenderer::renderObjects()
 		drawable->setCameraMatrices(camera->getViewMatrix(), camera->getProjectionMatrix());
 		renderDrawable(drawable);
 	}
-
 	//draw viewfrustums from cameras
 	/*for (auto &scam : cameras)
 	{
@@ -392,8 +392,8 @@ void DeferredRenderer::renderObjects()
 }
 
 void DeferredRenderer::renderDrawable(Drawable * drawable, DrawType drawType) {
-		DrawableInfo settings = drawable->settings;
-		if (settings.xrayVisible) {
+	DrawableInfo settings = drawable->settings;
+	if (settings.xrayVisible) {
 		//glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
 		//glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * getModelMatrix()));
 		glUniform1f(glGetUniformLocation(shaderBasic.getId(), "useLight"), settings.xrayUseLight);
@@ -469,6 +469,8 @@ void DeferredRenderer::renderDrawable(Drawable * drawable, DrawType drawType) {
 
 	glUniform1f(glGetUniformLocation(shaderBasic.getId(), "useLight"), settings.useLight);
 	glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableCustomColor"), settings.useCustomColor);
+	glm::vec4 color = settings.customColor;
+	glUniform4f(glGetUniformLocation(shaderBasic.getId(), "customColor"), color.r, color.g, color.b, color.a);
 
 	glStencilFunc(GL_EQUAL, 0, 0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -482,7 +484,23 @@ void DeferredRenderer::renderDrawableRaw(Drawable * drawable, DrawType drawType)
 	if(drawable) {
 		glUniformMatrix4fv(glGetUniformLocation(shaderBasic.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getWorldTransform().getMatrix()));
 		glUniformMatrix4fv(glGetUniformLocation(shaderBasic.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(drawable->getMVPMatrix()));
-		drawable->draw(drawType);
+
+		glUniform1i(glGetUniformLocation(shaderBasic.getId(), "diffuseTexture"), 0);
+		glUniform1i(glGetUniformLocation(shaderBasic.getId(), "specularTexture"), 1);
+		if(Text * textObject = dynamic_cast<Text*>(drawable)) {
+			glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableDiffuseTexture"), 1);
+			glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableSpecularTexture"), 0);
+			for(int i = 0; i < textObject->getText().size(); i++) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, textObject->activateChar(i));
+				textObject->draw(drawType);
+			}
+		}
+		else {
+			glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableDiffuseTexture"), 0);
+			glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableSpecularTexture"), 0);
+			drawable->draw(drawType);
+		}
 
 		for(auto child : drawable->getChildren()) {
 			renderDrawableRaw(dynamic_cast<Drawable*>(child), drawType);

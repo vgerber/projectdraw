@@ -74,7 +74,13 @@ namespace ShaderName {
 			const std::string BasicPostProcessing = "ExperimentalOpenglTestBasicPostProcessing";
 		}
 	}
- }
+}
+
+namespace FontName {
+	namespace Base {
+		const std::string VeraMono = "BaseVeraMono";
+	}
+}
 
 class ResourceManager {
 public:

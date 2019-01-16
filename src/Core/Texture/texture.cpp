@@ -56,9 +56,9 @@ int Texture::getChannelsCount()
 	return nrChannels;
 }
 
-void Texture::activate(int tex_id)
+void Texture::activate(int textureOffset)
 {
-	glActiveTexture(GL_TEXTURE0 + tex_id);
+	glActiveTexture(GL_TEXTURE0 + textureOffset);
 	glBindTexture(GL_TEXTURE_2D, texture);
 }
 

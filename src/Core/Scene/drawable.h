@@ -6,6 +6,13 @@
 
 #include <memory>
 
+struct Vertex {
+	glm::vec3 Position;
+	glm::vec3 Normal;
+	glm::vec2 TexCoords;
+	glm::vec4 Color = glm::vec4(0.0f);
+};
+
 struct Material {
 	glm::vec3 ambient;
 	glm::vec3 diffuse;

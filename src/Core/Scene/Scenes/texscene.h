@@ -1,7 +1,7 @@
 #pragma once
-#include "../Texture/texture.h"
-#include "../Scenes/scene.h"
-#include "../Camera/orthocamera.h"
+#include "Core/Texture/texture.h"
+#include "Core/Scene/Scenes/scene.h"
+#include "Core/Scene/Camera/orthocamera.h"
 
 class TextureScene : public AbstractScene {
 public:

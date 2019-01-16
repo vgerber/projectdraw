@@ -3,8 +3,8 @@
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
 
-const int WIDTH = 400;
-const int HEIGHT = 400;
+const int WIDTH = 700;
+const int HEIGHT = 700;
 
 float bankingAngle = 0.0f;
 
@@ -64,7 +64,11 @@ int main() {
 		scene.configureCamera(rotatingCamera, scConfig);
 	}*/
 	
-	
+
+	Mesh rect = *pd::generateRectangle(1.0f, 1.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	rect.setPosition(0.0f, 2.0f, 5.0f);
+	scene.addObject(rect);
+	rect.rotate(Rotator(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 	
 	Mesh quad, cube, sphere;
 	{
@@ -107,13 +111,24 @@ int main() {
 	ground.setPosition(glm::vec3(0, 0.0f, -0.1f));
 	scene.addObject(ground);
 
+	Font font(ResourceManager::GetPath("/Fonts/VeraMono.ttf").c_str(), 400);
+	Text textSceneName(font);
+	textSceneName.settings.useLight = false;
+	textSceneName.setText("3D Example");
+	textSceneName.setPosition(0.0f, 1.0f, 4.0f);
+	textSceneName.scale(glm::vec3(0.005f));
+	textSceneName.rotate(Rotator(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+	//textSceneName.settings.useCustomColor = true;
+	//textSceneName.settings.customColor = glm::vec4(0.4f, 0.4f, 1.0f, 1.0f);
+	scene.addObject(textSceneName);
+
 
 	
 	DirectionalLight sunLight;
 	sunLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
 	sunLight.changeDirection(glm::vec3(1.0f, 1.0f, -1.0f));
-	sunLight.intensity = 0.1f;
+	sunLight.intensity = 1.0f;
 	sunLight.shadow = false;
 	scene.addObject(sunLight);
 	
@@ -185,6 +200,7 @@ int main() {
 			}
 		}
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
+
 
 		moveDrawable(quad, camera, delta);
 		

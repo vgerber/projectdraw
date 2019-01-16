@@ -208,6 +208,8 @@ protected:
 	//Instancer
 	std::vector<Instancer*> instancers;
 
+	std::vector<Text*> textObjects;
+
 
 	virtual void renderObjects() override;
 
@@ -226,6 +228,7 @@ protected:
 	///Draw bounding box with model center (not aabb)
 	virtual void renderDrawableBox(Drawable * drawable);
 
+	///Merge colorbuffers and apply light and shadow effects
 	virtual void renderLight() override;
 
 	virtual void applyAntialias();

@@ -49,6 +49,16 @@ int main() {
 		 1.0f, -1.0f,  1.0f, 0.0f,
 		 1.0f,  1.0f,  1.0f, 1.0f
 	};
+
+    GLfloat textureRectangle[] = {
+		-1.0f,  1.0f, 0.0f,  0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+
+		-1.0f,  1.0f, 0.0f,  0.0f, 1.0f,
+		 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f,  1.0f, 1.0f
+	};
     // Setup cube VAO
     GLuint cubeVAO, cubeVBO;
     glGenVertexArrays(1, &cubeVAO);
@@ -58,6 +68,18 @@ int main() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    glBindVertexArray(0);
+
+    GLuint textureVAO, textureVBO;
+    glGenVertexArrays(1, &textureVAO);
+    glGenBuffers(1, &textureVBO);
+    glBindVertexArray(textureVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(textureRectangle), &textureRectangle, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(float)));
     glBindVertexArray(0);
 
 	GLuint screenRectVAO, screenRectVBO;
@@ -110,9 +132,19 @@ int main() {
 
     bool msaa = true;
 
+
+
+
+    Font font(ResourceManager::GetPath("/Fonts/VeraMono.ttf").c_str(), 400);
+	Text textSceneName(font);
+    textSceneName.setText("Experimental 3D");
+    
+    int textureCounter = 0;
     // Game loop
     while(window.isOpen())
-    {       
+    { 
+        GLuint texture = textSceneName.activateChar(textureCounter);
+
         // Set transformation matrices		
         shader.use();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -124,9 +156,10 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);*/
 		
-
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+		glBindVertexArray(textureVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
         
         glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
@@ -153,15 +186,21 @@ int main() {
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
                 window.close();
             }
-            if(e.type == sf::Event::KeyPressed && e.key.code == sf::Keyboard::Q) {
-                msaa = !msaa;
-                printf("Switch %d\n", msaa);
-				if (msaa) {
-					glDisable(GL_MULTISAMPLE);
-				}
-				else {
-					glEnable(GL_MULTISAMPLE);
-				}
+            if(e.type == sf::Event::KeyPressed) {
+                if(e.key.code == sf::Keyboard::Q) {
+                    msaa = !msaa;
+                    printf("Switch %d\n", msaa);
+                    if (msaa) {
+                        glDisable(GL_MULTISAMPLE);
+                    }
+                    else {
+                        glEnable(GL_MULTISAMPLE);
+                    }
+                }
+                if(e.key.code == sf::Keyboard::W) {
+                    textureCounter++;
+                    textureCounter = textureCounter % textSceneName.getText().size();
+                }
             }
         }
     }

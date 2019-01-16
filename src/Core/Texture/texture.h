@@ -21,7 +21,7 @@ public:
 	int getHeight();
 	int getChannelsCount();
 
-	virtual void activate(int tex_id);
+	virtual void activate(int textureOffset = 0);
 
 	void dispose();
 protected:
