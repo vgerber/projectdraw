@@ -1,5 +1,5 @@
 #pragma once
-#include <Core/Scene/Texture/texture.h>
+#include <Core/Texture/texture.h>
 
 
 
