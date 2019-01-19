@@ -4,8 +4,20 @@ out vec4 color;
 
 in vec2 TexCoords;
 
-uniform sampler2D screenTexture;
+//uniform sampler2D screenTexture;
+uniform sampler2DMS screenTexture;
+uniform int samples = 4;
 
 void main() {
-	color = vec4(texture(screenTexture, TexCoords).rgb, 1.0);
+	//color = vec4(texture(screenTexture, TexCoords).rgb, 1.0);
+
+	
+	ivec2 texSize = textureSize(screenTexture);
+	ivec2 normTexCoords = ivec2(TexCoords * texSize);
+
+	vec4 texColor = vec4(0.0f);
+	for(int i = 0; i < samples; i++) {
+		texColor += texelFetch(screenTexture, normTexCoords, i);
+	}
+	color = texColor / float(samples);
 }

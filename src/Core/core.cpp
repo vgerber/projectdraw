@@ -54,7 +54,7 @@ void loadDeferredShaders()
 		{ ResourceManager::GetPath("/Shaders/Deferred/Debug/normal.fragment").c_str(), ShaderType::FRAGMENT },
 		{ ResourceManager::GetPath("/Shaders/Deferred/Debug/normal.geometry").c_str(), ShaderType::GEOMETRY }
 	};
-	shader_normal_geometry.load();
+	//shader_normal_geometry.load();
 	ResourceManager::storeShader(ShaderName::Deferred::Debug::Normal, shader_normal_geometry);
 
 	//Mesh
@@ -254,6 +254,14 @@ void loadExperimentalShaders() {
 	};
 	shaderOpenglTestBasicPostProcessing.load();
 	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::BasicPostProcessing, shaderOpenglTestBasicPostProcessing);
+
+	Shader shaderOpenglTestFXAA;
+	shaderOpenglTestFXAA.layers = {
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/fxaa.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/fxaa.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderOpenglTestFXAA.load();
+	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::FXAA, shaderOpenglTestFXAA);
 }
 
 void clearScreen(glm::vec4 color) {

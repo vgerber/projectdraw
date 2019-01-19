@@ -72,6 +72,7 @@ namespace ShaderName {
 		namespace OpenglTest {
 			const std::string Basic = "ExperimentalOpenglTestBasic";
 			const std::string BasicPostProcessing = "ExperimentalOpenglTestBasicPostProcessing";
+			const std::string FXAA = "ExperimentalOpenglTestFXAA";
 		}
 	}
 }

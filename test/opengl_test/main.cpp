@@ -8,8 +8,10 @@
 const int WIDTH = 1000;
 const int HEIGHT = 1000;
 
+const int samples = 4;
 
 int main() {
+
 
     sf::ContextSettings ctxSetting;
     ctxSetting.majorVersion = 3;
@@ -26,18 +28,20 @@ int main() {
     //glEnable(GL_MULTISAMPLE); // Enabled by default on some drivers, but not all so always enable to make sure
 	
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE);
 
     // Setup and compile our shaders
     Shader shader = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::Basic);
 	Shader shaderScreen = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::BasicPostProcessing);
+	Shader shaderFXAA = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::FXAA);
 
     #pragma region "object_initialization"
     // Set the object data (buffers, vertex attributes)
     GLfloat cubeVertices[] = {
         // Positions       
-        -0.5f, -0.5f, 0.0f, 
-         0.5f, -0.2f, 0.0f, 
-         0.5f,  0.8f, 0.0f, 
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+         0.5f, -0.2f, 0.0f, 1.0f, 0.0f,
+         0.5f,  0.8f, 0.0f, 1.0f, 1.0f
     };
 
 	GLfloat screenRectangle[] = {
@@ -67,7 +71,9 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(float)));
     glBindVertexArray(0);
 
     GLuint textureVAO, textureVBO;
@@ -95,23 +101,53 @@ int main() {
 	glBindVertexArray(0);
     #pragma endregion
 	
-    unsigned int framebuffer;
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    unsigned int multisampleFBO;
+    glGenFramebuffers(1, &multisampleFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, multisampleFBO);
 
-    const int samples = 4;
+    
     unsigned int multisampleTexture;
     glGenTextures(1, &multisampleTexture);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, multisampleTexture);
     glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, WIDTH, HEIGHT, GL_TRUE);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, multisampleTexture, 0);
-    
+
     unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
     glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    //glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+	
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "ERROR::FRAMEBUFFER:: Multisample framebuffer is not complete!" << std::endl;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+	unsigned int offlineFBO;
+	glGenFramebuffers(1, &offlineFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, offlineFBO);
+	// create a color attachment texture
+	unsigned int offlineTexture;
+	glGenTextures(1, &offlineTexture);
+	glBindTexture(GL_TEXTURE_2D, offlineTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, offlineTexture, 0);
+
+	unsigned int offlineRBO;
+	glGenRenderbuffers(1, &offlineRBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, offlineRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, offlineRBO);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Intermediate framebuffer is not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 
 	unsigned int intermediateFBO;
@@ -145,40 +181,41 @@ int main() {
     { 
         GLuint texture = textSceneName.activateChar(textureCounter);
 
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         // Set transformation matrices		
         shader.use();
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		// Clear buffers
-		/*glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);*/
-		
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-		glBindVertexArray(textureVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
-        
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        glBlitFramebuffer(0, 0, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-		/*
+		glBindFramebuffer(GL_FRAMEBUFFER, offlineFBO);
+		glClearColor(0.1f, 0.1f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(0);
+
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDisable(GL_DEPTH_TEST);
 
-		shaderScreen.use();
-		glUniform1i(glGetUniformLocation(shaderScreen.getId(), "screenTexture"), 0);
+		shaderFXAA.use();
+		glUniform2i(glGetUniformLocation(shaderFXAA.getId(), "inverseScreenSize"), 1 / WIDTH, 1 / HEIGHT);
+		glUniform1i(glGetUniformLocation(shaderFXAA.getId(), "screenTexture"), 0);
+		//glUniform1i(glGetUniformLocation(shaderScreen.getId(), "samples"), samples);
 		glBindVertexArray(screenRectVAO);
 		glActiveTexture(GL_TEXTURE0);		
-		glBindTexture(GL_TEXTURE_2D, screenTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 6);*/
+		//glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, multisampleTexture);
+		glBindTexture(GL_TEXTURE_2D, offlineTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 		
+
+		
+
         // Swap the buffers
         window.display();
         sf::Event e;
@@ -190,12 +227,12 @@ int main() {
                 if(e.key.code == sf::Keyboard::Q) {
                     msaa = !msaa;
                     printf("Switch %d\n", msaa);
-                    if (msaa) {
+                    /*if (msaa) {
                         glDisable(GL_MULTISAMPLE);
                     }
                     else {
                         glEnable(GL_MULTISAMPLE);
-                    }
+                    }*/
                 }
                 if(e.key.code == sf::Keyboard::W) {
                     textureCounter++;
