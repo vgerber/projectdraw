@@ -1,0 +1,48 @@
+#version 330 core
+
+out vec4 color;
+
+in vec2 TexCoords;
+
+uniform sampler2D edgeTexture;
+
+uniform vec2 screenSize;
+
+const int maxSearchLength = 10;
+
+void main() {
+    vec4 texelStep = vec4(1.0 / screenSize.x, 1.0 / screenSize.y, screenSize.x, screenSize.y);
+    vec2 edge = texture(edgeTexture, TexCoords).rg;
+    vec2 distance = vec2(0.0);
+
+    if(length(edge.xy) == 0.0) {
+        discard;
+    }
+    distance = vec2(maxSearchLength);
+    for(int i = 0; i < maxSearchLength; i++) {
+        vec2 edgeTop    = texture(edgeTexture, TexCoords + vec2(0.0, texelStep.y) * i).rg;
+        vec2 edgeBottom = texture(edgeTexture, TexCoords - vec2(0.0, texelStep.y) * i).rg;
+        if(edgeTop.y != 0.0) {
+            distance.y = i;
+            break;
+        }
+        if(edgeBottom.y != 0.0) {
+            distance.y = -i;
+            break;
+        }
+    }
+    for(int i = 0; i < maxSearchLength; i++) {
+        vec2 edgeRight = texture(edgeTexture, TexCoords + vec2(texelStep.x, 0.0f) * i).rg;
+        vec2 edgeLeft  = texture(edgeTexture, TexCoords - vec2(texelStep.x, 0.0f) * i).rg;
+        if(edgeRight.x != 0.0) {
+            distance.x = i;
+            break;
+        }
+        if(edgeLeft.x != 0.0) { 
+            distance.x = -i;
+            break;
+        }
+    }
+
+    color = vec4(distance, 0.0, 1.0);
+}

@@ -1,0 +1,35 @@
+#version 330 core
+
+out vec4 color;
+
+
+in vec2 TexCoord;
+in vec2 PixCoord;
+in vec4 offset[3];
+in vec4 svPosition;
+
+
+uniform sampler2D edgeTexture;
+uniform sampler2D areaTexture;
+uniform sampler2D searchTexture;
+
+
+vec4 SMAABlendingWeightCalculationPS(vec2 texcoord,
+                                       vec2 pixcoord,
+                                       vec4 offset[3],
+                                       sampler2D edgesTex, 
+                                       sampler2D areaTex, 
+                                       sampler2D searchTex,
+                                       ivec4 subsampleIndices);
+
+void main() {
+    color = SMAABlendingWeightCalculationPS(
+        TexCoord,
+        PixCoord,
+        offset,
+        edgeTexture,
+        areaTexture,
+        searchTexture,
+        ivec4(0)
+    );
+}

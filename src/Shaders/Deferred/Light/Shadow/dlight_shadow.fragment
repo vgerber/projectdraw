@@ -46,7 +46,20 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 fragPos, float
 		shadow = ShadowDirCalculationPCF(light, fragPos, depth,  bias);
 	}
 
-	return (ambient + (1.0 - shadow) * (diffuse + specular));
+
+	vec3 outcolor = (ambient + (1.0 - shadow) * (diffuse + specular));
+	float strength = 0.0;
+	if(depth <= 0.2) {
+		outcolor += vec3(strength, 0.0, 0.0);
+	}
+	else if(depth <= 0.5) {
+		outcolor += vec3(0.0, strength, 0.0);
+	}
+	else {
+		outcolor += vec3(0.0, 0.0, strength);
+	}
+
+	return outcolor;
 
 
 }
@@ -56,10 +69,10 @@ float ShadowDirCalculation(DirLight light, vec3 fragPos, float depth, float bias
 	int shadowMapIndex = 0;
 
 
-	if(depth <= 0.33) {
+	if(depth <= 0.15) {
 		shadowMapIndex = 0;
 	}
-	else if(depth <= 0.66) {
+	else if(depth <= 0.5) {
 		shadowMapIndex = 1;
 	}
 	else {

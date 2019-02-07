@@ -27,7 +27,7 @@ int main() {
 
 	
 	PerspectiveCamera camera;
-	camera.setClipping(camera.getClippingNear(), 200.0f);
+	camera.setClipping(camera.getClippingNear(), 60.0f);
 	camera.setSize(WIDTH, HEIGHT);
 	camera.setPosition(glm::vec3(-4.0f, 0.0f, 2.0f));
 	{
@@ -113,13 +113,14 @@ int main() {
 
 	Font font(ResourceManager::GetPath("/Fonts/VeraMono.ttf").c_str(), 400);
 	Text textSceneName(font);
-	textSceneName.settings.useLight = false;
+	textSceneName.settings.useLight = true;
 	textSceneName.setText("3D Example");
 	textSceneName.setPosition(0.0f, 1.0f, 4.0f);
-	textSceneName.scale(glm::vec3(0.005f));
+	//textSceneName.scale(glm::vec3(0.005f));
+	textSceneName.scaleToHeight(2.0f);
 	textSceneName.rotate(Rotator(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
-	//textSceneName.settings.useCustomColor = true;
-	//textSceneName.settings.customColor = glm::vec4(0.4f, 0.4f, 1.0f, 1.0f);
+	textSceneName.settings.useCustomColor = true;
+	textSceneName.settings.customColor = glm::vec4(0.4f, 0.4f, 1.0f, 1.0f);
 	scene.addObject(textSceneName);
 
 
@@ -129,7 +130,7 @@ int main() {
 	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
 	sunLight.changeDirection(glm::vec3(1.0f, 1.0f, -1.0f));
 	sunLight.intensity = 1.0f;
-	sunLight.shadow = false;
+	sunLight.shadow = true;
 	scene.addObject(sunLight);
 	
 
@@ -176,7 +177,7 @@ int main() {
 	flashLight2.specular = flashLight2.diffuse;
 	flashLight2.setPosition(glm::vec3(-3.0, 2.0, 3.0));
 	flashLight2.direction = glm::normalize(-flashLight2.getPosition());
-	flashLight2.intensity = 0.3;
+	flashLight2.intensity = 2.0;
 	flashLight2.shadow = false;
 	scene.addObject(flashLight2);
 	

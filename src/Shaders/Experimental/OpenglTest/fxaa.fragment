@@ -55,6 +55,19 @@ void main() {
 
     if(lumaRange < max(EDGE_THRESHOLD_MIN, lumaMax * EDGE_THRESHOLD_MAX)) {
         fragColor = vec4(colorCenter, alpha);
+        fragColor = vec4(1.0);
+        return;
+    }
+    else {
+        vec4 color;
+        int size = 4;
+        for(int i = -size; i <= size; i++) {
+            for(int j = -size; j <= size; j++) {
+                color += vec4(texture(screenTexture, TexCoords + vec2(i, j)).rgb, 1.0);
+            }
+        }
+        fragColor = color / ((size + 1) * (size + 1));
+        //fragColor = vec4(1.0, 0.0, 0.0, 1.0);
         return;
     }
 

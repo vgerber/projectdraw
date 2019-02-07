@@ -32,7 +32,7 @@ void DeferredRenderer::render()
 
 	applyAntialias();
 
-	//applyHDR();
+	applyHDR();
 }
 
 void DeferredRenderer::addSceneObject(SceneObject & sceneObject)
@@ -409,7 +409,7 @@ void DeferredRenderer::renderDrawable(Drawable * drawable, DrawType drawType) {
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		glDepthMask(GL_FALSE);
 
-		renderDrawableRaw(drawable, settings.xrayDrawType);
+		renderDrawableRaw(drawable, shaderBasic, settings.xrayDrawType);
 
 		//draw to all pixels with stencil equals 1 and reset it to zero
 		glStencilFunc(GL_EQUAL, 1, 0xFF);
@@ -418,7 +418,7 @@ void DeferredRenderer::renderDrawable(Drawable * drawable, DrawType drawType) {
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 		glDisable(GL_DEPTH_TEST);
-		renderDrawableRaw(drawable, settings.xrayDrawType);
+		renderDrawableRaw(drawable, shaderBasic, settings.xrayDrawType);
 
 		glEnable(GL_DEPTH_TEST);
 	}
@@ -437,7 +437,7 @@ void DeferredRenderer::renderDrawable(Drawable * drawable, DrawType drawType) {
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		glDepthMask(GL_FALSE);
 
-		renderDrawableRaw(drawable, DrawType::TRIANGLEG);
+		renderDrawableRaw(drawable, shaderBasic, DrawType::TRIANGLEG);
 
 
 		Size outlineSize;
@@ -461,7 +461,7 @@ void DeferredRenderer::renderDrawable(Drawable * drawable, DrawType drawType) {
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		glDepthMask(GL_TRUE);
 
-		renderDrawableRaw(drawable, DrawType::TRIANGLEG);
+		renderDrawableRaw(drawable, shaderBasic, DrawType::TRIANGLEG);
 
 		drawable->setPosition(oldPosition);
 		drawable->scale(oldScale);
@@ -477,19 +477,21 @@ void DeferredRenderer::renderDrawable(Drawable * drawable, DrawType drawType) {
 	glStencilMask(0xFF);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDepthMask(GL_TRUE);
-	renderDrawableRaw(drawable, settings.drawType);
+	renderDrawableRaw(drawable, shaderBasic, settings.drawType);
 }
 
-void DeferredRenderer::renderDrawableRaw(Drawable * drawable, DrawType drawType) {
+void DeferredRenderer::renderDrawableRaw(Drawable * drawable, Shader shader,  DrawType drawType) {
 	if(drawable) {
-		glUniformMatrix4fv(glGetUniformLocation(shaderBasic.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getWorldTransform().getMatrix()));
-		glUniformMatrix4fv(glGetUniformLocation(shaderBasic.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(drawable->getMVPMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getWorldTransform().getMatrix()));
+		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"),   1, GL_FALSE, glm::value_ptr(drawable->getMVPMatrix()));
 
-		glUniform1i(glGetUniformLocation(shaderBasic.getId(), "diffuseTexture"), 0);
-		glUniform1i(glGetUniformLocation(shaderBasic.getId(), "specularTexture"), 1);
+		glUniform1i(glGetUniformLocation(shader.getId(), "alphaTexture"),    0);
+		glUniform1i(glGetUniformLocation(shader.getId(), "diffuseTexture"),  1);
+		glUniform1i(glGetUniformLocation(shader.getId(), "specularTexture"), 2);
 		if(Text * textObject = dynamic_cast<Text*>(drawable)) {
-			glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableDiffuseTexture"), 1);
-			glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableSpecularTexture"), 0);
+			glUniform1i(glGetUniformLocation(shader.getId(), "enableAlphaTexture"),    1);
+			glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"),  0);
+			glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), 0);
 			for(int i = 0; i < textObject->getText().size(); i++) {
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, textObject->activateChar(i));
@@ -497,13 +499,14 @@ void DeferredRenderer::renderDrawableRaw(Drawable * drawable, DrawType drawType)
 			}
 		}
 		else {
-			glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableDiffuseTexture"), 0);
-			glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableSpecularTexture"), 0);
+			glUniform1i(glGetUniformLocation(shader.getId(), "enableAlphaTexture"),    0);
+			glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"),  0);
+			glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), 0);
 			drawable->draw(drawType);
 		}
 
 		for(auto child : drawable->getChildren()) {
-			renderDrawableRaw(dynamic_cast<Drawable*>(child), drawType);
+			renderDrawableRaw(dynamic_cast<Drawable*>(child), shader, drawType);
 		}
 	}
 }
@@ -550,8 +553,8 @@ void DeferredRenderer::renderLight()
 	*/
 
 	//sort spot- and pointlights for shadow pipeline
-	std::sort(pointLights.begin(), pointLights.end(), SortPointLights(camera->getPosition()));
-	std::sort(spotLights.begin(), spotLights.end(), SortSpotLights(camera->getPosition()));
+	std::sort(pointLights.begin(), pointLights.end(), SortPointLights(camera->getWorldTransform().getTranslation()));
+	std::sort(spotLights.begin(), spotLights.end(), SortSpotLights(camera->getWorldTransform().getTranslation()));
 	
 	
 
@@ -567,7 +570,7 @@ void DeferredRenderer::renderLight()
 
 			for (auto drawable : objects)
 			{
-				renderDrawableRaw(drawable, DrawType::TRIANGLEG);
+				renderDrawableRaw(drawable, directionalLight->getShaderShadow(), DrawType::TRIANGLEG);
 			}
 			directionalLight->endShadowMapping();
 		}
@@ -596,10 +599,10 @@ void DeferredRenderer::renderLight()
 				plight->beginShadowMapping();
 				for (auto drawable : objects)
 				{
-					if(glm::length(drawable->getPosition() - plight->getPosition()) < plight->getDistance()) {
+					if(glm::length(drawable->getWorldTransform().getTranslation() - plight->getWorldTransform().getTranslation()) < plight->getDistance()) {
 						//draw each drawable to depth buffer if it is within the distance of the light and apply 
 						//the corresponding depth shader
-						renderDrawableRaw(drawable, DrawType::TRIANGLEG);
+						renderDrawableRaw(drawable, plight->getShaderShadow(), DrawType::TRIANGLEG);
 					}
 				}
 				plight->endShadowMapping();
@@ -631,10 +634,10 @@ void DeferredRenderer::renderLight()
 				slight->beginShadowMapping();
 				for (auto drawable : objects)
 				{
-					if(slight->getDistance() > glm::length(drawable->getPosition() - slight->getPosition())) {
+					if(slight->getDistance() > glm::length(drawable->getWorldTransform().getTranslation() - slight->getWorldTransform().getTranslation())) {
 						//draw each drawable to depth buffer if it is within the distance of the light and apply 
 						//the corresponding depth shader
-						renderDrawableRaw(drawable, DrawType::TRIANGLEG);
+						renderDrawableRaw(drawable, slight->getShaderShadow(), DrawType::TRIANGLEG);
 					}
 				}
 				slight->endShadowMapping();
@@ -648,9 +651,7 @@ void DeferredRenderer::renderLight()
 	}
 
 
-	glm::vec3 viewPos = camera->getPosition();
-
-	
+	glm::vec3 viewPos = camera->getWorldTransform().getTranslation();	
 
 	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
 	glViewport(0, 0, getWidth(), getHeight());
@@ -1032,7 +1033,7 @@ void DeferredRenderer::applyHDR()
 
 	shaderHDR.use();
 
-	glUniform1i(glGetUniformLocation(shaderFXAA.getId(), "screenTexture"), 0);
+	glUniform1i(glGetUniformLocation(shaderHDR.getId(), "screenTexture"), 0);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);

@@ -73,6 +73,20 @@ namespace ShaderName {
 			const std::string Basic = "ExperimentalOpenglTestBasic";
 			const std::string BasicPostProcessing = "ExperimentalOpenglTestBasicPostProcessing";
 			const std::string FXAA = "ExperimentalOpenglTestFXAA";
+			const std::string Texture = "ExperimentalOpenglTestTexture";
+
+			namespace SMAA {
+				const std::string EdgeLuma = "ExperimentalOpenglTestSMAAEdgeLuma";
+				const std::string BlendingWeight = "ExperimentalOpenglTestSMAABlendingWeight";
+				const std::string Blending = "ExperimentalOpenglTestSMAABlending";
+			}
+
+			namespace MLAA {
+				const std::string Edge = "ExperimentalOpenglTestMLAAEdge";
+				const std::string Distance = "ExperimentalOpenglTestMLAADistance";
+				const std::string Area = "ExperimentalOpenglTestMLAAArea";
+				const std::string Blend = "ExperimentalOpenglTestMLAABlend";
+			}
 		}
 	}
 }

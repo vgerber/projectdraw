@@ -5,10 +5,15 @@
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
 
+#include "Shaders/Experimental/OpenglTest/SMAA/AreaTex.h"
+#include "Shaders/Experimental/OpenglTest/SMAA/SearchTex.h"
+
 const int WIDTH = 1000;
 const int HEIGHT = 1000;
 
 const int samples = 4;
+
+
 
 int main() {
 
@@ -33,14 +38,22 @@ int main() {
     // Setup and compile our shaders
     Shader shader = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::Basic);
 	Shader shaderScreen = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::BasicPostProcessing);
-	Shader shaderFXAA = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::FXAA);
+	Shader shaderTexture = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::Texture);
+	Shader shaderMLAAEdge = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::MLAA::Edge);
+	Shader shaderMLAADistance = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::MLAA::Distance);
+	Shader shaderMLAAArea = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::MLAA::Area);
+	Shader shaderMLAABlend = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::MLAA::Blend);
+
+	Shader shaderSMAAEdgeLuma = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::SMAA::EdgeLuma);
+	Shader shaderSMAABlendingWeight = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::SMAA::BlendingWeight);
+	Shader shaderSMAABlending = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::SMAA::Blending);
 
     #pragma region "object_initialization"
     // Set the object data (buffers, vertex attributes)
     GLfloat cubeVertices[] = {
         // Positions       
         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-         0.5f, -0.2f, 0.0f, 1.0f, 0.0f,
+         0.5f,  -0.4f, 0.0f, 1.0f, 0.0f,
          0.5f,  0.8f, 0.0f, 1.0f, 1.0f
     };
 
@@ -168,8 +181,86 @@ int main() {
 
     bool msaa = true;
 
+	unsigned int smaaFBO;
+	glGenFramebuffers(1, &smaaFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, smaaFBO);
+	// create a color attachment texture
+	unsigned int smaaTexture;
+	glGenTextures(1, &smaaTexture);
+	glBindTexture(GL_TEXTURE_2D, smaaTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, smaaTexture, 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Intermediate framebuffer is not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    unsigned int smaaEdgeTexture;
+	glGenTextures(1, &smaaEdgeTexture);
+	glBindTexture(GL_TEXTURE_2D, smaaEdgeTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    unsigned int smaaBlendTexture;
+	glGenTextures(1, &smaaBlendTexture);
+	glBindTexture(GL_TEXTURE_2D, smaaBlendTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	FILE * f = 0;
+	f = fopen((ROOT_DIR + "/Shaders/Experimental/OpenglTest/SMAA/smaa_area.raw").c_str(), "rb");
+	if(!f) {
+		printf("Error loading smaa_area.raw\n");
+		exit(1);
+	}
+
+	unsigned char * buffer = 0;
+	buffer = new unsigned char[1024 * 1024];
+	fread(buffer, AREATEX_SIZE, 1, f);
+	fclose(f);
+	f = 0;
 
 
+
+	unsigned int smaaAreaTexture;
+	glGenTextures(1, &smaaAreaTexture);
+	glBindTexture(GL_TEXTURE_2D, smaaAreaTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, AREATEX_WIDTH, AREATEX_HEIGHT, 0, GL_RG, GL_UNSIGNED_BYTE, buffer);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+	f = fopen((ROOT_DIR + "/Shaders/Experimental/OpenglTest/SMAA/smaa_search.raw").c_str(), "rb");
+	if(!f) {
+		printf("Error loading smaa_search.raw\n");
+		exit(1);
+	}
+
+	fread(buffer, SEARCHTEX_SIZE, 1, f);
+	fclose(f);
+	f = 0;
+
+
+	unsigned int smaaSearchTexture;
+	glGenTextures(1, &smaaSearchTexture);
+	glBindTexture(GL_TEXTURE_2D, smaaSearchTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, 0, GL_RED, GL_UNSIGNED_BYTE, &searchTexBytes);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	delete[] buffer;
 
     Font font(ResourceManager::GetPath("/Fonts/VeraMono.ttf").c_str(), 400);
 	Text textSceneName(font);
@@ -189,7 +280,7 @@ int main() {
 		// Clear buffers
 
 		glBindFramebuffer(GL_FRAMEBUFFER, offlineFBO);
-		glClearColor(0.1f, 0.1f, 1.0f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		
@@ -197,21 +288,99 @@ int main() {
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
 
+		//smaa
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, smaaFBO);
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+			glDisable(GL_BLEND);
+			
+			//smaa edge detection
+			{
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				glClear(GL_COLOR_BUFFER_BIT);
+				shaderSMAAEdgeLuma.use();
+				//glUniform2f(glGetUniformLocation(shaderSMAAEdgeLuma.getId(), "screenSize"), 1.0f / WIDTH, 1.0f / HEIGHT);
+				glUniform1i(glGetUniformLocation(shaderSMAAEdgeLuma.getId(), "albedoTexture"), 0);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, offlineTexture);
+				glBindVertexArray(screenRectVAO);
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+				glCopyTextureSubImage2D(smaaEdgeTexture, 0, 0, 0, 0, 0, WIDTH, HEIGHT);
+			}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glDisable(GL_DEPTH_TEST);
+			//smaa weight calculation
+			{
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				glClear(GL_COLOR_BUFFER_BIT);
+				shaderSMAABlendingWeight.use();
+				glUniform1i(glGetUniformLocation(shaderSMAABlendingWeight.getId(), "edgeTexture"), 0);
+				glUniform1i(glGetUniformLocation(shaderSMAABlendingWeight.getId(), "areaTexture"), 1);
+				glUniform1i(glGetUniformLocation(shaderSMAABlendingWeight.getId(), "searchTexture"), 2);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, smaaEdgeTexture);
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, smaaAreaTexture);
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, smaaSearchTexture);
+				glBindVertexArray(screenRectVAO);
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+				glCopyTextureSubImage2D(smaaBlendTexture, 0, 0, 0, 0, 0, WIDTH, HEIGHT);
+			}
+			//smaa blending
+			{	
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				glClear(GL_COLOR_BUFFER_BIT);
+				shaderSMAABlending.use();
+				glUniform1i(glGetUniformLocation(shaderSMAABlending.getId(), "albedoTexture"), 0);
+				glUniform1i(glGetUniformLocation(shaderSMAABlending.getId(), "blendTexture"), 1);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, offlineTexture);
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, smaaBlendTexture);
+				glBindVertexArray(screenRectVAO);
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+			}
 
-		shaderFXAA.use();
-		glUniform2i(glGetUniformLocation(shaderFXAA.getId(), "inverseScreenSize"), 1 / WIDTH, 1 / HEIGHT);
-		glUniform1i(glGetUniformLocation(shaderFXAA.getId(), "screenTexture"), 0);
-		//glUniform1i(glGetUniformLocation(shaderScreen.getId(), "samples"), samples);
-		glBindVertexArray(screenRectVAO);
-		glActiveTexture(GL_TEXTURE0);		
-		//glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, multisampleTexture);
-		glBindTexture(GL_TEXTURE_2D, offlineTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, smaaFBO);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+			glBlitFramebuffer(0, 0, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		}
+
+
+		/*
+		{
+			shaderScreen.use();
+			glUniform1i(glGetUniformLocation(shaderScreen.getId(), "samples"), samples);
+			glBindVertexArray(screenRectVAO);
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, multisampleTexture);
+			glBindTexture(GL_TEXTURE_2D, offlineTexture);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+		*/
+
+/*
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			shaderTexture.use();
+			glUniform1i(glGetUniformLocation(shaderTexture.getId(), "tex"), 0);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, smaaSearchTexture);
+			glBindVertexArray(screenRectVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+*/
+		
+		
+		
+		
+		
+
 		
 
 		
@@ -227,12 +396,12 @@ int main() {
                 if(e.key.code == sf::Keyboard::Q) {
                     msaa = !msaa;
                     printf("Switch %d\n", msaa);
-                    /*if (msaa) {
+                    if (msaa) {
                         glDisable(GL_MULTISAMPLE);
                     }
                     else {
                         glEnable(GL_MULTISAMPLE);
-                    }*/
+                    }
                 }
                 if(e.key.code == sf::Keyboard::W) {
                     textureCounter++;

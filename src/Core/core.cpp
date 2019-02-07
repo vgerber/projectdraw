@@ -22,7 +22,7 @@ void initCore() {
 
 	//glEnable(GL_MULTISAMPLE);
 
-	glEnable(GL_FRAMEBUFFER_SRGB);
+	//glEnable(GL_FRAMEBUFFER_SRGB);
 
 
 	glEnable(GL_LINE_SMOOTH);
@@ -262,6 +262,76 @@ void loadExperimentalShaders() {
 	};
 	shaderOpenglTestFXAA.load();
 	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::FXAA, shaderOpenglTestFXAA);
+
+	Shader shaderOpenglTestBasicTexture;
+	shaderOpenglTestBasicTexture.layers = {
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/texture.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderOpenglTestBasicTexture.load();
+	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::Texture, shaderOpenglTestBasicTexture);
+
+	Shader shaderOpenglTestSMAAEdgeLuma;
+	shaderOpenglTestSMAAEdgeLuma.layers = {
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_edge.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_edge.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderOpenglTestSMAAEdgeLuma.load();
+	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::SMAA::EdgeLuma, shaderOpenglTestSMAAEdgeLuma);
+
+	Shader shaderOpenglTestSMAABlendingWeight;
+	shaderOpenglTestSMAABlendingWeight.layers = {
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_weight.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_weight.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderOpenglTestSMAABlendingWeight.load();
+	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::SMAA::BlendingWeight, shaderOpenglTestSMAABlendingWeight);
+
+	Shader shaderOpenglTestSMAABlending;
+	shaderOpenglTestSMAABlending.layers = {
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_blend.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_blend.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderOpenglTestSMAABlending.load();
+	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::SMAA::Blending, shaderOpenglTestSMAABlending);
+
+	Shader shaderOpenglTestMLAAEdge;
+	shaderOpenglTestMLAAEdge.layers = {
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_edge.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderOpenglTestMLAAEdge.load();
+	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::MLAA::Edge, shaderOpenglTestMLAAEdge);
+
+	Shader shaderOpenglTestMLAADistance;
+	shaderOpenglTestMLAADistance.layers = {
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_distance.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderOpenglTestMLAADistance.load();
+	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::MLAA::Distance, shaderOpenglTestMLAADistance);
+
+	Shader shaderOpenglTestMLAAArea;
+	shaderOpenglTestMLAAArea.layers = {
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_area.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderOpenglTestMLAAArea.load();
+	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::MLAA::Area, shaderOpenglTestMLAAArea);
+
+	Shader shaderOpenglTestMLAABlend;
+	shaderOpenglTestMLAABlend.layers = {
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_blend.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderOpenglTestMLAABlend.load();
+	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::MLAA::Blend, shaderOpenglTestMLAABlend);
 }
 
 void clearScreen(glm::vec4 color) {

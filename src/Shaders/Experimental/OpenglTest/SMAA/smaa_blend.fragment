@@ -1,0 +1,20 @@
+#version 330 core
+
+out vec4 color;
+
+in vec2 TexCoord;
+in vec4 offset[2];
+in vec4 svPosition;
+
+uniform sampler2D albedoTexture;
+uniform sampler2D blendTexture;
+
+vec4 SMAANeighborhoodBlendingPS(vec2 texcoord,
+                                  vec4 offset[2],
+                                  sampler2D colorTex,
+                                  sampler2D blendTex);
+
+
+void main() {
+    color = SMAANeighborhoodBlendingPS(TexCoord, offset, albedoTexture, blendTexture);
+}

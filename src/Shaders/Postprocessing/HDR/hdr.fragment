@@ -6,18 +6,16 @@ in vec2 TexCoords;
 
 uniform sampler2D screenTexture;
 uniform float exposure = 1.0;
-uniform float gamma = 1.1;
+uniform float gamma = 2.2;
 
 void main() {
     vec4 texColor = texture(screenTexture, TexCoords).rgba;
-    color = texColor;
-    return;
+    //color = texColor;
+    //return;
 
     //inverting color??
 	vec3 hdrColor = texColor.rgb;
-	vec3 mapped = vec3(1.0) - exp(-hdrColor * 1.0);
-	mapped = pow(mapped, vec3(1.0 / 2.2));
-	color = vec4(mapped, texColor.a);
-
-
+	vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
+	mapped = pow(mapped, vec3(1.0 / gamma));
+	color = vec4(mapped, 1.0);
 }

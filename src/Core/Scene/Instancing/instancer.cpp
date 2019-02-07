@@ -51,7 +51,7 @@ void Instancer::resize() {
 	std::vector<Mesh*> meshes = model->getMeshes();
 	for (size_t i = 0; i < meshes.size(); i++) {
 		Mesh * mesh = meshes[i];
-		GLuint VAO = mesh->getVAO();
+		GLuint VAO = mesh->;
 		glBindVertexArray(VAO);
 
 		// set attribute pointers for matrix (4 times vec4)

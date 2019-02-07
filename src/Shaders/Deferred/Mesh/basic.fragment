@@ -22,21 +22,32 @@ uniform vec4 customColor = vec4(1.0);
 
 uniform float glow = 0.0;
 
-uniform float alphaDiscardThreshold = 0.1;
+uniform float alphaDiscardThreshold = 0.4;
 
+uniform int enableAlphaTexture = 0;
 uniform int enableDiffuseTexture = 0;
 uniform int enableSpecularTexture = 0;
 
+uniform sampler2D alphaTexture;
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
 
 void main() {
 	vec3 normal = normalize(fs_in.Normal);
- 
+
+
+	//discard pixels which are below the alpha threshold
+	if(enableAlphaTexture == 1) {
+		if(texture(alphaTexture, fs_in.TexCoords).r <= alphaDiscardThreshold) {
+			discard;
+		}
+	}
+
 	vec4 albedoColor;
+
 	//set color from texture (if not enabled color will be vertex color or custom set color)
 	if(enableDiffuseTexture == 1) {
-		albedoColor = vec4(1.0, 0.0, 0.0, texture(diffuseTexture, fs_in.TexCoords).r);
+		albedoColor = texture(diffuseTexture, fs_in.TexCoords);
 		if(albedoColor.a <= alphaDiscardThreshold) {
 			discard;
 		}

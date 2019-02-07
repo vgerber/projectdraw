@@ -54,6 +54,7 @@ int main() {
     sunLight.diffuse = glm::vec3(1.0f, 1.0f, 0.8f);
     sunLight.ambient = sunLight.diffuse * 0.5f;
     sunLight.shadow = true;
+    sunLight.intensity = 1.0f;
     mainScene.addObject(sunLight);
     
     

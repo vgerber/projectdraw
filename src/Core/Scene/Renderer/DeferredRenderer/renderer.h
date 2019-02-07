@@ -217,7 +217,7 @@ protected:
 	virtual void renderDrawable(Drawable * drawable, DrawType drawType = DrawType::TRIANGLEG);
 
 	///Draw drawable as plain geometry (without features)
-	virtual void renderDrawableRaw(Drawable * drawable, DrawType drawType = DrawType::TRIANGLEG);
+	virtual void renderDrawableRaw(Drawable * drawable, Shader shader, DrawType drawType = DrawType::TRIANGLEG);
 
 	///Draw with instancing
 	//virtual void drawInstancing(int amount, DrawType drawType = DrawType::TRIANGLEG);
