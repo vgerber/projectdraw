@@ -10,20 +10,38 @@
 
 #include <string>
 
+
+enum TextureFormat {
+	R,
+	RG,
+	RGB,
+	RGBA
+};
+
+enum TextureDataType {
+	UByte,
+	Float,
+	Int,
+
+};
+
 class Texture {
 public:
 	Texture();
 	Texture(const char * path);
+	Texture(void * data, int width, int height, TextureFormat format, TextureDataType dataType);
 
-	virtual GLuint getGLTexture();
+	virtual GLuint getGLTexture() const;
 
-	int getWidth();
-	int getHeight();
-	int getChannelsCount();
+	int getWidth() const;
+	int getHeight() const;
+	int getChannelsCount() const;
+	TextureFormat getFormat();
+	TextureDataType getDataType();
 
 	virtual void activate(int textureOffset = 0);
 
-	void dispose();
+	virtual void dispose();
 protected:
 	GLuint texture;
 	std::string name;

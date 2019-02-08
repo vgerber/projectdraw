@@ -1,14 +1,11 @@
 #pragma once
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "Core/Texture/texture.h"
 
-#include <glm/glm.hpp>
+class Filter {	
+public:
+	virtual void resize(int width, int height) = 0;
+	virtual void clear() = 0;
+	virtual void dispose() = 0;
+	virtual void setup() = 0;
+};
 
-namespace texture {
-
-	class Filter {
-		void apply();
-	};
-
-}

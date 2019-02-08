@@ -8,7 +8,7 @@
 #include "Shaders/Experimental/OpenglTest/SMAA/AreaTex.h"
 #include "Shaders/Experimental/OpenglTest/SMAA/SearchTex.h"
 
-const int WIDTH = 1000;
+const int WIDTH = 1800;
 const int HEIGHT = 1000;
 
 const int samples = 4;
@@ -39,10 +39,6 @@ int main() {
     Shader shader = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::Basic);
 	Shader shaderScreen = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::BasicPostProcessing);
 	Shader shaderTexture = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::Texture);
-	Shader shaderMLAAEdge = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::MLAA::Edge);
-	Shader shaderMLAADistance = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::MLAA::Distance);
-	Shader shaderMLAAArea = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::MLAA::Area);
-	Shader shaderMLAABlend = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::MLAA::Blend);
 
 	Shader shaderSMAAEdgeLuma = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::SMAA::EdgeLuma);
 	Shader shaderSMAABlendingWeight = ResourceManager::loadShader(ShaderName::Experimental::OpenglTest::SMAA::BlendingWeight);
@@ -54,7 +50,7 @@ int main() {
         // Positions       
         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
          0.5f,  -0.4f, 0.0f, 1.0f, 0.0f,
-         0.5f,  0.8f, 0.0f, 1.0f, 1.0f
+         0.0f,  0.8f, 0.0f, 1.0f, 1.0f
     };
 
 	GLfloat screenRectangle[] = {
@@ -114,30 +110,6 @@ int main() {
 	glBindVertexArray(0);
     #pragma endregion
 	
-    unsigned int multisampleFBO;
-    glGenFramebuffers(1, &multisampleFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, multisampleFBO);
-
-    
-    unsigned int multisampleTexture;
-    glGenTextures(1, &multisampleTexture);
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, multisampleTexture);
-    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, WIDTH, HEIGHT, GL_TRUE);
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, multisampleTexture, 0);
-
-    unsigned int rbo;
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
-    //glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-	
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "ERROR::FRAMEBUFFER:: Multisample framebuffer is not complete!" << std::endl;
-	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 
 	unsigned int offlineFBO;
 	glGenFramebuffers(1, &offlineFBO);
@@ -146,7 +118,7 @@ int main() {
 	unsigned int offlineTexture;
 	glGenTextures(1, &offlineTexture);
 	glBindTexture(GL_TEXTURE_2D, offlineTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, offlineTexture, 0);
@@ -162,24 +134,9 @@ int main() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-
-	unsigned int intermediateFBO;
-	glGenFramebuffers(1, &intermediateFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, intermediateFBO);
-	// create a color attachment texture
-	unsigned int screenTexture;
-	glGenTextures(1, &screenTexture);
-	glBindTexture(GL_TEXTURE_2D, screenTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTexture, 0);	// we only need a color buffer
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Intermediate framebuffer is not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     bool msaa = true;
+
+	GLenum modes[] = { GL_COLOR_ATTACHMENT0 };
 
 	unsigned int smaaFBO;
 	glGenFramebuffers(1, &smaaFBO);
@@ -188,10 +145,11 @@ int main() {
 	unsigned int smaaTexture;
 	glGenTextures(1, &smaaTexture);
 	glBindTexture(GL_TEXTURE_2D, smaaTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, smaaTexture, 0);
+	glDrawBuffers(1, modes);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Intermediate framebuffer is not complete!" << std::endl;
@@ -201,8 +159,8 @@ int main() {
 	glGenTextures(1, &smaaEdgeTexture);
 	glBindTexture(GL_TEXTURE_2D, smaaEdgeTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -210,58 +168,31 @@ int main() {
 	glGenTextures(1, &smaaBlendTexture);
 	glBindTexture(GL_TEXTURE_2D, smaaBlendTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	FILE * f = 0;
-	f = fopen((ROOT_DIR + "/Shaders/Experimental/OpenglTest/SMAA/smaa_area.raw").c_str(), "rb");
-	if(!f) {
-		printf("Error loading smaa_area.raw\n");
-		exit(1);
-	}
-
-	unsigned char * buffer = 0;
-	buffer = new unsigned char[1024 * 1024];
-	fread(buffer, AREATEX_SIZE, 1, f);
-	fclose(f);
-	f = 0;
-
 
 
 	unsigned int smaaAreaTexture;
 	glGenTextures(1, &smaaAreaTexture);
 	glBindTexture(GL_TEXTURE_2D, smaaAreaTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, AREATEX_WIDTH, AREATEX_HEIGHT, 0, GL_RG, GL_UNSIGNED_BYTE, buffer);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, AREATEX_WIDTH, AREATEX_HEIGHT, 0, GL_RG, GL_UNSIGNED_BYTE, areaTexBytes);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-
-	f = fopen((ROOT_DIR + "/Shaders/Experimental/OpenglTest/SMAA/smaa_search.raw").c_str(), "rb");
-	if(!f) {
-		printf("Error loading smaa_search.raw\n");
-		exit(1);
-	}
-
-	fread(buffer, SEARCHTEX_SIZE, 1, f);
-	fclose(f);
-	f = 0;
 
 
 	unsigned int smaaSearchTexture;
 	glGenTextures(1, &smaaSearchTexture);
 	glBindTexture(GL_TEXTURE_2D, smaaSearchTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, 0, GL_RED, GL_UNSIGNED_BYTE, &searchTexBytes);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, 0, GL_RED, GL_UNSIGNED_BYTE, searchTexBytes);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	delete[] buffer;
-
+	
     Font font(ResourceManager::GetPath("/Fonts/VeraMono.ttf").c_str(), 400);
 	Text textSceneName(font);
     textSceneName.setText("Experimental 3D");
@@ -280,7 +211,7 @@ int main() {
 		// Clear buffers
 
 		glBindFramebuffer(GL_FRAMEBUFFER, offlineFBO);
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(0.0f, 1.0f, 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		
@@ -346,7 +277,7 @@ int main() {
 
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, smaaFBO);
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-			glBlitFramebuffer(0, 0, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			glBlitFramebuffer(0, 0, WIDTH, HEIGHT, 0, 0, WIDTH, HEIGHT, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		}
 
 
@@ -361,7 +292,7 @@ int main() {
 		}
 		*/
 
-/*
+		if(msaa)
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -370,19 +301,10 @@ int main() {
 			shaderTexture.use();
 			glUniform1i(glGetUniformLocation(shaderTexture.getId(), "tex"), 0);
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, smaaSearchTexture);
+			glBindTexture(GL_TEXTURE_2D, offlineTexture);
 			glBindVertexArray(screenRectVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
-*/
-		
-		
-		
-		
-		
-
-		
-
+		}		
 		
 
         // Swap the buffers

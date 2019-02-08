@@ -36,24 +36,38 @@ Texture::Texture(const char * path)
 	
 }
 
-GLuint Texture::getGLTexture()
+Texture::Texture(void * data, int width, int height, TextureFormat format, TextureDataType dataType)
+{
+}
+
+GLuint Texture::getGLTexture() const
 {
 	return texture;
 }
 
-int Texture::getWidth()
+int Texture::getWidth() const
 {
 	return width;
 }
 
-int Texture::getHeight()
+int Texture::getHeight() const
 {
 	return height;
 }
 
-int Texture::getChannelsCount()
+int Texture::getChannelsCount() const
 {
 	return nrChannels;
+}
+
+TextureFormat Texture::getFormat()
+{
+	return TextureFormat();
+}
+
+TextureDataType Texture::getDataType()
+{
+	return TextureDataType();
 }
 
 void Texture::activate(int textureOffset)

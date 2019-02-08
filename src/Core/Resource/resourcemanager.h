@@ -80,13 +80,6 @@ namespace ShaderName {
 				const std::string BlendingWeight = "ExperimentalOpenglTestSMAABlendingWeight";
 				const std::string Blending = "ExperimentalOpenglTestSMAABlending";
 			}
-
-			namespace MLAA {
-				const std::string Edge = "ExperimentalOpenglTestMLAAEdge";
-				const std::string Distance = "ExperimentalOpenglTestMLAADistance";
-				const std::string Area = "ExperimentalOpenglTestMLAAArea";
-				const std::string Blend = "ExperimentalOpenglTestMLAABlend";
-			}
 		}
 	}
 }

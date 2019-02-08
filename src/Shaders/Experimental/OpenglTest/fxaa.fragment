@@ -59,7 +59,7 @@ void main() {
         return;
     }
     else {
-        vec4 color;
+        vec4 color = vec4(0.0);
         int size = 4;
         for(int i = -size; i <= size; i++) {
             for(int j = -size; j <= size; j++) {

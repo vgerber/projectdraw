@@ -25,7 +25,7 @@ void initCore() {
 	//glEnable(GL_FRAMEBUFFER_SRGB);
 
 
-	glEnable(GL_LINE_SMOOTH);
+	//glEnable(GL_LINE_SMOOTH);
 
 	//glEnable(GL_LINE_STIPPLE);	
 	//glLineStipple(1, 0xAAAA);
@@ -300,38 +300,6 @@ void loadExperimentalShaders() {
 	};
 	shaderOpenglTestSMAABlending.load();
 	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::SMAA::Blending, shaderOpenglTestSMAABlending);
-
-	Shader shaderOpenglTestMLAAEdge;
-	shaderOpenglTestMLAAEdge.layers = {
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_texture.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_edge.fragment").c_str(), ShaderType::FRAGMENT }
-	};
-	shaderOpenglTestMLAAEdge.load();
-	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::MLAA::Edge, shaderOpenglTestMLAAEdge);
-
-	Shader shaderOpenglTestMLAADistance;
-	shaderOpenglTestMLAADistance.layers = {
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_texture.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_distance.fragment").c_str(), ShaderType::FRAGMENT }
-	};
-	shaderOpenglTestMLAADistance.load();
-	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::MLAA::Distance, shaderOpenglTestMLAADistance);
-
-	Shader shaderOpenglTestMLAAArea;
-	shaderOpenglTestMLAAArea.layers = {
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_texture.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_area.fragment").c_str(), ShaderType::FRAGMENT }
-	};
-	shaderOpenglTestMLAAArea.load();
-	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::MLAA::Area, shaderOpenglTestMLAAArea);
-
-	Shader shaderOpenglTestMLAABlend;
-	shaderOpenglTestMLAABlend.layers = {
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_texture.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/MLAA/mlaa_blend.fragment").c_str(), ShaderType::FRAGMENT }
-	};
-	shaderOpenglTestMLAABlend.load();
-	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::MLAA::Blend, shaderOpenglTestMLAABlend);
 }
 
 void clearScreen(glm::vec4 color) {
