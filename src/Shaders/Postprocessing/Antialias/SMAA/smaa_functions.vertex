@@ -280,7 +280,8 @@
  */
 
 #version 330 core
-#define SMAA_PIXEL_SIZE vec2(1.0 / 1800.0, 1.0 / 1000.0)
+//#define SMAA_PIXEL_SIZE vec2(1.0 / 1000.0, 1.0 / 1000.0)
+uniform vec2 SMAA_PIXEL_SIZE = vec2(1.0 / 1000.0, 1.0 / 1000.0);
 #define SMAA_PRESET_MEDIUM 1
 #define SMAA_GLSL_3 1
 #define SMAA_ONLY_COMPILE_VS 1

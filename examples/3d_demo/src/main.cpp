@@ -127,6 +127,7 @@ int main() {
 	
 	DirectionalLight sunLight;
 	sunLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	sunLight.specular = sunLight.diffuse;
 	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
 	sunLight.changeDirection(glm::vec3(1.0f, 1.0f, -1.0f));
 	sunLight.intensity = 1.0f;

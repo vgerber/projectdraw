@@ -10,6 +10,7 @@
 #include "Core/Scene/Instancing/instancer.h"
 #include "Core/Scene/Animation/animatable.h"
 #include "Core/Scene/Text/text.h"
+#include "Core/Texture/Filter/Antialias/smaa.h"
 
 #include "Core/Scene/Renderer/arenderer.h"
 #include "Core/Scene/Renderer/DeferredRenderer/light_util.h"
@@ -126,10 +127,7 @@ public:
 
 	virtual void refreshShaderRenderer();
 
-	virtual int getRendererType() override;
-
 protected:
-	static const int RendererType = 1;
 	bool invalidShaders = false;
 
 	static const int PointLightShadows = 10;
@@ -195,7 +193,6 @@ protected:
 	GLuint bloomTextures[bloomSample];
 	GLuint tmpbloomTextures[bloomSample];
 
-
 	std::vector<Drawable*> objects;
 
 	//lights
@@ -210,8 +207,11 @@ protected:
 
 	std::vector<Text*> textObjects;
 
+	//Filter
+	SMAA smaaFilter;
 
-	virtual void renderObjects() override;
+
+	virtual void renderObjects();
 
 	///Draw drawable with drawing settings
 	virtual void renderDrawable(Drawable * drawable, DrawType drawType = DrawType::TRIANGLEG);
@@ -229,7 +229,7 @@ protected:
 	virtual void renderDrawableBox(Drawable * drawable);
 
 	///Merge colorbuffers and apply light and shadow effects
-	virtual void renderLight() override;
+	virtual void renderLight();
 
 	virtual void applyAntialias();
 	virtual void applyBloom();

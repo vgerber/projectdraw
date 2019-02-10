@@ -33,6 +33,8 @@ void initCore() {
 
 	loadDeferredShaders();
 
+	loadForwardShaders();
+
 	loadDepthShaders();
 	
 	loadTextureShaders();
@@ -155,6 +157,18 @@ void loadDeferredShaders()
 	ResourceManager::storeShader(ShaderName::Deferred::Pipeline::Texture::ScreenTexture, shaderPipelineScreenTexture);
 }
 
+void loadForwardShaders() {
+	printf("\n[Shader] load Forward shaders\n");
+
+	Shader shaderBasicMesh;
+	shaderBasicMesh.layers = {
+		{ ResourceManager::GetPath("/Shaders/Forward/Basic/mesh.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Forward/Basic/mesh.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderBasicMesh.load();
+	ResourceManager::storeShader(ShaderName::Forward::Basic::Mesh, shaderBasicMesh);
+}
+
 void loadDepthShaders()
 {
 	printf("\n[Shader] load DEPTH shaders\n");
@@ -208,6 +222,36 @@ void loadPostprocessingShaders() {
 	};
 	shaderAntialiasFXAA.load();
 	ResourceManager::storeShader(ShaderName::Postprocessing::Antialias::FXAA, shaderAntialiasFXAA);
+
+	Shader shaderSMAAEdgeLuma;
+	shaderSMAAEdgeLuma.layers = {
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_edge.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_functions.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_edge.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_functions.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderSMAAEdgeLuma.load();
+	ResourceManager::storeShader(ShaderName::Postprocessing::Antialias::SMAA::EdgeLuma, shaderSMAAEdgeLuma);
+
+	Shader shaderSMAABlendingWeight;
+	shaderSMAABlendingWeight.layers = {
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_weight.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_functions.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_weight.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_functions.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderSMAABlendingWeight.load();
+	ResourceManager::storeShader(ShaderName::Postprocessing::Antialias::SMAA::BlendingWeight, shaderSMAABlendingWeight);
+
+	Shader shaderSMAABlending;
+	shaderSMAABlending.layers = {
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_blend.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_functions.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_blend.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/Antialias/SMAA/smaa_functions.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderSMAABlending.load();
+	ResourceManager::storeShader(ShaderName::Postprocessing::Antialias::SMAA::Blending, shaderSMAABlending);
 
 	//HDR
 	Shader shaderHDRBasic;
@@ -270,36 +314,6 @@ void loadExperimentalShaders() {
 	};
 	shaderOpenglTestBasicTexture.load();
 	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::Texture, shaderOpenglTestBasicTexture);
-
-	Shader shaderOpenglTestSMAAEdgeLuma;
-	shaderOpenglTestSMAAEdgeLuma.layers = {
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_edge.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_edge.fragment").c_str(), ShaderType::FRAGMENT },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.fragment").c_str(), ShaderType::FRAGMENT }
-	};
-	shaderOpenglTestSMAAEdgeLuma.load();
-	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::SMAA::EdgeLuma, shaderOpenglTestSMAAEdgeLuma);
-
-	Shader shaderOpenglTestSMAABlendingWeight;
-	shaderOpenglTestSMAABlendingWeight.layers = {
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_weight.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_weight.fragment").c_str(), ShaderType::FRAGMENT },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.fragment").c_str(), ShaderType::FRAGMENT }
-	};
-	shaderOpenglTestSMAABlendingWeight.load();
-	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::SMAA::BlendingWeight, shaderOpenglTestSMAABlendingWeight);
-
-	Shader shaderOpenglTestSMAABlending;
-	shaderOpenglTestSMAABlending.layers = {
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_blend.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_blend.fragment").c_str(), ShaderType::FRAGMENT },
-		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/SMAA/smaa_functions.fragment").c_str(), ShaderType::FRAGMENT }
-	};
-	shaderOpenglTestSMAABlending.load();
-	ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::SMAA::Blending, shaderOpenglTestSMAABlending);
 }
 
 void clearScreen(glm::vec4 color) {

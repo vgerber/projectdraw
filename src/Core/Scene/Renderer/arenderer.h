@@ -29,8 +29,6 @@ public:
 
     virtual void dispose() = 0;
 
-	virtual int getRendererType() = 0;
-
     int getWidth();
     int getHeight();
 
@@ -44,9 +42,5 @@ private:
 protected:
     RenderMode renderMode;
     Camera *camera;
-	bool invalidShaders = false;
-
-	virtual void renderObjects() = 0;
-	virtual void renderLight() = 0;
-    
+	bool invalidShaders = false;    
 };

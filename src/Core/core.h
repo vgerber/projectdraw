@@ -13,6 +13,8 @@ void initCore();
 
 void loadDeferredShaders();
 
+void loadForwardShaders();
+
 void loadDepthShaders();
 
 void loadTextureShaders();

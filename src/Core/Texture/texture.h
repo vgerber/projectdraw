@@ -31,6 +31,7 @@ public:
 	Texture(const char * path);
 	Texture(void * data, int width, int height, TextureFormat format, TextureDataType dataType);
 
+
 	virtual GLuint getGLTexture() const;
 
 	int getWidth() const;

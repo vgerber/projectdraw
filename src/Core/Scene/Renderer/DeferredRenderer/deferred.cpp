@@ -1,4 +1,4 @@
-#include "renderer.h"
+#include "deferred.h"
 
 DeferredRenderer::DeferredRenderer(int width, int height, Camera &camera) : AbstractRenderer(width, height, camera)
 {
@@ -28,7 +28,7 @@ void DeferredRenderer::render()
 
 	renderLight();
 
-	applyBloom();
+	//applyBloom();
 
 	applyAntialias();
 
@@ -276,6 +276,8 @@ void DeferredRenderer::resize(int width, int height) {
 	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, AASamples, GL_RGBA16F, getWidth(), getHeight(), GL_TRUE);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);*/
+
+	smaaFilter.resize(getWidth(), getHeight());
 }
 
 void DeferredRenderer::renderObjects()
@@ -930,11 +932,13 @@ void DeferredRenderer::applyAntialias()
 	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
 	glCopyTextureSubImage2D(tmpRenderTexture, 0, 0, 0, 0, 0, getWidth(), getHeight());
 
-	shaderFXAA.use();
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glUniform1i(glGetUniformLocation(shaderFXAA.getId(), "screenTexture"), 0);
-	glUniform2f(glGetUniformLocation(shaderFXAA.getId(), "inverseScreenSize"), 1.0f / getWidth(), 1.0f / getHeight());
+	smaaFilter.clear();
+	smaaFilter.apply(tmpRenderTexture);
 
+	glBindFramebuffer(GL_FRAMEBUFFER, screenRectFBO);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
 
@@ -1074,11 +1078,6 @@ void DeferredRenderer::refreshShaderRenderer()
 	}*/
 }
 
-int DeferredRenderer::getRendererType()
-{
-	return RendererType;
-}
-
 void DeferredRenderer::setup() {
 	glEnable(GL_MULTISAMPLE);
 	renderMode = RenderMode::FILLR;
@@ -1147,4 +1146,6 @@ void DeferredRenderer::setup() {
 	shaderHDR = ResourceManager::loadShader(ShaderName::Postprocessing::HDR::Basic);
 	shaderBloomBlur = ResourceManager::loadShader(ShaderName::Postprocessing::Bloom::Blur);
 	shaderBloomMerge = ResourceManager::loadShader(ShaderName::Postprocessing::Bloom::Merge);
+
+	smaaFilter.setup();
 }

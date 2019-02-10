@@ -43,9 +43,21 @@ namespace ShaderName {
 		}		
 	}
 
+	namespace Forward {
+		namespace Basic {
+			const std::string Mesh = "ForwardBasicMesh";
+		}
+	}
+
 	namespace Postprocessing {
 		namespace Antialias {
 			const std::string FXAA = "PostprocessingAntialiasFXAA";
+
+			namespace SMAA {
+				const std::string EdgeLuma = "ExperimentalOpenglTestSMAAEdgeLuma";
+				const std::string BlendingWeight = "ExperimentalOpenglTestSMAABlendingWeight";
+				const std::string Blending = "ExperimentalOpenglTestSMAABlending";
+			}
 		}
 
 		namespace HDR {
@@ -74,12 +86,6 @@ namespace ShaderName {
 			const std::string BasicPostProcessing = "ExperimentalOpenglTestBasicPostProcessing";
 			const std::string FXAA = "ExperimentalOpenglTestFXAA";
 			const std::string Texture = "ExperimentalOpenglTestTexture";
-
-			namespace SMAA {
-				const std::string EdgeLuma = "ExperimentalOpenglTestSMAAEdgeLuma";
-				const std::string BlendingWeight = "ExperimentalOpenglTestSMAABlendingWeight";
-				const std::string Blending = "ExperimentalOpenglTestSMAABlending";
-			}
 		}
 	}
 }

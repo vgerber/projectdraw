@@ -1,7 +1,8 @@
 #pragma once
 #include "camera.h"
 #include "Core/Mesh/Primitives/primitives.h"
-#include "Core/Scene/Renderer/DeferredRenderer/renderer.h"
+#include "Core/Scene/Renderer/DeferredRenderer/deferred.h"
+#include "Core/Scene/Renderer/ForwardRenderer/Basic/forward.h"
 #include "Core/Scene/Renderer/arenderer.h"
 
 struct SceneCameraConfig {
