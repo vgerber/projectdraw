@@ -1,7 +1,7 @@
 #include "orthocamera.h"
 
 OrthographicCamera::OrthographicCamera(glm::vec3 position, glm::vec3 forward,  glm::vec3 up) :  Camera(position, forward, up) {
-
+	updateProjectionMatrix();
 }
 
 ViewFrustum OrthographicCamera::getViewFrustum(int splits) {

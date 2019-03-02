@@ -5,8 +5,7 @@
 Camera::Camera(glm::vec3 position, glm::vec3 forward, glm::vec3 up)
 {
 	setPosition(position);
-	setForward(forward);
-	setUp(up);
+	setForwardUp(forward, up);
 	this->updateViewMatrix();
 }
 

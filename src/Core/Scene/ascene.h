@@ -24,52 +24,57 @@ public:
 	AbstractScene(int width, int height);
 
 	/*
-	update timed objects
+	*clears scene with color
+	*/
+	virtual void clear(float r, float g, float b, float a) = 0;
+
+	/*
+	*update timed objects
 	*/
 	virtual void tick(float delta) = 0;
 
 	/*
-	draw objects
+	*draw objects
 	*/
 	virtual void draw(float delta) = 0;
 
 	/*
-	update and draw objects
+	*update and draw objects
 	*/
 	virtual void update(float delta);
 
 	/*
-	free memory
+	*free memory
 	*/
 	virtual void dispose() = 0;
 
 	/*
-	set new scene size (viewport).
-	call when window size is changed.
+	*set new scene size (viewport).
+	*call when window size is changed.
 	*/
 	virtual void resize(int width, int height);
 
 	/*
-	add object to scene
-	object: added object
-	camera: target camera which handles the added object
+	*add object to scene
+	*object: added object
+	*camera: target camera which handles the added object
 	*/
 	virtual void addObject(SceneObject &object, Camera &camera) = 0;
 
 	/*
-	add object to all currently added cameras	
+	*add object to all currently added cameras	
 	*/
 	virtual void addObject(SceneObject &object) = 0;
 
 	/*
-	remove object from scene target camera
+	*remove object from scene target camera
 	*/
 	virtual void removeObject(SceneObject &object, Camera &camera) = 0;
 
 	/*
-	remove object from all cameras
+	*remove object from all cameras
 	*/
-	virtual void removeObject(SceneObject &objecta) = 0;
+	virtual void removeObject(SceneObject &object) = 0;
 
 	Size getSize();
 	int getWidth();

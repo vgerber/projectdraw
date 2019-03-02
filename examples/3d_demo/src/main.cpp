@@ -18,12 +18,20 @@ int main() {
 	settings.depthBits = 24;
 	settings.antialiasingLevel = 4;
 	sf::Window window(sf::VideoMode(WIDTH, HEIGHT), "3D Demo", sf::Style::Default, settings);
+	window.setVerticalSyncEnabled(true);
 	initCore();
 
 	
 
 	Scene scene(WIDTH, HEIGHT);
 	   
+
+	HUD hud(WIDTH, HEIGHT);
+
+	Mesh * hudCenterCircle = pd::generateCircle(100.0f, 30.0f, glm::vec4(0.7f, 1.0f, 0.7f, 0.4f));
+	hudCenterCircle->setPosition(0.5f* WIDTH, 0.5f * HEIGHT, 0.0f);
+	hud.addObject(*hudCenterCircle);
+	scene.setHUD(hud);
 
 	
 	PerspectiveCamera camera;
@@ -73,7 +81,7 @@ int main() {
 	Mesh quad, cube, sphere;
 	{
 		//cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
-		quad = *pd::generateQuad(2.0f, 1.0f, 1.0f, glm::vec4(0.5f, 1.0f, 0.4f, 1.0f));
+		quad = *pd::generateQuad(2.0f, 1.0f, 1.0f, glm::vec4(0.1f, 1.0f, 0.1f, 1.0f));
 		//cylinder.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
 		quad.setPosition(glm::vec3(-1.0f, 0.0f, 2.0f));
 		quad.settings.outlineVisible = true;
@@ -101,13 +109,13 @@ int main() {
 	}
 	{
 		//sphere.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
-		sphere = *pd::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.8f, 0.5f, 0.8f, 1.0f));
+		sphere = *pd::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		sphere.setPosition(glm::vec3(1.0f, 1.0f, 1.0f));
 		scene.addObject(sphere);
 	}
 
 	Mesh ground;
-	ground = *pd::generateQuad(20.0f, 20.0f, 0.2f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
+	ground = *pd::generateQuad(20.0f, 20.0f, 0.2f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f));
 	ground.setPosition(glm::vec3(0, 0.0f, -0.1f));
 	scene.addObject(ground);
 
@@ -128,9 +136,9 @@ int main() {
 	DirectionalLight sunLight;
 	sunLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	sunLight.specular = sunLight.diffuse;
-	sunLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-	sunLight.changeDirection(glm::vec3(1.0f, 1.0f, -1.0f));
-	sunLight.intensity = 1.0f;
+	sunLight.ambient = glm::vec3(0.5f, 0.5f, 0.5f);
+	sunLight.changeDirection(glm::vec3(0.0f, 0.0f, -1.0f));
+	sunLight.intensity = 20.0f;
 	sunLight.shadow = true;
 	scene.addObject(sunLight);
 	
@@ -187,20 +195,8 @@ int main() {
 	sf::Time deltaTime = clock.getElapsedTime();
 	float delta = 0.0f;
 	while (window.isOpen()) {
-		clearScreen(glm::vec4(0.3f, 0.3f, 1.0f, 1.0f));
-		
-		sf::Event e;
-		while (window.pollEvent(e)) {
-			if (e.type == sf::Event::Closed ||sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
-				window.close();
-				break;
-			}
-			if (e.type == sf::Event::Resized) {
-				sf::Vector2u size = window.getSize();
-				scene.resize(size.x, size.y);
-				camera.setSize(size.x, size.y);
-			}
-		}
+		scene.clear(0.8f, 0.8f, 0.8f, 1.0f);		
+
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
 
 
@@ -215,7 +211,7 @@ int main() {
 		poleLight.intensity = sin(millis * 10) * 0.5 + 1.0;
 		poleLight2.intensity = sin(millis * 10 + 1.6) * 0.5 + 1.0;
 
-		sunLight.changeDirection(glm::vec3(1.0f * cos(millis), 1.0f * sin(millis), -1.0f));
+		sunLight.changeDirection(glm::vec3(1.0f * cos(millis), 1.0f * sin(millis), -0.7f));
 
 		 {
 			Drawable * backWheel = static_cast<Drawable*>(cube.getChild("WheelFrontR"));
@@ -259,6 +255,19 @@ int main() {
 		//calculate delta
 		delta = (clock.getElapsedTime() - deltaTime).asMilliseconds();
 		deltaTime = clock.getElapsedTime();
+
+		sf::Event e;
+		while (window.pollEvent(e)) {
+			if (e.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+				window.close();
+				break;
+			}
+			if (e.type == sf::Event::Resized) {
+				sf::Vector2u size = window.getSize();
+				scene.resize(size.x, size.y);
+				camera.setSize(size.x, size.y);
+			}
+		}
 	}
 
 }
@@ -267,7 +276,7 @@ int main() {
 void moveDrawable(Drawable &drawable, Camera &camera, float delta) {
 	float camSpeed = 0.01f;;
 	float speed = 0.004f;
-	float steering = 0.004f;
+	float steering = 0.04f;
 	float maxBanking = 30.0f;
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 		glm::vec3 move = drawable.getForward();

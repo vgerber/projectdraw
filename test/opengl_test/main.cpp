@@ -6,9 +6,11 @@
 #include <SFML/OpenGL.hpp>
 
 #include "Core/Texture/Filter/Antialias/smaa.h"
+#include "Core/Scene/UI/HUD/hud.h"
+#include "Core/Mesh/Primitives/primitives.h"
 
-const int WIDTH = 1000;
-const int HEIGHT = 1000;
+const int WIDTH = 1200;
+const int HEIGHT = 700;
 
 const int samples = 4;
 
@@ -23,11 +25,10 @@ int main() {
     ctxSetting.antialiasingLevel = 0;
 
     sf::Window window(sf::VideoMode(WIDTH, HEIGHT), "Experimental", sf::Style::Default , ctxSetting);
+	window.setVerticalSyncEnabled(true);
     initCore();
     glViewport(0, 0, WIDTH, HEIGHT);
 
-    // Setup OpenGL options
-    //glEnable(GL_MULTISAMPLE); // Enabled by default on some drivers, but not all so always enable to make sure
 	
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
@@ -133,60 +134,57 @@ int main() {
 	smaaFilter.setup();
 	smaaFilter.resize(WIDTH, HEIGHT);
 
-    Font font(ResourceManager::GetPath("/Fonts/VeraMono.ttf").c_str(), 400);
+    Font font(ResourceManager::GetPath("/Fonts/VeraMono.ttf").c_str(), 30);
 	Text textSceneName(font);
     textSceneName.setText("Experimental 3D");
-    
+	textSceneName.setPosition(0.0f, 00.0f, -10.0f);
+	textSceneName.scaleToWidth(0.2f * WIDTH);
+	//textSceneName.scale(textSceneName.getScale() * glm::vec3(1.0f, -1.0f, 1.0f));
+
+	Mesh * testCircle = pd::generateCircle(30.0f, 30.0f, glm::vec4(0.0f, 1.0f, 0.0f, 0.5));
+	testCircle->setPosition(0.3f * WIDTH, 0.5f * HEIGHT, -0.0f);
+
+	Mesh * testRect = pd::generateRectangle(0.7f * WIDTH, 100.0f, glm::vec4(1.0f, 0.5f, 1.0f, 1.0f));
+	testRect->setPosition(0.5f * WIDTH, HEIGHT - 50.0f, 0.0f);
+
+	HUD testHud(WIDTH, HEIGHT);
+	testHud.addObject(textSceneName);
+	testHud.addObject(*testCircle);
+	testHud.addObject(*testRect);
 
     int textureCounter = 0;
     // Game loop
     while(window.isOpen())
     { 
-        GLuint texture = textSceneName.activateChar(textureCounter);
-
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Set transformation matrices		
-        shader.use();
-		// Clear buffers
 
 		glBindFramebuffer(GL_FRAMEBUFFER, offlineFBO);
-		glClearColor(0.0f, 1.0f, 0.5f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		
+		shader.use();
+
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
 
 
-		/*
-		{
-			shaderScreen.use();
-			glUniform1i(glGetUniformLocation(shaderScreen.getId(), "samples"), samples);
-			glBindVertexArray(screenRectVAO);
-			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, multisampleTexture);
-			glBindTexture(GL_TEXTURE_2D, offlineTexture);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
-		*/
 
-		if(msaa)
-		{
-			smaaFilter.clear();
-			smaaFilter.apply(offlineTexture);
-		}
+
+		testHud.clear(0, 0, 0, 0);
+		testHud.setBackground(offlineTexture);
+		testHud.update(0.1f);
+
+		testHud.drawTexture(0);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shaderTexture.use();
 		glUniform1i(glGetUniformLocation(shaderTexture.getId(), "tex"), 0);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, offlineTexture);
+		glBindTexture(GL_TEXTURE_2D, testHud.getTexture());
 		glBindVertexArray(screenRectVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 6);*/
 
         // Swap the buffers
         window.display();

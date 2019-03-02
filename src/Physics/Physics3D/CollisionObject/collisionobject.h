@@ -6,7 +6,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 
-#include "Core/Scene/Util/moveable.h"
+#include "Core/Util/Transform/moveable.h"
 #include "Physics/Physics3D/Util/conversion.h"
 
 

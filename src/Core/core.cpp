@@ -35,6 +35,8 @@ void initCore() {
 
 	loadForwardShaders();
 
+	loadFlatShaders();
+
 	loadDepthShaders();
 	
 	loadTextureShaders();
@@ -52,45 +54,45 @@ void loadDeferredShaders()
 	//Debug
 	Shader shader_normal_geometry;
 	shader_normal_geometry.layers = {
-		{ ResourceManager::GetPath("/Shaders/Deferred/Debug/normal.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Debug/normal.fragment").c_str(), ShaderType::FRAGMENT },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Debug/normal.geometry").c_str(), ShaderType::GEOMETRY }
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Debug/normal.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Debug/normal.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Debug/normal.geometry").c_str(), ShaderType::GEOMETRY }
 	};
 	//shader_normal_geometry.load();
-	ResourceManager::storeShader(ShaderName::Deferred::Debug::Normal, shader_normal_geometry);
+	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Debug::Normal, shader_normal_geometry);
 
 	//Mesh
 	Shader shaderBasic;
 	shaderBasic.layers = {
-		{ ResourceManager::GetPath("/Shaders/Deferred/Mesh/basic.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Mesh/basic.fragment").c_str(), ShaderType::FRAGMENT }
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Mesh/basic.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Mesh/basic.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shaderBasic.load();
-	ResourceManager::storeShader(ShaderName::Deferred::Mesh::Basic, shaderBasic);
+	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Mesh::Basic, shaderBasic);
 
 	Shader shader_font;
 	shader_font.layers = {
-		{ ResourceManager::GetPath("/Shaders/Deferred/Mesh/font.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Mesh/font.fragment").c_str(), ShaderType::FRAGMENT }
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Mesh/font.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Mesh/font.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shader_font.load();
-	ResourceManager::storeShader(ShaderName::Deferred::Mesh::Font, shader_font);
+	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Mesh::Font, shader_font);
 
 	Shader shader_instancing_basic;
 	shader_instancing_basic.layers = {
-		{ ResourceManager::GetPath("/Shaders/Deferred/Mesh/instancing_basic.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Mesh/instancing_basic.fragment").c_str(), ShaderType::FRAGMENT }
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Mesh/instancing_basic.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Mesh/instancing_basic.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shader_instancing_basic.load();
-	ResourceManager::storeShader(ShaderName::Deferred::Mesh::Instancing, shader_instancing_basic);
+	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Mesh::Instancing, shader_instancing_basic);
 
 	Shader shaderLight;
 	shaderLight.layers = {
-		{ ResourceManager::GetPath("/Shaders/Deferred/Mesh/light.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Mesh/light.fragment").c_str(), ShaderType::FRAGMENT }
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Mesh/light.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Mesh/light.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shaderLight.load();
-	ResourceManager::storeShader(ShaderName::Deferred::Mesh::Light, shaderLight);
+	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Mesh::Light, shaderLight);
 
 
 
@@ -100,30 +102,30 @@ void loadDeferredShaders()
 	//Shadow
 	Shader shaderPipelineShadowD;
 	shaderPipelineShadowD.layers = {
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/Shadow/dlight_pass.fragment").c_str(), ShaderType::FRAGMENT },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Light/Shadow/dlight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/Shadow/dlight_pass.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Light/Shadow/dlight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
 	};
 	shaderPipelineShadowD.load();
-	ResourceManager::storeShader(ShaderName::Deferred::Pipeline::Shadow::D, shaderPipelineShadowD);
+	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Pipeline::Shadow::D, shaderPipelineShadowD);
 
 	Shader shaderDeferredPShadow;
 	shaderDeferredPShadow.layers = {
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/Shadow/plight_pass.fragment").c_str(), ShaderType::FRAGMENT },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Light/Shadow/plight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/Shadow/plight_pass.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Light/Shadow/plight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
 	};
 	shaderDeferredPShadow.load();
-	ResourceManager::storeShader(ShaderName::Deferred::Pipeline::Shadow::P, shaderDeferredPShadow);
+	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Pipeline::Shadow::P, shaderDeferredPShadow);
 
 	Shader shaderDeferredSShadow;
 	shaderDeferredSShadow.layers = {
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/Shadow/slight_pass.fragment").c_str(), ShaderType::FRAGMENT },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Light/Shadow/slight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/Shadow/slight_pass.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Light/Shadow/slight_shadow.fragment").c_str(), ShaderType::FRAGMENT },
 	};
 	shaderDeferredSShadow.load();
-	ResourceManager::storeShader(ShaderName::Deferred::Pipeline::Shadow::S, shaderDeferredSShadow);
+	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Pipeline::Shadow::S, shaderDeferredSShadow);
 
 
 
@@ -131,30 +133,30 @@ void loadDeferredShaders()
 
 	Shader shader_deferred_plight_nos;
 	shader_deferred_plight_nos.layers = {
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/plight_pass.fragment").c_str(), ShaderType::FRAGMENT },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Light/plight.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/plight_pass.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Light/plight.fragment").c_str(), ShaderType::FRAGMENT },
 	};
 	shader_deferred_plight_nos.load();
-	ResourceManager::storeShader(ShaderName::Deferred::Pipeline::P, shader_deferred_plight_nos);
+	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Pipeline::P, shader_deferred_plight_nos);
 
 	Shader shader_deferred_slight_nos;
 	shader_deferred_slight_nos.layers = {
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/slight_pass.fragment").c_str(), ShaderType::FRAGMENT },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Light/slight.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/pipeline.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/slight_pass.fragment").c_str(), ShaderType::FRAGMENT },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Light/slight.fragment").c_str(), ShaderType::FRAGMENT },
 	};
 	shader_deferred_slight_nos.load();
-	ResourceManager::storeShader(ShaderName::Deferred::Pipeline::S, shader_deferred_slight_nos);
+	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Pipeline::S, shader_deferred_slight_nos);
 
 	//Texture
 	Shader shaderPipelineScreenTexture;
 	shaderPipelineScreenTexture.layers = {
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/Texture/texture.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Deferred/Pipeline/Texture/texture.fragment").c_str(), ShaderType::FRAGMENT }
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/Texture/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Pipeline/Texture/texture.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shaderPipelineScreenTexture.load();
-	ResourceManager::storeShader(ShaderName::Deferred::Pipeline::Texture::ScreenTexture, shaderPipelineScreenTexture);
+	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Pipeline::Texture::ScreenTexture, shaderPipelineScreenTexture);
 }
 
 void loadForwardShaders() {
@@ -162,11 +164,11 @@ void loadForwardShaders() {
 
 	Shader shaderBasicMesh;
 	shaderBasicMesh.layers = {
-		{ ResourceManager::GetPath("/Shaders/Forward/Basic/mesh.vertex").c_str(), ShaderType::VERTEX },
-		{ ResourceManager::GetPath("/Shaders/Forward/Basic/mesh.fragment").c_str(), ShaderType::FRAGMENT }
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/mesh.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/mesh.fragment").c_str(), ShaderType::FRAGMENT }
 	};
 	shaderBasicMesh.load();
-	ResourceManager::storeShader(ShaderName::Forward::Basic::Mesh, shaderBasicMesh);
+	ResourceManager::storeShader(ShaderName::Renderer::Forward::Basic::Mesh, shaderBasicMesh);
 }
 
 void loadDepthShaders()
@@ -279,6 +281,18 @@ void loadPostprocessingShaders() {
 	shaderBloomMerge.load();
 	ResourceManager::storeShader(ShaderName::Postprocessing::Bloom::Merge, shaderBloomMerge);
 
+}
+
+void loadFlatShaders()
+{
+	printf("\n[Shader] load UI shaders\n");
+	Shader shaderFlatMesh;
+	shaderFlatMesh.layers = {
+		{ ResourceManager::GetPath("/Shaders/Renderer/Flat/mesh.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Flat/mesh.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderFlatMesh.load();
+	ResourceManager::storeShader(ShaderName::Renderer::Flat::Mesh, shaderFlatMesh);
 }
 
 void loadExperimentalShaders() {

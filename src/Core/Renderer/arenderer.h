@@ -1,7 +1,7 @@
 #pragma once
 #include "GL/glew.h"
 
-#include "../Camera/camera.h"
+#include "Core/Scene/Camera/camera.h"
 
 
 enum RenderMode {

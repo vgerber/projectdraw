@@ -1,0 +1,43 @@
+#version 330 core
+
+out vec4 color;
+
+in VS_OUT {
+	vec2 TexCoords;
+	vec4 Color;
+} fs_in;
+
+
+uniform int enableCustomColor = 0;
+uniform vec4 customColor = vec4(1.0);
+
+uniform int enableAlphaTexture = 0;
+uniform int enableDiffuseTexture = 0;
+uniform int enableSpecularTexture = 0;
+
+uniform sampler2D alphaTexture;
+uniform sampler2D diffuseTexture;
+uniform sampler2D specularTexture;
+
+void main() {
+	vec4 albedoColor;
+	//set color from texture (if not enabled color will be vertex color or custom set color)
+	if(enableDiffuseTexture == 1) {
+		albedoColor = texture(diffuseTexture, fs_in.TexCoords);
+	}
+	else {
+		if(enableCustomColor == 0) {
+			albedoColor = fs_in.Color;
+		}
+		else {
+			albedoColor = customColor;
+		}
+	}
+	if(enableSpecularTexture == 1) {
+		albedoColor.a = texture(specularTexture, fs_in.TexCoords).r;
+	}
+	if(enableAlphaTexture == 1) {
+		albedoColor.a = texture(alphaTexture, fs_in.TexCoords).r;
+	}
+	color =  albedoColor;
+}

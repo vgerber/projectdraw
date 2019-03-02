@@ -23,7 +23,7 @@ public:
 
 	virtual void activate(int tex_id) override;
 
-	virtual GLuint getGLTexture() override;
+	virtual GLuint getGLTexture() const override;
 
 	virtual uchar4 * getCudaTexture();
 private:

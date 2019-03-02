@@ -13,7 +13,7 @@
 #include "Core/Scene/Text/text.h"
 #include "Core/Texture/Filter/HDR/hdr.h"
 
-#include "Core/Scene/Renderer/arenderer.h"
+#include "Core/Renderer/arenderer.h"
 
 class ForwardRenderer : public AbstractRenderer {
 public:
@@ -55,11 +55,11 @@ public:
     virtual void dispose() override;
 
 protected:
-    uint rendererTexture;
-    uint rendererFBO;
-    uint rendererRBO;
+    unsigned int rendererTexture;
+	unsigned int rendererFBO;
+	unsigned int rendererRBO;
     
-    uint uboMatrices;
+	unsigned int uboMatrices;
 
     std::vector<Drawable*> drawables;
     DirectionalLight *directionalLight = nullptr;

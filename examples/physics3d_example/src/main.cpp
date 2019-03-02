@@ -16,7 +16,7 @@ float deltaTime = 0.0f;
 //returns false if activeWindow is closed
 bool handleEvent(Camera &camera, Scene &scene);
 
-std::vector<float> getHeightField(int width,  int length, float frequency = 0.2f, float amplitude = 1.5f);
+std::vector<float> getHeightField(int width,  int length, float frequency = 0.1f, float amplitude = 1.5f);
 
 int main() {
 	
@@ -60,7 +60,7 @@ int main() {
     
     
     DiscreteWorld physicsWorld;
-    mainScene.addObject(*physicsWorld.getDebugDrawable());
+    //mainScene.addObject(*physicsWorld.getDebugDrawable());
 
     collision::CollisionShape rTestBodyShape(collision::generateSphere(0.5f));
     RigidBody rTestBody(rTestBodyShape, 1000.0f, RigidType::DYNAMIC);
@@ -90,7 +90,7 @@ int main() {
     triggerIndicator.line(glm::vec3(0.0, 0.0, -2.5), glm::vec3(0.0, 0.0, 2.5));
 
     srand(time(0));
-    collision::CollisionShape tBoxShape(collision::generateCube(Size{0.0, 0.0, 0.0, 3.0, 3.0, 5.0}));
+    collision::CollisionShape tBoxShape(collision::generateCube(Size(0.0, 0.0, 0.0, 3.0, 3.0, 5.0)));
     TriggerVolume tTestTrigger(tBoxShape, glm::vec3(0.0, 0.0, 2.5));
     triggerIndicator.setPosition(tTestTrigger.getPosition());
     tTestTrigger.onCollide = [&tTestTrigger, &triggerIndicator](const CollisionObject * collisionObject) {
@@ -130,7 +130,7 @@ int main() {
         if(!handleEvent(freeCamera, mainScene)) {
             break;
         }
-        clearScreen(glm::vec4(0.3f, 0.3f, 1.0f, 1.0f));
+        clearScreen(glm::vec4(0.8f, 0.8f, 1.0f, 1.0f));
 
 		float deltaTimeMilli = deltaTime * 0.001f;
 

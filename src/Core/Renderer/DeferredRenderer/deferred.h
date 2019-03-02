@@ -12,8 +12,8 @@
 #include "Core/Scene/Text/text.h"
 #include "Core/Texture/Filter/Antialias/smaa.h"
 
-#include "Core/Scene/Renderer/arenderer.h"
-#include "Core/Scene/Renderer/DeferredRenderer/light_util.h"
+#include "Core/Renderer/arenderer.h"
+#include "Core/Renderer/DeferredRenderer/light_util.h"
 
 struct SortPointLights {
 	glm::vec3 cameraPosition;

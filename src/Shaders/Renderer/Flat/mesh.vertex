@@ -1,0 +1,22 @@
+#version 330 core
+
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec2 texCoord;
+layout (location = 3) in vec4 color;
+
+out VS_OUT {
+	vec2 TexCoords;
+	vec4 Color;
+} vs_out;
+
+
+uniform mat4 mvp;
+
+void main() {
+	gl_Position = mvp * vec4(position.xyz, 1.0f);
+	vs_out.TexCoords = texCoord;
+	vs_out.Color = color;
+
+
+}

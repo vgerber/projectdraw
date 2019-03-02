@@ -4,7 +4,7 @@
 
 #include <bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 
-#include "Core/Scene/Util/moveable.h"
+#include "Core/Util/Transform/moveable.h"
 #include "Physics/Physics3D/CollisionObject/collisionobject.h"
 #include "Physics/Physics3D/Collision/Shapes/cshape.h"
 #include "Physics/Physics3D/World/collisionworld.h"

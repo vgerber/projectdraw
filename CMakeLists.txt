@@ -181,6 +181,9 @@ if(WIN32)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/include)
 include_directories(C:/Users/Vincent/Documents/Projects/Lib/C++/stb)
 
+set(OpenGLLibs
+	C:/Program\ Files\ \(x86\)/Windows\ Kits/10/Lib/10.0.17763.0/um/x64/OpenGL32.lib
+)
 
 set(BulletLibraries 
 	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/BulletSoftBody_Debug.lib
@@ -213,6 +216,8 @@ set(ProjectDrawLibraries
 	optimized  C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/build/Release/projectdraw_physics3d.lib
 )
 
+
+
 add_library(projectdraw_core STATIC  ${ENGINE_SRC})
 
 set(ENGINE_ROOT "C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src/Core/")
@@ -231,8 +236,11 @@ target_link_libraries(projectdraw_core
 	debug C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/glew32d.lib 
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/glew32.lib 
 #OpenGL
-	debug	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/debug/OpenGL32.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/OpenGL32.lib 
+	#debug	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/debug/OpenGL32.lib
+	#optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/OpenGL32.lib 
+	#C:/Program Files (x86)/Windows Kits/10/Lib/10.0.17763.0/um/x64/OpenGL32.lib
+	#OpenGL32.lib
+	${OpenGLLibs}
 #FreeType
 	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/freetyped.lib 
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/freetype.lib 
@@ -289,8 +297,7 @@ target_link_libraries(example_scene3d
 	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/glew32d.lib 
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/glew32.lib 
 #OpenGL
-	debug	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/OpenGL32.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/OpenGL32.lib
+	${OpenGLLibs}
 #FreeType
 	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/freetyped.lib 
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/freetype.lib 
@@ -319,8 +326,7 @@ target_link_libraries(example_physics3d
 	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/glew32d.lib 
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/glew32.lib 
 #OpenGL
-	debug	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/OpenGL32.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/OpenGL32.lib
+	${OpenGLLibs}
 #FreeType
 	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/freetyped.lib 
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/freetype.lib 
@@ -350,8 +356,7 @@ target_link_libraries(experimental_opengl
 	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/glew32d.lib 
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/glew32.lib 
 #OpenGL
-	debug	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/OpenGL32.lib
-	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/OpenGL32.lib
+	${OpenGLLibs}
 #FreeType
 	debug 	  C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/debug/lib/freetyped.lib 
 	optimized C:/Users/Vincent/Documents/Projects/Lib/vcpkg/installed/x64-windows/lib/freetype.lib 

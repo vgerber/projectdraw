@@ -66,7 +66,7 @@ void CudaTexture::activate(int tex_id)
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 }
 
-GLuint CudaTexture::getGLTexture()
+GLuint CudaTexture::getGLTexture() const
 {
 	return texture;
 }

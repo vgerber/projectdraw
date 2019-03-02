@@ -1129,18 +1129,18 @@ void DeferredRenderer::setup() {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
 	glBindVertexArray(0);
 
-	shaderDLightShadow = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Shadow::D);
-	shaderPLight = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::P);
-	shaderPLightShadow = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Shadow::P);
-	shaderSLight = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::S);
-	shaderSLightShadow = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Shadow::S);
-	shaderTexture = ResourceManager::loadShader(ShaderName::Deferred::Pipeline::Texture::ScreenTexture);
+	shaderDLightShadow = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Pipeline::Shadow::D);
+	shaderPLight = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Pipeline::P);
+	shaderPLightShadow = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Pipeline::Shadow::P);
+	shaderSLight = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Pipeline::S);
+	shaderSLightShadow = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Pipeline::Shadow::S);
+	shaderTexture = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Pipeline::Texture::ScreenTexture);
 
-	shaderBasic = ResourceManager::loadShader(ShaderName::Deferred::Mesh::Basic);
-	shaderLight = ResourceManager::loadShader(ShaderName::Deferred::Mesh::Light);
-	shaderFont = ResourceManager::loadShader(ShaderName::Deferred::Mesh::Font);	
+	shaderBasic = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Mesh::Basic);
+	shaderLight = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Mesh::Light);
+	shaderFont = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Mesh::Font);
 
-	shaderNormals = ResourceManager::loadShader(ShaderName::Deferred::Debug::Normal);
+	shaderNormals = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Debug::Normal);
 
 	shaderFXAA = ResourceManager::loadShader(ShaderName::Postprocessing::Antialias::FXAA);
 	shaderHDR = ResourceManager::loadShader(ShaderName::Postprocessing::HDR::Basic);

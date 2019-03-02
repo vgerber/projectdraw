@@ -16,36 +16,43 @@ const std::string ROOT_DIR = "/home/vincent/Development/Cpp/projectdraw_slim/src
 
 
 namespace ShaderName {
-	namespace Deferred {
-		namespace Debug {
-			const std::string Normal = "DeferredDebugNormal";
-		}
-		namespace Mesh {
-			const std::string Basic      = "DeferredMeshBasic";
-			const std::string Font       = "DeferredMeshFont";
-			const std::string Instancing = "DeferredMeshInstancing";
-			const std::string Light      = "DeferredMeshLight";
-		}
-		namespace Pipeline {
-			const std::string D = "DeferredPipelineD";
-			const std::string P = "DeferredPipelineP";
-			const std::string S = "DeferredPipelineS";
 
-			namespace Texture {
-				const std::string ScreenTexture = "DeferredPipelineTexture";
+	namespace Renderer {
+		namespace Deferred {
+			namespace Debug {
+				const std::string Normal = "RendererDeferredDebugNormal";
 			}
-
-			namespace Shadow {
-				const std::string D = "DeferredPipelineShadowD";
-				const std::string P = "DeferredPipelineShadowP";
-				const std::string S = "DeferredPipelineShadowS";
+			namespace Mesh {
+				const std::string Basic = "RendererDeferredMeshBasic";
+				const std::string Font = "RendererDeferredMeshFont";
+				const std::string Instancing = "RendererDeferredMeshInstancing";
+				const std::string Light = "RendererDeferredMeshLight";
 			}
-		}		
-	}
+			namespace Pipeline {
+				const std::string D = "RendererDeferredPipelineD";
+				const std::string P = "RendererDeferredPipelineP";
+				const std::string S = "RendererDeferredPipelineS";
 
-	namespace Forward {
-		namespace Basic {
-			const std::string Mesh = "ForwardBasicMesh";
+				namespace Texture {
+					const std::string ScreenTexture = "RendererDeferredPipelineTexture";
+				}
+
+				namespace Shadow {
+					const std::string D = "RendererDeferredPipelineShadowD";
+					const std::string P = "RendererDeferredPipelineShadowP";
+					const std::string S = "RendererDeferredPipelineShadowS";
+				}
+			}
+		}
+
+		namespace Forward {
+			namespace Basic {
+				const std::string Mesh = "RendererForwardBasicMesh";
+			}
+		}
+
+		namespace Flat {
+			const std::string Mesh = "RendererRendererFlatMesh";
 		}
 	}
 

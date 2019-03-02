@@ -2,7 +2,7 @@
 
 #include "Core/Scene/sceneobject.h"
 #include "Core/Shader/shader.h"
-#include "Core/Scene/Renderer/arenderer.h"
+#include "Core/Renderer/arenderer.h"
 
 #include <memory>
 
