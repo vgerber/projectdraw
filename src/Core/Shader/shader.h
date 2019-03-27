@@ -8,6 +8,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "Core/Util/Debug/logging.h"
+
 enum ShaderType {
 	VERTEX,
 	FRAGMENT,

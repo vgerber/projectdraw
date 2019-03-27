@@ -210,7 +210,7 @@ void Mesh::processNode(aiNode * node, const aiScene * scene)
 	glm::vec4 persp;
 	glm::decompose(baseTransformMatrix, scale, rotation, translation, skew, persp);
 	Transform baseTransform;
-	setPosition(translation);
+	translate(translation);
 	//baseTransform.translate(translation);
 	baseTransform.rotate(Rotator(rotation, glm::vec3(0.0)));
 	baseTransform.scale(scale);

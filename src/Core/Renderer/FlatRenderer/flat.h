@@ -67,25 +67,32 @@ public:
 	virtual void drawTexture(unsigned int framebuffer);
 
 protected:
-	unsigned int rendererTexture;
-	unsigned int rendererFBO;
-	unsigned int rendererRBO;
-	unsigned int multisampleRendererTexture;
-	unsigned int multisampleRendererFBO;
+	unsigned int rendererTexture;				//final texture after render process
+	unsigned int rendererFBO;					//framebuffer for rendering
+	unsigned int rendererRBO;					//render buffer object for rendering
+	unsigned int multisampleRendererTexture;	//multisample option
+	unsigned int multisampleRendererFBO;		
 	unsigned int multisampleRendererRBO;
 
-	unsigned int screenRectVBO = 0;
-	unsigned int screenRectVAO = 0;
+	unsigned int screenRectVBO = 0;				//vertex buffer obejct for screenspace texture
+	unsigned int screenRectVAO = 0;				//vertex array object for vbo storage
 
-	std::vector<Drawable*> drawables;
+	std::vector<Drawable*> drawables;			//added drawables
 
-	Shader shaderMesh;
-	Shader shaderTexture;
+	Shader shaderMesh;							//shader for mesh rendering
+	Shader shaderTexture;						//shader for render from texture
 
+	/**
+	 * @brief Setup internal opengl objects
+	 * 
+	 */
 	virtual void setup();
 
 private:
-	///Draw drawable as plain geometry (without features)
+	/**
+	 * @brief render drawable without special @ref
+	 * 
+	 */
 	virtual void renderDrawableRaw(Drawable * drawable, Shader shader, DrawType drawType = DrawType::TRIANGLEG);
 
 	unsigned int msaa = 0;

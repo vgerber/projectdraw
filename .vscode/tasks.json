@@ -37,13 +37,18 @@
             "problemMatcher": [],
             "dependsOn": "build release"
         },
-
         {
             "label": "run opengl_test",
             "type": "shell",
             "command": "./build/release/opengl_test",
             "problemMatcher": [],
             "dependsOn": "build release"
+        },
+        {
+            "label": "run doxygen",
+            "type": "shell",
+            "command": "cd doc && doxygen config",
+            "problemMatcher": []
         }
     ]
 }

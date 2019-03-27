@@ -2,12 +2,16 @@
 
 
 void initCore() {
+
+	Configurator::load();
+	Log::load(Configurator::get(Configurator::ProjectLogDir));
+
 	GLenum err = glewInit();
 
 	if (GLEW_OK != err) {
-		printf("[CORE] [ERROR] Init failed :: %s", glewGetErrorString(err));
+		Log::write(LogType::Error, "Init failed - " + std::string((char*)glewGetErrorString(err)), "Init");
 	}
-
+/*
 	//depth
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -29,7 +33,7 @@ void initCore() {
 
 	//glEnable(GL_LINE_STIPPLE);	
 	//glLineStipple(1, 0xAAAA);
-
+*/
 
 	loadDeferredShaders();
 
@@ -49,7 +53,7 @@ void initCore() {
 
 void loadDeferredShaders()
 {
-	printf("[Shader] load DEFERRED shaders\n");
+	Log::write(LogType::Info, "load Deferred shaders", "Init");
 
 	//Debug
 	Shader shader_normal_geometry;
@@ -160,7 +164,7 @@ void loadDeferredShaders()
 }
 
 void loadForwardShaders() {
-	printf("\n[Shader] load Forward shaders\n");
+	Log::write(LogType::Info, "load Forward shaders", "Init");
 
 	Shader shaderBasicMesh;
 	shaderBasicMesh.layers = {
@@ -173,7 +177,7 @@ void loadForwardShaders() {
 
 void loadDepthShaders()
 {
-	printf("\n[Shader] load DEPTH shaders\n");
+	Log::write(LogType::Info, "load Depth shaders", "Init");
 
 	Shader shader_perspective_depth;
 	shader_perspective_depth.layers = {
@@ -203,7 +207,7 @@ void loadDepthShaders()
 
 void loadTextureShaders()
 {
-	printf("\n[Shader] load TEXTURE shaders\n");
+	Log::write(LogType::Info, "load Texture shaders", "Init");
 
 	Shader shader_texture;
 	shader_texture.layers = {
@@ -215,7 +219,7 @@ void loadTextureShaders()
 }
 
 void loadPostprocessingShaders() {
-	printf("\n[Shader] load POSTPROCESSING shaders\n");
+	Log::write(LogType::Info, "load Postprocessing shaders", "Init");
 	//Antialias
 	Shader shaderAntialiasFXAA;
 	shaderAntialiasFXAA.layers = {
@@ -285,7 +289,7 @@ void loadPostprocessingShaders() {
 
 void loadFlatShaders()
 {
-	printf("\n[Shader] load UI shaders\n");
+	Log::write(LogType::Info, "load UI shaders", "Init");
 	Shader shaderFlatMesh;
 	shaderFlatMesh.layers = {
 		{ ResourceManager::GetPath("/Shaders/Renderer/Flat/mesh.vertex").c_str(), ShaderType::VERTEX },
@@ -296,7 +300,7 @@ void loadFlatShaders()
 }
 
 void loadExperimentalShaders() {
-	printf("\n[Shader] load Experimental shaders\n");
+	Log::write(LogType::Info, "load Experimental shaders", "Init");
 	Shader shaderOpenglTestBasic;
 	shaderOpenglTestBasic.layers = {
 		{ ResourceManager::GetPath("/Shaders/Experimental/OpenglTest/basic.vertex").c_str(), ShaderType::VERTEX },

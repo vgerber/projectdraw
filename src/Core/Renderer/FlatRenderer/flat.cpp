@@ -19,7 +19,7 @@ void FlatRenderer::resize(int width, int height) {
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getWidth(), getHeight());
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rendererRBO);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Flat Framebuffer not complete!" << std::endl;
+		Log::write(LogType::Error, "Framebuffer not complete", "FlatRenderer");
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, multisampleRendererFBO);
@@ -33,7 +33,7 @@ void FlatRenderer::resize(int width, int height) {
 	glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaa, GL_DEPTH24_STENCIL8, getWidth(), getHeight());
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, multisampleRendererRBO);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Flat MSAA Framebuffer not complete!" << std::endl;
+		Log::write(LogType::Error, "MSAA Framebuffer not complete", "FlatRenderer");
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -105,16 +105,11 @@ void FlatRenderer::addSceneObject(SceneObject &sceneObject) {
 		return;
 	}
 
-	printf("[Engine] [FlatRenderer] [Error] Scene doesn't accept %s\n", sceneObject.getId().c_str());
+	Log::write(LogType::Error, "Renderer doens't accept " + std::string(sceneObject.getId().c_str()), "FlatRenderer");
 }
 
 void FlatRenderer::removeSceneObject(SceneObject &sceneObject) {
-	for (int i = 0; i < drawables.size(); i++) {
-		if (&sceneObject == drawables[i]) {
-			drawables.erase(drawables.begin() + i);
-			i--;
-		}
-	}
+	std::remove_if(drawables.begin(), drawables.end(), [&sceneObject](Drawable * drawable) {return &sceneObject == drawable; });
 }
 
 GLuint FlatRenderer::getTexture() {
@@ -175,12 +170,17 @@ void FlatRenderer::setup() {
 }
 
 void FlatRenderer::renderDrawableRaw(Drawable * drawable, Shader shader, DrawType drawType) {
+
 	if (drawable) {
+		//set mvp matrix and texture location
 		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(drawable->getMVPMatrix()));
 
 		glUniform1i(glGetUniformLocation(shader.getId(), "alphaTexture"), 0);
 		glUniform1i(glGetUniformLocation(shader.getId(), "diffuseTexture"), 1);
 		glUniform1i(glGetUniformLocation(shader.getId(), "specularTexture"), 2);
+
+		//if object is a text object switch to multi texture drawinfg
+		//and reduce texture use to alpha texture only
 		if (Text * textObject = dynamic_cast<Text*>(drawable)) {
 			glUniform1i(glGetUniformLocation(shader.getId(), "enableAlphaTexture"), 1);
 			glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"), 0);
@@ -192,9 +192,27 @@ void FlatRenderer::renderDrawableRaw(Drawable * drawable, Shader shader, DrawTyp
 			}
 		}
 		else {
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableAlphaTexture"), 0);
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"), 0);
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), 0);
+			//bind textures to shader
+			bool useAlphaTexture    = drawable->settings.useAlphaTexture   && drawable->getAlphaTextures().size() > 0;
+			bool useSpecularTexture = drawable->settings.useSpecualTexture && drawable->getSpecularTextures().size() > 0;
+			bool useDiffuseTexture  = drawable->settings.useDiffuseTexture && drawable->getDiffuseTextures().size() > 0;
+			glUniform1i(glGetUniformLocation(shader.getId(), "enableAlphaTexture"),    useAlphaTexture);
+			glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"),  useDiffuseTexture);
+			glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), useSpecularTexture);
+
+			if(useAlphaTexture) {
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, drawable->getAlphaTextures()[0]->getGLTexture());
+			}
+			if(useDiffuseTexture) {
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, drawable->getDiffuseTextures()[0]->getGLTexture());
+			}
+			if(useSpecularTexture) {
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, drawable->getSpecularTextures()[0]->getGLTexture());
+			}
+
 			drawable->draw(drawType);
 		}
 

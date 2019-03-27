@@ -10,7 +10,7 @@ Texture::Texture()
 
 Texture::Texture(const char * path)
 {
-	
+	int nrChannels;
 	unsigned char * imageData = stbi_load(path, &width, &height, &nrChannels, STBI_rgb_alpha);
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -34,10 +34,37 @@ Texture::Texture(const char * path)
 	}
 	stbi_image_free(imageData);
 	
+	this->internalFormat = GL_RGBA;
+	this->format = GL_RGBA;
+	this->dataType = GL_UNSIGNED_BYTE;
 }
 
-Texture::Texture(void * data, int width, int height, TextureFormat format, TextureDataType dataType)
+
+Texture::Texture(void * data, int width, int height, GLenum format, GLenum internalFormat, GLenum dataType)
 {
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, dataType, data);
+
+	this->width = width;
+	this->height = height;
+	this->format = format;
+	this->internalFormat = internalFormat;
+	this->dataType = dataType;
+}
+
+Texture::Texture(const unsigned int &glTextureRef, int width, int height, GLenum format, GLenum internalFormat, GLenum dataType) {
+	this->texture = glTextureRef;
+	this->width = width;
+	this->height = height;
+	this->dataType = dataType;
+	this->format = format;
+	this->internalFormat = internalFormat;
 }
 
 GLuint Texture::getGLTexture() const
@@ -55,19 +82,16 @@ int Texture::getHeight() const
 	return height;
 }
 
-int Texture::getChannelsCount() const
-{
-	return nrChannels;
+GLenum Texture::getFormat() const {
+	return format;
 }
 
-TextureFormat Texture::getFormat()
-{
-	return TextureFormat();
+GLenum Texture::getInternalFormat() const {
+	return internalFormat;
 }
 
-TextureDataType Texture::getDataType()
-{
-	return TextureDataType();
+GLenum Texture::getDataType() const {
+	return dataType;
 }
 
 void Texture::activate(int textureOffset)

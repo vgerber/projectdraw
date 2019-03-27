@@ -465,7 +465,7 @@ void DeferredRenderer::renderDrawable(Drawable * drawable, DrawType drawType) {
 
 		renderDrawableRaw(drawable, shaderBasic, DrawType::TRIANGLEG);
 
-		drawable->setPosition(oldPosition);
+		drawable->translate(oldPosition);
 		drawable->scale(oldScale);
 	}
 

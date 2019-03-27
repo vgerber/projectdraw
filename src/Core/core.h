@@ -6,8 +6,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Resource/resourcemanager.h"
-#include "Shader/shader.h"
+#include "Core/Resource/resourcemanager.h"
+#include "Core/Shader/shader.h"
+#include "Core/Util/Config/configurator.h"
+#include "Core/Util/Debug/logging.h"
 
 void initCore();
 

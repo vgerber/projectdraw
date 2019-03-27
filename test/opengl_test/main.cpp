@@ -8,13 +8,14 @@
 #include "Core/Texture/Filter/Antialias/smaa.h"
 #include "Core/Scene/UI/HUD/hud.h"
 #include "Core/Mesh/Primitives/primitives.h"
+#include "Core/Util/Config/configurator.h"
 
 const int WIDTH = 1200;
 const int HEIGHT = 700;
 
 const int samples = 4;
 
-int main() {
+int main(int argc, char ** argv) {
 
 
     sf::ContextSettings ctxSetting;
@@ -26,7 +27,10 @@ int main() {
 
     sf::Window window(sf::VideoMode(WIDTH, HEIGHT), "Experimental", sf::Style::Default , ctxSetting);
 	window.setVerticalSyncEnabled(true);
-    initCore();
+    
+	Log::setFilter(true, LogType::Error);
+
+	initCore();
     glViewport(0, 0, WIDTH, HEIGHT);
 
 	
@@ -137,15 +141,22 @@ int main() {
     Font font(ResourceManager::GetPath("/Fonts/VeraMono.ttf").c_str(), 30);
 	Text textSceneName(font);
     textSceneName.setText("Experimental 3D");
-	textSceneName.setPosition(0.0f, 00.0f, -10.0f);
+	textSceneName.translate(0.0f, 00.0f, -10.0f);
 	textSceneName.scaleToWidth(0.2f * WIDTH);
 	//textSceneName.scale(textSceneName.getScale() * glm::vec3(1.0f, -1.0f, 1.0f));
 
 	Mesh * testCircle = pd::generateCircle(30.0f, 30.0f, glm::vec4(0.0f, 1.0f, 0.0f, 0.5));
-	testCircle->setPosition(0.3f * WIDTH, 0.5f * HEIGHT, -0.0f);
+	testCircle->translate(0.3f * WIDTH, 0.5f * HEIGHT, -0.0f);
 
-	Mesh * testRect = pd::generateRectangle(0.7f * WIDTH, 100.0f, glm::vec4(1.0f, 0.5f, 1.0f, 1.0f));
-	testRect->setPosition(0.5f * WIDTH, HEIGHT - 50.0f, 0.0f);
+	Mesh * testRect = pd::generateRectangle(100, 100.0f, glm::vec4(1.0f, 0.5f, 1.0f, 1.0f));
+	testRect->translate(0.5f * WIDTH, HEIGHT - 50.0f, 0.0f);
+
+	Texture testRectTexture(ResourceManager::GetPath("/Assets/rgba_test.png").c_str());
+	Texture testRectAlphaTexture(ResourceManager::GetPath("/Assets/alpha_test.png").c_str());
+	testRect->addTexture(testRectTexture, TextureType::Diffuse);
+	testRect->addTexture(testRectAlphaTexture, TextureType::Alpha);
+	testCircle->addTexture(testRectTexture, TextureType::Diffuse);
+
 
 	HUD testHud(WIDTH, HEIGHT);
 	testHud.addObject(textSceneName);

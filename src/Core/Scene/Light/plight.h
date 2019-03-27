@@ -20,7 +20,7 @@ public:
 	DepthMap getCubeDepthMap();
 
 	///set position of light (recalcs cubemap matrices)
-	void setPosition(glm::vec3 position);
+	void translate(glm::vec3 translation) override;
 
 	///set maximum light distance
 	void setDistance(float distance);

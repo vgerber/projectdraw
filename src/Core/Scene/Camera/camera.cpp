@@ -4,7 +4,7 @@
 // Constructor with scalar values
 Camera::Camera(glm::vec3 position, glm::vec3 forward, glm::vec3 up)
 {
-	setPosition(position);
+	translate(position);
 	setForwardUp(forward, up);
 	this->updateViewMatrix();
 }
@@ -59,7 +59,13 @@ void Camera::updateViewMatrix()
 	glm::mat4 worldRotation = getWorldTransform().getRotation().getRotationMatrix();
 	glm::vec3 worldForward = worldRotation * glm::vec4(getBaseForward(), 0.0);
 	glm::vec3 worldUp = worldRotation * glm::vec4(getBaseUp(), 0.0);
-	viewMatrix = glm::lookAt(pos, pos + worldForward, worldUp);
+	if(!isRightFlipped()) {
+		viewMatrix = glm::lookAtRH(pos, pos + worldForward, worldUp);
+	}
+	else {
+		viewMatrix = glm::lookAtLH(pos, pos + worldForward, worldUp);
+	}
+	
 }
 
 void Camera::transformChanged() {

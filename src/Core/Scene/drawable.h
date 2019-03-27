@@ -3,7 +3,9 @@
 #include "Core/Scene/sceneobject.h"
 #include "Core/Shader/shader.h"
 #include "Core/Renderer/arenderer.h"
+#include "Core/Texture/texture.h"
 
+#include <algorithm>
 #include <memory>
 
 struct Vertex {
@@ -25,6 +27,8 @@ enum DrawType {
 	POINTG,
 	LINEG,
 };
+
+
 
 struct DrawableInfo {
 	//Drawing
@@ -55,37 +59,121 @@ struct DrawableInfo {
 	bool outlineVisible = false;
 	float outlineThickness = 1.0f;
 	glm::vec4 outlineColor = glm::vec4(1.0f);
+
+	//Texture
+	bool useDiffuseTexture = true;
+	bool useAlphaTexture = true;
+	bool useSpecualTexture = true;
 };
 
-
+/**
+ * @brief Base class for renderable objects
+ * 
+ */
 class Drawable : public SceneObject
 {
 public:
-
+	/**
+	 * @brief Drawing options
+	 * DrawableInfo are optional parameters for renderer
+	 * Implementation depends on renderer 
+	 */
 	DrawableInfo settings;
 
+	/**
+	 * @brief Add new diffuse texture
+	 * 
+	 * @param texture 
+	 */
+	void addTexture(const Texture &texture, TextureType type);
+
+	/**
+	 * @brief Remove diffuse texture
+	 * 
+	 * @param texture 
+	 */
+	void removeTexture(Texture &texture);
+
+	/**
+	 * @brief Get the Textures
+	 * 
+	 * @return const std::vector<Texture*> 
+	 */
+	const std::vector<const Texture*> getDiffuseTextures() const;
+
+	/**
+	 * @brief Get the Alpha Texture
+	 * 
+	 * @return const Texture* 
+	 */
+	const std::vector<const Texture*> getAlphaTextures() const;
+
+	/**
+	 * @brief Get the Specular Texture
+	 * 
+	 * @return const Texture* 
+	 */
+	const std::vector<const Texture*> getSpecularTextures() const;
+
+	/**
+	 * @brief Get object size
+	 * 
+	 * @return Size 
+	 */
 	virtual Size getSize() = 0;
 
-	///Draw model with drawing settings
+	/**
+	 * @brief Draw object
+	 * 
+	 * @param drawType Mesh representation
+	 */
 	virtual void draw(DrawType drawType = DrawType::TRIANGLEG) = 0;
 
-	///Draw with instancing
+	/**
+	 * @brief Draw object as instanced object
+	 * 
+	 * Function will be used by instancer or particle generators
+	 * 
+	 * @param amount Number of instances
+	 * @param drawType Mesh representation
+	 */
 	virtual void drawInstancing(int amount, DrawType drawType = DrawType::TRIANGLEG) = 0;
 
-	///Draw bounding box with model center (not aabb)
+	/**
+	 * @brief Draw bounding box of object (not aabb)
+	 * 
+	 */
 	virtual void drawBox();
 
-	///Set camera matrices and generate mvp matrix
-	///Used by renderer (for caching mvp)
+	/**
+	 * @brief Set the internal mvp matrix
+	 * 
+	 * Function will be used by renderer
+	 * 
+	 * @param cView Camera view
+	 * @param cProj Camera projection
+	 */
 	virtual void setCameraMatrices(glm::mat4 cView, glm::mat4 cProj);
 
-	///get cached mvp matrix
+	/**
+	 * @brief Get calculated mvp matrix
+	 * 
+	 * @return glm::mat4 
+	 */
 	glm::mat4 getMVPMatrix();
 
-	///Destroy aquired resources
+	/**
+	 * @brief Free all resources
+	 * 
+	 */
 	void dispose();	
 
 protected:
-	glm::mat4 mvp = glm::mat4(1.0);
+	glm::mat4 mvp = glm::mat4(1.0); //cached mvp matrix 
+
+	//added textures
+	std::vector<const Texture*> diffuseTextures;
+	std::vector<const Texture*> specularTextures; 
+	std::vector<const Texture*> alphaTextures;
 private:
 };

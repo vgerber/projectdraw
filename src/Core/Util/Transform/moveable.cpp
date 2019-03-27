@@ -35,6 +35,10 @@ void Transform::rotate(Rotator rotator) {
 	updateMatrix();
 }
 
+glm::vec3 Transform::getPosition() {
+	return position;
+}
+
 glm::vec3 Transform::getTranslation() {
 	return translation;
 }
@@ -80,24 +84,19 @@ void Transform::updateMatrix() {
 		glm::translate(glm::mat4(1.0), translation) *
 		rotator.getRotationMatrix() *
 		glm::scale(glm::mat4(1.0), scaling);
-}
-
-
-glm::mat4 Moveable::getModelMatrix()
-{
-	return transform.getMatrix();
+	position = transformMatrix * glm::vec4(0, 0, 0, 1);
 }
 
 Transform Moveable::getTransform() {
 	return transform;
 }
 
-void Moveable::setPosition(float x, float y, float z)
+void Moveable::translate(float x, float y, float z)
 {
-	setPosition(glm::vec3(x, y, z));
+	translate(glm::vec3(x, y, z));
 }
 
-void Moveable::setPosition(glm::vec3 translation)
+void Moveable::translate(glm::vec3 translation)
 {
 	transform.translate(translation);
 	transformChanged();
@@ -127,12 +126,16 @@ void Moveable::setTransform(Transform transform) {
 void Moveable::setForward(glm::vec3 forwardDirection) {
 	this->forward = glm::normalize(forwardDirection);
 	this->right = glm::cross(this->forward, this->up);
+	if(isRightFlipped())
+		this->right = -this->right;
 	updateDirection(transform);
 }
 
 void Moveable::setUp(glm::vec3 upDirection) {
 	this->up = glm::normalize(upDirection);
 	this->right = glm::cross(this->forward, this->up);
+	if(isRightFlipped())
+		this->right = -this->right;
 	updateDirection(transform);
 }
 
@@ -141,12 +144,15 @@ void Moveable::setForwardUp(glm::vec3 forwardDircetion, glm::vec3 upDirection)
 	this->forward = glm::normalize(forwardDircetion);
 	this->up = glm::normalize(upDirection);
 	this->right = glm::cross(this->forward, this->up);
+	if(isRightFlipped())
+		this->right = -this->right;
 	updateDirection(transform);
 }
 
 void Moveable::flipRight()
 {
-	this->right = -right;
+	this->right = -this->right;
+	rightFlipped = !rightFlipped;
 	updateDirection(transform);
 }
 
@@ -237,7 +243,11 @@ void Moveable::scaleToDepth(float depth)
 	scaleToSize(new_size);
 }
 
-glm::vec3 Moveable::getPosition()
+glm::vec3 Moveable::getPosition() {
+	return transform.getPosition();
+}
+
+glm::vec3 Moveable::getTranslation()
 {
 	return transform.getTranslation();
 }
@@ -274,4 +284,8 @@ void Moveable::updateDirection(Transform transform) {
 	transForward = rotationMatrix * glm::vec4(forward, 0.0);
 	transUp      = rotationMatrix * glm::vec4(up, 0.0);
 	transRight   = rotationMatrix * glm::vec4(right, 0.0);	
+}
+
+bool Moveable::isRightFlipped() {
+	return rightFlipped;
 }

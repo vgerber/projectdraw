@@ -35,17 +35,17 @@ int main() {
 
     PerspectiveCamera freeCamera;
     freeCamera.setClipping(freeCamera.getClippingNear(), 120.0f);
-    freeCamera.setPosition(glm::vec3(-20.0f, 0.0f, 10.0f));
+    freeCamera.translate(glm::vec3(-20.0f, 0.0f, 10.0f));
     freeCamera.setForward(glm::vec3(0.0f, 0.0f, 0.0f) - freeCamera.getPosition());
     mainScene.addObject(freeCamera);
 	
     Mesh ground = *pd::generateQuad(40.0f, 40.0f, 0.2f, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
-    ground.setPosition(glm::vec3(0.0f, 0.0f, -0.1f));
+    ground.translate(glm::vec3(0.0f, 0.0f, -0.1f));
     mainScene.addObject(ground);
 
 	Mesh testObject;
     testObject = *pd::generateSphere(20, 20,  glm::vec4(0.4f, 0.8f, 0.4f, 1.0f));
-    testObject.setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
+    testObject.translate(glm::vec3(0.0f, 0.0f, 5.0f));
     testObject.scale(glm::vec3(4.0));
     mainScene.addObject(testObject);
 
@@ -92,7 +92,7 @@ int main() {
     srand(time(0));
     collision::CollisionShape tBoxShape(collision::generateCube(Size(0.0, 0.0, 0.0, 3.0, 3.0, 5.0)));
     TriggerVolume tTestTrigger(tBoxShape, glm::vec3(0.0, 0.0, 2.5));
-    triggerIndicator.setPosition(tTestTrigger.getPosition());
+    triggerIndicator.translate(tTestTrigger.getPosition());
     tTestTrigger.onCollide = [&tTestTrigger, &triggerIndicator](const CollisionObject * collisionObject) {
         if(const RaycastVehicle * vehicle = dynamic_cast<const RaycastVehicle*>(collisionObject)) {
             glm::vec3 newPosition(
@@ -100,8 +100,8 @@ int main() {
                 ((float)rand() / RAND_MAX) * 10.0f -5.0f,
                 2.5
             );
-            triggerIndicator.setPosition(newPosition);
-            tTestTrigger.setPosition(newPosition);
+            triggerIndicator.translate(newPosition);
+            tTestTrigger.translate(newPosition);
         }
     };
     physicsWorld.addCollisionObject(tTestTrigger);
@@ -136,10 +136,10 @@ int main() {
 
 		//Keyboard events
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
-			rGroundBody.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, -5.0f * deltaTimeMilli));
+			rGroundBody.translate(ground.getPosition() + glm::vec3(0.0f, 0.0f, -5.0f * deltaTimeMilli));
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-			rGroundBody.setPosition(ground.getPosition() + glm::vec3(0.0f, 0.0f, 5.0f * deltaTimeMilli));
+			rGroundBody.translate(ground.getPosition() + glm::vec3(0.0f, 0.0f, 5.0f * deltaTimeMilli));
 		}
 
         RaycastHitResult hitResult = physicsWorld.rayCastAll(glm::vec3(0.0, 10.0, 2.0), glm::vec3(0.0, -10.0, 2.0));

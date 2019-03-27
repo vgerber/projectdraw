@@ -4,15 +4,15 @@ Mesh * pd::generateRectangle(GLfloat width, GLfloat height, glm::vec4 color = gl
 {
 	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
 	std::vector<GLfloat> vertices = {
-		x,			y,			z, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-		x + width,	y,			z, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
-		x + width,  y + height, z, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-		x,			y + height, z, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
+		x,			y,			z, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
+		x + width,	y,			z, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+		x + width,  y + height, z, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+		x,			y + height, z, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
 
-		x,			y,			z, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		x + width,	y,			z, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-		x + width,	y + height,	z, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-		x,			y + height, z, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f
+		x,			y,			z, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+		x + width,	y,			z, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		x + width,	y + height,	z, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		x,			y + height, z, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f
 	};
 
 

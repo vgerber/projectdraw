@@ -30,9 +30,9 @@ void PointLight::endShadowMapping()
 	glCullFace(GL_BACK);		
 }
 
-void PointLight::setPosition(glm::vec3 position)
+void PointLight::translate(glm::vec3 translation)
 {
-	Light::setPosition(position);
+	Light::translate(translation);
 	setupShadowCube();
 }
 

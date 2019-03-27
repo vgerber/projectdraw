@@ -1,5 +1,7 @@
 {
     "files.associations": {
+        "*.fragment": "glsl",
+        "*.vertex": "glsl",
         "cmath": "cpp",
         "cstdarg": "cpp",
         "cstddef": "cpp",
@@ -23,7 +25,8 @@
         "condition_variable": "cpp",
         "mutex": "cpp",
         "system_error": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "iostream": "cpp"
     },
     "C_Cpp.configurationWarnings": "Disabled"
 }

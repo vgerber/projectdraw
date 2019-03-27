@@ -13,11 +13,11 @@ void ParticleGenerator::draw(DrawType drawType)
 	for (size_t i = 0; i < particles.size(); i++) {
 		Particle part = particles[i];
 		if (part.alive) {
-			particleDrawable->setPosition(part.position);
+			particleDrawable->translate(part.position);
 			//drawableParticle.rotate(part.rotation);
 			particleDrawable->scale(part.scale);
 
-			matrices[i] = particleDrawable->getModelMatrix();
+			matrices[i] = particleDrawable->getTransform().getMatrix();
 		}
 		else {
 			matrices[i] = glm::mat4(0);

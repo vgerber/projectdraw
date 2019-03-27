@@ -34,13 +34,13 @@ void Shader::load()
 			shader_stream.close();
 		}
 		else {
-			printf("Impossible to open %s. Are you in the right directory ?\n", layer.path.c_str());
+			Log::write(LogType::Error, "Impossible to open " + layer.path, "Shader");
 			getchar();
 			return;
 		}
 
 		// Compile Vertex Shader
-		printf("Compiling shader : %s\n", layer.path.c_str());
+		Log::write(LogType::Info, "Compiling shader " + layer.path, "Shader");
 		char const * code_ptr = code.c_str();
 		glShaderSource(shader_id, 1, &code_ptr, NULL);
 		glCompileShader(shader_id);
@@ -55,7 +55,7 @@ void Shader::load()
 		}
 		shader_ids.push_back(shader_id);
 	}
-	printf("Linking program\n");
+	Log::write(LogType::Info, "Linking program", "Shader");
 	programm_id = glCreateProgram();
 	for (GLuint shader_id : shader_ids) {
 		glAttachShader(programm_id, shader_id);
@@ -67,7 +67,8 @@ void Shader::load()
 	if (info_length > 0) {
 		std::vector<char> program_err_msg(info_length + 1);
 		glGetProgramInfoLog(programm_id, info_length, NULL, &program_err_msg[0]);
-		printf("%s\n", &program_err_msg[0]);
+		//printf("%s\n", &program_err_msg[0]);
+		Log::write(LogType::Error, std::string(program_err_msg.data()), "Shader");
 	}
 
 	for (GLuint shader_id : shader_ids) {

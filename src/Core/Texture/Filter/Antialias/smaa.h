@@ -9,16 +9,44 @@
 
 class SMAA : public Filter {
 public:
+	/**
+	 * @brief apply filter to texture
+	 * 
+	 * @param texture target texture
+	 */
 	virtual void apply(unsigned int texture);
 
+	/**
+	 * @brief apply filter to texture
+	 * 
+	 * @param texture target texture
+	 */
 	virtual void apply(const Texture &texture);
 
+	/**
+	 * @brief resize filter to texture size
+	 * 
+	 * @param width texture width
+	 * @param height texture height
+	 */
 	virtual void resize(int width, int height);
 
+	/**
+	 * @brief clear filter
+	 * 
+	 */
 	virtual void clear();
 
+	/**
+	 * @brief free filter resources
+	 * 
+	 */
 	virtual void dispose();
 
+	/**
+	 * @brief initialise filter resources
+	 * 
+	 */
 	virtual void setup();
 protected:
 	int width, height;

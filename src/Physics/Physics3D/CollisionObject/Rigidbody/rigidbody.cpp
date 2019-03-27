@@ -79,7 +79,7 @@ void RigidBody::refreshDrawable()
 		//if(rType == RigidType::STATIC)
 		//	transform.setOrigin(transform.getOrigin() + btVector3(drawable->getSize().width, drawable->getSize().height, drawable->getSize().depth) * btVector3(0.5f, 0.5f, 0.5f));
 		//position = toVec3(transform.getOrigin());
-		drawable->setPosition(position);
+		drawable->translate(position);
 		drawable->rotate(rotator);
 	}
 }

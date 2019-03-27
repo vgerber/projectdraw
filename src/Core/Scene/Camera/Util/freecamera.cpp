@@ -2,15 +2,15 @@
 
 
 void FreeCamera::moveUp(float value) {
-    setPosition(getPosition() + getUp() * value * moveSpeed);
+    translate(getTranslation() + getUp() * value * moveSpeed);
 }
 
 void FreeCamera::moveRight(float value) {
-    setPosition(getPosition() + getRight() * value * moveSpeed);
+    translate(getTranslation() + getRight() * value * moveSpeed);
 }
 
 void FreeCamera::moveForward(float value) {
-    setPosition(getPosition() + getForward() * value * moveSpeed);
+    translate(getTranslation() + getForward() * value * moveSpeed);
 }
 
 void FreeCamera::tiltUp(float value) {

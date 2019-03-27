@@ -3,16 +3,9 @@
 #include <map>
 
 #include "Core/Shader/shader.h"
+#include "Core/Scene/Text/font.h"
 #include "Core/Mesh/Primitives/basicmesh.h"
-
-
-#ifdef _WIN32
-const std::string ROOT_DIR = "C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/src";
-#endif
-
-#ifdef linux
-const std::string ROOT_DIR = "/home/vincent/Development/Cpp/projectdraw_slim/src";
-#endif
+#include "Core/Util/Config/configurator.h"
 
 
 namespace ShaderName {
@@ -99,21 +92,58 @@ namespace ShaderName {
 
 namespace FontName {
 	namespace Base {
-		const std::string VeraMono = "BaseVeraMono";
+		const std::string Arial = "/Font/arial.ttf";
 	}
 }
 
 class ResourceManager {
 public:
-	static std::string GetPath(const GLchar* path);
+	/**
+	 * @brief Combines relative path in Engine with EngineSrc path
+	 * 
+	 * @param path Relative path
+	 * @return std::string Absolute path to resource in EngineRoot/src
+	 */
+	static std::string GetPath(std::string path);
 
+	/**
+	 * @brief Combines relative path in Project with ProjectSrc üath
+	 * 
+	 * @param path Relative path
+	 * @return std::string Absolute path to resource in ProjectSrc
+	 */
+	static std::string GetProjectPath(std::string path);
+
+	/**
+	 * @brief Stores shader for later use
+	 * 
+	 * Please check for name collisions
+	 * 
+	 * @param name Shader storage name
+	 * @param shader 
+	 */
 	static void storeShader(std::string name, Shader shader);
+
+	/**
+	 * @brief Get shader from storage
+	 * 
+	 * @param name 
+	 * @return Shader 
+	 */
 	static Shader loadShader(std::string name);
+
+	/**
+	 * @brief Remove shader from storage
+	 * 
+	 * @param name 
+	 */
 	static void deleteShader(std::string name);
 
-	static void free();
+	/**
+	 * @brief Free allocated memory
+	 * 
+	 */
+	static void dispose();
 private:
 	static std::map<std::string, Shader> shaders;
-
-
 };

@@ -10,35 +10,26 @@
 
 #include <string>
 
-
-enum TextureFormat {
-	R,
-	RG,
-	RGB,
-	RGBA
-};
-
-enum TextureDataType {
-	UByte,
-	Float,
-	Int,
-
+enum TextureType {
+	Diffuse,
+	Specular,
+	Alpha,
+	Normal
 };
 
 class Texture {
 public:
 	Texture();
 	Texture(const char * path);
-	Texture(void * data, int width, int height, TextureFormat format, TextureDataType dataType);
-
+	Texture(void * data, int width, int height, GLenum format, GLenum internalFormat, GLenum dataType);
+	Texture(const unsigned int &glTextureRef, int width, int height, GLenum format, GLenum internalFormat, GLenum dataType);
 
 	virtual GLuint getGLTexture() const;
-
 	int getWidth() const;
 	int getHeight() const;
-	int getChannelsCount() const;
-	TextureFormat getFormat();
-	TextureDataType getDataType();
+	GLenum getFormat() const;
+	GLenum getInternalFormat() const;
+	GLenum getDataType() const;
 
 	virtual void activate(int textureOffset = 0);
 
@@ -47,5 +38,7 @@ protected:
 	GLuint texture;
 	std::string name;
 
-	int width = 0, height = 0, nrChannels = 0;
+	GLenum format, internalFormat, dataType;
+
+	int width = 0, height = 0;
 };

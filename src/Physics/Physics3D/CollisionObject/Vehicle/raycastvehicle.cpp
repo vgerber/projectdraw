@@ -97,7 +97,7 @@ void RaycastVehicle::update() {
     Rotator chassisRotator;
     chassisRotator.rotateAxis(chassisRotation.getAngle(), toGLMVec3(chassisRotation.getAxis()));
     if(drawable) {        
-        drawable->setPosition(toGLMVec3(chassisTransform.getOrigin()));
+        drawable->translate(toGLMVec3(chassisTransform.getOrigin()));
         drawable->rotate(chassisRotator);
     }
 
@@ -115,7 +115,7 @@ void RaycastVehicle::update() {
             //wheelRotator.rotateAxis(, glm::vec3(1.0, 0.0, 0.0));
             wheelRotator.applyRotation(wheelSteerRotator);
 
-            wheel.drawable->setPosition(toGLMVec3(wheelTransform.getOrigin()));
+            wheel.drawable->translate(toGLMVec3(wheelTransform.getOrigin()));
             wheelRotator.applyRotation(chassisRotator);
             wheel.drawable->rotate(wheelRotator);            
         }

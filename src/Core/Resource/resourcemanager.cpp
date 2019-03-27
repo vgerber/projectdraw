@@ -4,11 +4,13 @@
 std::map<std::string, Shader> ResourceManager::shaders;
 
 
-std::string ResourceManager::GetPath(const GLchar * path)
+std::string ResourceManager::GetPath(std::string path)
 {
-	std::string complete_path = ROOT_DIR;
-	complete_path += path;
-	return complete_path;
+	return Configurator::get(Configurator::EngineSrc) + path;
+}
+
+std::string ResourceManager::GetProjectPath(std::string path) {
+	return Configurator::get(Configurator::ProjectRoot) + path;
 }
 
 void ResourceManager::storeShader(std::string name, Shader shader)
@@ -28,6 +30,6 @@ void ResourceManager::deleteShader(std::string name)
 		shaders.erase(shader);
 }
 
-void ResourceManager::free()
+void ResourceManager::dispose()
 {
 }
