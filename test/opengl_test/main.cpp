@@ -138,7 +138,7 @@ int main(int argc, char ** argv) {
 	smaaFilter.setup();
 	smaaFilter.resize(WIDTH, HEIGHT);
 
-    Font font(ResourceManager::GetPath("/Fonts/VeraMono.ttf").c_str(), 30);
+    Font font(ResourceManager::GetPath(FontName::Base::Arial).c_str(), 30);
 	Text textSceneName(font);
     textSceneName.setText("Experimental 3D");
 	textSceneName.translate(0.0f, 00.0f, -10.0f);

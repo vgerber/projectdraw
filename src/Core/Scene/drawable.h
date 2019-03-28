@@ -130,22 +130,6 @@ public:
 	virtual void draw(DrawType drawType = DrawType::TRIANGLEG) = 0;
 
 	/**
-	 * @brief Draw object as instanced object
-	 * 
-	 * Function will be used by instancer or particle generators
-	 * 
-	 * @param amount Number of instances
-	 * @param drawType Mesh representation
-	 */
-	virtual void drawInstancing(int amount, DrawType drawType = DrawType::TRIANGLEG) = 0;
-
-	/**
-	 * @brief Draw bounding box of object (not aabb)
-	 * 
-	 */
-	virtual void drawBox();
-
-	/**
 	 * @brief Set the internal mvp matrix
 	 * 
 	 * Function will be used by renderer

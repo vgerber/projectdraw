@@ -22,19 +22,21 @@ void FlatRenderer::resize(int width, int height) {
 		Log::write(LogType::Error, "Framebuffer not complete", "FlatRenderer");
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, multisampleRendererFBO);
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, multisampleRendererTexture);
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, msaa, GL_RGBA, getWidth(), getHeight(), GL_TRUE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, multisampleRendererTexture, 0);
+	if(msaa) {
+		glBindFramebuffer(GL_FRAMEBUFFER, multisampleRendererFBO);
+		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, multisampleRendererTexture);
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, msaa, GL_RGBA, getWidth(), getHeight(), GL_TRUE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, multisampleRendererTexture, 0);
 
-	glBindRenderbuffer(GL_RENDERBUFFER, multisampleRendererRBO);
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaa, GL_DEPTH24_STENCIL8, getWidth(), getHeight());
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, multisampleRendererRBO);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		Log::write(LogType::Error, "MSAA Framebuffer not complete", "FlatRenderer");
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindRenderbuffer(GL_RENDERBUFFER, multisampleRendererRBO);
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaa, GL_DEPTH24_STENCIL8, getWidth(), getHeight());
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, multisampleRendererRBO);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			Log::write(LogType::Error, "MSAA Framebuffer not complete", "FlatRenderer");
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 }
 
 void FlatRenderer::clearScreen() {

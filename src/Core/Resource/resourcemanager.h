@@ -92,7 +92,7 @@ namespace ShaderName {
 
 namespace FontName {
 	namespace Base {
-		const std::string Arial = "/Font/arial.ttf";
+		const std::string Arial = "/Fonts/arial.ttf";
 	}
 }
 

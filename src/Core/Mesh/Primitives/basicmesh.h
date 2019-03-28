@@ -37,21 +37,59 @@ public:
 	Mesh(std::string path);
 	Mesh();
 	
-	///modifies all vertices with the offset
+	/**
+	 * @brief Applies a offset vector to all vertices
+	 * 
+	 * @param offset 
+	 */
 	void applyMeshOffset(glm::vec3 offset);
 
-	///modifies all vertices with the transformation
+	/**
+	 * @brief Applies a transformation to all vertices
+	 * 
+	 * @param transform 
+	 */
 	void applyMeshTransformation(Transform transform);
 
+	/**
+	 * @brief Transform mesh to new mesh center
+	 * 
+	 * @param centerPoint 
+	 */
 	void applyMeshRecenter(glm::vec3 centerPoint);
 
+	/**
+	 * @brief Get the bounding size of the mesh
+	 * 
+	 * @return Size 
+	 */
 	virtual Size getSize() override;
 
+	/**
+	 * @brief Free all resources
+	 * 
+	 */
 	void dispose();
 
+	/**
+	 * @brief Set the vertices vector
+	 * 
+	 * @param vertices 
+	 */
 	void setVertices(std::vector<Vertex> vertices);
 	
+	/**
+	 * @brief Get all mesh vertices
+	 * 
+	 * @return std::vector<Vertex> 
+	 */
 	std::vector<Vertex> getVertices();
+
+	/**
+	 * @brief Get all vertices indices
+	 * 
+	 * @return std::vector<GLuint> 
+	 */
 	std::vector<GLuint> getIndices();
 	std::vector<sTexture> getTextures();
 protected:
@@ -61,24 +99,52 @@ protected:
 	std::vector<GLuint> indices;
 	std::vector<sTexture> textures;
 
-	virtual void draw(DrawType drawType = DrawType::TRIANGLEG)					     override;
-	virtual void drawInstancing(int amount, DrawType drawType = DrawType::TRIANGLEG) override;
+	virtual void draw(DrawType drawType = DrawType::TRIANGLEG) override;
 
-	///load mesh data from file
+	/**
+	 * @brief Load data from file
+	 * 
+	 * @param path 
+	 */
 	void loadMesh(std::string path);
 
-	///process assimp node
+	/**
+	 * @brief Processes node if current node has subnodes
+	 * 
+	 * @param node 
+	 * @param scene 
+	 */
 	void processNode(aiNode* node, const aiScene* scene);
 
-	///extract mesh from node
+	/**
+	 * @brief Read and save mesh data
+	 * 
+	 * @param mesh 
+	 * @param scene 
+	 */
 	void processMesh(aiMesh* mesh, const aiScene* scene);
 
-	///remove empty mesh nodes and restructre children
+	/**
+	 * @brief remove emtpy nodes
+	 * 
+	 */
 	void collapseEmptyMeshes();
 
+	/**
+	 * @brief Setup memory data
+	 * 
+	 */
 	void setupMesh();
 
+	/**
+	 * @brief Refresh buffer data
+	 * 
+	 */
 	void reloadMeshData();
 
+	/**
+	 * @brief Refresh mesh size data
+	 * 
+	 */
 	void reloadSize();
 };

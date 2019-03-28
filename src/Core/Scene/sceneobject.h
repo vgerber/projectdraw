@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <algorithm>
 
 #include "Core/Util/Transform/moveable.h"
 
@@ -10,34 +11,91 @@ public:
 	SceneObject();
 	~SceneObject();
 
+	/**
+	 * @brief Get child by id
+	 * 
+	 * @param id 
+	 * @return SceneObject* 
+	 */
 	SceneObject * getChild(std::string id);
+
+	/**
+	 * @brief Add child to current node
+	 * 
+	 * @param sceneObject 
+	 */
 	void addChild(SceneObject * sceneObject);
 
+	/**
+	 * @brief Get the children
+	 * 
+	 * @return std::vector<SceneObject*> 
+	 */
 	std::vector<SceneObject*> getChildren();
 
+	/**
+	 * @brief Removes child node from tree
+	 * 
+	 * The current node where this function has been called will be the root node for this operation
+	 * 
+	 * Remove will collapse subchildren to root node if full is false 
+	 * otherwhise subchildren will be removed to
+	 * 
+	 * @param sceneObject SceneObject which will be removed
+	 * @param full True if all childs from the target will be removed too
+	 */
+	void removeChild(SceneObject * sceneObject, bool full = true);
+
+	/**
+	 * @brief Get the object id
+	 * 
+	 * @return std::string 
+	 */
 	std::string getId();
 
-	///free any allocated memory
-	///destructor would cause issues when object is shared
+	/**
+	 * @brief frees allocated memory
+	 * 
+	 * Don't dispose shared objects or this operation will lead to nullpts in other objects
+	 */
 	virtual void dispose();
 
+	/**
+	 * @brief Set the object id
+	 * 
+	 * @param id Name for object
+	 */
 	void setId(std::string id);
 	
-	///get local transform combined with parent transform
+	/**
+	 * @brief Get the world transform
+	 * 
+	 * @return Transform 
+	 */
 	Transform getWorldTransform();
 
 protected:
+	//object id/name
 	std::string id;
 
+	//storage of children
 	std::vector<SceneObject*> children;
 
 	///Transform from root to parent
 	Transform parentTransform;
 
-	///notifies all children when parents transform has been changed
+	/**
+	 * @brief Will be called when object transform has been changed
+	 * 
+	 * Children get a @ref parentTransformChanged call
+	 */
 	virtual void transformChanged() override;
 
-	///update cached modelTranform
+	/**
+	 * @brief Called when parents transform has been changed
+	 * 
+	 * @param transform 
+	 */
 	virtual void parentTransformChanged(Transform transform);
 private:
 	///Cached transform with parent, base and model transform

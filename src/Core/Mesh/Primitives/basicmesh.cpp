@@ -143,6 +143,7 @@ void Mesh::draw(DrawType drawType)
 	}
 }
 
+/*
 void Mesh::drawInstancing(int amount, DrawType drawType)
 {
 	glBindVertexArray(this->VAO);
@@ -156,7 +157,7 @@ void Mesh::drawInstancing(int amount, DrawType drawType)
 		glDrawElementsInstanced(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0, amount);
 	}
 }
-
+*/
 
 void Mesh::loadMesh(std::string path)
 {

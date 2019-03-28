@@ -34,6 +34,38 @@ std::vector<SceneObject*> SceneObject::getChildren() {
 	return children;
 }
 
+void SceneObject::removeChild(SceneObject * sceneObject, bool full) {
+	bool childFound = false;
+
+	for(auto child : children) {
+		if(child == sceneObject) {
+			childFound = true;
+			break;
+		}
+	}
+
+	if(!childFound) {
+		return;
+	}
+
+	if(full) {
+		for(auto child : sceneObject->getChildren()) {
+			sceneObject->removeChild(child, full);
+		}
+		std::remove_if(children.begin(), children.end(), [sceneObject](SceneObject * child) { return sceneObject == child; });
+	}
+	else {
+		std::vector<SceneObject*> subChildren = sceneObject->getChildren();
+		std::remove_if(children.begin(), children.end(), [sceneObject](SceneObject * child) { return sceneObject == child; });
+		for(auto subChild : subChildren) {
+			children.push_back(subChild);
+		}
+	}
+
+	sceneObject->dispose();
+	delete sceneObject;
+}
+
 std::string SceneObject::getId()
 {
 	return id;
