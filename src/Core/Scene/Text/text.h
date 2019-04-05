@@ -15,8 +15,6 @@ public:
 
 	void draw(DrawType drawType = DrawType::TRIANGLEG) 						 override;
 
-	void drawInstancing(int amount, DrawType drawType = DrawType::TRIANGLEG) override;
-
 	///set active char index and get char texture for renderer 
 	GLuint activateChar(int i = 0);
 

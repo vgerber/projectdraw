@@ -23,10 +23,6 @@ void Text::draw(DrawType drawType)
 	glEnable(GL_CULL_FACE);
 }
 
-void Text::drawInstancing(int amount, DrawType drawType) {
-
-}
-
 GLuint Text::activateChar(int index) {
 	activeChar = index;
 	return renderedCharacters[activeChar].texture;

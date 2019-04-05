@@ -4,3 +4,5 @@ build
 doc
 *.cfg
 *.log
+*.sh
+cmake/modules

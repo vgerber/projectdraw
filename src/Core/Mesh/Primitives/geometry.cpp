@@ -110,10 +110,6 @@ void Geometry::draw(DrawType type)
 	glBindVertexArray(0);
 }
 
-void Geometry::drawInstancing(int amount, DrawType type)
-{
-}
-
 void Geometry::clear() {
 	points.clear();
 	size = 0;

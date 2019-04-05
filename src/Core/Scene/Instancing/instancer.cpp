@@ -14,7 +14,6 @@ Instancer::Instancer(Drawable * drawable, int count)
 void Instancer::draw(DrawType drawType) {
 	glUniform1f(glGetUniformLocation(shader.getId(), "useLight"), 1.0f);
 	glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), 0);
-	drawable->drawInstancing(modelMatrices.size(), drawType);
 }
 
 glm::mat4 Instancer::getModelMatrix(int index)

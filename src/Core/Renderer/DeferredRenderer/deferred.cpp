@@ -528,7 +528,6 @@ void DeferredRenderer::renderDrawableBox(Drawable * drawable) {
 	if(drawable) {
 		glUniformMatrix4fv(glGetUniformLocation(shaderBasic.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getWorldTransform().getMatrix()));
 		glUniformMatrix4fv(glGetUniformLocation(shaderBasic.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(drawable->getMVPMatrix()));
-		drawable->drawBox();
 		for(auto child : drawable->getChildren()) {
 			renderDrawableBox(dynamic_cast<Drawable*>(child));
 		}

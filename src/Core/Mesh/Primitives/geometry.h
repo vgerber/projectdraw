@@ -34,9 +34,6 @@ public:
 	///draw meshes + submeshes
 	virtual void draw(DrawType type = DrawType::LINEG) override;
 
-	///instancing  meshes + submeshes
-	virtual void drawInstancing(int amount, DrawType type = DrawType::LINEG) override;
-
 	void clear();
 protected:
 	std::vector<Point> points;
