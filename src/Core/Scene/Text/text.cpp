@@ -70,9 +70,9 @@ void Text::setText(std::string text)
 			//rChar.vertices[0] = Vertex(, , , ;
 			rChar.vertices[0] = Vertex(glm::vec3(xpos,     ypos + h, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			rChar.vertices[1] = Vertex(glm::vec3(xpos,     ypos    , 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-			rChar.vertices[2] = Vertex(glm::vec3(xpos + w, ypos    , 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+			rChar.vertices[2] = Vertex(glm::vec3(xpos + w, ypos    , 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			rChar.vertices[3] = Vertex(glm::vec3(xpos,     ypos + h, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-			rChar.vertices[4] = Vertex(glm::vec3(xpos + w, ypos    , 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+			rChar.vertices[4] = Vertex(glm::vec3(xpos + w, ypos    , 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			rChar.vertices[5] = Vertex(glm::vec3(xpos + w, ypos + h, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 /*
 			rChar.vertices[1] = { glm::vec3(xpos,     ypos,     0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) };

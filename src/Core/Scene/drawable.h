@@ -17,8 +17,8 @@ struct Vertex {
 	Vertex() {}
 	Vertex(glm::vec3 position) : Position(position) {}
 	Vertex(glm::vec3 position, glm::vec4 color) : Position(position), Color(color) {}
-	Vertex(glm::vec3 position, glm::vec4 color, glm::vec2 texCoords) : Position(position), Color(color), TexCoords(TexCoords) {}
-	Vertex(glm::vec3 position, glm::vec4 color, glm::vec2 texCoords, glm::vec3 normal) : Position(position), Color(color), TexCoords(TexCoords), Normal(normal) {}
+	Vertex(glm::vec3 position, glm::vec4 color, glm::vec2 texCoords) : Position(position), Color(color), TexCoords(texCoords) {}
+	Vertex(glm::vec3 position, glm::vec4 color, glm::vec2 texCoords, glm::vec3 normal) : Position(position), Color(color), TexCoords(texCoords), Normal(normal) {}
 };
 
 struct Material {
