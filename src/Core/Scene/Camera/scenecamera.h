@@ -47,7 +47,7 @@ public:
 	 * @param splits num of subregions in viewfrustums
 	 * @return Geometry 
 	 */
-	Geometry getDebugViewFrustum(int splits = 0);
+	Mesh getDebugViewFrustum(int splits = 0);
 
 	/**
 	 * @brief clear internal buffers

@@ -4,7 +4,7 @@
 
 #include "Core/Shader/shader.h"
 #include "Core/Scene/Text/font.h"
-#include "Core/Mesh/Primitives/basicmesh.h"
+#include "Core/Mesh/Primitives/mesh.h"
 #include "Core/Util/Config/configurator.h"
 
 

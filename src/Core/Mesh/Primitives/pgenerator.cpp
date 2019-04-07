@@ -806,7 +806,7 @@ Mesh * pd::generateCylinder(float radius, float height, float quality, glm::vec4
 	return mesh;
 }
 
-Geometry * pd::geometryCircle(float radius, float quality, glm::vec4 color)
+Mesh * pd::generateCircleLine(float radius, float quality, glm::vec4 color)
 {
 	if (quality < 3.0f) {
 		quality = 3.0f;
@@ -815,7 +815,8 @@ Geometry * pd::geometryCircle(float radius, float quality, glm::vec4 color)
 
 	GLfloat step = 2 * glm::pi<GLfloat>() / quality;
 
-	std::vector<Point> vertices;
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
 
 	for (GLfloat theta = 0; theta <= 2.0f * glm::pi<GLfloat>() + step; theta += step) {
 		GLfloat x_tex = cos(theta);
@@ -824,11 +825,13 @@ Geometry * pd::geometryCircle(float radius, float quality, glm::vec4 color)
 		GLfloat x = x_tex * radius;
 		GLfloat y = y_tex * radius;
 
-		Point p;
-		p.position = glm::vec3(x, y, 0.0f);
-		p.color = color;
+		Vertex v;
+		v.Position = glm::vec3(x, y, 0.0f);
+		v.Color = color;
 
-		vertices.push_back(p);
+		vertices.push_back(v);
+		indices.push_back(vertices.size()-1);
+
 	}
-	return new Geometry(vertices);
+	return new Mesh(vertices, indices);
 }

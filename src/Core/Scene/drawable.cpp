@@ -53,3 +53,11 @@ void Drawable::setCameraMatrices(glm::mat4 cView, glm::mat4 cProj)
 glm::mat4 Drawable::getMVPMatrix() {
 	return mvp;
 }
+
+bool Drawable::isModified() {
+	return dataChanged;
+}
+
+void Drawable::clearModifiedFlag() {
+	dataChanged = false;
+}

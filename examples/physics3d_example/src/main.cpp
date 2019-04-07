@@ -82,10 +82,10 @@ int main() {
     };
     physicsWorld.addCollisionObject(rGroundBody);
 
-    Geometry triggerIndicator;
+    Mesh triggerIndicator;
     mainScene.addObject(triggerIndicator);
-    triggerIndicator.color = glm::vec4(0.0, 1.0, 1.0, 1.0);
-    triggerIndicator.lineThickness = 10.0;
+    triggerIndicator.settings.customColor = glm::vec4(0.0, 1.0, 1.0, 1.0);
+    triggerIndicator.settings.lineThickness = 10.0;
     triggerIndicator.settings.drawType = DrawType::LINEG;
     triggerIndicator.line(glm::vec3(0.0, 0.0, -2.5), glm::vec3(0.0, 0.0, 2.5));
 

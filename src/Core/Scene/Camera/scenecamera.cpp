@@ -11,12 +11,12 @@ SceneCamera::SceneCamera(Camera & camera, Size frame, int sceneWidth, int sceneH
 	setup(sceneWidth, sceneHeight);
 }
 
-Geometry SceneCamera::getDebugViewFrustum(int splits) {
-	Geometry geoCam;
+Mesh SceneCamera::getDebugViewFrustum(int splits) {
+	Mesh geoCam;
 
 	ViewFrustum viewF = camera->getViewFrustum(splits);
 
-	geoCam.color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+	geoCam.settings.customColor = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
 	geoCam.line(viewF.position, viewF.position + viewF.up);
 	geoCam.line(viewF.position, viewF.position + viewF.front);
 	geoCam.line(viewF.position, viewF.position + viewF.right);

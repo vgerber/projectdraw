@@ -9,10 +9,16 @@
 #include <memory>
 
 struct Vertex {
-	glm::vec3 Position;
-	glm::vec3 Normal;
-	glm::vec2 TexCoords;
-	glm::vec4 Color = glm::vec4(0.0f);
+	glm::vec3 Position  = glm::vec3(0.0);
+	glm::vec3 Normal    = glm::vec3(0.0);
+	glm::vec2 TexCoords = glm::vec2(0.0);
+	glm::vec4 Color     = glm::vec4(0.0);
+
+	Vertex() {}
+	Vertex(glm::vec3 position) : Position(position) {}
+	Vertex(glm::vec3 position, glm::vec4 color) : Position(position), Color(color) {}
+	Vertex(glm::vec3 position, glm::vec4 color, glm::vec2 texCoords) : Position(position), Color(color), TexCoords(TexCoords) {}
+	Vertex(glm::vec3 position, glm::vec4 color, glm::vec2 texCoords, glm::vec3 normal) : Position(position), Color(color), TexCoords(TexCoords), Normal(normal) {}
 };
 
 struct Material {
@@ -64,6 +70,10 @@ struct DrawableInfo {
 	bool useDiffuseTexture = true;
 	bool useAlphaTexture = true;
 	bool useSpecualTexture = true;
+
+	//Geometry
+	unsigned int lineThickness = 1;
+	unsigned int pointThickness = 1;
 };
 
 /**
@@ -152,6 +162,20 @@ public:
 	 */
 	void dispose();	
 
+	/**
+	 * @brief Returns wether object vertex data has been changed or not
+	 * 
+	 * @return true If data has been changed
+	 * @return false 
+	 */
+	bool isModified(); 
+
+	/**
+	 * @brief Sets Modified flag to false
+	 * 
+	 */
+	void clearModifiedFlag();
+
 protected:
 	glm::mat4 mvp = glm::mat4(1.0); //cached mvp matrix 
 
@@ -159,5 +183,7 @@ protected:
 	std::vector<const Texture*> diffuseTextures;
 	std::vector<const Texture*> specularTextures; 
 	std::vector<const Texture*> alphaTextures;
+
+	bool dataChanged = false; //true if drawing data has been modified
 private:
 };

@@ -1,30 +1,24 @@
-#include "basicmesh.h"
+#include "mesh.h"
 
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<sTexture> textures)
 {
 	this->vertices = vertices;
 	this->indices = indices;
-	this->textures = textures;
-
 	setupMesh();
-	reloadSize();
 }
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices)
 {
 	this->vertices = vertices;
 	this->indices = indices;
-
 	setupMesh();
-	reloadSize();
 }
 
 Mesh::Mesh(std::string path)
 {
 	loadMesh(path);
 	setupMesh();
-	reloadSize();
 }
 
 Mesh::Mesh()
@@ -37,24 +31,19 @@ void Mesh::applyMeshOffset(glm::vec3 offset)
 	for (size_t i = 0; i < vertices.size(); i++) {
 		vertices[i].Position += offset;
 	}
-	glBindVertexArray(this->VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
-	reloadSize();
+	dataChanged = true;
 }
 
 void Mesh::applyMeshTransformation(Transform transfrom) {
 	for (size_t i = 0; i < vertices.size(); i++) {
 		vertices[i].Position = glm::vec3(transfrom.getMatrix() * glm::vec4(vertices[i].Position, 1.0));
 	}
-	glBindVertexArray(this->VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
-	reloadSize();
+	dataChanged = true;	
 }
 
 void Mesh::applyMeshRecenter(glm::vec3 centerPoint)
 {	
+	Size size = getSize();
 	glm::vec3 currentCenter(
 		size.x + 0.5f * size.width,
 		size.y + 0.5f * size.height,
@@ -65,6 +54,9 @@ void Mesh::applyMeshRecenter(glm::vec3 centerPoint)
 
 Size Mesh::getSize()
 {
+	if(dataChanged) {
+		reloadSize();
+	}
 	return size;
 }
 
@@ -77,58 +69,26 @@ void Mesh::dispose() {
 	}
 }
 
-void Mesh::setVertices(std::vector<Vertex> vertices)
-{
-	this->vertices = vertices;
-}
-
-std::vector<Vertex> Mesh::getVertices()
-{
-	return vertices;
-}
-
-std::vector<GLuint> Mesh::getIndices()
-{
-	return indices;
-}
-
-std::vector<sTexture> Mesh::getTextures()
-{
-	return textures;
-}
-
 void Mesh::draw(DrawType drawType)
 {
+	if(isModified()) {
+		reloadMeshData();
+		reloadSize();
+		clearModifiedFlag();
+	}
+
 	if (vertices.size() == 0) {
 		return;
 	}
-	/*
-	GLuint diffuseNr = 1;
-	GLuint specularNr = 1;
-	for (GLuint i = 0; i < this->textures.size(); i++) {
-		glActiveTexture(GL_TEXTURE0 + i); // Active proper texture unit before binding
-
-		std::string name = this->textures[i].type;
-		std::string number;
-		if (name == "texture_diffuse")
-			number = std::to_string(diffuseNr++); // Transfer GLuint to stream
-		else if (name == "texture_specular")
-			number = std::to_string(specularNr++); // Transfer GLuint to stream
-		// Now set the sampler to the correct texture unit
-		glUniform1i(glGetUniformLocation(shader.getId(), (name + number).c_str()), i);
-		// And finally bind the texture
-		glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
-	}
-	*/
-	// Also set each mesh's shininess property to a default value (if you want you could extend this to another mesh property and possibly change this value)
-	//glUniform1f(glGetUniformLocation(shader.GetProgrammId(), "material.shininess"), 16.0f);
 
 	// Draw mesh
 	glBindVertexArray(this->VAO);
 	if (drawType == DrawType::LINEG) {
+		glLineWidth(settings.lineThickness);
 		glDrawElements(GL_LINE_STRIP, this->indices.size(), GL_UNSIGNED_INT, 0);
 	}
 	else if (drawType == DrawType::POINTG) {
+		glPointSize(settings.pointThickness);
 		glDrawElements(GL_POINTS, this->indices.size(), GL_UNSIGNED_INT, 0);
 	}
 	else {
@@ -136,11 +96,11 @@ void Mesh::draw(DrawType drawType)
 	}
 
 	// Always good practice to set everything back to defaults once configured.
-	for (GLuint i = 0; i < this->textures.size(); i++)
+	/*for (GLuint i = 0; i < this->textures.size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, 0);
-	}
+	}*/
 }
 
 /*
@@ -171,6 +131,7 @@ void Mesh::loadMesh(std::string path)
 	}
 
 	this->processNode(scene->mRootNode, scene);
+	dataChanged = true;
 }
 
 void Mesh::processNode(aiNode * node, const aiScene * scene)
@@ -233,6 +194,7 @@ void Mesh::processNode(aiNode * node, const aiScene * scene)
 	//transformChanged();
 	reloadMeshData();
 	reloadSize();
+	dataChanged = true;
 }
 
 void Mesh::processMesh(aiMesh * mesh, const aiScene * scene)
@@ -350,14 +312,117 @@ std::vector<sTexture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureTyp
 	}
 	return textures;
 }
-*/ 
+*/
+
+void Mesh::lineTo(Vertex vertex)
+{
+	//in opengl lines aren't attached vertex by vertex
+	//Two vertices are merged to one line
+	//Thats why we need to check if the vertex count is even or odd
+	//and therefore the last vertex will be added twice so that the next
+	//vertex can be connected via line
+	if (vertices.size() % 2 == 0)
+	{
+		indices.push_back(vertices.size());
+		vertices.push_back(vertex);
+	}
+	else
+	{
+		indices.push_back(vertices.size());
+		indices.push_back(vertices.size());
+		vertices.push_back(vertex);
+	}
+	dataChanged = true;
+}
+
+void Mesh::lineTo(glm::vec3 position)
+{
+	lineTo(Vertex(position, settings.customColor));
+}
+
+void Mesh::lineTo(std::vector<Vertex> vertices)
+{
+	for (Vertex p : vertices)
+	{
+		lineTo(p);
+	}
+}
+
+void Mesh::line(Vertex p1, Vertex p2)
+{
+	//prevent connecting to previous vertices
+	//see lineTo
+	if (vertices.size() % 2 == 1)
+	{
+		indices.push_back(vertices.size() - 1);
+	}
+	indices.push_back(vertices.size());
+	vertices.push_back(p1);
+	indices.push_back(vertices.size());
+	vertices.push_back(p2);
+	
+	dataChanged = true;
+}
+
+void Mesh::line(glm::vec3 p1, glm::vec3 p2)
+{
+	line(Vertex{p1, settings.customColor}, Vertex{p2, settings.customColor});
+}
+
+void Mesh::addVertex(Vertex vertex)
+{
+	indices.push_back(vertices.size());
+	vertices.push_back(vertex);
+	dataChanged = true;
+}
+
+void Mesh::addVertex(glm::vec3 position)
+{
+	addVertex(Vertex{position, settings.customColor});
+}
+
+void Mesh::removeVertex(unsigned int index)
+{
+	vertices.erase(vertices.begin() + index);
+	indices.erase(std::remove_if(indices.begin(), indices.end(), [index](const unsigned int &vIndex) { return index == vIndex; }));
+	dataChanged = true;
+}
+
+std::vector<Vertex> Mesh::getVertices()
+{
+	return vertices;
+}
+
+void Mesh::setVertices(std::vector<Vertex> vertices)
+{
+	this->vertices = vertices;
+	dataChanged = true;
+}
+
+void Mesh::setIndices(std::vector<unsigned int> indices)
+{
+	this->indices = indices;
+	dataChanged = true;
+}
+
+std::vector<unsigned int> Mesh::getIndices()
+{
+	return indices;
+}
+
+void Mesh::clear()
+{
+	vertices.clear();
+	indices.clear();
+	dataChanged = true;
+}
 
 void Mesh::setupMesh()
 {
 	glGenVertexArrays(1, &this->VAO);
 	glGenBuffers(1, &this->VBO);
 	glGenBuffers(1, &this->EBO);
-	reloadMeshData();
+	dataChanged = true;
 }
 
 void Mesh::reloadMeshData()

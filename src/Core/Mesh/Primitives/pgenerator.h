@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Core/Mesh/Primitives/basicmesh.h"
-#include "Core/Mesh/Primitives/geometry.h"
+#include "Core/Mesh/Primitives/mesh.h"
 
 #include <cmath>
 #include <functional>
@@ -24,5 +23,5 @@ namespace pd {
 
 	Mesh * generateCylinder(float radius, float height, float quality, glm::vec4 color);
 
-	Geometry * geometryCircle(float radius, float quality, glm::vec4 color);
+	Mesh * generateCircleLine(float radius, float quality, glm::vec4 color);
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Mesh/Primitives/basicmesh.h"
+#include "Core/Mesh/Primitives/mesh.h"
 #include "Core/Texture/texture.h"
 
 /**

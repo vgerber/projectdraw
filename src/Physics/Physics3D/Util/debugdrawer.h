@@ -27,5 +27,5 @@ public:
 
 private:
     int debugMode = DBG_NoDebug;
-    Geometry geometry;
+    Mesh geometry;
 };

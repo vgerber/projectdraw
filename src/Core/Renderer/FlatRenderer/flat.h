@@ -13,57 +13,84 @@
 
 #include "Core/Renderer/arenderer.h"
 
-/*
-* FlatRenderer is a basic 2D renderer
-*/
+
+/**
+ * @brief 2D Renderer
+ * 
+ */
 class FlatRenderer : public AbstractRenderer {
 public:
+
+	/**
+	 * @brief Construct a new Flat Renderer object
+	 * 
+	 * @param width 
+	 * @param height 
+	 * @param camera 
+	 */
 	FlatRenderer(int width, int height, Camera &camera);
 
-	/*
-	* Resize internal storage
-	*/
+	/**
+	 * @brief Resize internals to size
+	 * 
+	 * @param width 
+	 * @param height 
+	 */
 	virtual void resize(int width, int height) override;
 
-	/*
-	* Clear render buffers
-	*/
+	/**
+	 * @brief Clear scene textures
+	 * 
+	 */
 	virtual void clearScreen() override;
 
-	/*
-	* Set background texture
-	*/
+	/**
+	 * @brief Set the Background texture
+	 * 
+	 * @param texture 
+	 */
 	virtual void setBackground(unsigned int texture);
 
-	/*
-	* Render meshes
-	*/
+	/**
+	 * @brief Render objects to scene
+	 * 
+	 */
 	virtual void render() override;
 
-	/*
-	* Add object to the render qeue
-	*/
+	/**
+	 * @brief Add an object to render process
+	 * 
+	 * @param sceneObject 
+	 */
 	virtual void addSceneObject(SceneObject &sceneObject) override;
 
-	/*
-	* Remove object from render qeue
-	*/
+	/**
+	 * @brief Remove object from render process
+	 * 
+	 * @param sceneObject 
+	 */
 	virtual void removeSceneObject(SceneObject &sceneObject) override;
 
-	/*
-	* Get texture with render() results
-	*/
+	/**
+	 * @brief Get the final render texture
+	 * 
+	 * @return GLuint 
+	 */
 	virtual GLuint getTexture() override;
 
-	/*
-	* Free memory
-	*/
+	/**
+	 * @brief Free allocated resources
+	 * 
+	 */
 	virtual void dispose() override;
 
-	/*
-	* Draw rendered image to a new framebuffer
-	* Both buffers have to be the same size
-	*/
+	/**
+	 * @brief Render scene texture to new framebuffer
+	 * 
+	 * Both have to be the same size
+	 * 
+	 * @param framebuffer 
+	 */
 	virtual void drawTexture(unsigned int framebuffer);
 
 protected:
@@ -95,5 +122,5 @@ private:
 	 */
 	virtual void renderDrawableRaw(Drawable * drawable, Shader shader, DrawType drawType = DrawType::TRIANGLEG);
 
-	unsigned int msaa = 0;
+	unsigned int msaa = 4;
 };

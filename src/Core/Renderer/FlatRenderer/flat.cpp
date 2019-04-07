@@ -99,8 +99,6 @@ void FlatRenderer::render() {
 }
 
 void FlatRenderer::addSceneObject(SceneObject &sceneObject) {
-
-
 	if (Drawable *drawable = dynamic_cast<Drawable *>(&sceneObject))
 	{
 		drawables.push_back(drawable);

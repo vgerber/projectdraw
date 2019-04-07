@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 
-#include "Core/Mesh/Primitives/basicmesh.h"
+#include "Core/Mesh/Primitives/mesh.h"
 
 class Instancer {
 public:
