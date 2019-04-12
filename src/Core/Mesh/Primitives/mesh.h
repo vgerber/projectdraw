@@ -164,7 +164,7 @@ public:
 	 * 
 	 * @return std::vector<Vertex> 
 	 */
-	std::vector<Vertex> getVertices();
+	std::vector<Vertex> getVertices() const;
 
 	/**
 	 * @brief Set the vertices 
@@ -191,7 +191,7 @@ public:
 	 * 
 	 * @return std::vector<GLuint> 
 	 */
-	std::vector<unsigned int> getIndices();
+	std::vector<unsigned int> getIndices() const;
 
 	/**
 	 * @brief Remove all vertices
@@ -252,4 +252,10 @@ protected:
 	 * 
 	 */
 	void reloadSize();
+
+	/**
+	 * @brief Notifies all listeners if data has been changed
+	 * 
+	 */
+	virtual void callUpdate() override;
 };

@@ -84,9 +84,15 @@ void FlatRenderer::render() {
 	}
 	glViewport(0, 0, getWidth(), getHeight());
 	
+	/*
 	for (auto drawable : drawables) {
 		drawable->setCameraMatrices(camera->getViewMatrix(), camera->getProjectionMatrix());
 		renderDrawableRaw(drawable, shaderMesh, drawable->settings.drawType);
+	}
+	*/
+	for(auto sceneObject : sceneObjects) {
+		sceneObject->setCamera(*camera);
+		sceneObject->draw();
 	}
 
 	if (msaa > 0) {
@@ -99,17 +105,13 @@ void FlatRenderer::render() {
 }
 
 void FlatRenderer::addSceneObject(SceneObject &sceneObject) {
-	if (Drawable *drawable = dynamic_cast<Drawable *>(&sceneObject))
-	{
-		drawables.push_back(drawable);
-		return;
-	}
+	sceneObjects.push_back(generateFlatObject(&sceneObject));
 
-	Log::write(LogType::Error, "Renderer doens't accept " + std::string(sceneObject.getId().c_str()), "FlatRenderer");
+	//Log::write(LogType::Error, "Renderer doens't accept " + std::string(sceneObject.getId().c_str()), "FlatRenderer");
 }
 
 void FlatRenderer::removeSceneObject(SceneObject &sceneObject) {
-	std::remove_if(drawables.begin(), drawables.end(), [&sceneObject](Drawable * drawable) {return &sceneObject == drawable; });
+	sceneObjects.erase(std::remove_if(sceneObjects.begin(), sceneObjects.end(), [&sceneObject](FlatSceneObject * child) {return &sceneObject == child->getLinkedObject(); }));
 }
 
 GLuint FlatRenderer::getTexture() {
@@ -169,57 +171,25 @@ void FlatRenderer::setup() {
 	shaderTexture = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Pipeline::Texture::ScreenTexture);
 }
 
-void FlatRenderer::renderDrawableRaw(Drawable * drawable, Shader shader, DrawType drawType) {
+FlatSceneObject * FlatRenderer::generateFlatObject(SceneObject * sceneObject) {
+	FlatSceneObject * newSceneObject = nullptr;
 
-	if (drawable) {
-		//set mvp matrix and texture location
-		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(drawable->getMVPMatrix()));
-
-		glUniform1i(glGetUniformLocation(shader.getId(), "alphaTexture"), 0);
-		glUniform1i(glGetUniformLocation(shader.getId(), "diffuseTexture"), 1);
-		glUniform1i(glGetUniformLocation(shader.getId(), "specularTexture"), 2);
-
-		//if object is a text object switch to multi texture drawinfg
-		//and reduce texture use to alpha texture only
-		if (Text * textObject = dynamic_cast<Text*>(drawable)) {
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableAlphaTexture"), 1);
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"), 0);
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), 0);
-			for (int i = 0; i < textObject->getText().size(); i++) {
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, textObject->activateChar(i));
-				textObject->draw(drawType);
-			}
-		}
-		else {
-			//bind textures to shader
-			bool useAlphaTexture    = drawable->settings.useAlphaTexture   && drawable->getAlphaTextures().size() > 0;
-			bool useSpecularTexture = drawable->settings.useSpecualTexture && drawable->getSpecularTextures().size() > 0;
-			bool useDiffuseTexture  = drawable->settings.useDiffuseTexture && drawable->getDiffuseTextures().size() > 0;
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableAlphaTexture"),    useAlphaTexture);
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"),  useDiffuseTexture);
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), useSpecularTexture);
-
-			if(useAlphaTexture) {
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, drawable->getAlphaTextures()[0]->getGLTexture());
-			}
-			if(useDiffuseTexture) {
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, drawable->getDiffuseTextures()[0]->getGLTexture());
-			}
-			if(useSpecularTexture) {
-				glActiveTexture(GL_TEXTURE2);
-				glBindTexture(GL_TEXTURE_2D, drawable->getSpecularTextures()[0]->getGLTexture());
-			}
-
-			drawable->draw(drawType);
-		}
-
-		for (auto child : drawable->getChildren()) {
-			renderDrawableRaw(dynamic_cast<Drawable*>(child), shader, drawType);
-		}
+	if(auto mesh = dynamic_cast<Mesh*>(sceneObject)) {
+		newSceneObject = new FlatMesh(mesh);
 	}
-	//GLcheckError();
+	else if(auto text = dynamic_cast<Text*>(sceneObject)) {
+		newSceneObject = new FlatText(text);
+	}
+	else {
+		newSceneObject = new FlatSceneObject(sceneObject);
+	}
+
+	for(auto child : sceneObject->getChildren()) {
+		newSceneObject->children.push_back(static_cast<RenderObject*>(generateFlatObject(child)));
+	}
+	newSceneObject->update();
+	return newSceneObject;	
 }
+
+
 

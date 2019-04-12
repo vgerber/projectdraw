@@ -21,6 +21,7 @@ uniform sampler2D specularTexture;
 
 void main() {
 	vec4 albedoColor;
+
 	//set color from texture (if not enabled color will be vertex color or custom set color)
 	if(enableDiffuseTexture == 1) {
 		albedoColor = texture(diffuseTexture, fs_in.TexCoords);
@@ -32,9 +33,6 @@ void main() {
 		else {
 			albedoColor = customColor;
 		}
-	}
-	if(enableSpecularTexture == 1) {
-		albedoColor.a = texture(specularTexture, fs_in.TexCoords).r;
 	}
 	if(enableAlphaTexture == 1) {
 		albedoColor.a = texture(alphaTexture, fs_in.TexCoords).r;

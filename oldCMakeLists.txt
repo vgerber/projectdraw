@@ -43,19 +43,19 @@ file(GLOB_RECURSE EXPERIMENTAL_OPENGL
 if (UNIX)
 
 set(BulletLibraries
-	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/Bullet3Common/libBullet3Common.so
-	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletSoftBody/libBulletSoftBody.so
-	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletDynamics/libBulletDynamics.so
-	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletCollision/libBulletCollision.so
-	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/BulletInverseDynamics/libBulletInverseDynamics.so
-	debug /home/vincent/Development/Lib/Cpp/bullet3/build/src/LinearMath/libLinearMath.so
+	debug /home/vincent/Development/Lib/Cpp/bullet3/lib/debug/lib/libBullet3Common.a
+	debug /home/vincent/Development/Lib/Cpp/bullet3/lib/debug/lib/libBulletSoftBody.a
+	debug /home/vincent/Development/Lib/Cpp/bullet3/lib/debug/lib/libBulletDynamics.a
+	debug /home/vincent/Development/Lib/Cpp/bullet3/lib/debug/lib/libBulletCollision.a
+	debug /home/vincent/Development/Lib/Cpp/bullet3/lib/debug/lib/libBulletInverseDynamics.a
+	debug /home/vincent/Development/Lib/Cpp/bullet3/lib/debug/lib/libLinearMath.a
 
-	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/Bullet3Common/libBullet3Common.so
-	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletSoftBody/libBulletSoftBody.so
-	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletDynamics/libBulletDynamics.so
-	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletCollision/libBulletCollision.so
-	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/BulletInverseDynamics/libBulletInverseDynamics.so
-	optimized /home/vincent/Development/Lib/Cpp/bullet3/Release/src/LinearMath/libLinearMath.so
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/lib/release/lib/libBullet3Common.a
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/lib/release/lib/libBulletSoftBody.a
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/lib/release/lib/libBulletDynamics.a
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/lib/release/lib/libBulletCollision.a
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/lib/release/lib/libBulletInverseDynamics.a
+	optimized /home/vincent/Development/Lib/Cpp/bullet3/lib/release/lib/libLinearMath.a
 )
 
 find_package(GLEW REQUIRED)
@@ -71,8 +71,8 @@ include_directories(${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_D
 )
 target_link_libraries(projectdraw_core
 #Assimp
-	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/code/libassimp.so 
-	optimized /home/vincent/Development/Lib/Cpp/assimp-master/Release/code/libassimp.so 
+	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/debug/lib/libassimpd.so 
+	optimized /home/vincent/Development/Lib/Cpp/assimp-master/build/release/lib/libassimp.so 
 
 	${OPENGL_LIBRARIES} 
 	${GLEW_LIBRARIES} 
@@ -119,8 +119,8 @@ target_link_libraries(3d_example
 	${OPENGL_LIBRARIES}
 	${GLEW_LIBRARIES} 
 
-	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/code/libassimp.so 
-	optimized /home/vincent/Development/Lib/Cpp/assimp-master/Release/code/libassimp.so 
+	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/debug/lib/libassimpd.so 
+	optimized /home/vincent/Development/Lib/Cpp/assimp-master/build/release/lib/libassimp.so 
 )
 
 
@@ -149,8 +149,8 @@ target_link_libraries(physics3d_example
 	${GLEW_LIBRARIES} 
 	${BulletLibraries}
 
-	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/code/libassimp.so 
-	optimized /home/vincent/Development/Lib/Cpp/assimp-master/Release/code/libassimp.so 
+	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/debug/lib/libassimpd.so 
+	optimized /home/vincent/Development/Lib/Cpp/assimp-master/build/release/lib/libassimp.so 
 )
 
 #Experimental
@@ -169,8 +169,8 @@ target_link_libraries(opengl_test
 	${GLEW_LIBRARIES} 
 	${BulletLibraries}
 
-	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/code/libassimp.so 
-	optimized /home/vincent/Development/Lib/Cpp/assimp-master/Release/code/libassimp.so 
+	debug 	  /home/vincent/Development/Lib/Cpp/assimp-master/build/debug/lib/libassimpd.so 
+	optimized /home/vincent/Development/Lib/Cpp/assimp-master/build/release/lib/libassimp.so 
 )
 endif()
 

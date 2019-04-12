@@ -496,7 +496,7 @@ void DeferredRenderer::renderDrawableRaw(Drawable * drawable, Shader shader,  Dr
 			glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), 0);
 			for(int i = 0; i < textObject->getText().size(); i++) {
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, textObject->activateChar(i));
+				//glBindTexture(GL_TEXTURE_2D, textObject->activateChar(i));
 				textObject->draw(drawType);
 			}
 		}

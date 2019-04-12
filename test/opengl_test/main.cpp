@@ -26,7 +26,7 @@ int main(int argc, char ** argv) {
     ctxSetting.antialiasingLevel = 0;
 
     sf::Window window(sf::VideoMode(WIDTH, HEIGHT), "Experimental", sf::Style::Default , ctxSetting);
-	window.setVerticalSyncEnabled(true);
+	window.setVerticalSyncEnabled(false);
     
 	Log::setFilter(true, LogType::Error);
 
@@ -147,21 +147,34 @@ int main(int argc, char ** argv) {
 
 	Mesh * testCircle = pd::generateCircle(30.0f, 30.0f, glm::vec4(0.0f, 1.0f, 0.0f, 0.5));
 	testCircle->translate(0.3f * WIDTH, 0.5f * HEIGHT, -0.0f);
+	testCircle->setId("TestCircle");
 
 	Mesh * testRect = pd::generateRectangle(100, 100.0f, glm::vec4(1.0f, 0.5f, 1.0f, 1.0f));
 	testRect->translate(0.5f * WIDTH, HEIGHT - 50.0f, 0.0f);
+	testRect->setId("TestRect");
+
 
 	Texture testRectTexture(ResourceManager::GetPath("/Assets/rgba_test.png").c_str());
 	Texture testRectAlphaTexture(ResourceManager::GetPath("/Assets/alpha_test.png").c_str());
 	testRect->addTexture(testRectTexture, TextureType::Diffuse);
 	testRect->addTexture(testRectAlphaTexture, TextureType::Alpha);
-	testCircle->addTexture(testRectTexture, TextureType::Diffuse);
+	testRect->settings.useDiffuseTexture = true;
+	testRect->settings.useAlphaTexture = true;
 
+	Mesh testGeometry;
+	testGeometry.settings.useCustomColor = true;
+	testGeometry.settings.lineThickness = 1;
+	testGeometry.settings.drawType = DrawType::LINEG;
+	testGeometry.line(glm::vec3(0, 0, 0), glm::vec3(WIDTH, HEIGHT, 0));
+	testGeometry.setId("Geometry");
+
+	float offset = 0.0;
 
 	HUD testHud(WIDTH, HEIGHT);
 	testHud.addObject(textSceneName);
 	testHud.addObject(*testCircle);
 	testHud.addObject(*testRect);
+	testHud.addObject(testGeometry);
 
     int textureCounter = 0;
     // Game loop
@@ -183,19 +196,13 @@ int main(int argc, char ** argv) {
 		testHud.setBackground(offlineTexture);
 		testHud.update(0.1f);
 
+		offset += 1.0f;
+		textSceneName.setText(std::to_string((int)offset) + " Frames");
+
 		testHud.drawTexture(0);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		shaderTexture.use();
-		glUniform1i(glGetUniformLocation(shaderTexture.getId(), "tex"), 0);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, testHud.getTexture());
-		glBindVertexArray(screenRectVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);*/
 
         // Swap the buffers
         window.display();

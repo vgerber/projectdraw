@@ -14,12 +14,11 @@ Camera::~Camera()
 }
 
 // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-glm::mat4 Camera::getViewMatrix()
-{
+glm::mat4 Camera::getViewMatrix() const {
 	return viewMatrix;
 }
 
-glm::mat4 Camera::getProjectionMatrix() {
+glm::mat4 Camera::getProjectionMatrix() const {
 	return projMatrix;
 }
 

@@ -46,14 +46,14 @@ public:
 	 * 
 	 * @return glm::mat4 
 	 */
-	glm::mat4 getViewMatrix();	
+	glm::mat4 getViewMatrix() const;	
 
 	/**
 	 * @brief Get the Projection Matrix object
 	 * 
 	 * @return glm::mat4 
 	 */
-	glm::mat4 getProjectionMatrix();
+	glm::mat4 getProjectionMatrix() const;
 
 	/**
 	 * @brief Set the Size

@@ -31,14 +31,14 @@ void Mesh::applyMeshOffset(glm::vec3 offset)
 	for (size_t i = 0; i < vertices.size(); i++) {
 		vertices[i].Position += offset;
 	}
-	dataChanged = true;
+	callUpdate();
 }
 
 void Mesh::applyMeshTransformation(Transform transfrom) {
 	for (size_t i = 0; i < vertices.size(); i++) {
 		vertices[i].Position = glm::vec3(transfrom.getMatrix() * glm::vec4(vertices[i].Position, 1.0));
 	}
-	dataChanged = true;	
+	callUpdate();	
 }
 
 void Mesh::applyMeshRecenter(glm::vec3 centerPoint)
@@ -54,9 +54,6 @@ void Mesh::applyMeshRecenter(glm::vec3 centerPoint)
 
 Size Mesh::getSize()
 {
-	if(dataChanged) {
-		reloadSize();
-	}
 	return size;
 }
 
@@ -71,12 +68,6 @@ void Mesh::dispose() {
 
 void Mesh::draw(DrawType drawType)
 {
-	if(isModified()) {
-		reloadMeshData();
-		reloadSize();
-		clearModifiedFlag();
-	}
-
 	if (vertices.size() == 0) {
 		return;
 	}
@@ -131,7 +122,7 @@ void Mesh::loadMesh(std::string path)
 	}
 
 	this->processNode(scene->mRootNode, scene);
-	dataChanged = true;
+	callUpdate();
 }
 
 void Mesh::processNode(aiNode * node, const aiScene * scene)
@@ -194,7 +185,7 @@ void Mesh::processNode(aiNode * node, const aiScene * scene)
 	//transformChanged();
 	reloadMeshData();
 	reloadSize();
-	dataChanged = true;
+	callUpdate();
 }
 
 void Mesh::processMesh(aiMesh * mesh, const aiScene * scene)
@@ -332,7 +323,8 @@ void Mesh::lineTo(Vertex vertex)
 		indices.push_back(vertices.size());
 		vertices.push_back(vertex);
 	}
-	dataChanged = true;
+	reloadSize();
+	callUpdate();
 }
 
 void Mesh::lineTo(glm::vec3 position)
@@ -346,6 +338,7 @@ void Mesh::lineTo(std::vector<Vertex> vertices)
 	{
 		lineTo(p);
 	}
+	reloadSize();
 }
 
 void Mesh::line(Vertex p1, Vertex p2)
@@ -361,7 +354,8 @@ void Mesh::line(Vertex p1, Vertex p2)
 	indices.push_back(vertices.size());
 	vertices.push_back(p2);
 	
-	dataChanged = true;
+	reloadSize();
+	callUpdate();
 }
 
 void Mesh::line(glm::vec3 p1, glm::vec3 p2)
@@ -373,7 +367,8 @@ void Mesh::addVertex(Vertex vertex)
 {
 	indices.push_back(vertices.size());
 	vertices.push_back(vertex);
-	dataChanged = true;
+	reloadSize();
+	callUpdate();
 }
 
 void Mesh::addVertex(glm::vec3 position)
@@ -385,10 +380,10 @@ void Mesh::removeVertex(unsigned int index)
 {
 	vertices.erase(vertices.begin() + index);
 	indices.erase(std::remove_if(indices.begin(), indices.end(), [index](const unsigned int &vIndex) { return index == vIndex; }));
-	dataChanged = true;
+	callUpdate();
 }
 
-std::vector<Vertex> Mesh::getVertices()
+std::vector<Vertex> Mesh::getVertices() const
 {
 	return vertices;
 }
@@ -396,16 +391,17 @@ std::vector<Vertex> Mesh::getVertices()
 void Mesh::setVertices(std::vector<Vertex> vertices)
 {
 	this->vertices = vertices;
-	dataChanged = true;
+	reloadSize();
+	callUpdate();
 }
 
 void Mesh::setIndices(std::vector<unsigned int> indices)
 {
 	this->indices = indices;
-	dataChanged = true;
+	callUpdate();
 }
 
-std::vector<unsigned int> Mesh::getIndices()
+std::vector<unsigned int> Mesh::getIndices() const
 {
 	return indices;
 }
@@ -414,7 +410,8 @@ void Mesh::clear()
 {
 	vertices.clear();
 	indices.clear();
-	dataChanged = true;
+	reloadSize();
+	callUpdate();
 }
 
 void Mesh::setupMesh()
@@ -422,7 +419,7 @@ void Mesh::setupMesh()
 	glGenVertexArrays(1, &this->VAO);
 	glGenBuffers(1, &this->VBO);
 	glGenBuffers(1, &this->EBO);
-	dataChanged = true;
+	callUpdate();
 }
 
 void Mesh::reloadMeshData()
@@ -537,4 +534,9 @@ void Mesh::reloadSize()
 	size.height -= size.y;
 	size.depth -= size.z;
 	this->size = size;
+}
+
+void Mesh::callUpdate() {
+	reloadSize();
+	Drawable::callUpdate();
 }

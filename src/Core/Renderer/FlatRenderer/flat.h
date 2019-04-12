@@ -13,6 +13,11 @@
 
 #include "Core/Renderer/arenderer.h"
 
+#include "Core/Renderer/FlatRenderer/Interface/flatsceneobject.h"
+#include "Core/Renderer/FlatRenderer/Interface/flatdrawable.h"
+#include "Core/Renderer/FlatRenderer/Interface/flatmesh.h"
+#include "Core/Renderer/FlatRenderer/Interface/flattext.h"
+
 
 /**
  * @brief 2D Renderer
@@ -104,7 +109,7 @@ protected:
 	unsigned int screenRectVBO = 0;				//vertex buffer obejct for screenspace texture
 	unsigned int screenRectVAO = 0;				//vertex array object for vbo storage
 
-	std::vector<Drawable*> drawables;			//added drawables
+	std::vector<FlatSceneObject*> sceneObjects;	//added drawables
 
 	Shader shaderMesh;							//shader for mesh rendering
 	Shader shaderTexture;						//shader for render from texture
@@ -117,10 +122,13 @@ protected:
 
 private:
 	/**
-	 * @brief render drawable without special @ref
+	 * @brief Generates an suitable flat object wrapper for the @ref SceneObject structure
 	 * 
+	 * @param sceneObject 
+	 * @return FlatSceneObject* 
 	 */
-	virtual void renderDrawableRaw(Drawable * drawable, Shader shader, DrawType drawType = DrawType::TRIANGLEG);
+	FlatSceneObject * generateFlatObject(SceneObject * sceneObject);
+
 
 	unsigned int msaa = 4;
 };

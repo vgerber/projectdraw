@@ -28,9 +28,10 @@ void SceneObject::addChild(SceneObject * sceneObject) {
 	children.push_back(sceneObject);
 	//update transforms for new child
 	transformChanged();
+	callUpdate();
 }
 
-std::vector<SceneObject*> SceneObject::getChildren() {
+std::vector<SceneObject*> SceneObject::getChildren() const {
 	return children;
 }
 
@@ -64,9 +65,10 @@ void SceneObject::removeChild(SceneObject * sceneObject, bool full) {
 
 	sceneObject->dispose();
 	delete sceneObject;
+	callUpdate();
 }
 
-std::string SceneObject::getId()
+std::string SceneObject::getId() const
 {
 	return id;
 }
@@ -84,8 +86,23 @@ void SceneObject::dispose() {
 	children.clear();
 }
 
-Transform SceneObject::getWorldTransform() {
+Transform SceneObject::getWorldTransform() const {
 	return cachedWorldTransform;
+}
+
+void SceneObject::addUpdateListener(void * receiver, std::function<void()> receiverFunction) {
+	if(receiver) {
+		updateListeners.push_back(std::make_pair(receiver, receiverFunction));
+	}
+}
+
+void SceneObject::removeUpdateListener(void * receiver) {
+	for(int i = 0; i < updateListeners.size(); i++) {
+		if(receiver == updateListeners[i].first) {
+			updateListeners.erase(updateListeners.begin() + i);
+			i--;
+		}
+	}
 }
 
 void SceneObject::transformChanged() {
@@ -100,4 +117,10 @@ void SceneObject::parentTransformChanged(Transform transform) {
 		child->parentTransformChanged(child->cachedWorldTransform);		
 	}
 	updateDirection(this->transform);
+}
+
+void SceneObject::callUpdate() {
+	for(auto listener : updateListeners) {
+		listener.second();
+	}
 }

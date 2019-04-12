@@ -49,7 +49,6 @@ find_package(Assimp REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(SFML REQUIRED)
-find_package(ProjectDraw REQUIRED)
 
 
 add_library(projectdraw_core ${ENGINE_SRC}) 
@@ -69,16 +68,16 @@ target_link_libraries(projectdraw_core
 	${FREETYPE_LIBRARIES} 
 )
 
-
 add_library(projectdraw_physics3d ${PHYSICS_SRC})
 add_dependencies(projectdraw_physics3d projectdraw_core)
 include_directories(
 	${Bullet_INCLUDE_DIRS}
+	${CMAKE_SOURCE_DIR}/src
 )
 
 target_link_libraries(projectdraw_physics3d
-	${Bullet_LIBRARIES}
-	projectdraw_core
+	debug /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_core.a
+	optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_core.a
 )
 
 
@@ -86,7 +85,6 @@ if(${SFML_FOUND})
 #Examples
 	#Scene3D Example
 	include_directories(
-		${Bullet_INCLUDE_DIRS}
 		${FREETYPE_INCLUDE_DIRS} 
 		${OPENGL_INCLUDE_DIRS}
 		${GLEW_INCLUDE_DIRS}
@@ -103,7 +101,8 @@ if(${SFML_FOUND})
 		${GLEW_LIBRARIES} 
 		${Assimp_LIBRARIES}
 		${SFML_LIBRARIES}
-		projectdraw_core
+		debug     /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_core.a
+		optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_core.a
 	)
 
 
@@ -124,11 +123,14 @@ if(${SFML_FOUND})
 		${FREETYPE_LIBRARIES} 
 		${OPENGL_LIBRARIES}
 		${GLEW_LIBRARIES} 
-		${Bullet_LIBRARIES}
 		${Assimp_LIBRARIES}
 		${SFML_LIBRARIES}
-		projectdraw_core
-		projectdraw_physics3d
+		debug     /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_core.a
+		optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_core.a
+		debug     /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_physics3d.a
+		optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_physics3d.a
+
+		${Bullet_LIBRARIES}
 	)
 
 	#Experimental
@@ -137,12 +139,15 @@ if(${SFML_FOUND})
 	target_link_libraries(opengl_test
 		${FREETYPE_LIBRARIES} 
 		${OPENGL_LIBRARIES}
-		${GLEW_LIBRARIES} 
-		${Bullet_LIBRARIES}
+		${GLEW_LIBRARIES}
 		${Assimp_LIBRARIES}
 		${SFML_LIBRARIES}
-		projectdraw_core
-		projectdraw_physics3d
+		debug /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_core.a
+		optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_core.a
+		debug /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_physics3d.a
+		optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_physics3d.a
+		
+		${Bullet_LIBRARIES}
 	)
 
 endif()

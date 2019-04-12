@@ -2,6 +2,7 @@
 
 #include <string>
 #include <algorithm>
+#include <functional>
 
 #include "Core/Util/Transform/moveable.h"
 
@@ -31,7 +32,7 @@ public:
 	 * 
 	 * @return std::vector<SceneObject*> 
 	 */
-	std::vector<SceneObject*> getChildren();
+	std::vector<SceneObject*> getChildren() const;
 
 	/**
 	 * @brief Removes child node from tree
@@ -51,7 +52,7 @@ public:
 	 * 
 	 * @return std::string 
 	 */
-	std::string getId();
+	std::string getId() const;
 
 	/**
 	 * @brief frees allocated memory
@@ -72,7 +73,24 @@ public:
 	 * 
 	 * @return Transform 
 	 */
-	Transform getWorldTransform();
+	Transform getWorldTransform() const;
+
+	/**
+	 * @brief Adds listener to receiver
+	 * 
+	 * Notifies receiver when data has changed
+	 * 
+	 * @param receiver 
+	 * @param receiverFunction 
+	 */
+	void addUpdateListener(void * receiver, std::function<void()> receiverFunction);
+
+	/**
+	 * @brief Removes listener from receiver
+	 * 
+	 * @param receiver 
+	 */
+	void removeUpdateListener(void * receiver);
 
 protected:
 	//object id/name
@@ -97,10 +115,18 @@ protected:
 	 * @param transform 
 	 */
 	virtual void parentTransformChanged(Transform transform);
+
+	/**
+	 * @brief Notifies all receivers
+	 * 
+	 */
+	virtual void callUpdate();
 private:
 	///Cached transform with parent, base and model transform
 	///Refreshed in each transformChnaged() and parenTransformChanged()
 	Transform cachedWorldTransform;
+
+	std::vector<std::pair<void*, std::function<void()>>> updateListeners;
 
 };
 

@@ -41,7 +41,7 @@ struct DrawableInfo {
 	DrawType drawType = DrawType::TRIANGLEG;
 	bool useLight = true;
 	bool useCustomColor = false;
-	glm::vec4 customColor = glm::vec4(1.0f);
+	glm::vec4 customColor = glm::vec4(0.0, 1.0, 0.0, 1.0);
 
 	//Normals
 	bool normalVisible = false;
@@ -67,9 +67,9 @@ struct DrawableInfo {
 	glm::vec4 outlineColor = glm::vec4(1.0f);
 
 	//Texture
-	bool useDiffuseTexture = true;
-	bool useAlphaTexture = true;
-	bool useSpecualTexture = true;
+	bool useDiffuseTexture = false;
+	bool useAlphaTexture = false;
+	bool useSpecualTexture = false;
 
 	//Geometry
 	unsigned int lineThickness = 1;
@@ -162,20 +162,6 @@ public:
 	 */
 	void dispose();	
 
-	/**
-	 * @brief Returns wether object vertex data has been changed or not
-	 * 
-	 * @return true If data has been changed
-	 * @return false 
-	 */
-	bool isModified(); 
-
-	/**
-	 * @brief Sets Modified flag to false
-	 * 
-	 */
-	void clearModifiedFlag();
-
 protected:
 	glm::mat4 mvp = glm::mat4(1.0); //cached mvp matrix 
 
@@ -183,7 +169,5 @@ protected:
 	std::vector<const Texture*> diffuseTextures;
 	std::vector<const Texture*> specularTextures; 
 	std::vector<const Texture*> alphaTextures;
-
-	bool dataChanged = false; //true if drawing data has been modified
 private:
 };

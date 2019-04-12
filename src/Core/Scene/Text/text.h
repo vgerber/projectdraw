@@ -3,33 +3,63 @@
 #include "../drawable.h"
 #include "font.h"
 
-struct RenderedCharacter {
-	Vertex vertices[6];
-	GLuint texture;
-};
+
 
 class Text : public Drawable {
 public:
+	/**
+	 * @brief Construct a new Text object
+	 * 
+	 * @param font_path src path to *.ttf file
+	 * @param size font size
+	 */
 	Text(std::string font_path, GLuint size);
+
+	/**
+	 * @brief Construct a new Text object
+	 * 
+	 * @param font generated font
+	 */
 	Text(Font font);
 
-	void draw(DrawType drawType = DrawType::TRIANGLEG) 						 override;
+	/**
+	 * @brief Draw text to screen
+	 * 
+	 * @param drawType 
+	 */
+	void draw(DrawType drawType = DrawType::TRIANGLEG) override;
 
-	///set active char index and get char texture for renderer 
-	GLuint activateChar(int i = 0);
+	/**
+	 * @brief Get the text font
+	 * 
+	 * @return Font 
+	 */
+	Font getFont();
 
+	/**
+	 * @brief Get the Size of the text
+	 * 
+	 * @return Size 
+	 */
 	Size getSize();
 
+	/**
+	 * @brief Set the text
+	 * 
+	 * @param text 
+	 */
 	void setText(std::string text);
+
+	/**
+	 * @brief Get the text
+	 * 
+	 * @return std::string 
+	 */
 	std::string getText();
 protected:
-	std::vector<Vertex> vertices;
 	Font font;
-	glm::vec4 color = glm::vec4(1.0f);
-	int activeChar = 0;
 	std::string text = "";
-	std::vector<RenderedCharacter> renderedCharacters;
-	GLuint VAO, VBO;
+	
 
 	virtual void setup();
 };

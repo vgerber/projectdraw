@@ -41,7 +41,6 @@ public:
 	void configureCamera(Camera &camera, SceneCameraConfig config);
 
 protected:
-
 	std::vector<SceneCamera> cameras;
 
 	HUD * hud = nullptr;
