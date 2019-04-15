@@ -13,10 +13,10 @@
 
 #include "Core/Renderer/arenderer.h"
 
-#include "Core/Renderer/FlatRenderer/Interface/flatsceneobject.h"
-#include "Core/Renderer/FlatRenderer/Interface/flatdrawable.h"
-#include "Core/Renderer/FlatRenderer/Interface/flatmesh.h"
-#include "Core/Renderer/FlatRenderer/Interface/flattext.h"
+#include "Core/Renderer/FlatRenderer/Interface/flat_sceneobject.h"
+#include "Core/Renderer/FlatRenderer/Interface/flat_drawable.h"
+#include "Core/Renderer/FlatRenderer/Interface/flat_mesh.h"
+#include "Core/Renderer/FlatRenderer/Interface/flat_text.h"
 
 
 /**

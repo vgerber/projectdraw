@@ -15,6 +15,10 @@
 
 #include "Core/Renderer/arenderer.h"
 
+#include "Core/Renderer/ForwardRenderer/Interface/forward_sceneobject.h"
+#include "Core/Renderer/ForwardRenderer/Interface/forward_mesh.h"
+#include "Core/Renderer/ForwardRenderer/Interface/forward_text.h"
+
 class ForwardRenderer : public AbstractRenderer {
 public:
     ForwardRenderer(int width, int height, Camera &camera);
@@ -61,7 +65,7 @@ protected:
     
 	unsigned int uboMatrices;
 
-    std::vector<Drawable*> drawables;
+    std::vector<ForwardSceneObject*> sceneObjects;
     DirectionalLight *directionalLight = nullptr;
 
     Shader shaderMesh;
@@ -71,6 +75,5 @@ protected:
     virtual void setup();
 
 private:
-	///Draw drawable as plain geometry (without features)
-	virtual void renderDrawableRaw(Drawable * drawable, Shader shader, DrawType drawType = DrawType::TRIANGLEG);
+    ForwardSceneObject * generateForwardObject(SceneObject * sceneObject);
 };

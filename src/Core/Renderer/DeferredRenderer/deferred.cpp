@@ -15,10 +15,6 @@ void DeferredRenderer::clearScreen() {
 void DeferredRenderer::render()
 {
 	glEnable(GL_CULL_FACE);
-	if (invalidShaders) {
-		refreshShaderRenderer();
-		invalidShaders = false;
-	}
 
 	glViewport(0, 0, getWidth(), getHeight());
 	glEnable(GL_DEPTH_TEST);
@@ -58,46 +54,27 @@ void DeferredRenderer::addSceneObject(SceneObject & sceneObject)
 	if (SpotLight *sLight = dynamic_cast<SpotLight *>(&sceneObject))
 	{
 		spotLights.push_back(sLight);
-		return;
 	}
 
 	if (PointLight *pLight = dynamic_cast<PointLight *>(&sceneObject))
 	{
 		pointLights.push_back(pLight);
-		return;
 	}
 
-	if (Drawable *drawable = dynamic_cast<Drawable *>(&sceneObject))
-	{
-		objects.push_back(drawable);
-	/*
-		if (dynamic_cast<Text*>(drawable))
-			drawable->setShader(shaderFont, *this);
-		else if (dynamic_cast<ParticleGenerator*>(drawable))
-			drawable->setShader(shaderInstancing, *this);
-		else
-			drawable->setShader(shaderBasic, *this);
-	*/
-		return;
-	}
-
-	printf("[Engine] [DeferredRenderer] [Error] Scene doesn't accept %s\n", sceneObject.getId().c_str());
+	sceneObjects.push_back(generateDeferredObject(&sceneObject));
 }
 
 void DeferredRenderer::removeSceneObject(SceneObject & sceneObject)
 {
-	if (Drawable *drawable = dynamic_cast<Drawable *>(&sceneObject))
+	for (size_t i = 0; i < sceneObjects.size(); i++)
 	{
-		for (size_t i = 0; i < objects.size(); i++)
+		if (sceneObjects[i]->getLinkedObject() == &sceneObject)
 		{
-			if (objects[i] == drawable)
-			{
-				objects.erase(objects.begin() + i);
-				i--;
-			}
+			sceneObjects.erase(sceneObjects.begin() + i);
+			i--;
 		}
-		return;
 	}
+
 
 	if (DirectionalLight *dLight = dynamic_cast<DirectionalLight *>(&sceneObject))
 	{
@@ -345,11 +322,9 @@ void DeferredRenderer::renderObjects()
 	//draw particles
 
 	//draw all drawables
-	shaderBasic.use();
-	for (auto drawable : objects)
-	{
-		drawable->setCameraMatrices(camera->getViewMatrix(), camera->getProjectionMatrix());
-		renderDrawable(drawable);
+	for(auto sceneObject : sceneObjects) {
+		sceneObject->setCamera(*camera);
+		sceneObject->draw();
 	}
 	//draw viewfrustums from cameras
 	/*for (auto &scam : cameras)
@@ -361,25 +336,6 @@ void DeferredRenderer::renderObjects()
 			geoCam.dispose();
 		}
 	}*/
-
-	//draw debug normals of drawables
-	shaderNormals.use();
-	for (auto drawable : objects)
-	{
-		if (drawable->settings.normalVisible)
-		{
-			renderDrawableNormals(drawable);
-		}
-	}
-	//draw bounding box of drawable (not aabb)
-	shaderBasic.use();
-	for (auto drawable : objects)
-	{
-		if (drawable->settings.boxVisible)
-		{
-			renderDrawableBox(drawable);
-		}
-	}
 
 	//draw aabb from drawables
 	/*
@@ -393,152 +349,13 @@ void DeferredRenderer::renderObjects()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void DeferredRenderer::renderDrawable(Drawable * drawable, DrawType drawType) {
-	DrawableInfo settings = drawable->settings;
-	if (settings.xrayVisible) {
-		//glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
-		//glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(cameraProj * cameraView * getModelMatrix()));
-		glUniform1f(glGetUniformLocation(shaderBasic.getId(), "useLight"), settings.xrayUseLight);
-		glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableCustomColor"), settings.xrayCustomColor);
-		glm::vec4 color = settings.xrayColor;
-		glUniform4f(glGetUniformLocation(shaderBasic.getId(), "customColor"), color.r, color.g, color.b, color.a);
 
-		glEnable(GL_DEPTH_TEST);
-		//set all occupied pixels to 1
-		glStencilFunc(GL_GREATER, 1, 0xFF);
-		glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
-		glStencilMask(0xFF);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		glDepthMask(GL_FALSE);
-
-		renderDrawableRaw(drawable, shaderBasic, settings.xrayDrawType);
-
-		//draw to all pixels with stencil equals 1 and reset it to zero
-		glStencilFunc(GL_EQUAL, 1, 0xFF);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-		glStencilMask(0xFF);
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-		glDisable(GL_DEPTH_TEST);
-		renderDrawableRaw(drawable, shaderBasic, settings.xrayDrawType);
-
-		glEnable(GL_DEPTH_TEST);
-	}
-
-
-	if (settings.outlineVisible) {
-		glUniform1f(glGetUniformLocation(shaderBasic.getId(), "useLight"), 0.0f);
-		glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableCustomColor"), 1);
-		glm::vec4 color = settings.outlineColor;
-		glUniform4f(glGetUniformLocation(shaderBasic.getId(), "customColor"), color.r, color.g, color.b, color.a);
-
-		//set all occupied pixels to 2
-		glStencilFunc(GL_GREATER, 2, 0xFF);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		glStencilMask(0xFF);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		glDepthMask(GL_FALSE);
-
-		renderDrawableRaw(drawable, shaderBasic, DrawType::TRIANGLEG);
-
-
-		Size outlineSize;
-		Size size = drawable->getSize();
-		float thickness = settings.outlineThickness;
-		outlineSize.width = (size.width + thickness) / size.width;
-		outlineSize.height = (size.height + thickness) / size.height;
-		outlineSize.depth = (size.depth + thickness) / size.depth;
-
-		glm::vec3 oldScale = drawable->getScale();
-		glm::vec3 oldPosition = drawable->getPosition();
-
-		drawable->scale(outlineSize.width, outlineSize.height, outlineSize.depth);
-
-		
-		//setPosition(getPosition() + glm::vec3(-0.5f * thickness));
-
-		glStencilFunc(GL_EQUAL, 0, 0xFF);
-		glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
-		glStencilMask(0xFF);
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glDepthMask(GL_TRUE);
-
-		renderDrawableRaw(drawable, shaderBasic, DrawType::TRIANGLEG);
-
-		drawable->translate(oldPosition);
-		drawable->scale(oldScale);
-	}
-
-	glUniform1f(glGetUniformLocation(shaderBasic.getId(), "useLight"), settings.useLight);
-	glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableCustomColor"), settings.useCustomColor);
-	glm::vec4 color = settings.customColor;
-	glUniform4f(glGetUniformLocation(shaderBasic.getId(), "customColor"), color.r, color.g, color.b, color.a);
-
-	glStencilFunc(GL_EQUAL, 0, 0xFF);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	glStencilMask(0xFF);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDepthMask(GL_TRUE);
-	renderDrawableRaw(drawable, shaderBasic, settings.drawType);
-}
-
-void DeferredRenderer::renderDrawableRaw(Drawable * drawable, Shader shader,  DrawType drawType) {
-	if(drawable) {
-		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getWorldTransform().getMatrix()));
-		glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"),   1, GL_FALSE, glm::value_ptr(drawable->getMVPMatrix()));
-
-		glUniform1i(glGetUniformLocation(shader.getId(), "alphaTexture"),    0);
-		glUniform1i(glGetUniformLocation(shader.getId(), "diffuseTexture"),  1);
-		glUniform1i(glGetUniformLocation(shader.getId(), "specularTexture"), 2);
-		if(Text * textObject = dynamic_cast<Text*>(drawable)) {
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableAlphaTexture"),    1);
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"),  0);
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), 0);
-			for(int i = 0; i < textObject->getText().size(); i++) {
-				glActiveTexture(GL_TEXTURE0);
-				//glBindTexture(GL_TEXTURE_2D, textObject->activateChar(i));
-				textObject->draw(drawType);
-			}
-		}
-		else {
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableAlphaTexture"),    0);
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"),  0);
-			glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), 0);
-			drawable->draw(drawType);
-		}
-
-		for(auto child : drawable->getChildren()) {
-			renderDrawableRaw(dynamic_cast<Drawable*>(child), shader, drawType);
-		}
-	}
-}
-
-void DeferredRenderer::renderDrawableNormals(Drawable * drawable) {
-	if(drawable) {
-		glUniformMatrix4fv(glGetUniformLocation(shaderNormals.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getWorldTransform().getMatrix()));
-		glUniformMatrix4fv(glGetUniformLocation(shaderNormals.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(drawable->getMVPMatrix()));
-		drawable->draw(DrawType::TRIANGLEG);
-		for(auto child : drawable->getChildren()) {
-			renderDrawableNormals(dynamic_cast<Drawable*>(child));
-		}
-	}
-}
-
-void DeferredRenderer::renderDrawableBox(Drawable * drawable) {
-	if(drawable) {
-		glUniformMatrix4fv(glGetUniformLocation(shaderBasic.getId(), "model"), 1, GL_FALSE, glm::value_ptr(drawable->getWorldTransform().getMatrix()));
-		glUniformMatrix4fv(glGetUniformLocation(shaderBasic.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(drawable->getMVPMatrix()));
-		for(auto child : drawable->getChildren()) {
-			renderDrawableBox(dynamic_cast<Drawable*>(child));
-		}
-	}
-}
 
 void DeferredRenderer::renderLight()
 {
 	/*
 	Shadowmapping:
-		1. Viewfrustim DirLight fro CSM
+		1. Viewfrustum DirLight for CSM
 		2. Shadowmapping (SM) DirLight
 		3. SM Point
 		4. SM Spot
@@ -569,9 +386,9 @@ void DeferredRenderer::renderLight()
 		{
 			directionalLight->beginShadowMapping(i);
 
-			for (auto drawable : objects)
+			for (auto sceneObject : sceneObjects)
 			{
-				renderDrawableRaw(drawable, directionalLight->getShaderShadow(), DrawType::TRIANGLEG);
+				sceneObject->drawRaw(directionalLight->getShaderShadow());
 			}
 			directionalLight->endShadowMapping();
 		}
@@ -598,12 +415,12 @@ void DeferredRenderer::renderLight()
 
 			if (plight->shadow) {				
 				plight->beginShadowMapping();
-				for (auto drawable : objects)
+				for (auto sceneObject : sceneObjects)
 				{
-					if(glm::length(drawable->getWorldTransform().getTranslation() - plight->getWorldTransform().getTranslation()) < plight->getDistance()) {
+					if(glm::length(sceneObject->getLinkedObject()->getWorldTransform().getTranslation() - plight->getWorldTransform().getTranslation()) < plight->getDistance()) {
 						//draw each drawable to depth buffer if it is within the distance of the light and apply 
 						//the corresponding depth shader
-						renderDrawableRaw(drawable, plight->getShaderShadow(), DrawType::TRIANGLEG);
+						sceneObject->drawRaw(plight->getShaderShadow());
 					}
 				}
 				plight->endShadowMapping();
@@ -633,12 +450,12 @@ void DeferredRenderer::renderLight()
 
 			if (slight->shadow) {
 				slight->beginShadowMapping();
-				for (auto drawable : objects)
+				for (auto sceneObject : sceneObjects)
 				{
-					if(slight->getDistance() > glm::length(drawable->getWorldTransform().getTranslation() - slight->getWorldTransform().getTranslation())) {
+					if(slight->getDistance() > glm::length(sceneObject->getLinkedObject()->getWorldTransform().getTranslation() - slight->getWorldTransform().getTranslation())) {
 						//draw each drawable to depth buffer if it is within the distance of the light and apply 
 						//the corresponding depth shader
-						renderDrawableRaw(drawable, slight->getShaderShadow(), DrawType::TRIANGLEG);
+						sceneObject->drawRaw(slight->getShaderShadow());
 					}
 				}
 				slight->endShadowMapping();
@@ -1065,18 +882,6 @@ void DeferredRenderer::dispose() {
 	glDeleteTextures(1, &tmpRenderTexture);
 }
 
-void DeferredRenderer::refreshShaderRenderer()
-{
-	/*for (auto &drawable : objects) {
-		if (dynamic_cast<Text*>(drawable))
-			drawable->setShader(shaderFont, *this);
-		else if (dynamic_cast<ParticleGenerator*>(drawable))
-			drawable->setShader(shaderInstancing, *this);
-		else
-			drawable->setShader(shaderBasic, *this);
-	}*/
-}
-
 void DeferredRenderer::setup() {
 	glEnable(GL_MULTISAMPLE);
 	renderMode = RenderMode::FILLR;
@@ -1147,4 +952,24 @@ void DeferredRenderer::setup() {
 	shaderBloomMerge = ResourceManager::loadShader(ShaderName::Postprocessing::Bloom::Merge);
 
 	smaaFilter.setup();
+}
+
+DeferredSceneObject * DeferredRenderer::generateDeferredObject(SceneObject * sceneObject) {
+	DeferredSceneObject * newDeferredObject = nullptr;
+	
+	if(auto mesh = dynamic_cast<Mesh*>(sceneObject)) {
+		newDeferredObject = new DeferredMesh(mesh);
+	}
+	else if(auto text = dynamic_cast<Text*>(sceneObject)) {
+		newDeferredObject = new DeferredText(text);
+	}
+	else {
+		newDeferredObject = new DeferredSceneObject(sceneObject);
+	}
+
+	for(auto child : sceneObject->getChildren()) {
+		newDeferredObject->children.push_back(generateDeferredObject(child));
+	}
+
+	return newDeferredObject;
 }

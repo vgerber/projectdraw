@@ -1,4 +1,4 @@
-#include "flatsceneobject.h"
+#include "flat_sceneobject.h"
 
 FlatSceneObject::FlatSceneObject(SceneObject * sceneObject) : RenderObject(sceneObject) {
     setup();

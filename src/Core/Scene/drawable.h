@@ -132,39 +132,7 @@ public:
 	 */
 	virtual Size getSize() = 0;
 
-	/**
-	 * @brief Draw object
-	 * 
-	 * @param drawType Mesh representation
-	 */
-	virtual void draw(DrawType drawType = DrawType::TRIANGLEG) = 0;
-
-	/**
-	 * @brief Set the internal mvp matrix
-	 * 
-	 * Function will be used by renderer
-	 * 
-	 * @param cView Camera view
-	 * @param cProj Camera projection
-	 */
-	virtual void setCameraMatrices(glm::mat4 cView, glm::mat4 cProj);
-
-	/**
-	 * @brief Get calculated mvp matrix
-	 * 
-	 * @return glm::mat4 
-	 */
-	glm::mat4 getMVPMatrix();
-
-	/**
-	 * @brief Free all resources
-	 * 
-	 */
-	void dispose();	
-
 protected:
-	glm::mat4 mvp = glm::mat4(1.0); //cached mvp matrix 
-
 	//added textures
 	std::vector<const Texture*> diffuseTextures;
 	std::vector<const Texture*> specularTextures; 

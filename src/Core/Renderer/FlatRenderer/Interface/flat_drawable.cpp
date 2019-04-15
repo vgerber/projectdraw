@@ -1,4 +1,4 @@
-#include "flatdrawable.h"
+#include "flat_drawable.h"
 
 FlatDrawable::FlatDrawable(Drawable * drawable) : FlatSceneObject(static_cast<SceneObject * >(drawable)) {
     setup();

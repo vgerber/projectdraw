@@ -3,7 +3,10 @@
 #include "../drawable.h"
 #include "font.h"
 
-
+struct RenderedCharacter {
+	Vertex vertices[6];
+	GLuint texture;
+};
 
 class Text : public Drawable {
 public:
@@ -21,13 +24,6 @@ public:
 	 * @param font generated font
 	 */
 	Text(Font font);
-
-	/**
-	 * @brief Draw text to screen
-	 * 
-	 * @param drawType 
-	 */
-	void draw(DrawType drawType = DrawType::TRIANGLEG) override;
 
 	/**
 	 * @brief Get the text font

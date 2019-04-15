@@ -202,7 +202,7 @@ int main() {
 	sf::Time deltaTime = clock.getElapsedTime();
 	float delta = 0.0f;
 	while (window.isOpen()) {
-		scene.clear(1.0f, 0.95f, 0.85f, 1.0f);		
+		scene.clear(0.85f, 0.95f, 1.0f, 1.0f);		
 
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
 

@@ -29,27 +29,3 @@ const std::vector<const Texture*> Drawable::getAlphaTextures() const {
 const std::vector<const Texture*> Drawable::getSpecularTextures() const {
 	return specularTextures;
 }
-
-void Drawable::dispose() {
-	for(auto child : children) {
-		child->dispose();
-		delete child;
-	}
-	diffuseTextures.clear();
-	specularTextures.clear();
-	alphaTextures.clear();
-}
-
-void Drawable::setCameraMatrices(glm::mat4 cView, glm::mat4 cProj)
-{
-	for (auto child : children) {
-		if(Drawable * drawable = dynamic_cast<Drawable*>(child)) {
-			drawable->setCameraMatrices(cView, cProj);
-		}
-	}
-	mvp = cProj * cView * getWorldTransform().getMatrix();
-}
-
-glm::mat4 Drawable::getMVPMatrix() {
-	return mvp;
-}

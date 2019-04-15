@@ -15,6 +15,10 @@
 #include "Core/Renderer/arenderer.h"
 #include "Core/Renderer/DeferredRenderer/light_util.h"
 
+#include "Core/Renderer/DeferredRenderer/Interface/deferred_sceneobject.h"
+#include "Core/Renderer/DeferredRenderer/Interface/deferred_text.h"
+#include "Core/Renderer/DeferredRenderer/Interface/deferred_mesh.h"
+
 struct SortPointLights {
 	glm::vec3 cameraPosition;
 
@@ -125,10 +129,7 @@ public:
 
 	virtual void dispose() override;
 
-	virtual void refreshShaderRenderer();
-
 protected:
-	bool invalidShaders = false;
 
 	static const int PointLightShadows = 10;
 	static const int SpotLightShadows = 10;
@@ -193,7 +194,8 @@ protected:
 	GLuint bloomTextures[bloomSample];
 	GLuint tmpbloomTextures[bloomSample];
 
-	std::vector<Drawable*> objects;
+
+	std::vector<DeferredSceneObject*> sceneObjects;
 
 	//lights
 	DirectionalLight* directionalLight = nullptr;
@@ -213,21 +215,6 @@ protected:
 
 	virtual void renderObjects();
 
-	///Draw drawable with drawing settings
-	virtual void renderDrawable(Drawable * drawable, DrawType drawType = DrawType::TRIANGLEG);
-
-	///Draw drawable as plain geometry (without features)
-	virtual void renderDrawableRaw(Drawable * drawable, Shader shader, DrawType drawType = DrawType::TRIANGLEG);
-
-	///Draw with instancing
-	//virtual void drawInstancing(int amount, DrawType drawType = DrawType::TRIANGLEG);
-
-	///Draw model normals
-	virtual void renderDrawableNormals(Drawable * drawable);
-
-	///Draw bounding box with model center (not aabb)
-	virtual void renderDrawableBox(Drawable * drawable);
-
 	///Merge colorbuffers and apply light and shadow effects
 	virtual void renderLight();
 
@@ -236,5 +223,7 @@ protected:
 	virtual void applyHDR();
 
 	void setup();
+
+	DeferredSceneObject * generateDeferredObject(SceneObject * sceneObject);
 
 };

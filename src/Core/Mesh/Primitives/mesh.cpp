@@ -5,25 +5,23 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vecto
 {
 	this->vertices = vertices;
 	this->indices = indices;
-	setupMesh();
+	callUpdate();
 }
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices)
 {
 	this->vertices = vertices;
 	this->indices = indices;
-	setupMesh();
+	callUpdate();
 }
 
 Mesh::Mesh(std::string path)
 {
 	loadMesh(path);
-	setupMesh();
 }
 
 Mesh::Mesh()
 {
-	setupMesh();
 }
 
 void Mesh::applyMeshOffset(glm::vec3 offset)
@@ -57,58 +55,6 @@ Size Mesh::getSize()
 	return size;
 }
 
-void Mesh::dispose() {
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
-	glDeleteVertexArrays(1, &VAO);
-	for (auto child : children) {
-		child->dispose();
-	}
-}
-
-void Mesh::draw(DrawType drawType)
-{
-	if (vertices.size() == 0) {
-		return;
-	}
-
-	// Draw mesh
-	glBindVertexArray(this->VAO);
-	if (drawType == DrawType::LINEG) {
-		glLineWidth(settings.lineThickness);
-		glDrawElements(GL_LINE_STRIP, this->indices.size(), GL_UNSIGNED_INT, 0);
-	}
-	else if (drawType == DrawType::POINTG) {
-		glPointSize(settings.pointThickness);
-		glDrawElements(GL_POINTS, this->indices.size(), GL_UNSIGNED_INT, 0);
-	}
-	else {
-		glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
-	}
-
-	// Always good practice to set everything back to defaults once configured.
-	/*for (GLuint i = 0; i < this->textures.size(); i++)
-	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}*/
-}
-
-/*
-void Mesh::drawInstancing(int amount, DrawType drawType)
-{
-	glBindVertexArray(this->VAO);
-	if (drawType == DrawType::LINEG) {
-		glDrawElementsInstanced(GL_LINE_STRIP, this->indices.size(), GL_UNSIGNED_INT, 0, amount);
-	}
-	else if (drawType == DrawType::POINTG) {
-		glDrawElementsInstanced(GL_POINTS, this->indices.size(), GL_UNSIGNED_INT, 0, amount);
-	}
-	else {
-		glDrawElementsInstanced(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0, amount);
-	}
-}
-*/
 
 void Mesh::loadMesh(std::string path)
 {
@@ -183,8 +129,6 @@ void Mesh::processNode(aiNode * node, const aiScene * scene)
 	//clear transformation nodes
 	collapseEmptyMeshes();
 	//transformChanged();
-	reloadMeshData();
-	reloadSize();
 	callUpdate();
 }
 
@@ -262,7 +206,6 @@ void Mesh::collapseEmptyMeshes() {
 				this->children.push_back(child);
 			}
 			childMesh->children.clear();
-			childMesh->dispose();
 			this->children.erase(this->children.begin() + i);
 			delete childMesh;
 			i--;
@@ -323,7 +266,6 @@ void Mesh::lineTo(Vertex vertex)
 		indices.push_back(vertices.size());
 		vertices.push_back(vertex);
 	}
-	reloadSize();
 	callUpdate();
 }
 
@@ -354,7 +296,6 @@ void Mesh::line(Vertex p1, Vertex p2)
 	indices.push_back(vertices.size());
 	vertices.push_back(p2);
 	
-	reloadSize();
 	callUpdate();
 }
 
@@ -367,7 +308,6 @@ void Mesh::addVertex(Vertex vertex)
 {
 	indices.push_back(vertices.size());
 	vertices.push_back(vertex);
-	reloadSize();
 	callUpdate();
 }
 
@@ -391,7 +331,6 @@ std::vector<Vertex> Mesh::getVertices() const
 void Mesh::setVertices(std::vector<Vertex> vertices)
 {
 	this->vertices = vertices;
-	reloadSize();
 	callUpdate();
 }
 
@@ -412,36 +351,6 @@ void Mesh::clear()
 	indices.clear();
 	reloadSize();
 	callUpdate();
-}
-
-void Mesh::setupMesh()
-{
-	glGenVertexArrays(1, &this->VAO);
-	glGenBuffers(1, &this->VBO);
-	glGenBuffers(1, &this->EBO);
-	callUpdate();
-}
-
-void Mesh::reloadMeshData()
-{
-	if (vertices.size() > 0 && indices.size() > 0) {
-		glBindVertexArray(this->VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-
-		glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(GLuint), &this->indices[0], GL_STATIC_DRAW);
-	
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Color));
-		glBindVertexArray(0);
-	}
 }
 
 void Mesh::reloadSize()

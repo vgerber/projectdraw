@@ -94,14 +94,8 @@ public:
 	 */
 	virtual Size getSize() override;
 
+
 	/**
-	 * @brief Free all resources
-	 * 
-	 */
-	void dispose();
-
-
-		/**
 	 * @brief Add a line to vertex position
 	 * 
 	 * @param vertex 
@@ -199,12 +193,8 @@ public:
 	 */
 	void clear();
 protected:
-	GLuint VAO, VBO, EBO;
-
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-
-	virtual void draw(DrawType drawType = DrawType::TRIANGLEG) override;
 
 	/**
 	 * @brief Load data from file
@@ -234,18 +224,6 @@ protected:
 	 * 
 	 */
 	void collapseEmptyMeshes();
-
-	/**
-	 * @brief Setup memory data
-	 * 
-	 */
-	void setupMesh();
-
-	/**
-	 * @brief Refresh buffer data
-	 * 
-	 */
-	void reloadMeshData();
 
 	/**
 	 * @brief Refresh mesh size data

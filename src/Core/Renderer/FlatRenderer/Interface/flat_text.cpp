@@ -1,4 +1,4 @@
-#include "flattext.h"
+#include "flat_text.h"
 
 FlatText::FlatText(Text * text) : FlatDrawable(static_cast<Drawable*>(text)) {
     setup();

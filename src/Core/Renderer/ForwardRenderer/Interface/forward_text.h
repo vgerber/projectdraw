@@ -1,17 +1,13 @@
 #pragma once
 
 #include "Core/Scene/Text/text.h"
-#include "Core/Renderer/FlatRenderer/Interface/flatdrawable.h"
+#include "Core/Renderer/ForwardRenderer/Interface/forward_drawable.h"
 #include "Core/Resource/resourcemanager.h"
 
-struct RenderedCharacter {
-	Vertex vertices[6];
-	GLuint texture;
-};
 
-class FlatText : public FlatDrawable {
+class ForwardText : public ForwardDrawable {
 public:
-    FlatText(Text * text);
+    ForwardText(Text * text);
 
     virtual void update() override;
 

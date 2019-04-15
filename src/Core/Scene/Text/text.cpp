@@ -12,11 +12,6 @@ Text::Text(Font font) {
 	setup();
 }
 
-void Text::draw(DrawType drawType)
-{
-
-}
-
 Font Text::getFont() {
 	return font;
 }

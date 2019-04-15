@@ -1,4 +1,4 @@
-#include "flatmesh.h"
+#include "flat_mesh.h"
 
 FlatMesh::FlatMesh(Mesh * mesh) : FlatDrawable(static_cast<Drawable*>(mesh)) { 
     setup(); 
