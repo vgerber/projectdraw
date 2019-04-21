@@ -62,7 +62,7 @@ void loadDeferredShaders()
 		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Debug/normal.fragment").c_str(), ShaderType::FRAGMENT },
 		{ ResourceManager::GetPath("/Shaders/Renderer/Deferred/Debug/normal.geometry").c_str(), ShaderType::GEOMETRY }
 	};
-	//shader_normal_geometry.load();
+	shader_normal_geometry.load();
 	ResourceManager::storeShader(ShaderName::Renderer::Deferred::Debug::Normal, shader_normal_geometry);
 
 	//Mesh

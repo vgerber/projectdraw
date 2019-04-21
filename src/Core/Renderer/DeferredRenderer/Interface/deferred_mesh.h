@@ -4,6 +4,7 @@
 #include "Core/Mesh/Primitives/mesh.h"
 #include "Core/Resource/resourcemanager.h"
 
+#include "Core/Util/Debug/debug.hpp"
 /**
  * @brief Interface for mesh data mapping to renderer mesh data
  * 
@@ -20,6 +21,8 @@ public:
     virtual void draw() override;
 
     virtual void drawRaw(Shader shader) override;
+
+    virtual void drawMesh(Shader shader) override;
 
     virtual void dispose() override;
 protected:

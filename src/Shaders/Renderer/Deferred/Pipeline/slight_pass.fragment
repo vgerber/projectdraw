@@ -37,7 +37,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
 void main() {
 	vec3 Normal = texture(gNormal, TexCoords).rgb;
 	vec3 FragPos = texture(gPosition, TexCoords).rgb;
-	vec3 Color = texture(gAlbedo, TexCoords).rgb;
+	vec4 Color = texture(gAlbedo, TexCoords).rgba;
 	vec4 prevColor = texture(prevTexture, TexCoords).rgba;
 	vec3 viewDir = normalize(viewPos - FragPos);    
 	float UseLight = texture(gOption1, TexCoords).r;     
@@ -48,11 +48,13 @@ void main() {
 		vec3 result = vec3(0.0);
 		if(spotLights != 0) {
 			for(int i = 0; i < spotLights; i++){ 
-				result += CalcSpotLight(spotLight[i], Normal, FragPos, viewDir, Color) * spotLight[i].intensity;
+				result += CalcSpotLight(spotLight[i], Normal, FragPos, viewDir, Color.rgb) * spotLight[i].intensity;
 				//result = spotLight[i].position;
 			}
 		}
 		color += vec4(result.rgb, 0.0);
 	}
-	//color = vec4();
+	else {
+		color = vec4(Color.rgb, Color.a);
+	}
 }

@@ -21,20 +21,26 @@ public:
     virtual void update() override;
 
     /**
-     * @brief Draws data to screen with features
+     * @brief Draws data to screen with features (outline, xray,..)
      * 
      */
     virtual void draw() override;
 
     /**
-     * @brief Draws data to screen without features
-     * 
-     * Reduces drawing overhead 
-     * Possible usecase would be silhoutte extraction 
-     * 
+     * @brief Draws minimum data (textures, mesh,..)
+     *  
      *  @param shader Provide a custom shader
      */
     virtual void drawRaw(Shader shader) override;
+
+    /**
+     * @brief Draw mesh data only
+     * 
+     * Plain vertices
+     * 
+     * @param shader 
+     */
+    virtual void drawMesh(Shader shader) override;
 
     /**
      * @brief Frees allocated memeory

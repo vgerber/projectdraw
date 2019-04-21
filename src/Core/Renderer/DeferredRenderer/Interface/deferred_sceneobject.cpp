@@ -16,6 +16,12 @@ void DeferredSceneObject::drawRaw(Shader shader) {
     }
 }
 
+void DeferredSceneObject::drawMesh(Shader shader) {
+    for(auto child : children) {
+        static_cast<DeferredSceneObject*>(child)->drawMesh(shader);
+    }
+}
+
 void DeferredSceneObject::setCamera(const Camera &camera) {
     mvp = camera.getProjectionMatrix() * camera.getViewMatrix() * getLinkedObject()->getWorldTransform().getMatrix();
     for(auto child : children) {

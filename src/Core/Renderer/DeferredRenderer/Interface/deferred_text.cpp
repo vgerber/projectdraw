@@ -60,16 +60,20 @@ void DeferredText::update() {
 }
 
 void DeferredText::draw() {
-    Shader shader = ResourceManager::loadShader(ShaderName::Renderer::Forward::Basic::Mesh);
+    GLcheckError();
+    Shader shader = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Mesh::Basic);
+    shader.use();
     drawRaw(shader);
 
     glEnable(GL_CULL_FACE);
-
+    GLcheckError();
     DeferredDrawable::draw();
 }
 
 void DeferredText::drawRaw(Shader shader) {
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mvp));
+    Text * text = static_cast<Text*>(getLinkedObject());
+
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(text->getWorldTransform().getMatrix()));
     glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
 
     glUniform1i(glGetUniformLocation(shader.getId(), "alphaTexture"),    0);
@@ -80,7 +84,6 @@ void DeferredText::drawRaw(Shader shader) {
     glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"), 0);
     glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), 0);
 
-    Text * text = static_cast<Text*>(getLinkedObject());
 
     //disable face culling for text
     glDisable(GL_CULL_FACE);
@@ -95,8 +98,21 @@ void DeferredText::drawRaw(Shader shader) {
         glDrawArrays(GL_TRIANGLES, i * 6, 6);
         glBindVertexArray(0);
     }
-
     DeferredDrawable::drawRaw(shader);
+}
+
+void DeferredText::drawMesh(Shader shader) {
+    Text * text = static_cast<Text*>(getLinkedObject());
+
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(text->getWorldTransform().getMatrix()));
+
+    for(int i = 0; i < text->getText().size(); i++) {
+        //bind vertices and draw a character
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, i * 6, 6);
+        glBindVertexArray(0);
+    }
+    DeferredDrawable::drawMesh(shader);
 }
 
 void DeferredText::dispose() {

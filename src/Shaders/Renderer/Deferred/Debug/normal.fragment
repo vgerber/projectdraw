@@ -12,8 +12,9 @@ in VS_OUT {
 
 
 void main() {
-	Albedo = vec4(1.0, 1.0, 0.0, 1.0);
-	Normal = vec4(fs_in.Normal, 1.0);
+	Albedo   = vec4(1.0, 1.0, 0.0, 1.0);
+	Normal   = vec4(0.0, 0.0, 0.0, 1.0);
 	Position = vec4(1.0);
-	Option1 = vec4(vec3(0.0), 1.0);
+	Option1  = vec4(vec3(0.0), 1.0);
+	Glow 	 = vec4(0.0);
 }

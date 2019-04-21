@@ -58,4 +58,6 @@ protected:
 	
 
 	virtual void setup();
+
+	virtual void callUpdate() override;
 };

@@ -9,12 +9,13 @@
 
 #include <map>
 #include <iostream>
+#include <algorithm>
 
 struct Character {
-	GLuint	   TextureID;
-	glm::ivec2 Size;
-	glm::ivec2 Bearing;
-	GLuint	   Advance;
+	GLuint	     TextureID;
+	glm::ivec2   Size;
+	glm::ivec2   Bearing;
+	unsigned int Advance;
 };
 
 class Font {
@@ -22,6 +23,9 @@ public:
 	Font();
 	Font(const char* file, GLuint size);
 	std::map<GLchar, Character> characters;
+	glm::ivec2 getVerticalBounds();
 private:	
+	glm::ivec2 verticalBounds;
+
 	void load(const char* file, GLuint size);
 };

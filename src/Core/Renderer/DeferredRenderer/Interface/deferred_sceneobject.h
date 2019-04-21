@@ -18,17 +18,28 @@ public:
     /**
      * @brief Draw object with all features
      * 
+     * e.g outline, xray,...
+     * 
      */
     virtual void draw();
 
     /**
-     * @brief Draw object mesh data only
+     * @brief Draw object minimum (like textures, mesh,..)
      * 
      * Useful if silhouette of object is needed
      * 
      * @param shader Provide a shader as rendering operation
      */
     virtual void drawRaw(Shader shader);
+
+    /**
+     * @brief Draw mesh only
+     * 
+     * Draws plain vertex data
+     * 
+     * @param shader 
+     */
+    virtual void drawMesh(Shader shader);
 
     /**
      * @brief Set the Camera properties

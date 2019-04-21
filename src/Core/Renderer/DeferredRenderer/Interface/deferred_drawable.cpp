@@ -16,6 +16,10 @@ void DeferredDrawable::drawRaw(Shader shader) {
     DeferredSceneObject::drawRaw(shader);
 }
 
+void DeferredDrawable::drawMesh(Shader shader) {
+    DeferredSceneObject::drawMesh(shader);
+}
+
 void DeferredDrawable::dispose() {
     DeferredSceneObject::dispose();
 }

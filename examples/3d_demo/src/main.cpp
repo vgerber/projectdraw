@@ -26,9 +26,10 @@ int main() {
 	settings.antialiasingLevel = 0;
 	sf::Window window(sf::VideoMode(WIDTH, HEIGHT), "3D Demo", sf::Style::Default, settings);
 	window.setVerticalSyncEnabled(true);
-	initCore();
 
-	
+	Log::setFilter(true, LogType::Error);
+
+	initCore();
 
 	Scene scene(WIDTH, HEIGHT);
 	   
@@ -122,7 +123,7 @@ int main() {
 	}
 
 	Mesh ground;
-	ground = *pd::generateQuad(20.0f, 20.0f, 0.2f, glm::vec4(1.0f));
+	ground = *pd::generateQuad(30.0f, 30.0f, 0.2f, glm::vec4(1.0f));
 	ground.translate(glm::vec3(0, 0.0f, -0.1f));
 	scene.addObject(ground);
 
@@ -133,6 +134,7 @@ int main() {
 	textSceneName.translate(0.0f, 1.0f, 4.0f);
 	//textSceneName.scale(glm::vec3(0.005f));
 	textSceneName.scaleToHeight(2.0f);
+	//textSceneName.scale(0.0075, 0.005, 0.02);
 	textSceneName.rotate(Rotator(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 	textSceneName.settings.useCustomColor = true;
 	textSceneName.settings.customColor = glm::vec4(0.4f, 0.4f, 1.0f, 1.0f);
@@ -145,29 +147,29 @@ int main() {
 	sunLight.specular = sunLight.diffuse;
 	sunLight.ambient = glm::vec3(0.5f, 0.5f, 0.5f);
 	sunLight.changeDirection(glm::vec3(0.0f, 0.0f, -1.0f));
-	sunLight.intensity = 20.0f;
+	sunLight.intensity = 0.1f;
 	sunLight.shadow = true;
 	scene.addObject(sunLight);
 	
 
 	PointLight poleLight;
-	poleLight.translate(glm::vec3(2.0f, 0.0f, 2.0f));
+	poleLight.translate(glm::vec3(5.0f, 0.0f, 2.0f));
 	poleLight.setDistance(20.0);
-	poleLight.diffuse = glm::vec3(0.01f, 0.01f, 1.0f);
-	poleLight.specular = poleLight.diffuse;
+	poleLight.diffuse  = glm::vec3(1.0f, 1.0f, 1.0f);
+	poleLight.specular = poleLight.diffuse * 0.01f;
+	poleLight.ambient  = poleLight.diffuse * 0.01f;
 	poleLight.intensity = 1.0f;
-	//poleLight.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
-	poleLight.shadow = false;
+	poleLight.shadow = true;
 	scene.addObject(poleLight);
 
 	PointLight poleLight2;
-	poleLight2.translate(glm::vec3(-2.0f, 0.0f, 2.0f));
+	poleLight2.translate(glm::vec3(-5.0f, 0.0f, 2.0f));
 	poleLight2.setDistance(20.0);
-	poleLight2.diffuse = poleLight.diffuse;
-	poleLight2.specular = poleLight2.diffuse;
+	poleLight2.diffuse  = poleLight.diffuse;
+	poleLight2.specular = poleLight2.diffuse * 0.01f;
+	poleLight2.ambient  = poleLight2.diffuse * 0.01f;
 	poleLight2.intensity = 1.0f;
-	//poleLight2.setModel(primitives::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(0.0f, 0.0, 0.0f, 1.0f)));
-	poleLight2.shadow = false;
+	poleLight2.shadow = true;	
 	scene.addObject(poleLight2);
 	
 	
@@ -180,7 +182,7 @@ int main() {
 	flashLight.specular = flashLight.diffuse;
 	flashLight.translate(glm::vec3(0.0, 0.0, 10.0));
 	flashLight.direction = glm::vec3(0.0, -1.0, 0.0);
-	flashLight.intensity = 0.6;
+	flashLight.intensity = 1.0;
 	flashLight.shadow = false;
 	scene.addObject(flashLight);
 
@@ -191,10 +193,10 @@ int main() {
 	flashLight2.outerCutOff = glm::radians(30.0f);
 	flashLight2.diffuse = glm::vec3(0.8, 0.8, 0.2);
 	flashLight2.specular = flashLight2.diffuse;
-	flashLight2.translate(glm::vec3(-3.0, 2.0, 3.0));
+	flashLight2.translate(glm::vec3(-3.0, 10.0, 5.0));
 	flashLight2.direction = glm::normalize(-flashLight2.getPosition());
-	flashLight2.intensity = 2.0;
-	flashLight2.shadow = false;
+	flashLight2.intensity = 1.0;
+	flashLight2.shadow = true;
 	scene.addObject(flashLight2);
 	
 
@@ -215,8 +217,8 @@ int main() {
 		
 		flashLight.direction = glm::vec3(0.2f * cos(millis), 0.2f * sin(millis), -1.0f);
 		
-		poleLight.intensity = sin(millis * 10) * 0.5 + 1.0;
-		poleLight2.intensity = sin(millis * 10 + 1.6) * 0.5 + 1.0;
+		//poleLight.intensity = sin(millis * 10) * 0.5 + 1.0;
+		//poleLight2.intensity = sin(millis * 10 + 1.6) * 0.5 + 1.0;
 
 		sunLight.changeDirection(glm::vec3(1.0f * cos(millis), 1.0f * sin(millis), -0.7f));
 

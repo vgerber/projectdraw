@@ -35,3 +35,13 @@ std::string Text::getText()
 
 void Text::setup() {
 }
+
+void Text::callUpdate() {
+	size.height = (font.getVerticalBounds().x - font.getVerticalBounds().y);
+	size.width  = 0;
+	for(auto c : text) {
+		size.width += (font.characters[c].Advance >> 6);
+	}
+
+	Drawable::callUpdate();
+}

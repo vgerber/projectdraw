@@ -51,7 +51,7 @@ void Shader::load()
 		if (info_length > 0) {
 			std::vector<char> error_msg(info_length + 1);
 			glGetShaderInfoLog(shader_id, info_length, NULL, &error_msg[0]);
-			printf("%s\n", &error_msg[0]);
+			Log::write(LogType::Error, std::string(&error_msg[0]), "Shader");
 		}
 		shader_ids.push_back(shader_id);
 	}

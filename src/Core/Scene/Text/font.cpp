@@ -9,6 +9,10 @@ Font::Font(const char * file, GLuint size)
 	load(file, size);
 }
 
+glm::ivec2 Font::getVerticalBounds() {
+	return verticalBounds;
+}
+
 void Font::load(const char * file, GLuint size)
 {
 	FT_Library ft;
@@ -50,8 +54,12 @@ void Font::load(const char * file, GLuint size)
 			texture,
 			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			face->glyph->advance.x
+			(unsigned int)face->glyph->advance.x
 		};
+
+		verticalBounds.x = std::max(face->glyph->bitmap_top, verticalBounds.x);
+		verticalBounds.y = std::min((int)face->glyph->bitmap.rows-face->glyph->bitmap_top, verticalBounds.y);		
+
 		characters.insert(std::pair<GLchar, Character>(c, character));
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);

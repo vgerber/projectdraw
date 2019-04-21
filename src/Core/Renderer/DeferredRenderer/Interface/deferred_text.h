@@ -3,6 +3,7 @@
 #include "Core/Scene/Text/text.h"
 #include "Core/Renderer/DeferredRenderer/Interface/deferred_drawable.h"
 #include "Core/Resource/resourcemanager.h"
+#include "Core/Util/Debug/debug.hpp"
 
 
 class DeferredText : public DeferredDrawable {
@@ -14,6 +15,8 @@ public:
     virtual void draw() override;
 
     virtual void drawRaw(Shader shader) override;
+
+    virtual void drawMesh(Shader shader) override;
 
     virtual void dispose() override;
 

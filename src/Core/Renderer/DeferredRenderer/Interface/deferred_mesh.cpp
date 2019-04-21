@@ -30,9 +30,17 @@ void DeferredMesh::update() {
 
 void DeferredMesh::draw() {
     Mesh * mesh = static_cast<Mesh*>(getLinkedObject());
+
+    //skip empty meshes
+    if(mesh->getIndices().size() == 0) {
+        DeferredDrawable::draw();
+        return;
+    }
+
     DrawableInfo settings = mesh->settings;
 
     Shader shaderBasic = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Mesh::Basic);
+    shaderBasic.use();
 
 	if (settings.xrayVisible) {
 		//glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(getModelMatrix()));
@@ -107,7 +115,7 @@ void DeferredMesh::draw() {
 		mesh->translate(oldPosition);
 		mesh->scale(oldScale);
 	}
-
+    
 	glUniform1f(glGetUniformLocation(shaderBasic.getId(), "useLight"), settings.useLight);
 	glUniform1i(glGetUniformLocation(shaderBasic.getId(), "enableCustomColor"), settings.useCustomColor);
 	glm::vec4 color = settings.customColor;
@@ -120,12 +128,12 @@ void DeferredMesh::draw() {
 	glDepthMask(GL_TRUE);
 
     drawRaw(shaderBasic);
-
+    
     if(mesh->settings.normalVisible) {
         Shader shaderNormal = ResourceManager::loadShader(ShaderName::Renderer::Deferred::Debug::Normal);
+        shaderNormal.use();
         glUniformMatrix4fv(glGetUniformLocation(shaderNormal.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mesh->getWorldTransform().getMatrix()));
 		glUniformMatrix4fv(glGetUniformLocation(shaderNormal.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
-            
         glBindVertexArray(this->VAO);
         glPointSize(mesh->settings.pointThickness);
         glDrawElements(GL_POINTS, mesh->getIndices().size(), GL_UNSIGNED_INT, 0);
@@ -137,37 +145,61 @@ void DeferredMesh::draw() {
 void DeferredMesh::drawRaw(Shader shader) {
     Mesh * mesh = static_cast<Mesh*>(getLinkedObject());
 
-    shader.use();
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mesh->getWorldTransform().getMatrix()));
-    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
-    
-    glUniform1i(glGetUniformLocation(shader.getId(), "alphaTexture"), 0);
-	glUniform1i(glGetUniformLocation(shader.getId(), "diffuseTexture"), 1);
-	glUniform1i(glGetUniformLocation(shader.getId(), "specularTexture"), 2);
+    if(mesh->getIndices().size() > 0) {
+        shader.use();
+        glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mesh->getWorldTransform().getMatrix()));
+        glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+        
+        glUniform1i(glGetUniformLocation(shader.getId(), "alphaTexture"), 0);
+        glUniform1i(glGetUniformLocation(shader.getId(), "diffuseTexture"), 1);
+        glUniform1i(glGetUniformLocation(shader.getId(), "specularTexture"), 2);
 
 
-    bool useAlphaTexture    = mesh->settings.useAlphaTexture   && mesh->getAlphaTextures().size() > 0;
-    bool useSpecularTexture = mesh->settings.useSpecualTexture && mesh->getSpecularTextures().size() > 0;
-    bool useDiffuseTexture  = mesh->settings.useDiffuseTexture && mesh->getDiffuseTextures().size() > 0;
-    glUniform1i(glGetUniformLocation(shader.getId(), "enableAlphaTexture"),    useAlphaTexture);
-    glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"),  useDiffuseTexture);
-    glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), useSpecularTexture);
+        bool useAlphaTexture    = mesh->settings.useAlphaTexture   && mesh->getAlphaTextures().size() > 0;
+        bool useSpecularTexture = mesh->settings.useSpecualTexture && mesh->getSpecularTextures().size() > 0;
+        bool useDiffuseTexture  = mesh->settings.useDiffuseTexture && mesh->getDiffuseTextures().size() > 0;
+        glUniform1i(glGetUniformLocation(shader.getId(), "enableAlphaTexture"),    useAlphaTexture);
+        glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"),  useDiffuseTexture);
+        glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), useSpecularTexture);
 
-    if(useAlphaTexture) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, mesh->getAlphaTextures()[0]->getGLTexture());
+        if(useAlphaTexture) {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, mesh->getAlphaTextures()[0]->getGLTexture());
+        }
+        if(useDiffuseTexture) {
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, mesh->getDiffuseTextures()[0]->getGLTexture());
+        }
+        if(useSpecularTexture) {
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, mesh->getSpecularTextures()[0]->getGLTexture());
+        }
+
+        // Draw mesh
+        glBindVertexArray(this->VAO);
+        DrawableInfo settings = mesh->settings;
+        if (settings.drawType == DrawType::LINEG) {
+            glLineWidth(settings.lineThickness);
+            glDrawElements(GL_LINE_STRIP, mesh->getIndices().size(), GL_UNSIGNED_INT, 0);
+        }
+        else if (settings.drawType == DrawType::POINTG) {
+            glPointSize(settings.pointThickness);
+            glDrawElements(GL_POINTS, mesh->getIndices().size(), GL_UNSIGNED_INT, 0);
+        }
+        else {
+            glDrawElements(GL_TRIANGLES, mesh->getIndices().size(), GL_UNSIGNED_INT, 0);
+        }
     }
-    if(useDiffuseTexture) {
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, mesh->getDiffuseTextures()[0]->getGLTexture());
-    }
-    if(useSpecularTexture) {
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, mesh->getSpecularTextures()[0]->getGLTexture());
-    }
+    DeferredDrawable::drawRaw(shader);
+}
 
-    
-    if (mesh->getVertices().size() > 0) {
+void DeferredMesh::drawMesh(Shader shader) {
+    Mesh * mesh = static_cast<Mesh*>(getLinkedObject());
+
+    if (mesh->getIndices().size() > 0) {
+
+        glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mesh->getWorldTransform().getMatrix()));
+
         // Draw mesh
         glBindVertexArray(this->VAO);
         DrawableInfo settings = mesh->settings;
@@ -184,7 +216,7 @@ void DeferredMesh::drawRaw(Shader shader) {
         }
     }
 
-    DeferredDrawable::drawRaw(shader);
+    DeferredDrawable::drawMesh(shader);
 }
 
 void DeferredMesh::dispose() {

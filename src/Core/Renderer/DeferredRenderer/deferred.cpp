@@ -264,12 +264,9 @@ void DeferredRenderer::renderObjects()
 	//sort objects for stencil testing
 	//std::sort(objects.begin(), objects.end(), SortDrawable(camera->getPosition()));
 
-	glUniformBlockBinding(shaderBasic.getId(), glGetUniformBlockIndex(shaderBasic.getId(), "Matrices"), getRendererId());
-	glUniformBlockBinding(shaderFont.getId(), glGetUniformBlockIndex(shaderFont.getId(), "Matrices"), getRendererId());
-	glUniformBlockBinding(shaderLight.getId(), glGetUniformBlockIndex(shaderLight.getId(), "Matrices"), getRendererId());
-	glUniformBlockBinding(shaderInstancing.getId(), glGetUniformBlockIndex(shaderInstancing.getId(), "Matrices"), getRendererId());
+	glUniformBlockBinding(shaderBasic.getId(),   glGetUniformBlockIndex(shaderBasic.getId(),   "Matrices"), getRendererId());
+	glUniformBlockBinding(shaderLight.getId(),   glGetUniformBlockIndex(shaderLight.getId(),   "Matrices"), getRendererId());
 	glUniformBlockBinding(shaderNormals.getId(), glGetUniformBlockIndex(shaderNormals.getId(), "Matrices"), getRendererId());
-
 
 	int polygonMode = GL_FILL;
 	if (renderMode == RenderMode::POINTR)
@@ -298,51 +295,17 @@ void DeferredRenderer::renderObjects()
 	//bind global camera matrices and properties
 	float farZ = camera->getClippingFar();
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(camera->getViewMatrix()));
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera->getProjectionMatrix()));
-	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(GLfloat), &farZ);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0,                     sizeof(glm::mat4), glm::value_ptr(camera->getViewMatrix()));
+	glBufferSubData(GL_UNIFORM_BUFFER,     sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camera->getProjectionMatrix()));
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(GLfloat),   &farZ);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	//draw 3d pointlight object
-	/*shaderLight.use();
-	for (auto plight : pointLights)
-	{
-		glUniform1f(glGetUniformLocation(shaderLight.getId(), "intensity"), plight->intensity);
-		glUniform3f(glGetUniformLocation(shaderLight.getId(), "color"), plight->diffuse.r, plight->diffuse.g, plight->diffuse.b);
-		plight->setCameraMatrices(camera->getViewMatrix(), camera->getCameraMatrix());
-		plight->draw();
-	}*/
-
-	shaderInstancing.use();
-	for (auto instancer : instancers)
-	{
-		//instancer->draw(shaderInstancing);
-	}
-
-	//draw particles
 
 	//draw all drawables
 	for(auto sceneObject : sceneObjects) {
 		sceneObject->setCamera(*camera);
 		sceneObject->draw();
 	}
-	//draw viewfrustums from cameras
-	/*for (auto &scam : cameras)
-	{
-		if (&scam != &sceneCamera && scam.config.debugVisible)
-		{
-			Geometry geoCam = scam.getDebugViewFrustum(directionalLight->getCSMSlices());
-			geoCam.draw();
-			geoCam.dispose();
-		}
-	}*/
 
-	//draw aabb from drawables
-	/*
-	shaderGeometry.use();
-	glUniform4f(glGetUniformLocation(shaderGeometry.getId(), "color"), 0.0f, 1.0f, 0.0f, 1.0f);
-	glUniformMatrix4fv(glGetUniformLocation(shaderGeometry.getId(), "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-	*/
 	glDisable(GL_STENCIL_TEST);
 	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -368,6 +331,12 @@ void DeferredRenderer::renderLight()
 
 		tmpRenderTexture is a full scene size buffer for tmp save of current screen pixels (e.g. += pixel operations which will otherwise fail)
 		this texture has to be prefilled or filled (black) or with light renderering (p and s light will need them)
+	
+	Lights ordering:
+		Lights will be ordered for efficient shader calls
+		0-n:   			  shadow=true  and intensity>0
+		n+1-m:            shadow=true  and intensity=0
+		m+1-lights.size() shadow=false and intensity=?
 	*/
 
 	//sort spot- and pointlights for shadow pipeline
@@ -388,7 +357,7 @@ void DeferredRenderer::renderLight()
 
 			for (auto sceneObject : sceneObjects)
 			{
-				sceneObject->drawRaw(directionalLight->getShaderShadow());
+				sceneObject->drawMesh(directionalLight->getShaderShadow());
 			}
 			directionalLight->endShadowMapping();
 		}
@@ -410,7 +379,7 @@ void DeferredRenderer::renderLight()
 			}	
 			//avoid shadow mapping for non visible lights
 			if (plight->intensity == 0.0) {
-				continue;
+				break;
 			}
 
 			if (plight->shadow) {				
@@ -420,7 +389,7 @@ void DeferredRenderer::renderLight()
 					if(glm::length(sceneObject->getLinkedObject()->getWorldTransform().getTranslation() - plight->getWorldTransform().getTranslation()) < plight->getDistance()) {
 						//draw each drawable to depth buffer if it is within the distance of the light and apply 
 						//the corresponding depth shader
-						sceneObject->drawRaw(plight->getShaderShadow());
+						sceneObject->drawMesh(plight->getShaderShadow());
 					}
 				}
 				plight->endShadowMapping();
@@ -445,7 +414,7 @@ void DeferredRenderer::renderLight()
 
 			//avoid shadow mapping for non visible lights
 			if (slight->intensity == 0.0) {
-				continue;
+				break;
 			}
 
 			if (slight->shadow) {
@@ -455,7 +424,8 @@ void DeferredRenderer::renderLight()
 					if(slight->getDistance() > glm::length(sceneObject->getLinkedObject()->getWorldTransform().getTranslation() - slight->getWorldTransform().getTranslation())) {
 						//draw each drawable to depth buffer if it is within the distance of the light and apply 
 						//the corresponding depth shader
-						sceneObject->drawRaw(slight->getShaderShadow());
+						//sceneObject->drawRaw(slight->getShaderShadow());
+						sceneObject->drawMesh(slight->getShaderShadow());
 					}
 				}
 				slight->endShadowMapping();
@@ -674,6 +644,7 @@ void DeferredRenderer::renderLight()
 			}
 		}
 	}
+	GLcheckError();
 	//render spotlights without shadowmapping
 	if (spotLights.size() > 0 && spotLights.size() != spotLightShadowCount)
 	{
@@ -696,12 +667,13 @@ void DeferredRenderer::renderLight()
 		glBindTexture(GL_TEXTURE_2D, gBufferOption1);
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
-
+		GLcheckError();
 		int sLightCount = 0;
 		for(int sLightIndex = spotLightShadowCount; sLightIndex < spotLights.size(); sLightIndex++) {
 			SpotLight * sLight = spotLights[sLightIndex];
+			GLcheckError();
 			setSpotLightUniforms(shaderSLight, *sLight, 5, sLightCount);
-
+			GLcheckError();
 			if(sLight->intensity == 0.0) {
 				continue;
 			}
@@ -709,6 +681,7 @@ void DeferredRenderer::renderLight()
 			sLightCount++;
 			if(sLightCount == ShaderSpotLightSize || sLightIndex == spotLights.size()-1) {
 				glUniform1i(glGetUniformLocation(shaderSLight.getId(), "spotLights"), sLightCount);
+				GLcheckError();
 
 				glBindVertexArray(screenRectVAO);
 				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -718,10 +691,11 @@ void DeferredRenderer::renderLight()
 				glActiveTexture(GL_TEXTURE4);
 				glBindTexture(GL_TEXTURE_2D, tmpRenderTexture);
 				sLightCount = 0;
+				GLcheckError();
 			}
 		}
 	}
-
+	GLcheckError();
 
 
 
@@ -970,6 +944,6 @@ DeferredSceneObject * DeferredRenderer::generateDeferredObject(SceneObject * sce
 	for(auto child : sceneObject->getChildren()) {
 		newDeferredObject->children.push_back(generateDeferredObject(child));
 	}
-
+	newDeferredObject->update();
 	return newDeferredObject;
 }
