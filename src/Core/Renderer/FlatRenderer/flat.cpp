@@ -178,7 +178,12 @@ FlatSceneObject * FlatRenderer::generateFlatObject(SceneObject * sceneObject) {
 		newSceneObject = new FlatMesh(mesh);
 	}
 	else if(auto text = dynamic_cast<Text*>(sceneObject)) {
-		newSceneObject = new FlatText(text);
+		if(auto mlText = dynamic_cast<MultilineText*>(text)) {
+			newSceneObject = new FlatMultilineText(mlText);
+		}
+		else {
+			newSceneObject = new FlatText(text);
+		}	
 	}
 	else {
 		newSceneObject = new FlatSceneObject(sceneObject);

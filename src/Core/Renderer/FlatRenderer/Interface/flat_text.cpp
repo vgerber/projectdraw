@@ -61,6 +61,7 @@ void FlatText::update() {
 
 void FlatText::draw() {
     Shader shader = ResourceManager::loadShader(ShaderName::Renderer::Flat::Mesh);
+    Text * text = static_cast<Text*>(getLinkedObject());
 
     glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
 
@@ -72,7 +73,11 @@ void FlatText::draw() {
     glUniform1i(glGetUniformLocation(shader.getId(), "enableDiffuseTexture"), 0);
     glUniform1i(glGetUniformLocation(shader.getId(), "enableSpecularTexture"), 0);
 
-    Text * text = static_cast<Text*>(getLinkedObject());
+    glUniform1i(glGetUniformLocation(shader.getId(), "enableCustomColor"), text->settings.useCustomColor);
+    glm::vec4 customColor = text->settings.customColor;
+    glUniform4f(glGetUniformLocation(shader.getId(), "customColor"), customColor.r, customColor.g, customColor.b, customColor.a);
+
+    
 
     //disable face culling for text
     glDisable(GL_CULL_FACE);
@@ -94,7 +99,8 @@ void FlatText::draw() {
 }
 
 void FlatText::dispose() {
-
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
 }
 
 void FlatText::setup() {

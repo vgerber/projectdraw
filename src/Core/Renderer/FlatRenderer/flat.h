@@ -17,6 +17,7 @@
 #include "Core/Renderer/FlatRenderer/Interface/flat_drawable.h"
 #include "Core/Renderer/FlatRenderer/Interface/flat_mesh.h"
 #include "Core/Renderer/FlatRenderer/Interface/flat_text.h"
+#include "Core/Renderer/FlatRenderer/Interface/flat_multilinetext.h"
 
 
 /**

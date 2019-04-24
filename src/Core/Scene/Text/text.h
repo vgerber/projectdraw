@@ -37,14 +37,14 @@ public:
 	 * 
 	 * @return Size 
 	 */
-	Size getSize();
+	Size getSize() override;
 
 	/**
 	 * @brief Set the text
 	 * 
 	 * @param text 
 	 */
-	void setText(std::string text);
+	virtual void setText(std::string text);
 
 	/**
 	 * @brief Get the text

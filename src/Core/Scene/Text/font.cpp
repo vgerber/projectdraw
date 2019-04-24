@@ -15,6 +15,9 @@ glm::ivec2 Font::getVerticalBounds() {
 
 void Font::load(const char * file, GLuint size)
 {
+	verticalBounds.y = std::numeric_limits<int>::max();
+	verticalBounds.x = std::numeric_limits<int>::min();
+
 	FT_Library ft;
 	FT_Face face;
 	if (FT_Init_FreeType(&ft)) {
@@ -65,4 +68,13 @@ void Font::load(const char * file, GLuint size)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
+}
+
+unsigned int Font::getTextWidth(std::string text) {
+	unsigned width = 0;
+	for(auto c : text) {
+		Character ch = characters[c];
+		width += (ch.Advance >> 6);
+	}
+	return width;
 }

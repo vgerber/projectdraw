@@ -9,6 +9,7 @@
 #include "Core/Scene/UI/HUD/hud.h"
 #include "Core/Mesh/Primitives/primitives.h"
 #include "Core/Util/Config/configurator.h"
+#include "Core/Scene/Text/multiline_text.h"
 
 const int WIDTH = 1200;
 const int HEIGHT = 700;
@@ -175,6 +176,16 @@ int main(int argc, char ** argv) {
 	testHud.addObject(*testCircle);
 	testHud.addObject(*testRect);
 	testHud.addObject(testGeometry);
+
+
+	MultilineText mlText(font);
+	mlText.setText("This scene is an OpenGL test environment for\n ProjectDraw");	
+	mlText.setMaxWidth(0.3 * WIDTH);
+	mlText.translate(WIDTH - 0.3 * WIDTH, HEIGHT - mlText.getSize().height, -1.0);
+	mlText.settings.useCustomColor = true;
+	mlText.settings.customColor = glm::vec4(0.3, 0.3, 0.3, 0.5);
+	testHud.addObject(mlText);
+
 
     int textureCounter = 0;
     // Game loop
