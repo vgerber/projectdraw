@@ -39,12 +39,12 @@ int main() {
     freeCamera.setForward(glm::vec3(0.0f, 0.0f, 0.0f) - freeCamera.getPosition());
     mainScene.addObject(freeCamera);
 	
-    Mesh ground = *pd::generateQuad(40.0f, 40.0f, 0.2f, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+    Mesh ground = pd::quad(40.0f, 40.0f, 0.2f, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
     ground.translate(glm::vec3(0.0f, 0.0f, -0.1f));
     mainScene.addObject(ground);
 
 	Mesh testObject;
-    testObject = *pd::generateSphere(20, 20,  glm::vec4(0.4f, 0.8f, 0.4f, 1.0f));
+    testObject = pd::sphere(20, 20,  glm::vec4(0.4f, 0.8f, 0.4f, 1.0f));
     testObject.translate(glm::vec3(0.0f, 0.0f, 5.0f));
     testObject.scale(glm::vec3(4.0));
     mainScene.addObject(testObject);
@@ -114,7 +114,7 @@ int main() {
     std::vector<float> heightData = getHeightField(width, height);
 
     Mesh terrain;
-    terrain = *pd::generateHeightfield(width, height, heightData);
+    terrain = pd::heightfield(width, height, heightData);
     mainScene.addObject(terrain);
 
     collision::CollisionShape rTerrainShape(collision::generateHeightField(heightData, width, height));

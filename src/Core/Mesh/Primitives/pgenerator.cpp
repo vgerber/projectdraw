@@ -1,6 +1,6 @@
 #include "pgenerator.h"
 
-Mesh * pd::generateRectangle(GLfloat width, GLfloat height, glm::vec4 color = glm::vec4(0.0f))
+Mesh pd::rectangle(GLfloat width, GLfloat height, glm::vec4 color = glm::vec4(0.0f))
 {
 	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
 	std::vector<GLfloat> vertices = {
@@ -36,12 +36,12 @@ Mesh * pd::generateRectangle(GLfloat width, GLfloat height, glm::vec4 color = gl
 		vertices_vertex.push_back(vertex);
 	}
 
-	Mesh * mesh = new Mesh(vertices_vertex, indices);
-	mesh->applyMeshRecenter(glm::vec3(0.0f));
+	Mesh mesh(vertices_vertex, indices);
+	mesh.applyMeshRecenter(glm::vec3(0.0f));
 	return mesh;
 }
 
-Mesh * pd::generateCircle(GLfloat radius, GLfloat quality, glm::vec4 color)
+Mesh pd::circle(GLfloat radius, GLfloat quality, glm::vec4 color)
 {
 	if (quality < 3.0f) {
 		quality = 3.0f;
@@ -131,12 +131,12 @@ Mesh * pd::generateCircle(GLfloat radius, GLfloat quality, glm::vec4 color)
 		vertices_vertex.push_back(vertex);
 	}
 
-	Mesh * mesh = new Mesh(vertices_vertex, indices);
-	mesh->applyMeshRecenter(glm::vec3(0.0f));
+	Mesh mesh(vertices_vertex, indices);
+	mesh.applyMeshRecenter(glm::vec3(0.0f));
 	return mesh;
 }
 
-Mesh * pd::generateQuad(GLfloat width, GLfloat height, GLfloat depth, glm::vec4 color)
+Mesh pd::quad(GLfloat width, GLfloat height, GLfloat depth, glm::vec4 color)
 {
 	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
 	std::vector<GLfloat> vertices = {
@@ -203,12 +203,12 @@ Mesh * pd::generateQuad(GLfloat width, GLfloat height, GLfloat depth, glm::vec4 
 		vertex.Color = color;
 		vertices_vertex.push_back(vertex);
 	}
-	Mesh * mesh = new Mesh(vertices_vertex, indices);
-	mesh->applyMeshRecenter(glm::vec3(0.0f));
+	Mesh mesh(vertices_vertex, indices);
+	mesh.applyMeshRecenter(glm::vec3(0.0f));
 	return mesh;
 }
 
-Mesh * pd::generateHeightfield(int width, int length, std::vector<float> data) {
+Mesh pd::heightfield(int width, int length, std::vector<float> data) {
 	std::vector<GLfloat> vertices;
 	std::vector<GLuint> indices;
 
@@ -290,12 +290,12 @@ Mesh * pd::generateHeightfield(int width, int length, std::vector<float> data) {
 		vertices_vertex.push_back(vertex);
 	}
 
-	Mesh * mesh = new Mesh(vertices_vertex, indices);
-	mesh->applyMeshRecenter(glm::vec3(0.0f));
+	Mesh mesh(vertices_vertex, indices);
+	mesh.applyMeshRecenter(glm::vec3(0.0f));
 	return mesh;
 }
 
-Mesh * pd::generateHeightfieldStep(int width, int length, std::vector<float> data, glm::vec4 color) {
+Mesh pd::heightfieldStep(int width, int length, std::vector<float> data, glm::vec4 color) {
 	std::vector<GLfloat> vertices;
 	std::vector<GLuint> indices;
 
@@ -442,7 +442,7 @@ Mesh * pd::generateHeightfieldStep(int width, int length, std::vector<float> dat
 		vertices_vertex.push_back(vertex);
 	}
 
-	return new Mesh(vertices_vertex, indices);
+	return Mesh(vertices_vertex, indices);
 }
 
 glm::vec3 normalize(glm::vec3 a, glm::vec3 b, float length) {
@@ -466,7 +466,7 @@ glm::vec3 getSpherePoint(double lat, double lng, double radius) {
 	);
 }
 
-Mesh * pd::generateSphere(int lats, int longs, glm::vec4 color)
+Mesh pd::sphere(int lats, int longs, glm::vec4 color)
 {
 	int i, j;
 	std::vector<GLfloat> vertices;
@@ -573,10 +573,10 @@ Mesh * pd::generateSphere(int lats, int longs, glm::vec4 color)
 		vertices_vertex.push_back(vertex);
 	}
 
-	return new Mesh(vertices_vertex, indices);
+	return Mesh(vertices_vertex, indices);
 }
 
-Mesh * pd::generateCone(float radius, float height, float quality, glm::vec4 color)
+Mesh pd::cone(float radius, float height, float quality, glm::vec4 color)
 {
 	if (quality < 3.0f) {
 		quality = 3.0f;
@@ -707,12 +707,12 @@ Mesh * pd::generateCone(float radius, float height, float quality, glm::vec4 col
 		vertices_vertex.push_back(vertex);
 	}
 
-	Mesh * mesh = new Mesh(vertices_vertex, indices);
-	mesh->applyMeshRecenter(glm::vec3(0.0f));
+	Mesh mesh(vertices_vertex, indices);
+	mesh.applyMeshRecenter(glm::vec3(0.0f));
 	return mesh;
 }
 
-Mesh * pd::generateCylinder(float radius, float height, float quality, glm::vec4 color)
+Mesh pd::cylinder(float radius, float height, float quality, glm::vec4 color)
 {
 		if (quality < 3.0f) {
 		quality = 3.0f;
@@ -801,12 +801,12 @@ Mesh * pd::generateCylinder(float radius, float height, float quality, glm::vec4
 		vertices_vertex.push_back(vertex);
 	}
 
-	Mesh * mesh = new Mesh(vertices_vertex, indices);
-	mesh->applyMeshRecenter(glm::vec3(0.0f));
+	Mesh mesh(vertices_vertex, indices);
+	mesh.applyMeshRecenter(glm::vec3(0.0f));
 	return mesh;
 }
 
-Mesh * pd::generateCircleLine(float radius, float quality, glm::vec4 color)
+Mesh pd::circleLine(float radius, float quality, glm::vec4 color)
 {
 	if (quality < 3.0f) {
 		quality = 3.0f;
@@ -833,5 +833,5 @@ Mesh * pd::generateCircleLine(float radius, float quality, glm::vec4 color)
 		indices.push_back(vertices.size()-1);
 
 	}
-	return new Mesh(vertices, indices);
+	return Mesh(vertices, indices);
 }

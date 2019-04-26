@@ -146,21 +146,21 @@ int main(int argc, char ** argv) {
 	textSceneName.scaleToWidth(0.2f * WIDTH);
 	//textSceneName.scale(textSceneName.getScale() * glm::vec3(1.0f, -1.0f, 1.0f));
 
-	Mesh * testCircle = pd::generateCircle(30.0f, 30.0f, glm::vec4(0.0f, 1.0f, 0.0f, 0.5));
-	testCircle->translate(0.3f * WIDTH, 0.5f * HEIGHT, -0.0f);
-	testCircle->setId("TestCircle");
+	Mesh testCircle = pd::circle(30.0f, 30.0f, glm::vec4(0.0f, 1.0f, 0.0f, 0.5));
+	testCircle.translate(0.3f * WIDTH, 0.5f * HEIGHT, -0.0f);
+	testCircle.setId("TestCircle");
 
-	Mesh * testRect = pd::generateRectangle(100, 100.0f, glm::vec4(1.0f, 0.5f, 1.0f, 1.0f));
-	testRect->translate(0.5f * WIDTH, HEIGHT - 50.0f, 0.0f);
-	testRect->setId("TestRect");
+	Mesh testRect = pd::rectangle(100, 100.0f, glm::vec4(1.0f, 0.5f, 1.0f, 1.0f));
+	testRect.translate(0.5f * WIDTH, HEIGHT - 50.0f, 0.0f);
+	testRect.setId("TestRect");
 
 
 	Texture testRectTexture(ResourceManager::GetPath("/Assets/rgba_test.png").c_str());
 	Texture testRectAlphaTexture(ResourceManager::GetPath("/Assets/alpha_test.png").c_str());
-	testRect->addTexture(testRectTexture, TextureType::Diffuse);
-	testRect->addTexture(testRectAlphaTexture, TextureType::Alpha);
-	testRect->settings.useDiffuseTexture = true;
-	testRect->settings.useAlphaTexture = true;
+	testRect.addTexture(testRectTexture, TextureType::Diffuse);
+	testRect.addTexture(testRectAlphaTexture, TextureType::Alpha);
+	testRect.settings.useDiffuseTexture = true;
+	testRect.settings.useAlphaTexture = true;
 
 	Mesh testGeometry;
 	testGeometry.settings.useCustomColor = true;
@@ -173,8 +173,8 @@ int main(int argc, char ** argv) {
 
 	HUD testHud(WIDTH, HEIGHT);
 	testHud.addObject(textSceneName);
-	testHud.addObject(*testCircle);
-	testHud.addObject(*testRect);
+	testHud.addObject(testCircle);
+	testHud.addObject(testRect);
 	testHud.addObject(testGeometry);
 
 

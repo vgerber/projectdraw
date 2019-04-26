@@ -6,8 +6,8 @@
 #include <SFML/OpenGL.hpp>
 
 #include <Core/common.h>
-#include <Core/Scene/Texture/texscene.h>
-#include <CudaRender/cudatexture.h>
+//#include <Core/Scene/Texture/texscene.h>
+//include <CudaRender/cudatexture.h>
 #include <Recorder/glrecorder.h>
 
 #include "cuda/gol.h"
@@ -23,8 +23,6 @@ int main() {
     TextureScene scene(WIDTH, HEIGHT);
 
 	GLRecorder recorder("hcopy.mpg", WIDTH, HEIGHT, 1, 25, 25);
-
-	Texture testTex("C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/examples/texture_demo/assets/dennis.png");
 	
 	testprint();
 

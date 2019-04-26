@@ -36,9 +36,9 @@ int main() {
 
 	HUD hud(WIDTH, HEIGHT);
 
-	Mesh * hudCenterCircle = pd::generateCircle(100.0f, 30.0f, glm::vec4(0.7f, 1.0f, 0.7f, 0.4f));
-	hudCenterCircle->translate(0.5f* WIDTH, 0.5f * HEIGHT, 0.0f);
-	hud.addObject(*hudCenterCircle);
+	Mesh hudCenterCircle = pd::circle(100.0f, 30.0f, glm::vec4(0.7f, 1.0f, 0.7f, 0.4f));
+	hudCenterCircle.translate(0.5f* WIDTH, 0.5f * HEIGHT, 0.0f);
+	hud.addObject(hudCenterCircle);
 	scene.setHUD(hud);
 
 	
@@ -81,7 +81,7 @@ int main() {
 	}*/
 	
 
-	Mesh rect = *pd::generateRectangle(1.0f, 1.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	Mesh rect = pd::rectangle(1.0f, 1.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	rect.translate(0.0f, 2.0f, 5.0f);
 	scene.addObject(rect);
 	rect.rotate(Rotator(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
@@ -89,7 +89,7 @@ int main() {
 	Mesh quad, cube, sphere;
 	{
 		//cylinder.setModel(primitives::generateCylinder(0.5f, 1.0f, 20.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)));
-		quad = *pd::generateQuad(2.0f, 1.0f, 1.0f, glm::vec4(0.1f, 1.0f, 0.1f, 1.0f));
+		quad = pd::quad(2.0f, 1.0f, 1.0f, glm::vec4(0.1f, 1.0f, 0.1f, 1.0f));
 		//cylinder.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
 		quad.translate(glm::vec3(-1.0f, 0.0f, 2.0f));
 		quad.settings.outlineVisible = true;
@@ -117,13 +117,13 @@ int main() {
 	}
 	{
 		//sphere.setModel(primitives::generateSphere(10, 15, glm::vec4(1.0f, 0.2f, 0.8f, 1.0f)));
-		sphere = *pd::generateQuad(0.3f, 0.3f, 0.3f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		sphere = pd::quad(0.3f, 0.3f, 0.3f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		sphere.translate(glm::vec3(1.0f, 1.0f, 1.0f));
 		scene.addObject(sphere);
 	}
 
 	Mesh ground;
-	ground = *pd::generateQuad(30.0f, 30.0f, 0.2f, glm::vec4(1.0f));
+	ground = pd::quad(30.0f, 30.0f, 0.2f, glm::vec4(1.0f));
 	ground.translate(glm::vec3(0, 0.0f, -0.1f));
 	scene.addObject(ground);
 
