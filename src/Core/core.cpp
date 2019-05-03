@@ -173,6 +173,50 @@ void loadForwardShaders() {
 	};
 	shaderBasicMesh.load();
 	ResourceManager::storeShader(ShaderName::Renderer::Forward::Basic::Mesh, shaderBasicMesh);
+
+	Shader shaderBasicInstancingPoint2D;
+	shaderBasicInstancingPoint2D.layers = {
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/Instancing/points2D.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/Instancing/points2D.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderBasicInstancingPoint2D.load();
+	ResourceManager::storeShader(ShaderName::Renderer::Forward::Basic::Instancing::Point2D, shaderBasicInstancingPoint2D);
+
+	Shader shaderBasicInstancingPoint3D;
+	shaderBasicInstancingPoint3D.layers = {
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/Instancing/points3D.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/Instancing/points3D.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderBasicInstancingPoint3D.load();
+	ResourceManager::storeShader(ShaderName::Renderer::Forward::Basic::Instancing::Point3D, shaderBasicInstancingPoint3D);	
+
+	Shader shaderBasicInstancingBillboard2D;
+	shaderBasicInstancingBillboard2D.layers = {
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/Instancing/billboard2D.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/Instancing/billboard2D.geometry").c_str(), ShaderType::GEOMETRY },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/Instancing/billboard2D.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderBasicInstancingBillboard2D.load();
+	ResourceManager::storeShader(ShaderName::Renderer::Forward::Basic::Instancing::Billboard2D, shaderBasicInstancingBillboard2D);
+
+	Shader shaderBasicInstancingBillboard3D;
+	shaderBasicInstancingBillboard3D.layers = {
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/Instancing/billboard3D.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/Instancing/billboard3D.geometry").c_str(), ShaderType::GEOMETRY },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/Basic/Instancing/billboard3D.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderBasicInstancingBillboard3D.load();
+	ResourceManager::storeShader(ShaderName::Renderer::Forward::Basic::Instancing::Billboard3D, shaderBasicInstancingBillboard3D);
+
+	Shader shaderDepthInfoMesh;
+	shaderDepthInfoMesh.layers = {
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/DepthInfo/depthinfo_mesh.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Forward/DepthInfo/depthinfo_mesh.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderDepthInfoMesh.load();
+	ResourceManager::storeShader(ShaderName::Renderer::Forward::DepthInfo::Mesh, shaderDepthInfoMesh);
+
+
 }
 
 void loadDepthShaders()
@@ -284,6 +328,22 @@ void loadPostprocessingShaders() {
 	};
 	shaderBloomMerge.load();
 	ResourceManager::storeShader(ShaderName::Postprocessing::Bloom::Merge, shaderBloomMerge);
+
+	Shader shaderSSAO;
+	shaderSSAO.layers = {
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/SSAO/ssao.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderSSAO.load();
+	ResourceManager::storeShader(ShaderName::Postprocessing::SSAO::SSAO, shaderSSAO);
+
+	Shader shaderSSAOBlur;
+	shaderSSAOBlur.layers = {
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/texture.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Postprocessing/SSAO/ssao_blur.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderSSAOBlur.load();
+	ResourceManager::storeShader(ShaderName::Postprocessing::SSAO::SSAOBlur, shaderSSAOBlur);
 
 }
 

@@ -224,42 +224,42 @@ public:
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getForward();
+	glm::vec3 getForward() const;
 	
 	/**
 	 * @brief Get the transformed up vector
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getUp();
+	glm::vec3 getUp() const;
 	
 	/**
 	 * @brief Get the transformed right vector
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getRight();
+	glm::vec3 getRight() const;
 
 	/**
 	 * @brief Get the untransformed forward vector
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getBaseForward();
+	glm::vec3 getBaseForward() const;
 
 	/**
 	 * @brief Get the untransformed up vector
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getBaseUp();
+	glm::vec3 getBaseUp() const;
 
 	/**
 	 * @brief Get the untransformed right vector
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getBaseRight();
+	glm::vec3 getBaseRight() const;
 
 	/**
 	 * @brief Get the Size

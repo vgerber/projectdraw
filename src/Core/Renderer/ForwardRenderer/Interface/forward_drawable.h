@@ -27,6 +27,12 @@ public:
     virtual void draw() override;
 
     /**
+     * @brief Draw data to depth info buffer
+     * 
+     */
+    virtual void drawDepthInfo() override;
+
+    /**
      * @brief Frees allocated memeory
      * 
      */

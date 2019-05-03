@@ -10,7 +10,7 @@ public:
     /**
      * @brief apply filter on texture
      * 
-     * @param texture target fro hdr
+     * @param texture target for hdr
      */
     virtual void apply(unsigned int texture);
 

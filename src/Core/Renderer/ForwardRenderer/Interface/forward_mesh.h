@@ -19,6 +19,8 @@ public:
 
     virtual void draw() override;
 
+    virtual void drawDepthInfo() override;
+
     virtual void dispose() override;
 protected:
     unsigned int VBO, VAO, EBO;

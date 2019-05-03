@@ -19,6 +19,8 @@ public:
      */
     virtual void draw();
 
+    virtual void drawDepthInfo();
+
     virtual void setCamera(const Camera &camera);
 protected:
     glm::mat4 mvp = glm::mat4(1); //Model View Projection Matrix

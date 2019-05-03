@@ -3,32 +3,45 @@
 #include <functional>
 #include <random>
 
-#include "../drawable.h"
-#include "../Instancing/instancer.h"
-#include "../Animation/animatable.h"
+#include "Core/Scene/Animation/animatable.h"
+#include "Core/Scene/drawable.h"
 
-struct Particle {
-	int cycle_count = 0;
-	GLfloat timer = 2.0f;
-	bool alive = false;
-	glm::vec3 position;
-	glm::vec3 rotation;
-	glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
+struct ParticleGeneratorSettings {
+	bool respwan = true;
 };
 
-class ParticleGenerator : public Drawable, public Animatable {
+class ParticleGenerator : public Animatable, public Drawable {
 public:
-	ParticleGenerator(Drawable &drawable, int particleCount);
+	ParticleGeneratorSettings settings;
 
-	void update(GLfloat deltaTime) override;
+	/**
+	 * @brief Change particle count
+	 * 
+	 * @param particleCount 
+	 */
+	void setParticleCount(unsigned int particleCount);
 
-	virtual void dispose();
 
-	~ParticleGenerator();
-private:
-	Instancer* instancer = nullptr;
-	Drawable * particleDrawable;
-	std::vector<Particle> particles;
-	bool replay = false;
-	float respawnTimer = 0.0f;
+	void setLifeTime(float lifeTime);
+
+	/**
+	 * @brief True if generator should generate particles
+	 * 
+	 * @param enabled 
+	 */
+	void enable(bool enabled);
+
+	/**
+	 * @brief Resets particles to inital state
+	 * 
+	 */
+	virtual void reset() = 0;
+
+	virtual Size getSize() override;
+protected:
+	float particleLifetime = 2.0;
+	unsigned int particleCount = 0;
+	float particlesPerMillisecond = 0;
+	bool active = false;
 };

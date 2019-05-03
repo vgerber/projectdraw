@@ -155,10 +155,10 @@ int main(int argc, char ** argv) {
 	testRect.setId("TestRect");
 
 
-	Texture testRectTexture(ResourceManager::GetPath("/Assets/rgba_test.png").c_str());
+	Texture testRectTexture(ResourceManager::GetPath("/Assets/smoke.png").c_str());
 	Texture testRectAlphaTexture(ResourceManager::GetPath("/Assets/alpha_test.png").c_str());
 	testRect.addTexture(testRectTexture, TextureType::Diffuse);
-	testRect.addTexture(testRectAlphaTexture, TextureType::Alpha);
+	//testRect.addTexture(testRectAlphaTexture, TextureType::Alpha);
 	testRect.settings.useDiffuseTexture = true;
 	testRect.settings.useAlphaTexture = true;
 

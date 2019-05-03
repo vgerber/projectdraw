@@ -16,7 +16,7 @@ float deltaTime = 0.0f;
 //returns false if activeWindow is closed
 bool handleEvent(Camera &camera, Scene &scene);
 
-std::vector<float> getHeightField(int width,  int length, float frequency = 0.1f, float amplitude = 1.5f);
+std::vector<float> getHeightField(int width,  int length, float frequency = 0.3f, float amplitude = 1.0f);
 
 int main() {
 	

@@ -10,6 +10,12 @@ void ForwardSceneObject::draw() {
     }
 }
 
+void ForwardSceneObject::drawDepthInfo() {
+    for(auto child : children) {
+        static_cast<ForwardSceneObject*>(child)->drawDepthInfo();
+    }
+}
+
 void ForwardSceneObject::setCamera(const Camera &camera) {
     mvp = camera.getProjectionMatrix() * camera.getViewMatrix() * getLinkedObject()->getWorldTransform().getMatrix();
     for(auto child : children) {

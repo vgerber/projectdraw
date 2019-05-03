@@ -156,27 +156,27 @@ void Moveable::flipRight()
 	updateDirection(transform);
 }
 
-glm::vec3 Moveable::getForward() {
+glm::vec3 Moveable::getForward() const {
 	return transForward;
 }
 
-glm::vec3 Moveable::getUp() {
+glm::vec3 Moveable::getUp() const {
 	return transUp;
 }
 
-glm::vec3 Moveable::getRight() {
+glm::vec3 Moveable::getRight() const {
 	return transRight;
 }
 
-glm::vec3 Moveable::getBaseForward() {
+glm::vec3 Moveable::getBaseForward() const {
 	return forward;
 }
 
-glm::vec3 Moveable::getBaseUp() {
+glm::vec3 Moveable::getBaseUp() const {
 	return up;
 }
 
-glm::vec3 Moveable::getBaseRight() {
+glm::vec3 Moveable::getBaseRight() const {
 	return right;
 }
 
@@ -281,9 +281,9 @@ void Moveable::updateDirection(Transform transform) {
 	}
 
 	glm::mat4 rotationMatrix = transform.getRotation().getRotationMatrix();	
-	transForward = rotationMatrix * glm::vec4(forward, 0.0);
-	transUp      = rotationMatrix * glm::vec4(up, 0.0);
-	transRight   = rotationMatrix * glm::vec4(right, 0.0);	
+	transForward = rotationMatrix * glm::vec4(forward, 1.0);
+	transUp      = rotationMatrix * glm::vec4(up, 1.0);
+	transRight   = rotationMatrix * glm::vec4(right, 1.0);	
 }
 
 bool Moveable::isRightFlipped() {

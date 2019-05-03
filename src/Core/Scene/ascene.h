@@ -7,7 +7,6 @@
 #include "drawable.h"
 #include "Light/lights.h"
 #include "Particle/particlegenerator.h"
-#include "Instancing/instancer.h"
 #include "Animation/animatable.h"
 
 #include <map>

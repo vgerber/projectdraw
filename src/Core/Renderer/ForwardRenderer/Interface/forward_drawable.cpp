@@ -12,6 +12,10 @@ void ForwardDrawable::draw() {
     ForwardSceneObject::draw();
 }
 
+void ForwardDrawable::drawDepthInfo() {
+    ForwardSceneObject::drawDepthInfo();
+}
+
 void ForwardDrawable::dispose() {
     ForwardSceneObject::dispose();
 }

@@ -6,8 +6,8 @@ SceneCamera::SceneCamera(Camera & camera, Size frame, int sceneWidth, int sceneH
 	height = sceneHeight;
 	this->camera = &camera;
 	this->frame = frame;
-	this->renderer = new DeferredRenderer(frame.width * 0.5f * sceneWidth, frame.height * 0.5f * sceneHeight, camera);
-	//this->renderer = new ForwardRenderer(frame.width * 0.5f * sceneWidth, frame.height * 0.5f * sceneHeight, camera);
+	//this->renderer = new DeferredRenderer(frame.width * 0.5f * sceneWidth, frame.height * 0.5f * sceneHeight, camera);
+	this->renderer = new ForwardRenderer(frame.width * 0.5f * sceneWidth, frame.height * 0.5f * sceneHeight, camera);
 	setup(sceneWidth, sceneHeight);
 }
 

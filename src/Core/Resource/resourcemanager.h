@@ -41,6 +41,17 @@ namespace ShaderName {
 		namespace Forward {
 			namespace Basic {
 				const std::string Mesh = "RendererForwardBasicMesh";
+
+				namespace Instancing {
+					const std::string Point2D = "RendererForwardInstancingPoint2D";
+					const std::string Point3D = "RendererForwardInstancingPoint3D";
+					const std::string Billboard2D = "RendererForwardInstancingBillboard2D";
+					const std::string Billboard3D = "RendererForwardInstancingBillboard3D";
+				}
+			}
+
+			namespace DepthInfo {
+				const std::string Mesh = "RendererForwardDepthInfoMesh";
 			}
 		}
 
@@ -67,6 +78,11 @@ namespace ShaderName {
 		namespace Bloom {
 			const std::string Blur = "PostprocessingBloomBlur";
 			const std::string Merge = "PostprocessingBloomMerge";
+		}
+
+		namespace SSAO {
+			const std::string SSAO = "PostprocessingSSAO";
+			const std::string SSAOBlur = "PostprocessingSSAOBlur";
 		}
 	}
 

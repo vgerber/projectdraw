@@ -8,16 +8,21 @@
 #include "Core/Scene/drawable.h"
 #include "Core/Scene/Light/lights.h"
 #include "Core/Scene/Particle/particlegenerator.h"
-#include "Core/Scene/Instancing/instancer.h"
 #include "Core/Scene/Animation/animatable.h"
-#include "Core/Scene/Text/text.h"
+
 #include "Core/Texture/Filter/HDR/hdr.h"
+#include "Core/Texture/Filter/SSAO/ssao.h"
+
 
 #include "Core/Renderer/arenderer.h"
 
 #include "Core/Renderer/ForwardRenderer/Interface/forward_sceneobject.h"
 #include "Core/Renderer/ForwardRenderer/Interface/forward_mesh.h"
 #include "Core/Renderer/ForwardRenderer/Interface/forward_text.h"
+#include "Core/Renderer/ForwardRenderer/Interface/Particle/2D/fpoint_generator.h"
+#include "Core/Renderer/ForwardRenderer/Interface/Particle/3D/fpoint_generator.h"
+#include "Core/Renderer/ForwardRenderer/Interface/Particle/2D/fbillboard_generator.h"
+#include "Core/Renderer/ForwardRenderer/Interface/Particle/3D/fbillboard_generator.h"
 
 class ForwardRenderer : public AbstractRenderer {
 public:
@@ -62,8 +67,15 @@ protected:
     unsigned int rendererTexture;
 	unsigned int rendererFBO;
 	unsigned int rendererRBO;
+
+    unsigned int depthInfoFBO;
+    unsigned int depthInfoRBO;
+    unsigned int depthInfoPositionTexture;
+    unsigned int depthInfoNormalTexture;
     
 	unsigned int uboMatrices;
+
+    unsigned int rectVAO, rectVBO;
 
     std::vector<ForwardSceneObject*> sceneObjects;
     DirectionalLight *directionalLight = nullptr;
@@ -71,6 +83,7 @@ protected:
     Shader shaderMesh;
 
     HDR hdrFilter;
+    SSAOFilter ssaoFilter;
 
     virtual void setup();
 

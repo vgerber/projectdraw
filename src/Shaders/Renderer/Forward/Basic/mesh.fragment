@@ -6,6 +6,7 @@ in VS_OUT {
 	vec2 TexCoords;
 	vec3 Normal;
 	vec3 FragPos;
+	vec3 ScreenPos;
 	vec4 Color;
 	vec3 ViewPos;
 	vec3 ViewDir;
@@ -41,6 +42,8 @@ uniform float alphaDiscardThreshold = 0.4;
 uniform int enableAlphaTexture = 0;
 uniform int enableDiffuseTexture = 0;
 uniform int enableSpecularTexture = 0;
+
+uniform sampler2D ssaoTexture;
 
 uniform sampler2D alphaTexture;
 uniform sampler2D diffuseTexture;
@@ -84,7 +87,13 @@ void main() {
 	if(enableSpecularTexture == 1) {
 		albedoColor.a = texture(specularTexture, fs_in.TexCoords).r;
 	}
-	FragColor = vec4(CalcDirLight(directionalLight, fs_in.Normal, fs_in.ViewPos , fs_in.FragPos, albedoColor.rgb), albedoColor.a);
+
+	vec2 modScreenPos = vec2(
+		gl_FragCoord.x / 700.0,
+		gl_FragCoord.y / 700.0
+	);
+
+	FragColor = vec4(CalcDirLight(directionalLight, fs_in.Normal, fs_in.ViewPos , fs_in.FragPos, albedoColor.rgb) * (texture(ssaoTexture, modScreenPos).r * 2.0), albedoColor.a);
 	//FragColor = vec4(calcPBELight(fs_in.Normal, fs_in.FragPos, fs_in.FragPos - directionalLight.direction, albedoColor.rgb, directionalLight), albedoColor.a);
 }
 

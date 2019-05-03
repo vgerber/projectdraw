@@ -56,8 +56,8 @@ void Camera::updateViewMatrix()
 	glm::vec3 pos = getWorldTransform().getTranslation();
 	//transform direction vecotrs to world
 	glm::mat4 worldRotation = getWorldTransform().getRotation().getRotationMatrix();
-	glm::vec3 worldForward = worldRotation * glm::vec4(getBaseForward(), 0.0);
-	glm::vec3 worldUp = worldRotation * glm::vec4(getBaseUp(), 0.0);
+	glm::vec3 worldForward = worldRotation * glm::vec4(getBaseForward(), 1.0);
+	glm::vec3 worldUp = worldRotation * glm::vec4(getBaseUp(), 1.0);
 	if(!isRightFlipped()) {
 		viewMatrix = glm::lookAtRH(pos, pos + worldForward, worldUp);
 	}

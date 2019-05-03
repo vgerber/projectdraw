@@ -6,7 +6,6 @@
 #include "Core/Scene/drawable.h"
 #include "Core/Scene/Light/lights.h"
 #include "Core/Scene/Particle/particlegenerator.h"
-#include "Core/Scene/Instancing/instancer.h"
 #include "Core/Scene/Animation/animatable.h"
 #include "Core/Scene/Text/text.h"
 #include "Core/Texture/Filter/HDR/hdr.h"

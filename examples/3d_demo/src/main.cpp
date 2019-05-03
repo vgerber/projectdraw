@@ -1,4 +1,5 @@
 #include <Core/common.h>
+#include "Core/Scene/Particle/3D/billboard_generator.h"
 
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
@@ -200,6 +201,14 @@ int main() {
 	scene.addObject(flashLight2);
 	
 
+	PointGenerator3D pointGenerator3D(200000);
+	pointGenerator3D.setLifeTime(10.0f);
+	pointGenerator3D.translate(0.0, -2.0, 3.0f);
+	pointGenerator3D.scale(1, 1, 1);
+	pointGenerator3D.addTexture(Texture(ResourceManager::GetPath("/Assets/smoke.png").c_str()), TextureType::Diffuse);
+	scene.addObject(pointGenerator3D);
+
+
 	sf::Clock clock;
 	sf::Time deltaTime = clock.getElapsedTime();
 	float delta = 0.0f;
@@ -208,6 +217,7 @@ int main() {
 
 		float millis = clock.getElapsedTime().asMilliseconds() * 0.001f;
 
+		pointGenerator3D.update(delta * 0.001f);
 
 		moveDrawable(quad, camera, delta);
 		

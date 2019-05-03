@@ -81,6 +81,35 @@ void ForwardMesh::draw() {
     ForwardDrawable::draw();
 }
 
+void ForwardMesh::drawDepthInfo() {
+    Mesh * mesh = static_cast<Mesh*>(getLinkedObject());
+
+    Shader shader = ResourceManager::loadShader(ShaderName::Renderer::Forward::DepthInfo::Mesh);
+    shader.use();
+    
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "model"), 1, GL_FALSE, glm::value_ptr(mesh->getWorldTransform().getMatrix()));
+    glUniformMatrix4fv(glGetUniformLocation(shader.getId(), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+
+    if (mesh->getVertices().size() > 0) {
+        // Draw mesh
+        glBindVertexArray(this->VAO);
+        DrawableInfo settings = mesh->settings;
+        if (settings.drawType == DrawType::LINEG) {
+            glLineWidth(settings.lineThickness);
+            glDrawElements(GL_LINE_STRIP, mesh->getIndices().size(), GL_UNSIGNED_INT, 0);
+        }
+        else if (settings.drawType == DrawType::POINTG) {
+            glPointSize(settings.pointThickness);
+            glDrawElements(GL_POINTS, mesh->getIndices().size(), GL_UNSIGNED_INT, 0);
+        }
+        else {
+            glDrawElements(GL_TRIANGLES, mesh->getIndices().size(), GL_UNSIGNED_INT, 0);
+        }
+    }
+
+    ForwardDrawable::drawDepthInfo();
+}
+
 void ForwardMesh::dispose() {
     ForwardDrawable::dispose();
 

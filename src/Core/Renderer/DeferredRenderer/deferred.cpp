@@ -45,12 +45,6 @@ void DeferredRenderer::addSceneObject(SceneObject & sceneObject)
 		return;
 	}
 
-	if (Instancer *instancer = dynamic_cast<Instancer *>(&sceneObject))
-	{
-		instancers.push_back(instancer);
-		return;
-	}
-
 	if (SpotLight *sLight = dynamic_cast<SpotLight *>(&sceneObject))
 	{
 		spotLights.push_back(sLight);
@@ -92,12 +86,6 @@ void DeferredRenderer::removeSceneObject(SceneObject & sceneObject)
 				i--;
 			}
 		}
-		return;
-	}
-
-	if (Instancer *instancer = dynamic_cast<Instancer *>(&sceneObject))
-	{
-		instancers.push_back(instancer);
 		return;
 	}
 
