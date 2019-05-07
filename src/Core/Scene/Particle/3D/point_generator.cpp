@@ -14,14 +14,14 @@ PointGenerator3D::PointGenerator3D(unsigned int particleCount) {
 
 void PointGenerator3D::update(float delta) {
     float speed = 0.5f;
-    int newParticles = particlesPerMillisecond * delta;
+    queuedParticles += particlesPerMillisecond * delta;
     for(int i = 0; i < particleCount; i++) {
         if(particles.lifeTime[i] < particleLifetime) {
             particles.position[i] += particles.velocity[i] * delta;
             particles.position[i].z = sin(particles.lifeTime[i] * 20.0) * 0.02;
             particles.lifeTime[i] += delta;
         }
-        else if(newParticles) {
+        else if(queuedParticles >= 1.0) {
             particles.position[i] = glm::vec3(0.0);
             particles.velocity[i] = glm::normalize(particles.velocity[i] += glm::vec3(
                 0.8 * ((float)rand() / RAND_MAX - 0.5f),
@@ -30,7 +30,7 @@ void PointGenerator3D::update(float delta) {
             ));
             particles.color[i] = glm::vec4(0.3, 0.3, 1.0, 1.0);
             particles.lifeTime[i] = 0;
-            newParticles--;
+            queuedParticles--;
         }
     }
     callUpdate();

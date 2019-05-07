@@ -1,22 +1,22 @@
 #pragma once
 
-#include "Core/Renderer/ForwardRenderer/Interface/forward_drawable.h"
+#include "Core/Renderer/FlatRenderer/Interface/flat_drawable.h"
 #include "Core/Scene/Particle/2D/billboard_generator.h"
 #include "Core/Resource/resourcemanager.h"
 #include "Core/Util/Debug/debug.hpp"
 
-struct SortForwardBillboard {
+struct SortBillboard {
 
-	SortForwardBillboard() {}
+	SortBillboard() {}
 
 	inline bool operator() (glm::vec2 p1, glm::vec2 p2) {
 		return p1.y > p2.y;
 	}
 };
 
-class ForwardBillboardGenerator2D : public ForwardDrawable {
+class FlatBillboardGenerator : public FlatDrawable {
 public:    
-    ForwardBillboardGenerator2D(BillboardGenerator2D * billboardGenerator);
+    FlatBillboardGenerator(BillboardGenerator2D * billboardGenerator);
     
     /**
      * @brief Updates internal data
@@ -28,12 +28,6 @@ public:
      * 
      */
     virtual void draw() override;
-
-    /**
-     * @brief Draw data to depth info buffer
-     * 
-     */
-    virtual void drawDepthInfo() override;
 
     /**
      * @brief Frees allocated memeory

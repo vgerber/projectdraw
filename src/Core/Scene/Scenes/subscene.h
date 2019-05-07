@@ -1,20 +1,14 @@
 #pragma once
-#include "camera.h"
+
+#include "Core/Scene/Camera/camera.h"
 #include "Core/Mesh/Primitives/primitives.h"
-#include "Core/Renderer/DeferredRenderer/deferred.h"
-#include "Core/Renderer/ForwardRenderer/Basic/forward.h"
 #include "Core/Renderer/arenderer.h"
 
 /**
  * @brief config for scene cameras
  * 
  */
-struct SceneCameraConfig {
-	bool debugVisible = true;
-	bool dLightVisible = true;
-	bool sLightVisible = true;
-	bool pLightVisible = true;
-	bool ParticleVisible = true;
+struct SubSceneConfig {
 	bool Active = true;
 };
 
@@ -22,9 +16,9 @@ struct SceneCameraConfig {
  * @brief wrapper for cameras in scenes
  * 
  */
-class SceneCamera {
+class SubScene {
 public:
-	SceneCameraConfig config; //configuration
+	SubSceneConfig config; //configuration
 
 	Camera * camera; //camera object
 
@@ -34,12 +28,12 @@ public:
 	/**
 	 * @brief Construct a new Scene Camera object
 	 * 
-	 * @param camera target camera
+	 * @param renderer renderer with camera
 	 * @param frame see @ref resizeFrame
 	 * @param sceneWidth 
 	 * @param sceneHeight 
 	 */
-	SceneCamera(Camera &camera, Size frame, int sceneWidth, int sceneHeight);
+	SubScene(AbstractRenderer & renderer, Size frame, int sceneWidth, int sceneHeight);
 
 	/**
 	 * @brief Get the ViewFrustum as geometry

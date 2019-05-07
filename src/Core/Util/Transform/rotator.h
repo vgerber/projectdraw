@@ -68,11 +68,11 @@ public:
     void interpolate(glm::quat rotation, float factor);
     void interpolate(Rotator rotator, float factor);
 
-	glm::vec3 getOrigin();
+	glm::vec3 getOrigin() const;
 
-    glm::vec3 getRotationAxis();
-    glm::vec3 getRotationEuler();
-    glm::quat getRotation();
+    glm::vec3 getRotationAxis() const;
+    glm::vec3 getRotationEuler() const;
+    glm::quat getRotation() const;
     glm::mat4 getRotationMatrix();
 
     bool isEqual(Rotator rotator);

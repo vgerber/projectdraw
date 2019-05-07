@@ -7,4 +7,5 @@ public:
     BillboardGenerator2D(unsigned int particleCount);
 
     virtual void update(float delta) override;
+private:
 };

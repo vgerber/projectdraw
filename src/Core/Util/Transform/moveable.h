@@ -72,42 +72,42 @@ public:
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getPosition();
+	glm::vec3 getPosition() const;
 
 	/**
 	 * @brief Get the translation
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getTranslation();
+	glm::vec3 getTranslation() const;
 
 	/**
 	 * @brief Get the scale
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getScale();
+	glm::vec3 getScale() const;
 
 	/**
 	 * @brief Get the rotation
 	 * 
 	 * @return Rotator 
 	 */
-	Rotator getRotation();
+	Rotator getRotation() const;
 
 	/**
 	 * @brief Get the Inverse object
 	 * 
 	 * @return glm::mat4 
 	 */
-	glm::mat4 getInverse();
+	glm::mat4 getInverse() const;
 
 	/**
 	 * @brief Get the Matrix object
 	 * 
 	 * @return glm::mat4 
 	 */
-	glm::mat4 getMatrix();
+	glm::mat4 getMatrix() const;
 
 	Transform operator* (const Transform &transform);
 
@@ -115,7 +115,7 @@ public:
 	 * @brief Print transform (debug purpose)
 	 * 
 	 */
-	void print();
+	void print() const;
 private:
 	glm::vec3 position = glm::vec3(0.0); //transformed position
 	glm::vec3 translation = glm::vec3(0.0);
@@ -301,28 +301,28 @@ public:
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getTranslation();
+	glm::vec3 getTranslation() const;
 
 	/**
 	 * @brief Get the Scale object
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getScale();
+	glm::vec3 getScale() const;
 
 	/**
 	 * @brief Get the Position object
 	 * 
 	 * @return glm::vec3 
 	 */
-	glm::vec3 getPosition();
+	glm::vec3 getPosition() const;
 
 	/**
 	 * @brief Get the Rotator object
 	 * 
 	 * @return Rotator 
 	 */
-	Rotator getRotator();	
+	Rotator getRotator() const;	
 protected:
 	Size size;
 	Transform transform;

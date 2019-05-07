@@ -3,7 +3,6 @@
 
 #include "Core/core.h"
 #include "Core/Scene/Camera/camera.h"
-#include "Core/Scene/Camera/scenecamera.h"
 #include "Core/Scene/drawable.h"
 #include "Core/Scene/Light/lights.h"
 #include "Core/Scene/Particle/particlegenerator.h"

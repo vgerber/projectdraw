@@ -1,5 +1,6 @@
 #include <Core/common.h>
 #include "Core/Scene/Particle/3D/billboard_generator.h"
+#include "Core/Renderer/ForwardRenderer/Basic/forward.h"
 
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
@@ -33,7 +34,8 @@ int main() {
 	initCore();
 
 	Scene scene(WIDTH, HEIGHT);
-	   
+	
+	
 
 	HUD hud(WIDTH, HEIGHT);
 
@@ -56,16 +58,9 @@ int main() {
 		camRotator.rotateEuler(euler);
 		//camera.rotate(camRotator);
 	}
-	//camera.setForward(glm::vec3(0.0f, 0.0f, 0.0f) - camera.getPosition());
-	
-	scene.addObject(camera);
-	{
-		SceneCameraConfig scConfig = scene.getCameraConfig(camera);
-		scConfig.dLightVisible = true;
-		scConfig.pLightVisible = false;
-		scConfig.sLightVisible = false;
-		scene.configureCamera(camera, scConfig);
-	}
+
+	ForwardRenderer renderer(WIDTH, HEIGHT, camera);
+	scene.addSubScene(renderer, Size(-1, -1, 0, 2, 2, 0));
 	
 	PerspectiveCamera rotatingCamera;
 	rotatingCamera.translate(glm::vec3(0.0f, 5.0f, -5.0f));

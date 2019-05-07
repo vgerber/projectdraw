@@ -30,6 +30,11 @@ file(GLOB_RECURSE EXAMPLE_3D_SRC
 	"examples/3d_demo/*.cpp"
 )
 
+file(GLOB_RECURSE EXAMPLE_2D_SRC
+	"examples/2d_demo/*.h"
+	"examples/2d_demo/*.cpp"
+)
+
 file(GLOB_RECURSE EXAMPLE_PHYSICS3D_SRC
 	"examples/physics3d_example/*.h"
 	"examples/physics3d_example/*.cpp"
@@ -104,7 +109,18 @@ if(${SFML_FOUND})
 		debug     /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_core.a
 		optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_core.a
 	)
-
+	
+	add_executable(2d_example ${EXAMPLE_2D_SRC})
+	add_dependencies(2d_example projectdraw_core)
+	target_link_libraries(2d_example
+		${FREETYPE_LIBRARIES} 
+		${OPENGL_LIBRARIES}
+		${GLEW_LIBRARIES} 
+		${Assimp_LIBRARIES}
+		${SFML_LIBRARIES}
+		debug     /home/vincent/Development/Cpp/projectdraw_slim/build/debug/libprojectdraw_core.a
+		optimized /home/vincent/Development/Cpp/projectdraw_slim/build/release/libprojectdraw_core.a
+	)
 
 	#Physics3D Example
 	include_directories(

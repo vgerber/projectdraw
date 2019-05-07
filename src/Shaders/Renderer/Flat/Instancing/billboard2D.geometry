@@ -1,0 +1,41 @@
+#version 330 core
+
+layout(points) in;
+layout(triangle_strip) out;
+layout (max_vertices = 4) out;
+
+uniform mat4 vp;
+
+uniform vec3 right;
+uniform vec3 up;
+
+uniform vec2 size = vec2(10.0, 10.0);
+
+out vec2 TexCoords;
+
+void main() {
+
+    vec3 p = gl_in[0].gl_Position.xyz;
+
+    vec3 va = p - (right + up) * size.x;
+    gl_Position = vp * vec4(va, 1.0);
+    TexCoords = vec2(0.0, 0.0);
+    EmitVertex();
+
+    vec3 vc = p + (right - up) * size.x;
+    gl_Position = vp * vec4(vc, 1.0);
+    TexCoords = vec2(1.0, 0.0);
+    EmitVertex();
+
+    vec3 vb = p - (right - up) * size.x;
+    gl_Position = vp * vec4(vb, 1.0);
+    TexCoords = vec2(0.0, 1.0);
+    EmitVertex();
+
+    vec3 vd = p + (right + up) * size.x;
+    gl_Position = vp * vec4(vd, 1.0);
+    TexCoords = vec2(1.0, 1.0);
+    EmitVertex();
+
+    EndPrimitive();
+}

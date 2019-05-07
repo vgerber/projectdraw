@@ -27,16 +27,16 @@ void Scene::draw(float delta)
 	glDisable(GL_CULL_FACE);
 
 	GLcheckError();
-	for (auto &sceneCamera : cameras)
+	for (auto &SubScene : subScenes)
 	{
-		//only draw active cameras
-		if (!sceneCamera.config.Active)
+		//only draw active subScenes
+		if (!SubScene.config.Active)
 		{
 			continue;
 		}
-		//clear and render camera scene
-		sceneCamera.renderer->clearScreen();
-		sceneCamera.renderer->render();
+		//clear and render subScene scene
+		SubScene.renderer->clearScreen();
+		SubScene.renderer->render();
 	}
 	GLcheckError();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -46,14 +46,14 @@ void Scene::draw(float delta)
 	shader.use();
 	glUniform1i(glGetUniformLocation(shader.getId(), "screenTexture"), 0);
 	glActiveTexture(GL_TEXTURE0);
-	for (auto sceneCamera : cameras)
+	for (auto SubScene : subScenes)
 	{
-		//only draw active cameras
-		if (!sceneCamera.config.Active)
+		//only draw active subScenes
+		if (!SubScene.config.Active)
 		{
 			continue;
 		}
-		sceneCamera.drawFrame(0);
+		SubScene.drawFrame(0);
 	}
 	glEnable(GL_DEPTH_TEST);
 	if (hud) {
@@ -73,9 +73,9 @@ void Scene::update(float delta)
 
 void Scene::dispose()
 {
-	for (auto camera : cameras)
+	for (auto subScene : subScenes)
 	{
-		camera.dispose();
+		subScene.dispose();
 	}
 }
 
@@ -90,9 +90,9 @@ void Scene::resize(int width, int height)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	GLcheckError();
 
-	for (SceneCamera &camera : cameras)
+	for (SubScene &subScene : subScenes)
 	{
-		camera.resize(width, height);
+		subScene.resize(width, height);
 	}
 
 	if (hud) {
@@ -102,35 +102,31 @@ void Scene::resize(int width, int height)
 
 void Scene::addObject(SceneObject &object)
 {
-	if (Camera * camera = dynamic_cast<Camera*>(&object)) {
-		addObject(*camera, Size(-1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f));
-		return;
+	if (subScenes.size() == 0) {
+		Log::write(LogType::Warning, "Scene has no renderers", "Scene");
 	}
-	if (cameras.size() == 0) {
-		printf("Scene [Error]  scene has no cameras\n");
-	}
-	for (auto camera : cameras) {
-		camera.renderer->addSceneObject(object);
+	for (auto subScene : subScenes) {
+		subScene.renderer->addSceneObject(object);
 	}
 }
 
-void Scene::addObject(SceneObject & object, Camera & camera)
+void Scene::addObject(SceneObject & object, AbstractRenderer & renderer)
 {
 	bool cameraFound = false;
-	for (auto cam : cameras) {
-		if (cam.camera == &camera) {
-			cam.renderer->addSceneObject(object);
+	for (auto subScene : subScenes) {
+		if (subScene.camera == renderer.getCamera()) {
+			subScene.renderer->addSceneObject(object);
 			cameraFound = true;
 		}
 	}
 	if (!cameraFound) {
-		printf("Scene ERR - Target camera does not exist in scene\n");
+		Log::write(LogType::Error, "Target renderer does not exists", "Scene");
 	}
 }
 
-void Scene::addObject(Camera &camera, Size size)
+void Scene::addSubScene(AbstractRenderer & renderer, Size size)
 {
-	cameras.push_back(SceneCamera(camera, size, getWidth(), getHeight()));
+	subScenes.push_back(SubScene(renderer, size, getWidth(), getHeight()));
 }
 
 void Scene::setHUD(HUD & hud)
@@ -140,69 +136,54 @@ void Scene::setHUD(HUD & hud)
 
 void Scene::removeObject(SceneObject &object)
 {
-	if (Camera *camera = dynamic_cast<Camera *>(&object))
-	{
-		for (size_t i = 0; i < cameras.size(); i++)
-		{
-			if (cameras[i].camera == camera)
-			{
-				cameras[i].dispose();
-				cameras.erase(cameras.begin() + i);
-				i--;
-			}
-		}
+	for (auto subScene : subScenes) {
+		subScene.renderer->removeSceneObject(object);
 	}
-
-	bool found = false;
-	for (auto camera : cameras) {
-		camera.renderer->removeSceneObject(object);
-	}
-
-	//printf("[Engine] [Scene] [Error] Scene doesn't accept %s\n", object.getId().c_str());
 }
 
-void Scene::removeObject(SceneObject & object, Camera & camera)
+void Scene::removeObject(SceneObject & object, AbstractRenderer &renderer)
 {
-
-	for (auto cam : cameras) {
-		if (cam.camera == &camera) {
-			cam.renderer->removeSceneObject(object);
-		}
-	}
-
-	printf("[Engine] [Scene] [Error] Scene doesn't accept %s\n", object.getId().c_str());
-}
-
-SceneCameraConfig Scene::getCameraConfig(Camera &camera)
-{
-	for (size_t i = 0; i < cameras.size(); i++)
-	{
-		if (cameras[i].camera == &camera)
-		{
-			return cameras[i].config;
-		}
-	}
-	throw std::invalid_argument("Camera not found");
-}
-
-void Scene::enableCamera(Camera &camera, bool enable)
-{
-	for (size_t i = 0; i < cameras.size(); i++)
-	{
-		if (cameras[i].camera == &camera)
-		{
-			cameras[i].config.Active = enable;
+	for (auto subScene : subScenes) {
+		if (subScene.renderer == &renderer) {
+			subScene.renderer->removeSceneObject(object);
 		}
 	}
 }
 
-void Scene::configureCamera(Camera &camera, SceneCameraConfig config)
+void Scene::removeSubScene(AbstractRenderer & renderer) {
+	subScenes.erase(std::remove_if(subScenes.begin(), subScenes.end(), [&renderer](SubScene & subScene) { return subScene.renderer == &renderer; }));
+}
+
+SubSceneConfig Scene::getSubSceneConfig(AbstractRenderer &renderer)
 {
-	for (size_t i = 0; i < cameras.size(); i++)
+	for (size_t i = 0; i < subScenes.size(); i++)
 	{
-		if (cameras[i].camera == &camera)
+		if (subScenes[i].renderer == &renderer)
 		{
-			cameras[i].config = config;
+			return subScenes[i].config;
+		}
+	}
+	throw std::invalid_argument("subScene not found");
+}
+
+void Scene::enableSubScene(AbstractRenderer &renderer, bool enable)
+{
+	for (size_t i = 0; i < subScenes.size(); i++)
+	{
+		if (subScenes[i].renderer == &renderer)
+		{
+			subScenes[i].config.Active = enable;
+		}
+	}
+}
+
+void Scene::configureSubScene(AbstractRenderer &renderer, SubSceneConfig config)
+{
+	for (size_t i = 0; i < subScenes.size(); i++)
+	{
+		if (subScenes[i].renderer == &renderer)
+		{
+			subScenes[i].config = config;
 		}
 	}
 }

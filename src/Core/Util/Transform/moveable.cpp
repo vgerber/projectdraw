@@ -35,27 +35,27 @@ void Transform::rotate(Rotator rotator) {
 	updateMatrix();
 }
 
-glm::vec3 Transform::getPosition() {
+glm::vec3 Transform::getPosition() const {
 	return position;
 }
 
-glm::vec3 Transform::getTranslation() {
+glm::vec3 Transform::getTranslation() const {
 	return translation;
 }
 
-glm::vec3 Transform::getScale() {
+glm::vec3 Transform::getScale() const {
 	return scaling;
 }
 
-Rotator Transform::getRotation() {
+Rotator Transform::getRotation() const {
 	return rotator;
 }
 
-glm::mat4 Transform::getInverse() {
+glm::mat4 Transform::getInverse() const {
 	return glm::inverse(transformMatrix);
 }
 
-glm::mat4 Transform::getMatrix() {
+glm::mat4 Transform::getMatrix() const {
 	return transformMatrix;
 }
 
@@ -71,7 +71,7 @@ Transform Transform::operator*(const Transform & transform)
 	return Transform(translation, Rotator(rotation, glm::vec3(0.0f)), scaling);
 }
 
-void Transform::print() {
+void Transform::print() const {
 	printf("Transfrom\n");
 	printf("Translation (%f, %f, %f)\n", translation.x, translation.y, translation.z);
 	glm::vec3 rotation = rotator.getRotationEuler();
@@ -243,22 +243,19 @@ void Moveable::scaleToDepth(float depth)
 	scaleToSize(new_size);
 }
 
-glm::vec3 Moveable::getPosition() {
+glm::vec3 Moveable::getPosition() const {
 	return transform.getPosition();
 }
 
-glm::vec3 Moveable::getTranslation()
-{
+glm::vec3 Moveable::getTranslation() const {
 	return transform.getTranslation();
 }
 
-Rotator Moveable::getRotator()
-{
+Rotator Moveable::getRotator() const {
 	return transform.getRotation();
 }
 
-glm::vec3 Moveable::getScale()
-{
+glm::vec3 Moveable::getScale() const {
 	return transform.getScale();
 }
 

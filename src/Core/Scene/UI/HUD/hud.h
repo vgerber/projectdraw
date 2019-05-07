@@ -4,7 +4,7 @@
 
 #include "Core/Scene/UI/Components/uicomponent.h"
 #include "Core/Scene/ascene.h"
-#include "Core/Scene/Camera//orthocamera.h"
+#include "Core/Scene/Camera/orthocamera.h"
 #include "Core/Renderer/FlatRenderer/flat.h"
 
 class HUD : public AbstractScene {
@@ -48,7 +48,7 @@ public:
 	*object: added object
 	*camera: target camera which handles the added object
 	*/
-	virtual void addObject(SceneObject &object, Camera &camera);
+	virtual void addObject(SceneObject &object, AbstractRenderer &renderer);
 
 	/*
 	*add object to all currently added cameras
@@ -58,7 +58,7 @@ public:
 	/*
 	*remove object from scene target camera
 	*/
-	virtual void removeObject(SceneObject &object, Camera &camera);
+	virtual void removeObject(SceneObject &object, AbstractRenderer &renderer);
 
 	/*
 	*remove object from all cameras

@@ -56,7 +56,12 @@ namespace ShaderName {
 		}
 
 		namespace Flat {
-			const std::string Mesh = "RendererRendererFlatMesh";
+			const std::string Mesh = "RendererFlatMesh";
+
+			namespace Instancing {
+				const std::string Point = "RendererFlatInstancingPoint";
+				const std::string Billboard = "RendererFlatInstancingBillboard";
+			}
 		}
 	}
 

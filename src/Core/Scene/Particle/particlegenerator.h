@@ -7,13 +7,8 @@
 #include "Core/Scene/drawable.h"
 
 
-struct ParticleGeneratorSettings {
-	bool respwan = true;
-};
-
 class ParticleGenerator : public Animatable, public Drawable {
 public:
-	ParticleGeneratorSettings settings;
 
 	/**
 	 * @brief Change particle count
@@ -43,5 +38,6 @@ protected:
 	float particleLifetime = 2.0;
 	unsigned int particleCount = 0;
 	float particlesPerMillisecond = 0;
+	float queuedParticles = 0;
 	bool active = false;
 };

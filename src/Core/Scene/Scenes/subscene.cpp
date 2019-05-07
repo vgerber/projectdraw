@@ -1,17 +1,21 @@
-#include "scenecamera.h"
+#include "subscene.h"
 
-SceneCamera::SceneCamera(Camera & camera, Size frame, int sceneWidth, int sceneHeight)
+SubScene::SubScene(AbstractRenderer & renderer, Size frame, int sceneWidth, int sceneHeight)
 {
 	width = sceneWidth;
 	height = sceneHeight;
-	this->camera = &camera;
+
 	this->frame = frame;
-	//this->renderer = new DeferredRenderer(frame.width * 0.5f * sceneWidth, frame.height * 0.5f * sceneHeight, camera);
-	this->renderer = new ForwardRenderer(frame.width * 0.5f * sceneWidth, frame.height * 0.5f * sceneHeight, camera);
+	this->renderer = &renderer;
+	this->renderer->resize(frame.width * 0.5 * sceneWidth, frame.height * 0.5 * sceneHeight);
+	this->camera = renderer.getCamera();
+	if(!camera) {
+		Log::write(LogType::Error, "Renderer has no camera", "SubScene");
+	}
 	setup(sceneWidth, sceneHeight);
 }
 
-Mesh SceneCamera::getDebugViewFrustum(int splits) {
+Mesh SubScene::getDebugViewFrustum(int splits) {
 	Mesh geoCam;
 
 	ViewFrustum viewF = camera->getViewFrustum(splits);
@@ -45,17 +49,17 @@ Mesh SceneCamera::getDebugViewFrustum(int splits) {
 	return geoCam;
 }
 
-void SceneCamera::clear()
+void SubScene::clear()
 {
 	renderer->clearScreen();
 }
 
-GLuint SceneCamera::getTexture()
+GLuint SubScene::getTexture()
 {
 	return renderer->getTexture();
 }
 
-void SceneCamera::resizeFrame(Size frame)
+void SubScene::resizeFrame(Size frame)
 {
 	this->frame = frame;
 	renderer->resize(width * frame.width * 0.5f, height * frame.height * 0.5f);
@@ -79,12 +83,12 @@ void SceneCamera::resizeFrame(Size frame)
 	glBindVertexArray(0);
 }
 
-Size SceneCamera::getFrame()
+Size SubScene::getFrame()
 {
 	return frame;
 }
 
-void SceneCamera::drawFrame(GLuint target) {
+void SubScene::drawFrame(GLuint target) {
 
 	glBindTexture(GL_TEXTURE_2D, getTexture());
 
@@ -93,7 +97,7 @@ void SceneCamera::drawFrame(GLuint target) {
 	glBindVertexArray(0);
 }
 
-void SceneCamera::dispose()
+void SubScene::dispose()
 {
 	renderer->dispose();
 
@@ -101,14 +105,14 @@ void SceneCamera::dispose()
 	glDeleteBuffers(1, &camVBO);
 }
 
-void SceneCamera::resize(int sceneWidth, int sceneHeight)
+void SubScene::resize(int sceneWidth, int sceneHeight)
 {
 	width = sceneWidth;
 	height = sceneHeight;
 	resizeFrame(frame);
 }
 
-void SceneCamera::setup(int sceneWidth, int sceneHeight) {
+void SubScene::setup(int sceneWidth, int sceneHeight) {
 	glGenVertexArrays(1, &camVAO);
 	glGenBuffers(1, &camVBO);
 	resize(sceneWidth, sceneHeight);

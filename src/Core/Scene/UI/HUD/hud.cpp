@@ -42,7 +42,7 @@ void HUD::resize(int width, int height)
 	renderer->resize(width, height);	
 }
 
-void HUD::addObject(SceneObject & object, Camera & camera)
+void HUD::addObject(SceneObject & object, AbstractRenderer &renderer)
 {
 	addObject(object);
 }
@@ -56,7 +56,7 @@ void HUD::addObject(SceneObject & object)
 	}
 }
 
-void HUD::removeObject(SceneObject & object, Camera & camera)
+void HUD::removeObject(SceneObject & object, AbstractRenderer &renderer)
 {
 	removeObject(object);
 }

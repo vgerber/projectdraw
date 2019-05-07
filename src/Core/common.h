@@ -20,9 +20,13 @@
 //primitves
 #include "Mesh/Primitives/primitives.h"
 
+//particles
+#include "Core/Scene/Particle/particles.h"
+
 //lighting
 #include "Scene/Light/dlight.h"
 #include "Scene/Light/plight.h"
+#include "Scene/Light/slight.h"
 
 //font
 #include "Scene/Text/text.h"

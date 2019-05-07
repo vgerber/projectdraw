@@ -1,18 +1,16 @@
 #pragma once
 
 
-#include "../core.h"
-#include "Camera/camera.h"
-#include "Camera/scenecamera.h"
-#include "drawable.h"
-#include "Light/lights.h"
-#include "Particle/particlegenerator.h"
-#include "Animation/animatable.h"
+#include "Core/core.h"
+#include "Core/Scene/Camera/camera.h"
+#include "Core/Scene/Scenes/subscene.h"
+#include "Core/Scene/drawable.h"
+#include "Core/Scene/Light/lights.h"
+#include "Core/Scene/Particle/particles.h"
+#include "Core/Scene/Animation/animatable.h"
 
 #include <map>
 #include <memory>
-
-
 
 
 class AbstractScene
@@ -58,7 +56,7 @@ public:
 	*object: added object
 	*camera: target camera which handles the added object
 	*/
-	virtual void addObject(SceneObject &object, Camera &camera) = 0;
+	virtual void addObject(SceneObject &object, AbstractRenderer & renderer) = 0;
 
 	/*
 	*add object to all currently added cameras	
@@ -68,7 +66,7 @@ public:
 	/*
 	*remove object from scene target camera
 	*/
-	virtual void removeObject(SceneObject &object, Camera &camera) = 0;
+	virtual void removeObject(SceneObject &object, AbstractRenderer & renderer) = 0;
 
 	/*
 	*remove object from all cameras

@@ -1,5 +1,6 @@
 #include "Core/common.h"
 #include "Physics/Physics3D/World/discreteworld.h"
+#include "Core/Renderer/ForwardRenderer/Basic/forward.h"
 
 #include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
@@ -37,7 +38,9 @@ int main() {
     freeCamera.setClipping(freeCamera.getClippingNear(), 120.0f);
     freeCamera.translate(glm::vec3(-20.0f, 0.0f, 10.0f));
     freeCamera.setForward(glm::vec3(0.0f, 0.0f, 0.0f) - freeCamera.getPosition());
-    mainScene.addObject(freeCamera);
+    
+    ForwardRenderer renderer(WIDTH, HEIGHT, freeCamera);    
+    mainScene.addSubScene(renderer, Size(-1, -1, 0, 2, 2, 0));
 	
     Mesh ground = pd::quad(40.0f, 40.0f, 0.2f, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
     ground.translate(glm::vec3(0.0f, 0.0f, -0.1f));

@@ -5,8 +5,7 @@ BillboardGenerator3D::BillboardGenerator3D(unsigned int particleCount) : PointGe
 }
 
 void BillboardGenerator3D::update(float delta) {
-    bool hasRespawned = false;
-    int activateParticles = delta * particlesPerMillisecond;
+    queuedParticles = delta * particlesPerMillisecond;
     for(int i = 0; i < particleCount; i++) {
         if(particles.lifeTime[i] < particleLifetime) {
             particles.velocity[i] += glm::vec3(0.0, 0.0, 0.81) * delta;
@@ -15,15 +14,14 @@ void BillboardGenerator3D::update(float delta) {
         }
         else {
             particles.position[i] = glm::vec3(0.0);
-            if(activateParticles) {
+            if(queuedParticles >= 1.0) {
                 particles.velocity[i] = glm::vec3(
                     ((float)rand() / RAND_MAX - 0.5) * 2.0 * 1.0, 
                     ((float)rand() / RAND_MAX - 0.5) * 2.0 * 1.0, 
                     0.2
                 );
                 particles.lifeTime[i] = 0.0f;
-                hasRespawned = true; 
-                activateParticles--;
+                queuedParticles--;
             }          
         }
         

@@ -357,6 +357,23 @@ void loadFlatShaders()
 	};
 	shaderFlatMesh.load();
 	ResourceManager::storeShader(ShaderName::Renderer::Flat::Mesh, shaderFlatMesh);
+
+	Shader shaderFlatInstancingPoints;
+	shaderFlatInstancingPoints.layers = {
+		{ ResourceManager::GetPath("/Shaders/Renderer/Flat/Instancing/points2D.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Flat/Instancing/points2D.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderFlatInstancingPoints.load();
+	ResourceManager::storeShader(ShaderName::Renderer::Flat::Instancing::Point, shaderFlatInstancingPoints);
+
+	Shader shaderFlatInstancingBillboard;
+	shaderFlatInstancingBillboard.layers = {
+		{ ResourceManager::GetPath("/Shaders/Renderer/Flat/Instancing/billboard2D.vertex").c_str(), ShaderType::VERTEX },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Flat/Instancing/billboard2D.geometry").c_str(), ShaderType::GEOMETRY },
+		{ ResourceManager::GetPath("/Shaders/Renderer/Flat/Instancing/billboard2D.fragment").c_str(), ShaderType::FRAGMENT }
+	};
+	shaderFlatInstancingBillboard.load();
+	ResourceManager::storeShader(ShaderName::Renderer::Flat::Instancing::Billboard, shaderFlatInstancingBillboard);
 }
 
 void loadExperimentalShaders() {

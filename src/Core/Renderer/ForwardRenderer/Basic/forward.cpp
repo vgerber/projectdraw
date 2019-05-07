@@ -67,6 +67,11 @@ void ForwardRenderer::clearScreen() {
 
 void ForwardRenderer::render() {
 	glViewport(0, 0, getWidth(), getHeight());
+
+	if(!directionalLight) {
+		Log::write(LogType::Error, "Directional light not set", "ForwardRenderer");
+		return;
+	}
 	
 	GLcheckError();
 	glBindFramebuffer(GL_FRAMEBUFFER, depthInfoFBO);

@@ -108,20 +108,19 @@ void Rotator::interpolate(Rotator rotator, float factor) {
     interpolate(rotator.getRotation(), factor);
 }
 
-glm::vec3 Rotator::getOrigin()
-{
+glm::vec3 Rotator::getOrigin() const {
 	return origin;
 }
 
-glm::vec3 Rotator::getRotationAxis() {
+glm::vec3 Rotator::getRotationAxis() const {
     return glm::axis(rotation);
 }
 
-glm::vec3 Rotator::getRotationEuler() {
+glm::vec3 Rotator::getRotationEuler() const {
     return glm::eulerAngles(rotation);
 }
 
-glm::quat Rotator::getRotation() {
+glm::quat Rotator::getRotation() const {
     return rotation;
 }
 

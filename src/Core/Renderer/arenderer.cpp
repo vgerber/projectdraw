@@ -31,7 +31,10 @@ int AbstractRenderer::getRendererId() {
     return rendererId;
 }
 
-void AbstractRenderer::invalidateShader()
-{
-	invalidShaders = true;
+void AbstractRenderer::setCamera(Camera &camera) {
+    this->camera = &camera;
+}
+
+Camera * AbstractRenderer::getCamera() {
+    return camera;
 }

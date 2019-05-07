@@ -1,8 +1,9 @@
+#pragma once 
+
 #include <iostream>
 
 #include "Core/core.h"
 #include "Core/Scene/Camera/camera.h"
-#include "Core/Scene/Camera/scenecamera.h"
 #include "Core/Scene/drawable.h"
 #include "Core/Scene/Light/lights.h"
 #include "Core/Scene/Particle/particlegenerator.h"
@@ -17,6 +18,8 @@
 #include "Core/Renderer/FlatRenderer/Interface/flat_mesh.h"
 #include "Core/Renderer/FlatRenderer/Interface/flat_text.h"
 #include "Core/Renderer/FlatRenderer/Interface/flat_multilinetext.h"
+#include "Core/Renderer/FlatRenderer/Interface/Particle/flat_point_generator.h"
+#include "Core/Renderer/FlatRenderer/Interface/Particle/flat_billboard_generator.h"
 
 
 /**

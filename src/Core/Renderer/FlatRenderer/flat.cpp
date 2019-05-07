@@ -185,6 +185,14 @@ FlatSceneObject * FlatRenderer::generateFlatObject(SceneObject * sceneObject) {
 			newSceneObject = new FlatText(text);
 		}	
 	}
+	else if(auto particle = dynamic_cast<PointGenerator2D*>(sceneObject)) {
+		if(auto billboard = dynamic_cast<BillboardGenerator2D*>(particle)) {
+			newSceneObject = new FlatBillboardGenerator(billboard);
+		}
+		else {
+			newSceneObject = new FlatPointGenerator(particle);
+		}
+	}
 	else {
 		newSceneObject = new FlatSceneObject(sceneObject);
 	}
