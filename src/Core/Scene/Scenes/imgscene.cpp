@@ -1,16 +1,16 @@
-#include "texscene.h"
+#include "imgscene.h"
 
-TextureScene::TextureScene(int width, int height) : AbstractScene(width, height)
+ImageScene::ImageScene(int width, int height) : AbstractScene()
 {
 	setup();
 	resize(width, height);
 }
 
-void TextureScene::tick(float delta) {
+void ImageScene::tick(float delta) {
 	
 }
 
-void TextureScene::draw(float delta)
+void ImageScene::draw(float delta)
 {
 	if (texture)
 	{
@@ -33,7 +33,7 @@ void TextureScene::draw(float delta)
 	}
 }
 
-void TextureScene::resize(int width, int height)
+void ImageScene::resize(int width, int height)
 {
 	/*if (screen_width != width || screen_height != height || true)
 	{
@@ -72,11 +72,11 @@ void TextureScene::resize(int width, int height)
 	*/
 }
 
-void TextureScene::dispose()
+void ImageScene::dispose()
 {
 }
 
-void TextureScene::addObject(SceneObject &object)
+void ImageScene::addObject(SceneObject &object)
 {
 	if (Texture *tex = dynamic_cast<Texture *>(&object))
 	{
@@ -84,20 +84,20 @@ void TextureScene::addObject(SceneObject &object)
 		return;
 	}
 
-	printf("[Engine] [TexScene] [Error] Invalid SceneObject %s\n", object.getId());
+	Log::write(LogType::Warning, "Scene only accepts textures");
 }
 
-void TextureScene::addTexture(Texture &texture)
+void ImageScene::addTexture(Texture &texture)
 {
 	setTexture(&texture);
 }
 
-void TextureScene::removeObject(SceneObject &object)
+void ImageScene::removeObject(SceneObject &object)
 {
 	printf("Not implemented\n");
 }
 
-void TextureScene::removeTexture(Texture &texture)
+void ImageScene::removeTexture(Texture &texture)
 {
 	if (&texture == this->texture)
 	{
@@ -109,7 +109,7 @@ void TextureScene::removeTexture(Texture &texture)
 	}
 }
 
-void TextureScene::setTexture(Texture *texture)
+void ImageScene::setTexture(Texture *texture)
 {
 	/*float width = this->texture ? this->texture->getWidth() : 0.0f;
 	float height = this->texture ? this->texture->getHeight() : 0.0f;
@@ -125,7 +125,7 @@ void TextureScene::setTexture(Texture *texture)
 	}*/
 }
 
-void TextureScene::setup()
+void ImageScene::setup()
 {
 	shader = ResourceManager::loadShader(ShaderName::Texture::Basic);
 	shader.use();

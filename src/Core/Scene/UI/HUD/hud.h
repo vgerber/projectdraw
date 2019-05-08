@@ -12,66 +12,84 @@ public:
 
 	HUD(int width, int height);
 
-	/*
-	*clears scene with color
-	*/
+	/**
+	 * @brief Clears scene width given color
+	 * 
+	 * @param r 
+	 * @param g 
+	 * @param b 
+	 * @param a 
+	 */
 	virtual void clear(float r, float g, float b, float a);
 
-	/*
-	*update timed objects
-	*/
+	/**
+	 * @brief Update @ref Animatable
+	 * 
+	 * @param delta 
+	 */
 	virtual void tick(float delta);
 
-	/*
-	*draw objects
-	*/
+	/**
+	 * @brief Draw all elements
+	 * 
+	 * @param delta 
+	 */
 	virtual void draw(float delta);
 
-	/*
-	*update and draw objects
-	*/
+	/**
+	 * @brief Calls tick and draw
+	 * 
+	 * @param delta 
+	 */
 	virtual void update(float delta);
 
-	/*
-	*free memory
-	*/
+	/**
+	 * @brief Free allocated memory
+	 * 
+	 */
 	virtual void dispose();
 
-	/*
-	*set new scene size (viewport).
-	*call when window size is changed.
-	*/
+	/**
+	 * @brief Sets new scene size in pixel
+	 * 
+	 * @param width 
+	 * @param height 
+	 */
 	virtual void resize(int width, int height);
 
-	/*
-	*add object to scene
-	*object: added object
-	*camera: target camera which handles the added object
-	*/
-	virtual void addObject(SceneObject &object, AbstractRenderer &renderer);
-
-	/*
-	*add object to all currently added cameras
-	*/
+	/**
+	 * @brief Add a @SceneObject
+	 * 
+	 * @param object 
+	 */
 	virtual void addObject(SceneObject &object);
 
-	/*
-	*remove object from scene target camera
-	*/
-	virtual void removeObject(SceneObject &object, AbstractRenderer &renderer);
-
-	/*
-	*remove object from all cameras
-	*/
+	/**
+	 * @brief Remove @SceneObject
+	 * 
+	 * @param object 
+	 */
 	virtual void removeObject(SceneObject &object);
 
+	/**
+	 * @brief Set the Background image
+	 * 
+	 * @param texture 
+	 */
 	void setBackground(unsigned int texture);
 
+	/**
+	 * @brief Get the rendered texture
+	 * 
+	 * @return unsigned int 
+	 */
 	unsigned int getTexture();
 
-	/*
-	* draw renderer texture to target framebuffer
-	*/
+	/**
+	 * @brief Draw texture to target framebuffer
+	 * 
+	 * @param framebuffer 
+	 */
 	void drawTexture(unsigned int framebuffer);
 
 protected:

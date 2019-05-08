@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "Core/core.h"
 #include "Core/Scene/Camera/camera.h"
 #include "Core/Scene/Scenes/subscene.h"
@@ -12,77 +11,96 @@
 #include <map>
 #include <memory>
 
-
 class AbstractScene
 {
 public:
 	RenderMode renderMode;
 
-	AbstractScene(int width, int height);
+	/**
+	 * @brief Construct a new Abstract Scene object
+	 */
+	AbstractScene();
 
-	/*
-	*clears scene with color
-	*/
-	virtual void clear(float r, float g, float b, float a) = 0;
-
-	/*
-	*update timed objects
-	*/
+	/**
+	 * @brief Update @ref Animatable
+	 * 
+	 * @param delta 
+	 */
 	virtual void tick(float delta) = 0;
 
-	/*
-	*draw objects
-	*/
+	/**
+	 * @brief Draw all @ref SceneObject
+	 * 
+	 * @param delta 
+	 */
 	virtual void draw(float delta) = 0;
 
-	/*
-	*update and draw objects
-	*/
+	/**
+	 * @brief Calls tick and draw
+	 * 
+	 * @param delta 
+	 */
 	virtual void update(float delta);
 
-	/*
-	*free memory
-	*/
+	/**
+	 * @brief Free allocated memory
+	 * 
+	 */
 	virtual void dispose() = 0;
 
-	/*
-	*set new scene size (viewport).
-	*call when window size is changed.
-	*/
+	/**
+	 * @brief Resize internals to new screen size
+	 * 
+	 * @param width 
+	 * @param height 
+	 */
 	virtual void resize(int width, int height);
 
-	/*
-	*add object to scene
-	*object: added object
-	*camera: target camera which handles the added object
-	*/
-	virtual void addObject(SceneObject &object, AbstractRenderer & renderer) = 0;
-
-	/*
-	*add object to all currently added cameras	
-	*/
+	/**
+	 * @brief Add @ref SceneObejct to scene
+	 * 
+	 * @param object 
+	 */
 	virtual void addObject(SceneObject &object) = 0;
 
-	/*
-	*remove object from scene target camera
-	*/
-	virtual void removeObject(SceneObject &object, AbstractRenderer & renderer) = 0;
-
-	/*
-	*remove object from all cameras
-	*/
+	/**
+	 * @brief Remove @ref SceneObject from scene
+	 * 
+	 * @param object 
+	 */
 	virtual void removeObject(SceneObject &object) = 0;
 
+	/**
+	 * @brief Get the scene Size in pixel
+	 * 
+	 * @return Size 
+	 */
 	Size getSize();
+
+	/**
+	 * @brief Get the scene Width in pixel
+	 * 
+	 * @return int 
+	 */
 	int getWidth();
+
+	/**
+	 * @brief Get the Height in pixel
+	 * 
+	 * @return int 
+	 */
 	int getHeight();
 
 private:
 	static int globalSceneId;
 	int sceneID;
 	int width = 0, height = 0;
+
 protected:
+	/**
+	 * @brief Get the unique Scene id
+	 * 
+	 * @return int 
+	 */
 	int getSceneId();
 };
-
-

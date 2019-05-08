@@ -1,6 +1,6 @@
 #include "hud.h"
 
-HUD::HUD(int width, int height) : AbstractScene(width, height)
+HUD::HUD(int width, int height) : AbstractScene()
 {
 	camera = new OrthographicCamera(glm::vec3(width * 0.5f, height * 0.5f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	camera->setClipping(0.1f, 1000.0f);	
@@ -42,11 +42,6 @@ void HUD::resize(int width, int height)
 	renderer->resize(width, height);	
 }
 
-void HUD::addObject(SceneObject & object, AbstractRenderer &renderer)
-{
-	addObject(object);
-}
-
 void HUD::addObject(SceneObject & object)
 {
 	renderer->addSceneObject(object);
@@ -54,11 +49,6 @@ void HUD::addObject(SceneObject & object)
 	if (UIComponent * uicomponent = dynamic_cast<UIComponent*>(&object)) {
 		uiComponents.push_back(uicomponent);
 	}
-}
-
-void HUD::removeObject(SceneObject & object, AbstractRenderer &renderer)
-{
-	removeObject(object);
 }
 
 void HUD::removeObject(SceneObject & object)

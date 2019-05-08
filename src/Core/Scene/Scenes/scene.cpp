@@ -1,6 +1,6 @@
 #include "scene.h"
 
-Scene::Scene(int width, int height) : AbstractScene(width, height)
+Scene::Scene(int width, int height) : AbstractScene()
 {
 	setup();
 	resize(width, height);

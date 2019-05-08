@@ -2,10 +2,10 @@
 
 int AbstractScene::globalSceneId = 0;
 
-AbstractScene::AbstractScene(int width, int height)
+AbstractScene::AbstractScene()
 {
-	this->width = width;
-	this->height = height;
+	this->width = 0;
+	this->height = 0;
 	this->sceneID = globalSceneId++;
 }
 

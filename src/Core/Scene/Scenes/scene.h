@@ -14,22 +14,73 @@
  */
 class Scene : public AbstractScene {
 public:
+	/**
+	 * @brief Construct a new Scene object 
+	 * 
+	 * @param width  Screen width
+	 * @param height Screen height
+	 */
 	Scene(int width, int height);
 
+	/**
+	 * @brief Clear all @ref SubScene with given color
+	 * 
+	 * @param r 
+	 * @param g 
+	 * @param b 
+	 * @param a 
+	 */
 	virtual void clear(float r, float g, float b, float a);
 
+	/**
+	 * @brief Update all animatables
+	 * 
+	 * @param delta 
+	 */
 	virtual void tick(float delta) override;
 
+	/**
+	 * @brief Draw on all active subscenes
+	 * 
+	 * @param delta 
+	 */
 	virtual void draw(float delta) override;
 
+	/**
+	 * @brief Calls tick and draw
+	 * 
+	 * @param delta 
+	 */
 	virtual void update(float delta) override;
 
+	/**
+	 * @brief Dispose all subscenes and internels
+	 * 
+	 */
 	virtual void dispose() override;
 
+	/**
+	 * @brief Resize internal buffers to new screen size
+	 * 
+	 * @param width 
+	 * @param height 
+	 */
 	virtual void resize(int width, int height) override;
 
+	/**
+	 * @brief Adds a @ref SceneObject to all @ref SubScenes
+	 * 
+	 * @param object 
+	 */
 	virtual void addObject(SceneObject &object) override;
-	virtual void addObject(SceneObject &object, AbstractRenderer & renderer) override;
+
+	/**
+	 * @brief Adds a @ref SceneObject to a specific @ref SubScene
+	 * 
+	 * @param object 
+	 * @param renderer 
+	 */
+	virtual void addObject(SceneObject &object, AbstractRenderer & renderer);
 
 	/**
 	 * @brief Adds a renderer (subscene) to the draw loop
@@ -59,7 +110,7 @@ public:
 	 * @param object 
 	 * @param camera 
 	 */
-	virtual void removeObject(SceneObject &object, AbstractRenderer & renderer) override;
+	virtual void removeObject(SceneObject &object, AbstractRenderer & renderer);
 
 	/**
 	 * @brief Removes subscene from scene
@@ -75,7 +126,21 @@ public:
 	 * @return SceneCameraConfig 
 	 */
 	SubSceneConfig getSubSceneConfig(AbstractRenderer &renderer);
+
+	/**
+	 * @brief Enable/Disable a @ref Subscene from tick/draw events
+	 * 
+	 * @param renderer 
+	 * @param enable 
+	 */
 	void enableSubScene(AbstractRenderer &renderer, bool enable);
+
+	/**
+	 * @brief Sets the given config to a specific @ref SubScene
+	 * 
+	 * @param renderer 
+	 * @param config 
+	 */
 	void configureSubScene(AbstractRenderer &renderer, SubSceneConfig config);
 
 protected:
