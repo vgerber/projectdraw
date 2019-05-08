@@ -90,6 +90,15 @@ Transform SceneObject::getWorldTransform() const {
 	return cachedWorldTransform;
 }
 
+void SceneObject::beginEdit() {
+	editMode = true;
+}
+
+void SceneObject::endEdit() {
+	editMode = false;
+	callUpdate();
+}
+
 void SceneObject::addUpdateListener(void * receiver, std::function<void()> receiverFunction) {
 	if(receiver) {
 		updateListeners.push_back(std::make_pair(receiver, receiverFunction));
@@ -120,7 +129,9 @@ void SceneObject::parentTransformChanged(Transform transform) {
 }
 
 void SceneObject::callUpdate() {
-	for(auto listener : updateListeners) {
-		listener.second();
+	if(!editMode) {
+		for(auto listener : updateListeners) {
+			listener.second();
+		}
 	}
 }

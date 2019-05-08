@@ -76,6 +76,20 @@ public:
 	Transform getWorldTransform() const;
 
 	/**
+	 * @brief Prevents calling update after each change
+	 * 
+	 * Useful for long editing routines 
+	 * 
+	 */
+	void beginEdit();
+
+	/**
+	 * @brief Enables update calls and calls update
+	 * 
+	 */
+	void endEdit();
+
+	/**
 	 * @brief Adds listener to receiver
 	 * 
 	 * Notifies receiver when data has changed
@@ -127,6 +141,8 @@ private:
 	Transform cachedWorldTransform;
 
 	std::vector<std::pair<void*, std::function<void()>>> updateListeners;
+
+	bool editMode = false;
 
 };
 

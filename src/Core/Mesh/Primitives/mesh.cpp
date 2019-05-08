@@ -52,7 +52,6 @@ void Mesh::applyMeshRecenter(glm::vec3 centerPoint)
 
 Size Mesh::getSize()
 {
-	reloadSize();
 	return size;
 }
 
@@ -281,7 +280,6 @@ void Mesh::lineTo(std::vector<Vertex> vertices)
 	{
 		lineTo(p);
 	}
-	reloadSize();
 }
 
 void Mesh::line(Vertex p1, Vertex p2)
@@ -350,7 +348,6 @@ void Mesh::clear()
 {
 	vertices.clear();
 	indices.clear();
-	reloadSize();
 	callUpdate();
 }
 
@@ -447,6 +444,6 @@ void Mesh::reloadSize()
 }
 
 void Mesh::callUpdate() {
-	//reloadSize();
+	reloadSize();
 	Drawable::callUpdate();
 }
