@@ -12,43 +12,18 @@ Texture			=stb		[latest Git repo 25.12.2018]
 
 --------------------------------------------------------------------
 
-[TODO]
-
-[F=Feature, B=Bug, BF=BestFriend the buggy feature, P=Performance, D=Done]
-
-Priority: [B1..high, -, B6..low]
-
-D		-Shader cleanup
-B6		-Objects on other rigidbody cant be raytraced (clicked whatever..)
-D		-Light draw limit exception unhandled
-F(80%)		-Drawing Groups  e.g. for grouped stencil test
-F(10%)	-Particle Instancing
-F		-Variance SHadow Mapping (at the moment CSM/PCF)
-F(99%)  -Bullet3 Debug Mode 
-P		-preallocate Uniforms
-F		-polish engine setup
-F		-polish vehicle class
-F		-texture wrapper (load/animate/manage)
-P		-Better Memory Management (Automatic Allocate/Free), SmartPointer
-D		-Rotate to axis
-F		-Animator
-F(20%)	-Rings (2D), Half Ring
-B1		-Bullet object position update only synch by set not by get (changed by bullet engine)
 
 
-D		-Cylinder, Spheres
+TARGET VERSION 1.0 
+Roadmap:
 
-V0.1
-===Release
--Build Release Libs (Done for Windows)
-
-===Debug
---#--
-
-
-====Windows
--improve cmake build setup
-	->done for debug and release
-	->dynamic loading required (or libs + project files?)
-====Linux
--integrate SFML
+ - lightweight window system
+ - box2D and bullet3 support
+ - renderer settings
+ - socket support
+ - texture/sprite/animation support
+ - skeletal animations
+ - full documenation
+ - tutorials
+ - ui support (textbox, textblock, label, button, list, slider, dropdown, checkbox)
+ 
