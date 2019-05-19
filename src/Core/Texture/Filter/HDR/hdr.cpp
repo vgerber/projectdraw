@@ -1,7 +1,11 @@
 #include "hdr.h"
 
 void HDR::apply(unsigned int texture) {
+
+    GLint oldViewport[4];
+    glGetIntegerv(GL_VIEWPORT, oldViewport);
     glViewport(0, 0, width, height);
+
     glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -18,8 +22,8 @@ void HDR::apply(unsigned int texture) {
     glCopyTextureSubImage2D(texture, 0, 0, 0, 0, 0, width, height);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
 
+    glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
 }
 
 void HDR::resize(int width, int height) {
@@ -39,10 +43,10 @@ void HDR::resize(int width, int height) {
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		printf("ERROR::FRAMEBUFFER:: Intermediate framebuffer is not complete!\n");
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    GLcheckError();
 }
 
 void HDR::clear() {
+    glViewport(0, 0, width, height);
     glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);

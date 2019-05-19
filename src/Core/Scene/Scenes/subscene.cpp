@@ -7,7 +7,6 @@ SubScene::SubScene(AbstractRenderer & renderer, Size frame, int sceneWidth, int 
 
 	this->frame = frame;
 	this->renderer = &renderer;
-	this->renderer->resize(frame.width * 0.5 * sceneWidth, frame.height * 0.5 * sceneHeight);
 	this->camera = renderer.getCamera();
 	if(!camera) {
 		Log::write(LogType::Error, "Renderer has no camera", "SubScene");
@@ -62,14 +61,24 @@ GLuint SubScene::getTexture()
 void SubScene::resizeFrame(Size frame)
 {
 	this->frame = frame;
-	renderer->resize(width * frame.width * 0.5f, height * frame.height * 0.5f);
+	renderer->resize(frame.width * width, frame.height * height);
+	renderer->setViewport(Viewport{0, 0, renderer->getWidth(), renderer->getHeight()});
+
+	Size screenSize(
+		frame.x * 2 - 1,
+		frame.y * 2 - 1,
+		0,
+		frame.width * 2,
+		frame.height * 2,
+		0
+	);
 
 	//set opengl rectangle size
 	GLfloat vertices_rect[] = {
-		frame.x,               frame.y + frame.height,  0.0f, 0.0f, 1.0f, 
-		frame.x,               frame.y,                 0.0f, 0.0f, 0.0f,
-		frame.x + frame.width, frame.y + frame.height,  0.0f, 1.0f, 1.0f,	
-		frame.x + frame.width, frame.y,                 0.0f, 1.0f, 0.0f,
+		screenSize.x,                    screenSize.y + screenSize.height, 0.0f, 0.0f, 1.0f, 
+		screenSize.x,                    screenSize.y,                 	   0.0f, 0.0f, 0.0f,
+		screenSize.x + screenSize.width, screenSize.y + screenSize.height, 0.0f, 1.0f, 1.0f,	
+		screenSize.x + screenSize.width, screenSize.y,                 	   0.0f, 1.0f, 0.0f,
 	};
 
 	glBindVertexArray(camVAO);
@@ -89,7 +98,6 @@ Size SubScene::getFrame()
 }
 
 void SubScene::drawFrame(GLuint target) {
-
 	glBindTexture(GL_TEXTURE_2D, getTexture());
 
 	glBindVertexArray(camVAO);

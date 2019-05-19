@@ -53,7 +53,15 @@ void ForwardRenderer::resize(int width, int height) {
 	ssaoFilter.resize(getWidth(), getHeight());
 }
 
+void ForwardRenderer::setViewport(Viewport viewport) {
+	//clear texture with old viewport
+	//possible artifacts from old size will be eliminated
+	clearScreen();
+	AbstractRenderer::setViewport(viewport);
+}
+
 void ForwardRenderer::clearScreen() {
+	glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
     glBindFramebuffer(GL_FRAMEBUFFER, rendererFBO);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -62,11 +70,12 @@ void ForwardRenderer::clearScreen() {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+	//hdrFilter.clear();
 	ssaoFilter.clear();
 }
 
 void ForwardRenderer::render() {
-	glViewport(0, 0, getWidth(), getHeight());
+	glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
 
 	if(!directionalLight) {
 		Log::write(LogType::Error, "Directional light not set", "ForwardRenderer");
@@ -96,6 +105,7 @@ void ForwardRenderer::render() {
 	glUniform3f(glGetUniformLocation(shaderMesh.getId(), (target + ".diffuse").c_str()), diffuse.r, diffuse.g, diffuse.b);
 	glUniform3f(glGetUniformLocation(shaderMesh.getId(), (target + ".specular").c_str()), specular.r, specular.g, specular.b);
 
+	glUniform2f(glGetUniformLocation(shaderMesh.getId(), "screenSize"), getWidth(), getHeight());
 	glUniform1i(glGetUniformLocation(shaderMesh.getId(), "ssaoTexture"), 3);
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, ssaoFilter.getGLTexture());

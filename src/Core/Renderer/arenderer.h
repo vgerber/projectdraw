@@ -10,6 +10,13 @@ enum RenderMode {
 	FILLR = 2
 };
 
+struct Viewport {
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
+};
+
 class AbstractRenderer {
 public:
     AbstractRenderer(int width, int height, Camera &camera);
@@ -22,6 +29,17 @@ public:
      */
     virtual void resize(int width, int height);
 
+    /**
+     * @brief Set rendering viewport
+     * 
+     * @param viewport 
+     */
+    virtual void setViewport(Viewport viewport);
+
+    /**
+     * @brief 
+     * 
+     */
     virtual void clearScreen() = 0;
 
     /**
@@ -31,11 +49,37 @@ public:
      */
     virtual void setRenderMode(RenderMode rmode);
 
-
+    /**
+     * @brief Starts rendering
+     * 
+     */
     virtual void render() = 0;
+
+    /**
+     * @brief Add an @ref SceneObject to rendering process
+     * 
+     * @param sceneObject 
+     */
 	virtual void addSceneObject(SceneObject &sceneObject) = 0;    
+
+    /**
+     * @brief Remove @ref SceneObject from rendering process
+     * 
+     * @param sceneObject 
+     */
 	virtual void removeSceneObject(SceneObject &sceneObject) = 0;
+
+    /**
+     * @brief Get rendered scene
+     * 
+     * @return GLuint 
+     */
     virtual GLuint getTexture() = 0;
+
+    /**
+     * @brief Free allocated memory
+     * 
+     */
     virtual void dispose() = 0;
 
     /**
@@ -78,6 +122,7 @@ private:
     int rendererId;
     int width = 0, height = 0;
 protected:
+    Viewport viewport;
     RenderMode renderMode;
     Camera *camera;
 	bool invalidShaders = false;    

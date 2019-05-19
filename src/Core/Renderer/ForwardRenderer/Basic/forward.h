@@ -32,6 +32,13 @@ public:
     */
     virtual void resize(int width, int height) override;
 
+    /**
+     * @brief Set the Viewport
+     * 
+     * @param viewport 
+     */
+    virtual void setViewport(Viewport viewport) override;
+
     /*
     * Clear render buffers
     */

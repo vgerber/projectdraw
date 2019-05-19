@@ -3,6 +3,10 @@
 void SSAOFilter::apply(const Camera &camera, unsigned int normals, unsigned int positions) {
     glDisable(GL_DEPTH_TEST);
 
+    GLint oldViewport[4];
+    glGetIntegerv(GL_VIEWPORT, oldViewport);
+    glViewport(0, 0, width, height);
+
     glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
 
     //get ssao color
@@ -43,6 +47,8 @@ void SSAOFilter::apply(const Camera &camera, unsigned int normals, unsigned int 
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glEnable(GL_DEPTH_TEST);
+
+    glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
 }
 
 void SSAOFilter::resize(int width, int height) {

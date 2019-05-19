@@ -15,6 +15,10 @@ void AbstractRenderer::resize(int width ,int height) {
     this->height = height;
 }
 
+void AbstractRenderer::setViewport(Viewport viewport) {
+    this->viewport = viewport;
+}
+
 void AbstractRenderer::setRenderMode(RenderMode renderMode) {
     this->renderMode = renderMode;
 }

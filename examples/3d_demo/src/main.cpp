@@ -60,7 +60,7 @@ int main() {
 	}
 
 	ForwardRenderer renderer(WIDTH, HEIGHT, camera);
-	scene.addSubScene(renderer, Size(-1, -1, 0, 2, 2, 0));
+	scene.addSubScene(renderer, Size(0.0f, 0.0f, 1.0f, 1.0f));
 	
 	PerspectiveCamera rotatingCamera;
 	rotatingCamera.translate(glm::vec3(0.0f, 5.0f, -5.0f));

@@ -39,6 +39,7 @@ void Scene::draw(float delta)
 		SubScene.renderer->render();
 	}
 	GLcheckError();
+	glViewport(0, 0, width, height);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDisable(GL_DEPTH_TEST);
 

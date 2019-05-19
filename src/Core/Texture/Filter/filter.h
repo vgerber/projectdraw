@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Texture/texture.h"
+#include "Core/Renderer/arenderer.h"
 
 class Filter {	
 public:
@@ -7,5 +8,7 @@ public:
 	virtual void clear() = 0;
 	virtual void dispose() = 0;
 	virtual void setup() = 0;
+
+protected:
 };
 

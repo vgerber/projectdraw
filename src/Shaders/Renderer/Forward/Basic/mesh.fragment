@@ -43,8 +43,9 @@ uniform int enableAlphaTexture = 0;
 uniform int enableDiffuseTexture = 0;
 uniform int enableSpecularTexture = 0;
 
-uniform sampler2D ssaoTexture;
+uniform vec2 screenSize;
 
+uniform sampler2D ssaoTexture;
 uniform sampler2D alphaTexture;
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
@@ -89,11 +90,12 @@ void main() {
 	}
 
 	vec2 modScreenPos = vec2(
-		gl_FragCoord.x / 700.0,
-		gl_FragCoord.y / 700.0
+		gl_FragCoord.x / screenSize.x,
+		gl_FragCoord.y / screenSize.y
 	);
 
-	FragColor = vec4(CalcDirLight(directionalLight, fs_in.Normal, fs_in.ViewPos , fs_in.FragPos, albedoColor.rgb) * (texture(ssaoTexture, modScreenPos).r * 2.0), albedoColor.a);
+	//FragColor = vec4(CalcDirLight(directionalLight, fs_in.Normal, fs_in.ViewPos , fs_in.FragPos, albedoColor.rgb), albedoColor.a);
+	FragColor = vec4(CalcDirLight(directionalLight, fs_in.Normal, fs_in.ViewPos , fs_in.FragPos, albedoColor.rgb) * (texture(ssaoTexture, modScreenPos).r * 1.0), albedoColor.a);
 	//FragColor = vec4(calcPBELight(fs_in.Normal, fs_in.FragPos, fs_in.FragPos - directionalLight.direction, albedoColor.rgb, directionalLight), albedoColor.a);
 }
 

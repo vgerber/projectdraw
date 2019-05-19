@@ -2,6 +2,7 @@
 
 
 struct Size {
+
 	/**
 	 * @brief Construct a new Size object
 	 * 
@@ -10,6 +11,16 @@ struct Size {
 	 * @param depth 
 	 */
 	Size(float width = 0.0f, float height = 0.0f, float depth = 0.0f);
+
+	/**
+	 * @brief Construct a new Size object
+	 * 
+	 * @param x 
+	 * @param y 
+	 * @param width 
+	 * @param height 
+	 */
+	Size(float offsetX, float offsetY, float width, float height);
 
 	/**
 	 * @brief Construct a new Size object
