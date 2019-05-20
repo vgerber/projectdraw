@@ -47,7 +47,7 @@ int main() {
 
 
     FlatRenderer renderer(WIDTH, HEIGHT, orthoCamera);
-    gameScene->addSubScene(renderer, Size(-1.0, -1.0, 0.0, 2, 2, 0));
+    gameScene->addSubScene(renderer, Size(1, 1));
 
     gameBall.ball = pd::circle(20.0, 20, glm::vec4(1.0, 0.7, 0.0, 1.0));
     paddleLeft = pd::rectangle(50, 250, glm::vec4(0.4, 0.4, 1.0, 1.0)); 
@@ -73,6 +73,14 @@ int main() {
     billboardParticles.addTexture(billboardTexture, TextureType::Diffuse);
     billboardParticles.setLifeTime(3.0f);
     gameScene->addObject(billboardParticles);
+
+    Mesh graph;
+    graph.settings.lineThickness = 2;
+    graph.settings.drawType = DrawType::LINEG;
+    graph.line(glm::vec3(0, 0, 1), glm::vec3(200, 0, 1));
+    graph.lineTo(glm::vec3(300, 100, 1));
+    graph.lineTo(glm::vec3(200, 200, 1));
+    gameScene->addObject(graph);
 
     sf::Clock sfClock;
     sf::Time deltaTime = sfClock.getElapsedTime();

@@ -180,7 +180,7 @@ void DeferredMesh::drawRaw(Shader shader) {
         DrawableInfo settings = mesh->settings;
         if (settings.drawType == DrawType::LINEG) {
             glLineWidth(settings.lineThickness);
-            glDrawElements(GL_LINE_STRIP, mesh->getIndices().size(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_LINES, mesh->getIndices().size(), GL_UNSIGNED_INT, 0);
         }
         else if (settings.drawType == DrawType::POINTG) {
             glPointSize(settings.pointThickness);

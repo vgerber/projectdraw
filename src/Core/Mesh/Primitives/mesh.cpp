@@ -255,14 +255,14 @@ void Mesh::lineTo(Vertex vertex)
 	//Thats why we need to check if the vertex count is even or odd
 	//and therefore the last vertex will be added twice so that the next
 	//vertex can be connected via line
-	if (vertices.size() % 2 == 0)
+	if (indices.size() % 2 == 1)
 	{
 		indices.push_back(vertices.size());
 		vertices.push_back(vertex);
 	}
 	else
 	{
-		indices.push_back(vertices.size());
+		indices.push_back(vertices.size()-1);
 		indices.push_back(vertices.size());
 		vertices.push_back(vertex);
 	}
