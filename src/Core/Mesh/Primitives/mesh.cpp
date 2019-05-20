@@ -358,38 +358,44 @@ void Mesh::reloadSize()
 	if (children.size() >= 0) {
 		for (auto child : children) {
 			Size childSize = child->getSize();
+			childSize.x = child->getPosition().x + childSize.x;
+			childSize.y = child->getPosition().y + childSize.y;
+			childSize.z = child->getPosition().z + childSize.z;
+			childSize.width  = childSize.x + childSize.width;
+			childSize.height = childSize.y + childSize.height;
+			childSize.depth  = childSize.z + childSize.depth;
 			if (initRequired) {
 				size.x = childSize.x;
 				size.y = childSize.y;
 				size.z = childSize.z;
-				size.width = childSize.width;
+				size.width  = childSize.width;
 				size.height = childSize.height;
-				size.depth = childSize.depth;
+				size.depth  = childSize.depth;
 				initRequired = false;
 				continue;
 			}
 			//min x
-			if (size.x < childSize.x) {
+			if (size.x > childSize.x) {
 				size.x = childSize.x;
 			}
 			//max width
-			if (size.width > childSize.width) {
+			if (size.width < childSize.width) {
 				size.width = childSize.width;
 			}
 			//min y
-			if (size.y < childSize.y) {
+			if (size.y > childSize.y) {
 				size.y = childSize.y;
 			}
 			//max height
-			if (size.height > childSize.height) {
+			if (size.height < childSize.height) {
 				size.height = childSize.height;
 			}
 			//min z
-			if (size.z < childSize.z) {
+			if (size.z > childSize.z) {
 				size.z = childSize.z;
 			}
 			//max length
-			if (size.depth > childSize.depth) {
+			if (size.depth < childSize.depth) {
 				size.depth = childSize.depth;
 			}
 		}
