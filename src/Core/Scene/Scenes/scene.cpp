@@ -152,7 +152,7 @@ void Scene::removeObject(SceneObject & object, AbstractRenderer &renderer)
 }
 
 void Scene::removeSubScene(AbstractRenderer & renderer) {
-	subScenes.erase(std::remove_if(subScenes.begin(), subScenes.end(), [&renderer](SubScene & subScene) { return subScene.renderer == &renderer; }));
+	subScenes.erase(std::remove_if(subScenes.begin(), subScenes.end(), [&renderer](SubScene & subScene) { return subScene.renderer == &renderer; }), subScenes.end());
 }
 
 SubSceneConfig Scene::getSubSceneConfig(AbstractRenderer &renderer)

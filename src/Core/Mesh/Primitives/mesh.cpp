@@ -318,7 +318,7 @@ void Mesh::addVertex(glm::vec3 position)
 void Mesh::removeVertex(unsigned int index)
 {
 	vertices.erase(vertices.begin() + index);
-	indices.erase(std::remove_if(indices.begin(), indices.end(), [index](const unsigned int &vIndex) { return index == vIndex; }));
+	indices.erase(std::remove_if(indices.begin(), indices.end(), [index](const unsigned int &vIndex) { return index == vIndex; }), indices.end());
 	callUpdate();
 }
 

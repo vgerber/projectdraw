@@ -152,7 +152,8 @@ void ForwardRenderer::removeSceneObject(SceneObject &sceneObject) {
 			[&sceneObject](ForwardSceneObject * child) {
 				return child->getLinkedObject() == &sceneObject;
 			} 
-		)
+		),
+		sceneObjects.end()
 	);
 }
 
