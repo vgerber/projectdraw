@@ -74,14 +74,6 @@ int main() {
     billboardParticles.setLifeTime(3.0f);
     gameScene->addObject(billboardParticles);
 
-    Mesh graph;
-    graph.settings.lineThickness = 2;
-    graph.settings.drawType = DrawType::LINEG;
-    graph.line(glm::vec3(0, 0, 1), glm::vec3(200, 0, 1));
-    graph.lineTo(glm::vec3(300, 100, 1));
-    graph.lineTo(glm::vec3(200, 200, 1));
-    gameScene->addObject(graph);
-
     sf::Clock sfClock;
     sf::Time deltaTime = sfClock.getElapsedTime();
     float delta;

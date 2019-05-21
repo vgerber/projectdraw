@@ -111,7 +111,12 @@ void FlatRenderer::addSceneObject(SceneObject &sceneObject) {
 }
 
 void FlatRenderer::removeSceneObject(SceneObject &sceneObject) {
-	sceneObjects.erase(std::remove_if(sceneObjects.begin(), sceneObjects.end(), [&sceneObject](FlatSceneObject * child) {return &sceneObject == child->getLinkedObject(); }));
+	sceneObjects.erase(
+		std::remove_if(
+			sceneObjects.begin(), 
+			sceneObjects.end(), 
+			[&sceneObject](FlatSceneObject * child) {return &sceneObject == child->getLinkedObject(); }),
+			sceneObjects.end());
 }
 
 GLuint FlatRenderer::getTexture() {
@@ -200,8 +205,52 @@ FlatSceneObject * FlatRenderer::generateFlatObject(SceneObject * sceneObject) {
 	for(auto child : sceneObject->getChildren()) {
 		newSceneObject->children.push_back(static_cast<RenderObject*>(generateFlatObject(child)));
 	}
+
+	sceneObject->addUpdateTreeListener(this, std::bind(&FlatRenderer::updateSceneObjectTree, this, std::placeholders::_1));
 	newSceneObject->update();
 	return newSceneObject;	
+}
+
+void FlatRenderer::updateSceneObjectTree(SceneObject * sceneObject) {
+	FlatSceneObject *  targetSceneObject = nullptr;
+	for(auto so : sceneObjects) {
+		if(so->getLinkedObject() == sceneObject) {
+			targetSceneObject = so;
+			break;
+		}
+	}
+	if(targetSceneObject) {
+		printf("Target found!\n");
+		//remove removed children
+		for(int targetChildIndex = 0; targetChildIndex < targetSceneObject->children.size(); targetChildIndex++) {
+			RenderObject * targetChild = targetSceneObject->children[targetChildIndex];
+			bool childFound = false;
+			for(auto refChild : sceneObject->getChildren()) {
+				if(refChild == targetChild->getLinkedObject()) {
+					childFound = true;
+					break;
+				}
+			}
+			if(!childFound) {
+				targetSceneObject->children.erase(targetSceneObject->children.begin() + targetChildIndex);
+				targetChildIndex--;
+			}
+		}
+		//add added children
+		for(auto refChild : sceneObject->getChildren()) {
+			bool childFound = false;
+			for(auto targetChild : targetSceneObject->children) {
+				if(refChild == targetChild->getLinkedObject()) {
+					childFound = true;
+					break;
+				}
+			}
+			if(!childFound) {
+				auto newChild = generateFlatObject(refChild);
+				targetSceneObject->children.push_back(static_cast<RenderObject*>(newChild));
+			}
+		}
+	}
 }
 
 

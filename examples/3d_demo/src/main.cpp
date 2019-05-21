@@ -203,6 +203,8 @@ int main() {
 	pointGenerator3D.addTexture(Texture(ResourceManager::GetPath("/Assets/smoke.png").c_str()), TextureType::Diffuse);
 	scene.addObject(pointGenerator3D);
 
+	Mesh testMesh;
+	quad.addChild(&testMesh);
 
 	sf::Clock clock;
 	sf::Time deltaTime = clock.getElapsedTime();

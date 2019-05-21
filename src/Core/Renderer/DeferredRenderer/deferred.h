@@ -209,4 +209,6 @@ protected:
 
 	DeferredSceneObject * generateDeferredObject(SceneObject * sceneObject);
 
+	void updateSceneObjectTree(SceneObject * sceneObject);
+
 };

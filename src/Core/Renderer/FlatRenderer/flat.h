@@ -132,6 +132,13 @@ private:
 	 */
 	FlatSceneObject * generateFlatObject(SceneObject * sceneObject);
 
+	/**
+	 * @brief Updates structure when linked objects structure is changed
+	 * 
+	 * @param sceneObject 
+	 */
+	void updateSceneObjectTree(SceneObject * sceneObject);
+
 
 	unsigned int msaa = 4;
 };

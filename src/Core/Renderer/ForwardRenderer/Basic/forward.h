@@ -95,4 +95,6 @@ protected:
 
 private:
     ForwardSceneObject * generateForwardObject(SceneObject * sceneObject);
+
+    void updateSceneObjectTree(SceneObject * sceneObject);
 };

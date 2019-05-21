@@ -935,3 +935,45 @@ DeferredSceneObject * DeferredRenderer::generateDeferredObject(SceneObject * sce
 	newDeferredObject->update();
 	return newDeferredObject;
 }
+
+void DeferredRenderer::updateSceneObjectTree(SceneObject * sceneObject) {
+	DeferredSceneObject *  targetSceneObject = nullptr;
+	for(auto so : sceneObjects) {
+		if(so->getLinkedObject() == sceneObject) {
+			targetSceneObject = so;
+			break;
+		}
+	}
+	if(targetSceneObject) {
+		printf("Target found!\n");
+		//remove removed children
+		for(int targetChildIndex = 0; targetChildIndex < targetSceneObject->children.size(); targetChildIndex++) {
+			RenderObject * targetChild = targetSceneObject->children[targetChildIndex];
+			bool childFound = false;
+			for(auto refChild : sceneObject->getChildren()) {
+				if(refChild == targetChild->getLinkedObject()) {
+					childFound = true;
+					break;
+				}
+			}
+			if(!childFound) {
+				targetSceneObject->children.erase(targetSceneObject->children.begin() + targetChildIndex);
+				targetChildIndex--;
+			}
+		}
+		//add added children
+		for(auto refChild : sceneObject->getChildren()) {
+			bool childFound = false;
+			for(auto targetChild : targetSceneObject->children) {
+				if(refChild == targetChild->getLinkedObject()) {
+					childFound = true;
+					break;
+				}
+			}
+			if(!childFound) {
+				auto newChild = generateDeferredObject(refChild);
+				targetSceneObject->children.push_back(static_cast<RenderObject*>(newChild));
+			}
+		}
+	}
+}

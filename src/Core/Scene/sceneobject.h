@@ -106,6 +106,23 @@ public:
 	 */
 	void removeUpdateListener(void * receiver);
 
+	/**
+	 * @brief Adds listener to receiver
+	 * 
+	 * Notifies receiver when receiver when tree structer has been changed
+	 * 
+	 * @param receiver 
+	 * @param receiverFunction 
+	 */
+	void addUpdateTreeListener(void * receiver, std::function<void(SceneObject*)> receiverFunction);
+
+	/**
+	 * @brief Removes listener from receiver
+	 * 
+	 * @param receiver 
+	 */
+	void removeUpdateTreeListener(void * receiver);
+
 protected:
 	//object id/name
 	std::string id;
@@ -135,12 +152,19 @@ protected:
 	 * 
 	 */
 	virtual void callUpdate();
+
+	/**
+	 * @brief Notifies all receivers if tree structer has been changed
+	 * 
+	 */
+	virtual void callUpdateTree();
 private:
 	///Cached transform with parent, base and model transform
 	///Refreshed in each transformChnaged() and parenTransformChanged()
 	Transform cachedWorldTransform;
 
 	std::vector<std::pair<void*, std::function<void()>>> updateListeners;
+	std::vector<std::pair<void*, std::function<void(SceneObject*)>>> updateTreeListeners;
 
 	bool editMode = false;
 

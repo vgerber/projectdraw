@@ -28,7 +28,7 @@ void SceneObject::addChild(SceneObject * sceneObject) {
 	children.push_back(sceneObject);
 	//update transforms for new child
 	transformChanged();
-	callUpdate();
+	callUpdateTree();
 }
 
 std::vector<SceneObject*> SceneObject::getChildren() const {
@@ -53,11 +53,11 @@ void SceneObject::removeChild(SceneObject * sceneObject, bool full) {
 		for(auto child : sceneObject->getChildren()) {
 			sceneObject->removeChild(child, full);
 		}
-		std::remove_if(children.begin(), children.end(), [sceneObject](SceneObject * child) { return sceneObject == child; });
+		children.erase(std::remove_if(children.begin(), children.end(), [sceneObject](SceneObject * child) { return sceneObject == child; }), children.end());
 	}
 	else {
 		std::vector<SceneObject*> subChildren = sceneObject->getChildren();
-		std::remove_if(children.begin(), children.end(), [sceneObject](SceneObject * child) { return sceneObject == child; });
+		children.erase(std::remove_if(children.begin(), children.end(), [sceneObject](SceneObject * child) { return sceneObject == child; }), children.end());
 		for(auto subChild : subChildren) {
 			children.push_back(subChild);
 		}
@@ -65,7 +65,7 @@ void SceneObject::removeChild(SceneObject * sceneObject, bool full) {
 
 	sceneObject->dispose();
 	delete sceneObject;
-	callUpdate();
+	callUpdateTree();
 }
 
 std::string SceneObject::getId() const
@@ -97,6 +97,7 @@ void SceneObject::beginEdit() {
 void SceneObject::endEdit() {
 	editMode = false;
 	callUpdate();
+	callUpdateTree();
 }
 
 void SceneObject::addUpdateListener(void * receiver, std::function<void()> receiverFunction) {
@@ -112,6 +113,23 @@ void SceneObject::removeUpdateListener(void * receiver) {
 			i--;
 		}
 	}
+}
+
+void SceneObject::addUpdateTreeListener(void * receiver, std::function<void(SceneObject*)> receiverFunction) {
+	if(receiver) {
+		updateTreeListeners.push_back(std::make_pair(receiver, receiverFunction));
+	}
+}
+
+void SceneObject::removeUpdateTreeListener(void * receiver) {
+	updateTreeListeners.erase(
+		std::remove_if(
+			updateTreeListeners.begin(),
+			updateTreeListeners.end(),
+			[receiver](auto listener) { return receiver == listener.first; }
+		),
+		updateTreeListeners.end()
+	);
 }
 
 void SceneObject::transformChanged() {
@@ -132,6 +150,14 @@ void SceneObject::callUpdate() {
 	if(!editMode) {
 		for(auto listener : updateListeners) {
 			listener.second();
+		}
+	}
+}
+
+void SceneObject::callUpdateTree() {
+	if(!editMode) {
+		for(auto listener : updateTreeListeners) {
+			listener.second(this);
 		}
 	}
 }
