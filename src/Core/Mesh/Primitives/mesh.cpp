@@ -295,7 +295,7 @@ void Mesh::line(Vertex p1, Vertex p2)
 	indices.push_back(vertices.size());
 	vertices.push_back(p2);
 	
-	//callUpdate();
+	callUpdate();
 }
 
 void Mesh::line(glm::vec3 p1, glm::vec3 p2)
@@ -309,6 +309,7 @@ void Mesh::triangle(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
 		Vertex(p2, settings.customColor),
 		Vertex(p3, settings.customColor)
 	);
+
 }
 
 void Mesh::triangle(Vertex p1, Vertex p2, Vertex p3) {

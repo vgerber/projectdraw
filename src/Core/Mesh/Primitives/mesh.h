@@ -132,12 +132,40 @@ public:
 	 */
 	void line(glm::vec3 p1, glm::vec3 p2);
 
+	/**
+	 * @brief Adds a triangle shape with p1-p3
+	 * 
+	 * @param p1 
+	 * @param p2 
+	 * @param p3 
+	 */
 	void triangle(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
 
+	/**
+	 * @brief Adds a triangle shape with p1-p3
+	 * 
+	 * @param p1 
+	 * @param p2 
+	 * @param p3 
+	 */
 	void triangle(Vertex p1, Vertex p2, Vertex p3);
 
+	/**
+	 * @brief Adds a rect shape at position + width/height
+	 * 
+	 * @param position 
+	 * @param width 
+	 * @param height 
+	 */
 	void rect(glm::vec3 position, int width, int height);
 
+	/**
+	 * @brief Adds a arect shape at position + width/height
+	 * 
+	 * @param position 
+	 * @param width 
+	 * @param height 
+	 */
 	void rect(Vertex position, int width, int height);
 
 	/**
