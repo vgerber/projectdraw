@@ -303,6 +303,43 @@ void Mesh::line(glm::vec3 p1, glm::vec3 p2)
 	line(Vertex{p1, settings.customColor}, Vertex{p2, settings.customColor});
 }
 
+void Mesh::triangle(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
+	triangle(
+		Vertex(p1, settings.customColor),
+		Vertex(p2, settings.customColor),
+		Vertex(p3, settings.customColor)
+	);
+}
+
+void Mesh::triangle(Vertex p1, Vertex p2, Vertex p3) {
+	addVertex(p1);
+	addVertex(p2);
+	addVertex(p3);
+}
+
+void Mesh::rect(glm::vec3 position, int width, int height) {
+	rect(
+		Vertex(position, settings.customColor),
+		width,
+		height
+	);
+}
+
+void Mesh::rect(Vertex position, int width, int height) {
+	Vertex p1 = position;
+	Vertex p2 = position;
+	Vertex p3 = position;
+	Vertex p4 = position;
+
+	p2.Position.x += width;
+	p3.Position.y += height;
+	p4.Position.x += width;
+	p4.Position.y += height;
+
+	triangle(p1, p2, p3);
+	triangle(p4, p3, p2);
+}
+
 void Mesh::addVertex(Vertex vertex)
 {
 	indices.push_back(vertices.size());

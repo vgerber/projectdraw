@@ -132,6 +132,14 @@ public:
 	 */
 	void line(glm::vec3 p1, glm::vec3 p2);
 
+	void triangle(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
+
+	void triangle(Vertex p1, Vertex p2, Vertex p3);
+
+	void rect(glm::vec3 position, int width, int height);
+
+	void rect(Vertex position, int width, int height);
+
 	/**
 	 * @brief Add a single vertex to geometry
 	 * 

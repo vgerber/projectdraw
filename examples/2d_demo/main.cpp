@@ -50,6 +50,7 @@ int main() {
     gameScene->addSubScene(renderer, Size(1, 1));
 
     gameBall.ball = pd::circle(20.0, 20, glm::vec4(1.0, 0.7, 0.0, 1.0));
+
     paddleLeft = pd::rectangle(50, 250, glm::vec4(0.4, 0.4, 1.0, 1.0)); 
     paddleRight = pd::rectangle(paddleLeft.getSize().width, paddleLeft.getSize().height, glm::vec4(0.4, 0.4, 1.0, 1.0));
 
