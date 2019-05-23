@@ -123,6 +123,14 @@ public:
 	 */
 	void removeUpdateTreeListener(void * receiver);
 
+	/**
+	 * @brief Returns true if object is in edit mode
+	 * 
+	 * @return true 
+	 * @return false 
+	 */
+	bool isEditMode();
+
 protected:
 	//object id/name
 	std::string id;

@@ -488,6 +488,9 @@ void Mesh::reloadSize()
 }
 
 void Mesh::callUpdate() {
-	reloadSize();
+	if(!isEditMode())
+	{
+		reloadSize();
+	}
 	Drawable::callUpdate();
 }

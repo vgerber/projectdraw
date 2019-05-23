@@ -132,6 +132,10 @@ void SceneObject::removeUpdateTreeListener(void * receiver) {
 	);
 }
 
+bool SceneObject::isEditMode() {
+	return editMode;
+}
+
 void SceneObject::transformChanged() {
 	cachedWorldTransform = transform * parentTransform;
 	parentTransformChanged(cachedWorldTransform);	
