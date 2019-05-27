@@ -438,7 +438,6 @@ void Mesh::reloadSize()
 			}
 		}
 	}
-	initRequired = size.width > 0.0f || size.height > 0.0f || size.depth > 0.0f;
 	GLfloat x, y, z;
 
 	for (Vertex vertex : vertices) {
