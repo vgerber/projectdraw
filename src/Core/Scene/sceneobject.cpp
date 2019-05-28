@@ -35,7 +35,7 @@ std::vector<SceneObject*> SceneObject::getChildren() const {
 	return children;
 }
 
-void SceneObject::removeChild(SceneObject * sceneObject, bool full) {
+void SceneObject::removeChild(SceneObject * sceneObject) {
 	bool childFound = false;
 
 	for(auto child : children) {
@@ -49,22 +49,13 @@ void SceneObject::removeChild(SceneObject * sceneObject, bool full) {
 		return;
 	}
 
-	if(full) {
-		for(auto child : sceneObject->getChildren()) {
-			sceneObject->removeChild(child, full);
-		}
-		children.erase(std::remove_if(children.begin(), children.end(), [sceneObject](SceneObject * child) { return sceneObject == child; }), children.end());
-	}
-	else {
-		std::vector<SceneObject*> subChildren = sceneObject->getChildren();
-		children.erase(std::remove_if(children.begin(), children.end(), [sceneObject](SceneObject * child) { return sceneObject == child; }), children.end());
-		for(auto subChild : subChildren) {
-			children.push_back(subChild);
-		}
-	}
+	children.erase(std::remove_if(children.begin(), children.end(), [sceneObject](SceneObject * child) { return sceneObject == child; }), children.end());
 
-	sceneObject->dispose();
-	delete sceneObject;
+	callUpdateTree();
+}
+
+void SceneObject::removeAllChildren() {
+	children.clear();
 	callUpdateTree();
 }
 
@@ -76,14 +67,6 @@ std::string SceneObject::getId() const
 void SceneObject::setId(std::string id)
 {
 	this->id = id;
-}
-
-void SceneObject::dispose() {
-	for(int i = 0; i < children.size(); i++) {
-		children[i]->dispose();
-		delete children[i];
-	}
-	children.clear();
 }
 
 Transform SceneObject::getWorldTransform() const {

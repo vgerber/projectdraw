@@ -25,6 +25,8 @@ public:
 	///get shader for shadow mapping 
 	Shader getShaderShadow();
 
+	virtual void dispose() = 0;
+
 protected:
 	Shader shaderShadow;
 };

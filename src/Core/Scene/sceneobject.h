@@ -45,7 +45,9 @@ public:
 	 * @param sceneObject SceneObject which will be removed
 	 * @param full True if all childs from the target will be removed too
 	 */
-	void removeChild(SceneObject * sceneObject, bool full = true);
+	void removeChild(SceneObject * sceneObject);
+
+	void removeAllChildren();
 
 	/**
 	 * @brief Get the object id
@@ -53,13 +55,6 @@ public:
 	 * @return std::string 
 	 */
 	std::string getId() const;
-
-	/**
-	 * @brief frees allocated memory
-	 * 
-	 * Don't dispose shared objects or this operation will lead to nullpts in other objects
-	 */
-	virtual void dispose();
 
 	/**
 	 * @brief Set the object id
