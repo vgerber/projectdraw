@@ -130,6 +130,22 @@ void Scene::addSubScene(AbstractRenderer & renderer, Size size)
 	subScenes.push_back(SubScene(renderer, size, getWidth(), getHeight()));
 }
 
+void Scene::resizeSubScene(AbstractRenderer & renderer, Size size) {
+	for(auto subScene : subScenes) {
+		if(subScene.renderer == &renderer) {
+			subScene.resizeFrame(size);
+		}
+	}
+}
+
+Size Scene::getSubSceneFrameSize(AbstractRenderer & renderer) {
+	for(auto subScene : subScenes) {
+		if(subScene.renderer == &renderer) {
+			return subScene.getFrame();
+		}
+	}
+}
+
 void Scene::setHUD(HUD & hud)
 {
 	this->hud = &hud;

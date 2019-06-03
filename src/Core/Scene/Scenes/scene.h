@@ -86,9 +86,25 @@ public:
 	 * @brief Adds a renderer (subscene) to the draw loop
 	 * 
 	 * @param renderer 
-	 * @param size 
+	 * @param size pos (-1,-1) - (1,1) // size (0,0) - (1,1)
 	 */
 	virtual void addSubScene(AbstractRenderer & renderer, Size size);
+
+	/**
+	 * @brief Resize @ref SubScene frame to new size
+	 * 
+	 * @param renderer 
+	 * @param size pos (-1,-1) - (1,1) // size (0,0) - (1,1)
+	 */
+	virtual void resizeSubScene(AbstractRenderer & renderer, Size size);
+
+	/**
+	 * @brief Get the @ref SubScene frame size
+	 * 
+	 * @param renderer 
+	 * @return Size 
+	 */
+	virtual Size getSubSceneFrameSize(AbstractRenderer & renderer);
 
 	/**
 	 * @brief Set heads up display for scene

@@ -945,7 +945,6 @@ void DeferredRenderer::updateSceneObjectTree(SceneObject * sceneObject) {
 		}
 	}
 	if(targetSceneObject) {
-		printf("Target found!\n");
 		//remove removed children
 		for(int targetChildIndex = 0; targetChildIndex < targetSceneObject->children.size(); targetChildIndex++) {
 			RenderObject * targetChild = targetSceneObject->children[targetChildIndex];
