@@ -72,6 +72,11 @@ void FlatRenderer::setBackground(unsigned int texture)
 }
 
 void FlatRenderer::render() {
+	//don't render when width/height is to small
+	if(getWidth() <= 0 || getHeight() <= 0) {
+		return;
+	}
+	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	shaderMesh.use();

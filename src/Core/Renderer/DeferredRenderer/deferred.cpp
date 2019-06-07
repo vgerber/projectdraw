@@ -14,6 +14,11 @@ void DeferredRenderer::clearScreen() {
 
 void DeferredRenderer::render()
 {
+	//don't render when width/height is to small
+	if(getWidth() <= 0 || getHeight() <= 0) {
+		return;
+	}
+
 	glEnable(GL_CULL_FACE);
 
 	glViewport(0, 0, getWidth(), getHeight());

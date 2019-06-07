@@ -75,6 +75,11 @@ void ForwardRenderer::clearScreen() {
 }
 
 void ForwardRenderer::render() {
+	//don't render when width/height is to small
+	if(getWidth() <= 0 || getHeight() <= 0) {
+		return;
+	}
+
 	glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
 
 	if(!directionalLight) {

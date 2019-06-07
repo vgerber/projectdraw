@@ -24,6 +24,11 @@ void Scene::draw(float delta)
 	int width = getWidth();
 	int height = getHeight();
 
+	//prevent drawing when size is to small
+	if(width <= 0 || height <= 0) {
+		return;
+	}
+
 	glDisable(GL_CULL_FACE);
 
 	GLcheckError();
