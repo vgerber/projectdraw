@@ -1,0 +1,13 @@
+{
+  "dependencies": [
+    "assimp",
+    "bullet3",
+    "freetype",
+    "glew",
+    "glm",
+    "opengl",
+    "sfml",
+    "stb",
+    "ffmpeg"
+  ]
+}

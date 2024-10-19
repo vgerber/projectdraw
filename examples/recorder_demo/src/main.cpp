@@ -1,50 +1,51 @@
-//#define GLEW_STATIC
+// #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <Core/Scene/Scenes/imgscene.h>
 #include <Core/common.h>
-#include <Core/Scene/Texture/texscene.h>
 #include <Recorder/glrecorder.h>
 
 #include <stdio.h>
 
-#include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
+#include <SFML/Window.hpp>
 
-#define WIDTH  800
-#define HEIGHT  600
+#define WIDTH 800
+#define HEIGHT 600
 
 int main() {
 
-	sf::Window window(sf::VideoMode(WIDTH, HEIGHT), "My Window");
-	initCore();
+  sf::Window window(sf::VideoMode(WIDTH, HEIGHT), "My Window");
+  initCore();
 
-	//startRecording("tmp.mpg", AV_CODEC_ID_MPEG1VIDEO, 25);
+  // startRecording("tmp.mpg", AV_CODEC_ID_MPEG1VIDEO, 25);
 
-	GLRecorder recorder("gl_tmp.mpg", WIDTH, HEIGHT);
+  GLRecorder recorder("gl_tmp.mpg", WIDTH, HEIGHT);
 
-	TextureScene scene(WIDTH, HEIGHT);
+  ImageScene scene(WIDTH, HEIGHT);
 
-	Texture testTex("C:/Users/Vincent/Documents/Projects/C++/projectdraw_slim/examples/texture_demo/assets/dennis.png");
-	scene.setTexture(&testTex);
+  Texture testTex("/home/vincent/Development/Cpp/projectdraw/examples/"
+                  "texture_demo/assets/Dennis.png");
+  scene.addTexture(testTex);
 
-	while (window.isOpen()) {
+  while (window.isOpen()) {
 
-		sf::Event e;
-		while (window.pollEvent(e)) {
-			if (e.type == sf::Event::Closed) {
-				window.close();
-			}
-		}
-		scene.draw(1.0f);
-		window.display();
+    sf::Event e;
+    while (window.pollEvent(e)) {
+      if (e.type == sf::Event::Closed) {
+        window.close();
+      }
+    }
+    scene.draw(1.0f);
+    window.display();
 
-		//readGLPixels(&rgb, &pixels);
-		//encodeFrame(rgb);
-		//nframes++;
-		recorder.captureFrame();
-	}
-	//endRecording();
-	recorder.finish();
+    // readGLPixels(&rgb, &pixels);
+    // encodeFrame(rgb);
+    // nframes++;
+    recorder.captureFrame();
+  }
+  // endRecording();
+  recorder.finish();
 
-	return 0;
+  return 0;
 }

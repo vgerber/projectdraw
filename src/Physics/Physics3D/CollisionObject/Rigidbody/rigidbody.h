@@ -1,79 +1,75 @@
 #pragma once
 
-
 #include "Core/Scene/drawable.h"
 
-#include "../collisionobject.h"
 #include "../../Collision/Shapes/cshape.h"
+#include "../collisionobject.h"
 
-typedef  unsigned int (uint);
+typedef unsigned int(uint);
 
-enum RigidType
-{
-	STATIC,
-	KINEMAITC,
-	DYNAMIC
-};
+enum RigidType { STATIC, KINEMATIC, DYNAMIC };
 
 class RigidBody : public CollisionObject {
 public:
-    bool visibleAABB = false;
+  bool visibleAABB = false;
 
-    RigidBody();
-    RigidBody(collision::CollisionShape shape, float mass, RigidType type);
+  RigidBody();
+  RigidBody(collision::CollisionShape shape, float mass, RigidType type);
 
-	void update() override;
+  void update() override;
 
-	void linkDrawable(Drawable &drawable);
+  void linkDrawable(Drawable &drawable);
 
-	void refreshBody();
-	void refreshDrawable();
+  void refreshBody();
+  void refreshDrawable();
 
+  void dispose();
 
-	void dispose();
+  // Rigidbody manipulators
 
-	//Rigidbody manipulators
+  void setDamping(float linear, float angular);
+  void setRestitution(float restitution);
 
-	void setDamping(float linear, float angular);
-	void setRestitution(float restitution);
+  // instant
+  void applyImpulse(glm::vec3 impulse,
+                    glm::vec3 relativePosition = glm::vec3(0.0f));
+  // time based
+  void applyForce(glm::vec3 force,
+                  glm::vec3 relativePosition = glm::vec3(0.0f));
+  // lock/control displacement for certain directions
+  void setLinearFactor(glm::vec3 factor);
+  // lock/control rotating for certain axis
+  void setAngularFactor(glm::vec3 factor);
 
-	//instant
-	void applyImpulse(glm::vec3 impulse, glm::vec3 relativePosition = glm::vec3(0.0f));
-	//time based 
-	void applyForce(glm::vec3 force, glm::vec3 relativePosition = glm::vec3(0.0f));
-	//lock/control displacement for certain directions
-	void setLinearFactor(glm::vec3 factor);
-	//lock/control rotating for certain axis
-	void setAngularFactor(glm::vec3 factor);
+  float getLinearDamping();
+  float getAngularDamping();
 
-	float getLinearDamping();
-	float getAngularDamping();
+  float getRestitution();
 
-	float getRestitution();
-	
-	glm::vec3 getLinearFactor();
-	glm::vec3 getAngularFactor();
+  glm::vec3 getLinearFactor();
+  glm::vec3 getAngularFactor();
 
-	glm::vec3 getLinearVelocity();
-	glm::vec3 getAngularVelocity();
+  glm::vec3 getLinearVelocity();
+  glm::vec3 getAngularVelocity();
 
+  RigidType getRigidType();
 
-	RigidType getRigidType();
+  btCollisionObject *getCollisionObjectHandle() override;
+  Drawable *getDrawable();
 
-	btCollisionObject * getCollisionObjectHandle() override;
-	Drawable* getDrawable();
+  Transform getWorldTransform() override;
 
-	Transform getWorldTransform() override;
 protected:
-	glm::vec3 oldScale;
-	RigidType rType;
-    collision::CollisionShape *shape = nullptr;
-	Drawable* drawable = nullptr;
+  glm::vec3 oldScale;
+  RigidType rType;
+  collision::CollisionShape *shape = nullptr;
+  Drawable *drawable = nullptr;
 
-	void scaleShape(glm::vec3 scale);
+  void scaleShape(glm::vec3 scale);
 
-	virtual void transformChanged() override;
+  virtual void transformChanged() override;
+
 private:
-	///pointing to collisionObject member (reduce cast calls)
-	btRigidBody * rigidBody = nullptr;
+  /// pointing to collisionObject member (reduce cast calls)
+  btRigidBody *rigidBody = nullptr;
 };

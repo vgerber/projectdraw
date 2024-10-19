@@ -6,3 +6,4 @@ doc
 *.log
 *.sh
 cmake/modules
+CMakeUserPresets.json

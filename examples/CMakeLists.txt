@@ -1,0 +1,6 @@
+add_subdirectory(2d_demo)
+add_subdirectory(3d_demo)
+add_subdirectory(texture_demo)
+add_subdirectory(recorder_demo)
+add_subdirectory(physics3d_example)
+add_subdirectory(playground)
