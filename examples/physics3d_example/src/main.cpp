@@ -37,7 +37,7 @@ int main() {
 
   PerspectiveCamera freeCamera;
   freeCamera.setClipping(freeCamera.getClippingNear(), 120.0f);
-  freeCamera.translate(glm::vec3(-20.0f, 0.0f, 10.0f));
+  freeCamera.translate(glm::vec3(-20.0f, -50.0f, 10.0f));
   freeCamera.setForward(glm::vec3(0.0f, 0.0f, 0.0f) - freeCamera.getPosition());
 
   ForwardRenderer renderer(WIDTH, HEIGHT, freeCamera);
@@ -142,6 +142,25 @@ int main() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
       rGroundBody.translate(ground.getPosition() +
                             glm::vec3(0.0f, 0.0f, 5.0f * deltaTimeMilli));
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+      freeCamera.translate(freeCamera.getPosition() +
+                           glm::vec3(5.0f * deltaTimeMilli, 0.0f, 0));
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+      freeCamera.translate(freeCamera.getPosition() +
+                           glm::vec3(-5.0f * deltaTimeMilli, 0.0f, 0));
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+      freeCamera.translate(freeCamera.getPosition() +
+                           glm::vec3(0.0f, 5.0f * deltaTimeMilli, 0));
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+      freeCamera.translate(freeCamera.getPosition() +
+                           glm::vec3(0.0f, -5.0f * deltaTimeMilli, 0));
     }
 
     RaycastHitResult hitResult = physicsWorld.rayCastAll(
