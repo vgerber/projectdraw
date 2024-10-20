@@ -4,9 +4,16 @@ GhostObject::GhostObject() {
 
 }
 
-void GhostObject::setShape(btCollisionShape* shape) {
+void GhostObject::setShape(collision::CollisionShape &cshape) {
     if(!ghostObject) {
         ghostObject = new btGhostObject();
     }
-    ghostObject->setCollisionShape(shape);
+    ghostObject->setCollisionShape(cshape.getShape());
+	this->chsape = &cshape;
 }
+
+btGhostObject * GhostObject::getPtr()
+{
+	return ghostObject;
+}
+

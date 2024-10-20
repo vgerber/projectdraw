@@ -13,7 +13,7 @@ void ParticleGenerator::draw(Shader shader) {
 void ParticleGenerator::draw()
 {
 	std::vector<glm::mat4> matrices = instancer->getModelMatrices();
-	for (int i = 0; i < particles.size(); i++) {
+	for (size_t i = 0; i < particles.size(); i++) {
 		Particle part = particles[i];
 		if (part.alive) {
 			drawableParticle.setPosition(part.position);

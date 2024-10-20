@@ -38,7 +38,7 @@ void main() {
 	vec3 Normal = texture(gNormal, TexCoords).rgb;
 	vec3 FragPos = texture(gPosition, TexCoords).rgb;
 	vec3 Color = texture(gAlbedo, TexCoords).rgb;
-	vec3 prevColor = texture(prevTexture, TexCoords).rgb;
+	vec4 prevColor = texture(prevTexture, TexCoords).rgba;
 	vec3 viewDir = normalize(viewPos - FragPos);    
 	float UseLight = texture(gOption1, TexCoords).r;     
 	float Depth = texture(gOption1, TexCoords).g;	
@@ -51,6 +51,6 @@ void main() {
 				result += CalcSpotLight(spotLight[i], Normal, FragPos, viewDir, Color) * spotLight[i].intensity;
 			}
 		}
-		color += vec4(result.rgb, 1.0);
+		color += vec4(result.rgb, 0.0);
 	}
 }

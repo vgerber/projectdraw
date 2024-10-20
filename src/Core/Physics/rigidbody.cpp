@@ -39,6 +39,7 @@ RigidBody::RigidBody(collision::CollisionShape shape, glm::vec3 center, glm::vec
 	
 	glGenVertexArrays(1, &aabbVAO);
 	glGenBuffers(1, &aabbVBO);		
+
 }
 
 void RigidBody::setDrawable(Drawable &drawable)
@@ -57,17 +58,20 @@ void RigidBody::setDrawable(Drawable &drawable)
 
 void RigidBody::syncBody()
 {
-	btTransform transform;
-	glm::vec3 center = drawable->getPositionCenter();
-	glm::vec3 rotation = drawable->getRotation();
+	if (drawable) {
+		btTransform transform;
+		glm::vec3 center = drawable->getPositionCenter();
+		glm::vec3 rotation = drawable->getRotation();
 
-	scaleShape(drawable->getScale());
+		scaleShape(drawable->getScale());
 
-	transform.setIdentity();
-	transform.setOrigin(btVector3(center.x, center.y, center.z));
-	transform.setRotation(btQuaternion(rotation.y, rotation.x, rotation.z));
-	rigidBody->setWorldTransform(transform);	
-	rigidBody->getMotionState()->setWorldTransform(transform);
+		transform.setIdentity();
+		transform.setOrigin(btVector3(center.x, center.y, center.z));
+		transform.setRotation(btQuaternion(rotation.y, rotation.x, rotation.z));
+		rigidBody->setWorldTransform(transform);
+		rigidBody->getMotionState()->setWorldTransform(transform);
+		
+	}
 }
 
 void RigidBody::syncDrawable()
@@ -77,10 +81,12 @@ void RigidBody::syncDrawable()
 		drawable->setCenter(glm::vec3(0.5f, 0.5f, 0.5f));
 		
 		transform = rigidBody->getWorldTransform();
-		glm::vec3 position = toVec3(transform.getOrigin());
-		if(rType != RigidType::DYNAMIC)
-			transform.setOrigin(transform.getOrigin() + btVector3(drawable->getSize().width, drawable->getSize().height, drawable->getSize().depth) * btVector3(0.5f, 0.5f, 0.5f));
-		position = toVec3(transform.getOrigin());
+		if (drawable->getScale().x > 1.0) {
+			glm::vec3 position = toVec3(transform.getOrigin());
+		}
+		//if(rType == RigidType::STATIC)
+		//	transform.setOrigin(transform.getOrigin() + btVector3(drawable->getSize().width, drawable->getSize().height, drawable->getSize().depth) * btVector3(0.5f, 0.5f, 0.5f));
+		//position = toVec3(transform.getOrigin());
 		drawable->transform(transform);
 	}
 }

@@ -45,6 +45,23 @@ void BulletDebugDrawer::setDebugMode(int debugMode) {
     m_debugMode = debugMode;
 }
 
+int BulletDebugDrawer::getDebugMode() const
+{
+	return m_debugMode;
+}
+
+void BulletDebugDrawer::drawTriangle(const btVector3 & v0, const btVector3 & v1, const btVector3 & v2, const btVector3 & color, btScalar alpha)
+{
+	drawLine(v0, v1, color);
+	drawLine(v0, v2, color);
+	drawLine(v1, v2, color);
+}
+
+void BulletDebugDrawer::drawTriangle(const btVector3 & v0, const btVector3 & v1, const btVector3 & v2, const btVector3 &, const btVector3 &, const btVector3 &, const btVector3 & color, btScalar alpha)
+{
+	drawTriangle(v0, v1, v2, color, alpha);
+}
+
 void BulletDebugDrawer::clear() {
     m_lineGeometry.clear();
     m_pointGeometry.clear();

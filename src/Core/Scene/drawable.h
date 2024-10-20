@@ -1,9 +1,5 @@
 #pragma once
 
-
-
-
-
 #include "sceneobject.h"
 #include "../Model/model.h"
 #include "../Model/box.h"
@@ -53,7 +49,6 @@ public:
 
 	DrawableInfo settings;
 
-	
 
 	virtual void dispose();
 	virtual void draw();
@@ -65,34 +60,15 @@ public:
 	virtual void setModel(Model model);
 	virtual void setShader(Shader shader);
 
-
-
 	
-	Size getAABBBox();				   
-
-
+	Size getAABBBox();	
 	
 	void setCenter(glm::vec3 center) override;
 	void setCenterInWorld(glm::vec3 point) override;
 
 
-
-	
-	
-
-	
-	
-
-	
-	
-
-
-
-
 	Model getModel();
 	Model* getModelPtr();
-	
-
 	
 	unsigned int getDimension();
 protected:

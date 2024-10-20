@@ -6,8 +6,6 @@
 #include "CollisionShapes/cshape.h"
 #include "../Scene/drawable.h"
 
-#include <map>
-
 typedef  unsigned int (uint);
 
 enum RigidType

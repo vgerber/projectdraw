@@ -42,7 +42,7 @@ float ShadowDirCalculation(DirLight light, vec4 fragPosLightSpace, float depth, 
 void main() {
 	vec3 Normal = texture(gNormal, TexCoords).rgb;
 	vec3 FragPos = texture(gPosition, TexCoords).rgb;
-	vec3 Color = texture(gAlbedo, TexCoords).rgb;
+	vec4 Color = texture(gAlbedo, TexCoords).rgba;
 	vec3 viewDir = normalize(viewPos - FragPos);    
 	float UseLight = texture(gOption1, TexCoords).r;     
 	float Depth = texture(gOption1, TexCoords).g;
@@ -56,15 +56,15 @@ void main() {
 
 	if(UseLight == 1.0) {
 		vec3 result = vec3(0.0);
-		result += CalcDirLight(dirLight, Normal, viewDir, FragPos, Depth, Color) * dirLight.intensity;		
+		result += CalcDirLight(dirLight, Normal, viewDir, FragPos, Depth, Color.rgb) * dirLight.intensity;		
 		
 		//gamma correction
 		//float gamma = 1.2;
 		//result.rgb = pow(result, vec3(1.0 / gamma));
 
-		color = vec4(result.rgb + Bloom * 40, 1.0);
+		color = vec4(result.rgb + Bloom * 40, Color.a);
 	}
 	else {
-		color = vec4(Color.rgb + Bloom * 40, 1.0);
+		color = vec4(Color.rgb + Bloom * 40, Color.a);
 	}	
 }

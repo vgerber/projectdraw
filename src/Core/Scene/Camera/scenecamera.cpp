@@ -28,7 +28,7 @@ Geometry SceneCamera::getDebugViewFrustum(int splits) {
 	geoCam.settings.drawType = DrawType::LINEG;
 
 
-	for (int i = 0; i < viewF.splits.size(); i++) {
+	for (size_t i = 0; i < viewF.splits.size(); i++) {
 		std::vector<glm::vec3> corners = viewF.splits[i];
 
 		geoCam.line(corners[0], corners[1]);
@@ -49,8 +49,10 @@ Geometry SceneCamera::getDebugViewFrustum(int splits) {
 }
 
 void SceneCamera::clear() {	
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void SceneCamera::endDrawing()

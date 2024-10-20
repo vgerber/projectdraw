@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include "Core/common.h"
+#include "Core/Scene/UI/uiscene.h"
 
 #ifdef _WIN32
 std::string path_obj_mountain = "C:/Users/Vincent/Documents/Projects/Blender/TriFace/basic_mountain.obj";
@@ -47,7 +48,7 @@ int main() {
 
 	Size windowSize = window.getSize();
 
-	init_core();
+	initCore();
 		
 
 	std::vector<std::string> skybox_faces;
@@ -70,8 +71,8 @@ int main() {
 	testCamera.NearZ = 0.1f;
 	testCamera.Height = 200 * (windowSize.height / windowSize.width);
 	testCamera.Width = 200;
-
-	overlayCamera = OrthographicCamera(glm::vec3(0.01f, 0.01f, 0.01f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+	
+	overlayCamera = OrthographicCamera(glm::vec3(0.0f, 0.0f, -10.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 	overlayCamera.FarZ = 10.0f;
 	overlayCamera.NearZ = 0.0f;
 	overlayCamera.Height = 200 * (windowSize.height / windowSize.width);
@@ -88,7 +89,7 @@ int main() {
 	DirectionalLight dLight = DirectionalLight();
 	//dLight.direction = glm::vec3(-2.0f, -2.0f, -2.0f);
 	dLight.ambient = glm::vec3(0.3f, 0.3f, 0.3f);
-	dLight.diffuse = glm::vec3(1.0f, 0.7f, 0.5f);
+	dLight.diffuse = glm::vec3(1.0f, 0.9f, 0.7f);
 	dLight.specular = dLight.diffuse;
 	dLight.intensity = .3f;
 	dLight.change_direction(glm::vec3(-1.0f, -0.4f, -1.0f));
@@ -137,9 +138,9 @@ int main() {
 	// TEXT FreeType
 	//
 	Text text_fps(Loader::GetPath("/Fonts/VeraMono.ttf").c_str(), 60);
-	Shaders[SHADER_FONT].use();
+	//Shaders[SHADER_FONT].use();
 	text_fps.scale(0.01f, 0.01f, 0.01f);
-	glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_FONT].getId(), "model"), 1, GL_FALSE, glm::value_ptr(text_fps.getModelMatrix()));
+	//glUniformMatrix4fv(glGetUniformLocation(Shaders[SHADER_FONT].getId(), "model"), 1, GL_FALSE, glm::value_ptr(text_fps.getModelMatrix()));
 
 	//
 	// 
@@ -149,15 +150,29 @@ int main() {
 	Scene scene_main(windowSize.width, windowSize.height);
 	mainScenePtr = &scene_main;
 
+	OrthographicCamera camera(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	camera.FarZ = 200.0f;
+	camera.NearZ = -2.0f;
+	camera.Width = 100;
+	camera.Height = (windowSize.height / windowSize.width) * 100.0f;
+	camera.setPosition(glm::vec3(0.0f, 0.0f, -100.0f));
+
+	
+	
+
 
 	Size camSize{ -1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f };
 	scene_main.addCamera(mainCamera, camSize);
-	//camSize = { -1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f };
+	camSize = { 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f };
 	scene_main.addCamera(testCamera, camSize);
+	camSize = { -1.0f, -1.0f, 0.0f, 2.0f, 2.0f, 0.0f };
+	scene_main.addCamera(camera, camSize);
+	scene_main.enableCamera(camera, false);
+
 	SceneCameraConfig testCamConfig = scene_main.getCameraConfig(testCamera);
 	testCamConfig.dLightVisible = false;
 	testCamConfig.pLightVisible = false;
-	testCamConfig.slightVisible = false;
+	testCamConfig.sLightVisible = false;
 	testCamConfig.ParticleVisible = false;
 	scene_main.configureCamera(testCamera, testCamConfig);
 
@@ -199,8 +214,8 @@ int main() {
 	test_obj.settings.boxVisible =  false;
 	test_obj.settings.drawType = DrawType::TRIANGLEG;
 
-	pLightLeft.setModel(primitives::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
-	pLightRight.setModel(primitives::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
+	pLightLeft.setModel(primitives::generateQuad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
+	pLightRight.setModel(primitives::generateQuad(0.5f, 0.5f, 0.5f, glm::vec4(0.8f)));
 	pLight2.setModel(pLightLeft.getModel());
 
 	//cube.scaleToSize(size_medium);
@@ -242,7 +257,7 @@ int main() {
 
 	//Instancing 
 	
-	Model instancerModel = primitives::generate_quad(0.5f, 0.5f, 0.5f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
+	Model instancerModel = primitives::generateQuad(0.5f, 0.5f, 0.5f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
 	Instancer instancer(instancerModel, 100);
 
 	for (int i = 0; i < instancer.getModelMatrices().size(); i++) {
@@ -260,9 +275,14 @@ int main() {
 
 
 	Drawable test_rect = Drawable();
-	test_rect.setModel(primitives::generateCircle(1.0f, 10.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+	test_rect.setModel(primitives::generateCone(1.0f, 1.0f, 10.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 	test_rect.setPosition(glm::vec3(0.0f, 5.0f, -2.0f));
 	
+	Drawable cone;
+	cone.setModel(primitives::generateCone(1.0f, 1.0f, 8.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+	cone.setPosition(glm::vec3(10.0f, 0.0f, 10.0f));
+	scene_main.addDrawable(cone);
+
 	test_rect.settings.drawType = DrawType::TRIANGLEG;
 	scene_main.addDrawable(test_rect);
 
@@ -271,10 +291,7 @@ int main() {
 	scene_main.addDrawable(*carTrace);
 
 
-	scene_main.addDrawable(text_fps);
-	text_fps.rotate(glm::radians(glm::vec3(0.0f, 90.0f, 0.0f)));
-	text_fps.setColor(1.0f, 1.0f, 0.1f, 1.0f);
-	text_fps.setPosition(glm::vec3(-1.0f, 1.0f, -2.0f));
+
 
 
 	Text text_description = Text(Loader::GetPath("/Fonts/VeraMono.ttf").c_str(), 60);
@@ -298,7 +315,7 @@ int main() {
 					static_cast<float>(rand() / static_cast<float>(RAND_MAX)), 
 					static_cast<float>(rand() / static_cast<float>(RAND_MAX)), 
 					1.0f);
-				cube.setModel(primitives::generate_quad(1.f, 1.0f, 1.0f, cubeColor));
+				cube.setModel(primitives::generateQuad(1.f, 1.0f, 1.0f, cubeColor));
 				cube.setPosition(cubes_position + glm::vec3(x * 1.0f, y * 1.0f, z * 1.0f));
 				cubes.push_back(new Drawable(cube));
 				scene_main.addDrawable(*cubes[cubes.size()-1]);
@@ -308,16 +325,16 @@ int main() {
 
 
 	Drawable borderGround = Drawable();
-	borderGround.setModel(primitives::generate_quad(500.0f, 5.0f, 500.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderGround.setModel(primitives::generateQuad(500.0f, 5.0f, 500.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	Size sizeGround = borderGround.getSize();
 	GLfloat heightScale = 2.0f;
 
 	Drawable borderAnchor, borderBack, borderFront, borderLeft, borderRight;
-	borderBack.setModel(primitives::generate_quad(sizeGround.width + 6.0f, sizeGround.height * heightScale, 5.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderFront.setModel(primitives::generate_quad(sizeGround.width + 6.0f, sizeGround.height * heightScale, 5.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderLeft.setModel(primitives::generate_quad(5.0f , sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	borderRight.setModel(primitives::generate_quad(5.0f, sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderBack.setModel(primitives::generateQuad(sizeGround.width + 6.0f, sizeGround.height * heightScale, 5.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderFront.setModel(primitives::generateQuad(sizeGround.width + 6.0f, sizeGround.height * heightScale, 5.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderLeft.setModel(primitives::generateQuad(5.0f , sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	borderRight.setModel(primitives::generateQuad(5.0f, sizeGround.height * heightScale, sizeGround.depth, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
 
 	scene_main.addDrawable(borderGround);
 	scene_main.addDrawable(borderBack);
@@ -341,13 +358,13 @@ int main() {
 	carChassis.settings.xrayColor = glm::vec4(1.0f, 0.1f, 0.0f, 1.0f);
 	carChassis.settings.outlineVisible = true;
 	carChassis.settings.outlineThickness = 0.1f;
-	carChassis.setModel(primitives::generate_quad(4.0f, 2.0f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 0.7f)));
+	carChassis.setModel(primitives::generateQuad(4.0f, 2.0f, 7.0f, glm::vec4(0.1f, 0.3f, 0.8f, 0.7f)));
 	carChassis.setPositionCenter(carAnchor.getPositionCenter());
 
 	std::vector<Drawable*> carWheels;
 	for (int i = 0; i < 4; i++) {
 		Drawable *wheel = new Drawable();
-		wheel->setModel(primitives::generate_quad(carWheelThickness, 0.5, 0.5, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)));
+		wheel->setModel(primitives::generateQuad(carWheelThickness, 0.5, 0.5, glm::vec4(0.1f, 0.1f, 0.1f, 1.0f)));
 		carWheels.push_back(wheel);
 	}
 
@@ -361,9 +378,7 @@ int main() {
 		carWheels[3]->setPositionCenter(glm::vec3(carCenter.x - (carSize.width * 0.5f + carWheelThickness * 0.5f), carCenter.y - carSize.height * 0.5f, carCenter.z - carSize.depth * 0.3f));
 	}
 
-	text_fps.setPositionCenter(carChassis.getPositionCenter() + glm::vec3(0.0f, 2.0f, 0.0f));
-	text_fps.setCenterInWorld(carChassis.getPositionCenter());
-	text_fps.settings.boxVisible = true;
+
 
 	pLightLeft.setPosition(carChassis.getPositionCenter() + glm::vec3(-carChassis.getSize().width * 0.5f + 0.25, carChassis.getSize().height * 0.5f, -carChassis.getSize().depth * 0.3f));
 	pLightLeft.setCenterInWorld(carChassis.getPositionCenter());
@@ -400,37 +415,14 @@ int main() {
 		scene_main.addDrawable(*wheel);
 	}
 
-
-
-
-	//depth
-	glEnable(GL_DEPTH_TEST);	
-	glDepthFunc(GL_LESS);
-
-
-
-	glEnable(GL_CULL_FACE);
 	
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	//glEnable(GL_MULTISAMPLE);
-
-	glEnable(GL_FRAMEBUFFER_SRGB);
-
-	
-	glEnable(GL_LINE_SMOOTH);
-	
-	//glEnable(GL_LINE_STIPPLE);	
-	//glLineStipple(1, 0xAAAA);
 
 	carTrace->settings.drawType = DrawType::LINEG;
 	carTrace->lineThickness = 3;
 
 	//cube.setPosition(glm::vec3(0.0f, 3.0f, 0.0f));
 	
-	//compensation log db exam?
 
 	std::vector<RigidBody*> rigidBodys;
 
@@ -452,9 +444,7 @@ int main() {
 
 
 	//cube.setPositionCenter(glm::vec3(0.0f, 10.0f, 10.0f));
-	//cube.rotate(glm::radians(glm::vec3(40.0f, 40.0f, 40.0f)));
-
-	text_fps.setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+	//cube.rotate(glm::radians(glm::vec3(40.0f, 40.0f, 40.0
 	//add borderGround as borderGround plane
 	collision::CollisionShape borderGroundShape(collision::generateCube(borderGround.getSize()));
 	collision::CollisionShape borderFrontShape(collision::generateCube(borderFront.getSize()));
@@ -489,17 +479,19 @@ int main() {
 
 		collision::CollisionShape borderCompoundShape(borderCompound);
 
-		RigidBody rbody(borderCompoundShape, borderAnchor.getPositionCenter(), borderAnchor.getRotation(), 0.0f);
+
+		RigidBody rbody(borderCompoundShape, borderAnchor.getPositionCenter(), borderAnchor.getRotation(), 0.0f, true);
 		rbody.getBody()->setFriction(btScalar(1.0f));
 		rbody.setDrawable(borderAnchor);
-		rbody.getBody()->setCollisionFlags(rbody.getBody()->getCollisionFlags() | btRigidBody::CF_KINEMATIC_OBJECT);
-		rbody.getBody()->setActivationState(DISABLE_DEACTIVATION);
+		//rbody.getBody()->setCollisionFlags(rbody.getBody()->getCollisionFlags() | btRigidBody::CF_KINEMATIC_OBJECT);
+		//rbody.getBody()->setActivationState(DISABLE_DEACTIVATION);
 		rbody.visibleAABB = false;
 		rigidBodys.push_back(new RigidBody(rbody));
 
 		borderAnchor.setPositionCenter(glm::vec3(0.0f, -sizeGround.height * 0.5f, 0.0f));
 		rbody.syncBody();
 
+		scene_main.addRigidBody(*rigidBodys[rigidBodys.size() - 1], 1, 3);
 	}
 
 	//set cube as sceond item
@@ -512,6 +504,7 @@ int main() {
 			rbodyCube.setDrawable(*cube);
 			rbodyCube.visibleAABB = false;
 			rigidBodys.push_back(new RigidBody(rbodyCube));
+			scene_main.addRigidBody(*rigidBodys[rigidBodys.size() - 1], 2, 3);
 		}
 	}
 
@@ -523,6 +516,7 @@ int main() {
 		RigidBody rbody(text_shape, test_rect.getPositionCenter(), test_rect.getRotation(), 100.0f);
 		rbody.setDrawable(test_rect);
 		rigidBodys.push_back(new RigidBody(rbody));
+		scene_main.addRigidBody(*rigidBodys[rigidBodys.size() - 1], 2, 3);
 	}
 
 	//set vehicle physics
@@ -573,6 +567,7 @@ int main() {
 		carAnchor.setPositionCenter(glm::vec3(0.0f, carChassis.getSize().height * 1.0f, 0.0f));
 		rbody.syncBody();
 
+		scene_main.addRigidBody(*rigidBodys[rigidBodys.size() - 1], 2, 3);
 	}
 
 	test_obj.scaleToHeight(100.0f);
@@ -582,6 +577,7 @@ int main() {
 		rbody.setDrawable(test_obj);
 		rbody.visibleAABB = true;
 		rigidBodys.push_back(new RigidBody(rbody));
+		scene_main.addRigidBody(*rigidBodys[rigidBodys.size() - 1], 1, 14);
 	}
 
 	
@@ -597,26 +593,78 @@ int main() {
 
 		testHeightField.setPositionCenter(glm::vec3(40.0f, 0.07f, 40.0f));
 		rbody.syncBody();
+		scene_main.addRigidBody(*rigidBodys[rigidBodys.size() - 1], 1, 14);
 	}
 	
 	
 	Scene sceneOverlay(windowSize.width, windowSize.height);
-	//sceneOverlay.addCamera(overlayCamera, camSize);
-/*
+	sceneOverlay.addCamera(overlayCamera, camSize);
+	overlayCamera.setPosition(glm::vec3(50.0f, 50.0f, 0.0f));
+
+	{
+		SceneCameraConfig config = sceneOverlay.getCameraConfig(overlayCamera);
+		config.dLightVisible = false;
+		config.pLightVisible = false;
+		config.sLightVisible = false;
+		sceneOverlay.configureCamera(overlayCamera, config);
+	}
+
 	Drawable overlayRect;
-	overlayRect.setModel(primitives::generateRectangle(50.0f, 50.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
-	overlayRect.setPositionCenter(glm::vec3(0.0f, 0.0f, -1.0f));
+	overlayRect.setModel(primitives::generateRectangle(50.0f, 15.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+	overlayRect.setPositionCenter(glm::vec3(-25.0f, 120.0f, -5.0f));
 
 	sceneOverlay.addDrawable(overlayRect);
-	*/
-
+	sceneOverlay.addDrawable(text_fps);
+	text_fps.setPosition(glm::vec3(-40.0f, 115.0f, 0.0f));
+	text_fps.rotate(0.0f, 0.0f, 0.0f);
+	text_fps.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+	text_fps.scale(0.2f, 0.2f, 0.3f);
+	
+	/*
 	for (auto body : rigidBodys) {
 		scene_main.addRigidBody((*body));
 	}
+	*/
+
+
+	Drawable testCubeD;
+	Drawable testCubeK;
+	Drawable testCubeS;
+
+	testCubeD.setModel(primitives::generateQuad(5.0f, 5.0f, 5.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+	testCubeK.setModel(primitives::generateQuad(5.0f, 5.0f, 5.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)));
+	testCubeS.setModel(primitives::generateQuad(5.0f, 5.0f, 5.0f, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)));
+	testCubeS.scale(2.0f, 2.0f, 2.0f);
+	testCubeS.setPositionCenter(glm::vec3(0.0f, 0.0f, 0.0f));
+
+	{
+		RigidBody rbody = RigidBody(collision::generateCube(testCubeD.getSize()), testCubeD.getPositionCenter(), glm::vec3(0.0f), 1000.0f);
+		rbody.setDrawable(testCubeD);
+		rigidBodys.push_back(new RigidBody(rbody));		
+		scene_main.addRigidBody(*rigidBodys[rigidBodys.size() - 1], 1, 7);
+	}
+
+	{
+		RigidBody rbody = RigidBody(collision::generateCube(testCubeD.getSize()), testCubeK.getPositionCenter(), glm::vec3(0.0f), 0.0f, true);
+		rbody.setDrawable(testCubeK);
+		rigidBodys.push_back(new RigidBody(rbody));		
+		scene_main.addRigidBody(*rigidBodys[rigidBodys.size() - 1], 1, 7);
+	}
+
+	{
+		RigidBody rbody = RigidBody(collision::generateCube(testCubeD.getSize()), testCubeS.getPositionCenter(), glm::vec3(0.0f), 0.0f);
+		//rbody.setDrawable(testCubeS);
+		rigidBodys.push_back(new RigidBody(rbody));		
+		scene_main.addRigidBody(*rigidBodys[rigidBodys.size() - 1], 1, 7);
+	}
+
+	scene_main.addDrawable(testCubeD);
+	scene_main.addDrawable(testCubeK);
+	scene_main.addDrawable(testCubeS);
 
 	Drawable particle;
-	particle.setModel(primitives::generate_quad(1.0f, 1.0f, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
-	ParticleGenerator pgTest(particle, 500);
+	particle.setModel(primitives::generateQuad(1.0f, 1.0f, 1.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f)));
+	ParticleGenerator pgTest(particle, 10);
 	scene_main.addDrawable(pgTest);
 	scene_main.addAnimatable(pgTest);
 
@@ -625,17 +673,21 @@ int main() {
 	sf::Clock clock;
 	GLfloat lastTime = 0.00f;
 	deltaTime = 0.0f;
+	float fpsDelay = 1.0f, fpsCounter = fpsDelay;
+
 	while (window.getWindow()->isOpen())
 	{
+		clearScreen(glm::vec4(dLight.diffuse, 1.0f));
+
 		if (sceneCamera == 0) {
 			scene_main.enableCamera(mainCamera, true);
 			scene_main.enableCamera(testCamera, false);
 		}
 		else {
-			scene_main.enableCamera(mainCamera, false);
+			scene_main.enableCamera(mainCamera, true);
 			scene_main.enableCamera(testCamera, true);
 		}
-
+		
 		lastTime = clock.getElapsedTime().asMilliseconds();
 		window.update();
 		
@@ -651,6 +703,7 @@ int main() {
 		}*/
 
 		scene_main.updatePhysics(deltaTime);
+		//sceneOverlay.updatePhysics(deltaTime);
 
 		//synchronize walls to ground
 		
@@ -680,6 +733,8 @@ int main() {
 		btVector3 rayStart = toBtVec3(camPos);
 		btVector3 rayEnd = toBtVec3(camPos + mouseRay.second.position * 2.0f * mainCamera.FarZ);
 		btCollisionWorld::ClosestRayResultCallback RayCallback(rayStart, rayEnd);
+		//RayCallback.m_collisionFilterMask = 3;
+		RayCallback.m_collisionFilterGroup = 2;
 		scene_main.getPhysicsWorld()->rayTest(rayStart, rayEnd, RayCallback);
 		if(RayCallback.hasHit()) {
 			RigidBody *rBody = nullptr;
@@ -698,9 +753,7 @@ int main() {
 		
 		pgTest.setPosition(carChassis.getPositionCenter() - testVehicle->getFront() * 4.0f);
 
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+		
 		
 		//pLight2.intensity = (sin(glfwGetTime()) * 0.5 + 0.5);    
 		//scene_main.draw(deltaTime);
@@ -732,11 +785,15 @@ int main() {
 			carDistanceLine.rotate(carChassis.getRotation());
 
 
-			text_fps.setPosition(carChassis.getPositionCenter() + glm::vec3(0.0f, 2.0f, 0.0f));
-			text_fps.rotate(carChassis.getRotation());
 			//text_fps.scaleToWidth(test_rect.getSize().width);
 			//text_fps.setText(std::to_string((int)abs(vehicle->getCurrentSpeedKmHour())) + " km/h");
-			text_fps.setText(std::to_string((int)(1.0f / deltaTime)));
+			if (fpsCounter <= 0.0f) {
+				text_fps.setText(std::to_string((int)(1.0f / deltaTime)));
+				fpsCounter = fpsDelay;
+			}
+			else {
+				fpsCounter -= deltaTime;
+			}
 
 
 			{
@@ -777,9 +834,10 @@ int main() {
 		}
 		
 
+
+
 		scene_main.draw(deltaTime);
-		//sceneOverlay.draw(deltaTime);
-		
+		sceneOverlay.draw(deltaTime);
 
 		window.getWindow()->display();
 		GLfloat currentTime = clock.getElapsedTime().asMilliseconds();
@@ -796,7 +854,7 @@ int main() {
 	}
 
 	scene_main.dispose();
-	sceneOverlay.dispose();
+	//sceneOverlay.dispose();
 
 	dLight.dispose();
 
@@ -939,7 +997,9 @@ void handle_key(Window &window) {
 			chassis->syncBody();
 			carTrace->clear();
 		}
-
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Comma)) {
+			mainScenePtr->renderMode = RenderMode::POINTR;
+		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
 			mainScenePtr->renderMode = RenderMode::LINER;
 		}

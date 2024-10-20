@@ -30,9 +30,9 @@ public:
 
 	Size getSize()					   override;
 	void scaleToSize(Size size)		   override;
-	void scaleToWidth(GLfloat width)   override;
-	void scaleToHeight(GLfloat height) override;
-	void scaleToLength(GLfloat depth)  override;
+	void scaleToWidth(float width)	   override;
+	void scaleToHeight(float height)   override;
+	void scaleToLength(float depth)    override;
 
 
 

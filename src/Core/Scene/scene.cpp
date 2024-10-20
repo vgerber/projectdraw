@@ -1,15 +1,21 @@
 #include "scene.h"
 
+int Scene::globalSceneId = 0;
+
 Scene::Scene()
 {
-	setup();
-	reload(width, height);
+	//setup();
+	//reload(width, height);
+	sceneID = globalSceneId;
+	globalSceneId++;
 }
 
 Scene::Scene(int width, int height)
 {
+	sceneID = globalSceneId;
+	globalSceneId++;
 	setup();
-	reload(width, height);
+	reload(width, height);	
 }
 
 Scene::~Scene()
@@ -21,10 +27,12 @@ void Scene::addDrawable(Drawable &drawable)
 	objects.push_back(&drawable);
 }
 
-void Scene::addRigidBody(RigidBody & rigidBody)
+//collision = (group1 & mask0) && (group0 & mask1)
+void Scene::addRigidBody(RigidBody & rigidBody, int group, int mask)
 {
 	rigidBodys.push_back(&rigidBody);
-	dynamicsWorld->addRigidBody(rigidBody.getBody());
+	dynamicsWorld->addRigidBody(rigidBody.getBody(), group , mask);
+	ResourceManager::storeRigidBody(rigidBody);
 }
 
 void Scene::addVehicle(Vehicle & vehicle)
@@ -55,7 +63,7 @@ void Scene::addInstancer(Instancer &instancer) {
 
 void Scene::removeDrawable(Drawable & drawable)
 {
-	for (int i = 0; i < objects.size(); i++) {
+	for (size_t i = 0; i < objects.size(); i++) {
 		if (objects[i] == &drawable) {
 			objects.erase(objects.begin() + i);
 			i--;
@@ -70,7 +78,7 @@ void Scene::removeRigidBody(RigidBody & rigidBody)
 
 void Scene::removeVehicle(Vehicle & vehicle)
 {
-	for (int i = 0; i < vehicles.size(); i++) {
+	for (size_t i = 0; i < vehicles.size(); i++) {
 		if (vehicles[i] == &vehicle) {
 			dynamicsWorld->removeVehicle(vehicle.getVehicle());
 			vehicles.erase(vehicles.begin() + i);
@@ -81,7 +89,7 @@ void Scene::removeVehicle(Vehicle & vehicle)
 
 void Scene::removeAnimatable(Animatable &animatable)
 {
-	for (int i = 0; i < animatables.size(); i++) {
+	for (size_t i = 0; i < animatables.size(); i++) {
 		if (animatables[i] == &animatable) {
 			animatables.erase(animatables.begin() + i);
 			i--;
@@ -91,7 +99,7 @@ void Scene::removeAnimatable(Animatable &animatable)
 
 void Scene::removeCamera(Camera & camera)
 {
-	for (int i = 0; i < cameras.size(); i++) {
+	for (size_t i = 0; i < cameras.size(); i++) {
 		if (cameras[i].camera == &camera) {
 			cameras.erase(cameras.begin() + i);
 			i--;
@@ -101,7 +109,7 @@ void Scene::removeCamera(Camera & camera)
 
 void Scene::enableCamera(Camera & camera, bool enable)
 {
-	for (int i = 0; i < cameras.size(); i++) {
+	for (size_t i = 0; i < cameras.size(); i++) {
 		if (cameras[i].camera == &camera) {
 			cameras[i].config.Active = enable;
 		}
@@ -110,7 +118,7 @@ void Scene::enableCamera(Camera & camera, bool enable)
 
 void Scene::configureCamera(Camera & camera, SceneCameraConfig config)
 {
-	for (int i = 0; i < cameras.size(); i++) {
+	for (size_t i = 0; i < cameras.size(); i++) {
 		if (cameras[i].camera == &camera) {
 			cameras[i].config = config;
 		}
@@ -119,7 +127,7 @@ void Scene::configureCamera(Camera & camera, SceneCameraConfig config)
 
 SceneCameraConfig Scene::getCameraConfig(Camera & camera)
 {
-	for (int i = 0; i < cameras.size(); i++) {
+	for (size_t i = 0; i < cameras.size(); i++) {
 		if (cameras[i].camera == &camera) {
 			return cameras[i].config;
 		}
@@ -159,21 +167,32 @@ void Scene::draw(GLfloat delta)
 	//	}
 	//}
 	
+	glUniformBlockBinding(Shaders[SHADER_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].getId(), "Matrices"), getSceneId());
+	glUniformBlockBinding(Shaders[SHADER_FONT].getId(), glGetUniformBlockIndex(Shaders[SHADER_FONT].getId(), "Matrices"), getSceneId());
+	glUniformBlockBinding(Shaders[SHADER_SKYBOX].getId(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].getId(), "Matrices"), getSceneId());
+	glUniformBlockBinding(Shaders[SHADER_DEFFERED_LIGHT].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_LIGHT].getId(), "Matrices"), getSceneId());
+	glUniformBlockBinding(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), "Matrices"), getSceneId());
+	glUniformBlockBinding(Shaders[SHADER_INSTANCING_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_INSTANCING_BASIC].getId(), "Matrices"), getSceneId());
+
+
 	//update animatables
 	for(auto animatable : animatables) {
 		animatable->update(delta);
 	}
 
+	int polygonMode = GL_FILL;
+	if (renderMode == RenderMode::POINTR)
+		polygonMode = GL_POINT;
+	else if (renderMode == RenderMode::LINER)
+		polygonMode = GL_LINE;
+
+	glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
+
 
 	for (auto &sceneCamera : cameras) {
 		std::sort(objects.begin(), objects.end(), SortDrawable(sceneCamera.camera->getPosition()));
 
-		if (renderMode == RenderMode::POINTR)
-			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-		if (renderMode == RenderMode::LINER)
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		else
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 
 		//only draw active cameras
 		if (!sceneCamera.config.Active) {
@@ -190,7 +209,7 @@ void Scene::draw(GLfloat delta)
 			}
 
 			//render csm directionLight
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			if (directionalLight)
 			{
 				Shader shader_depth = Shaders[SHADER_DEPTH];
@@ -230,8 +249,10 @@ void Scene::draw(GLfloat delta)
 
 		glBindFramebuffer(GL_FRAMEBUFFER, gBufferFBO);
 		glViewport(0, 0, width, height);
-		glClearColor(0.001f, 0.001f, 0.001f, 1.0f);
+
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 		glStencilMask(0x00);
 
 		//bind global camera matrices and properties
@@ -288,6 +309,14 @@ void Scene::draw(GLfloat delta)
 			}
 		}
 
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		bulletDebugDrawer.clear();
+		dynamicsWorld->debugDrawWorld();
+		bulletDebugDrawer.draw();
+		
+		glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
+
 
 		//draw aabb from drawables
 		shader_geometry.use();
@@ -304,7 +333,7 @@ void Scene::draw(GLfloat delta)
 		Shader blur = Shaders[SHADER_FILTER_BLUR];
 
 		glBindFramebuffer(GL_FRAMEBUFFER, bloomFBO);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		blur.use();
@@ -415,8 +444,8 @@ void Scene::draw(GLfloat delta)
 			sceneCamera.endDrawing();
 		}
 
-		//begin sport light rendering
-		if (sceneCamera.config.slightVisible) {
+		//begin spot light rendering
+		if (sceneCamera.config.sLightVisible) {
 			shader_deferred = Shaders[SHADER_DEFFERED_SLIGHT_NOS];
 			sceneCamera.beginDrawing(shader_deferred);
 			glUniform3f(glGetUniformLocation(shader_deferred.getId(), "viewPos"), viewPos.x, viewPos.y, viewPos.z);
@@ -454,7 +483,7 @@ void Scene::draw(GLfloat delta)
 		}
 
 		//render just on camera textrue if no lights active
-		if (!sceneCamera.config.dLightVisible && !sceneCamera.config.pLightVisible && !sceneCamera.config.slightVisible) {
+		if (!sceneCamera.config.dLightVisible && !sceneCamera.config.pLightVisible && !sceneCamera.config.sLightVisible) {
 			
 			shader_deferred = Shaders[SHADER_TEXTURE];
 			sceneCamera.beginDrawing(shader_deferred);
@@ -472,10 +501,11 @@ void Scene::draw(GLfloat delta)
 		}
 
 	}
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glBindBuffer(GL_FRAMEBUFFER, 0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glViewport(0, 0, width, height);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	glDisable(GL_DEPTH_TEST);
 	Shaders[SHADER_TEXTURE].use();
@@ -488,6 +518,7 @@ void Scene::draw(GLfloat delta)
 			continue;
 		}
 		glBindTexture(GL_TEXTURE_2D, sceneCamera.getTexture());
+		//glBindTexture(GL_TEXTURE_2D, gBufferAlbedo);
 
 		glBindVertexArray(sceneCamera.getFrameVerticesVAO());
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -649,7 +680,7 @@ void Scene::reload(int width, int height)
 
 void Scene::setup()
 {
-	renderMode == RenderMode::FILLR;
+	renderMode = RenderMode::FILLR;
 
 	glGenFramebuffers(1, &gBufferFBO);
 	glGenFramebuffers(1, &bloomFBO);
@@ -669,7 +700,7 @@ void Scene::setup()
 	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(GLfloat), NULL, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4) + sizeof(GLfloat));
+	glBindBufferRange(GL_UNIFORM_BUFFER, getSceneId(), uboMatrices, 0, 2 * sizeof(glm::mat4) + sizeof(GLfloat));
 
 
 	GLfloat vertices_rect[] = {
@@ -704,8 +735,16 @@ void Scene::setup()
 
 	dynamicsWorld->setGravity(btVector3(0, -10.0, 0));
 
+	dynamicsWorld->setDebugDrawer(&bulletDebugDrawer);
+	bulletDebugDrawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+
 	shader_basic = Shaders[SHADER_BASIC];
 	shader_light = Shaders[SHADER_DEFFERED_LIGHT];
 	shader_normals = Shaders[SHADER_DEFFERED_NORMALS];
 	shader_geometry = Shaders[SHADER_DEFFERED_GEOMETRY];
+}
+
+int Scene::getSceneId()
+{
+	return sceneID;
 }

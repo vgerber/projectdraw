@@ -1,10 +1,10 @@
 #include "camera.h"
-#include <iostream>
+
 
 
 Camera::Camera(glm::vec3 position)
 {
-	this->position = position;
+	SceneObject::setPosition(position);
 }
 
 Camera::~Camera()
@@ -13,20 +13,20 @@ Camera::~Camera()
 
 void Camera::setPosition(glm::vec3 position)
 {	
-	this->position = position;
+	SceneObject::setPosition(position);
 	updateCameraVectors();	
 }
 
 
 // Constructor with vectors
-Camera::Camera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f))
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f))
 {
 	this->position = position;
 	this->world_up_vector = up;
 	this->updateCameraVectors();
 }
 // Constructor with scalar values
-Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f))
+Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : front_vector(glm::vec3(0.0f, 0.0f, -1.0f))
 {
 	this->position = glm::vec3(posX, posY, posZ);
 	this->world_up_vector = glm::vec3(upX, upY, upZ);

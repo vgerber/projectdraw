@@ -140,7 +140,7 @@ Model primitives::generateCircle(GLfloat radius, GLfloat quality, glm::vec4 colo
 	return Model(meshes, std::vector<Texture>());
 }
 
-Model primitives::generate_quad(GLfloat width, GLfloat height, GLfloat depth, glm::vec4 color)
+Model primitives::generateQuad(GLfloat width, GLfloat height, GLfloat depth, glm::vec4 color)
 {
 	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
 	std::vector<GLfloat> vertices = {
@@ -456,6 +456,220 @@ Model primitives::generateHeightfieldStep(int width, int length, std::vector<flo
 	std::vector<BasicMesh> meshes = { mesh };
 
 	return Model(meshes, std::vector<Texture>());
+}
+
+Model primitives::generateSphere(int lats, int longs, glm::vec4 color)
+{
+	int i, j;
+	std::vector<GLfloat> vertices;
+	std::vector<GLuint> indices;
+	int indicator = 0;
+	for (i = 0; i <= lats; i++) {
+		double lat0 = glm::pi<double>() * (-0.5 + (double)(i - 1) / lats);
+		double z0 = sin(lat0);
+		double zr0 = cos(lat0);
+
+		double lat1 = glm::pi<double>() * (-0.5 + (double)i / lats);
+		double z1 = sin(lat1);
+		double zr1 = cos(lat1);
+
+		for (j = 0; j <= longs; j++) {
+			double lng = 2 * glm::pi<double>() * (double)(j - 1) / longs;
+			double x = cos(lng);
+			double y = sin(lng);
+
+			vertices.push_back(x * zr0);
+			vertices.push_back(y * zr0);
+			vertices.push_back(z0);
+			//normal
+			glm::vec3 normal = glm::normalize(glm::vec3(x, y, z0) - glm::vec3(0.5f));
+			vertices.push_back(normal.x);
+			vertices.push_back(normal.y);
+			vertices.push_back(normal.z);
+			//texture
+			vertices.push_back(0.0f);
+			vertices.push_back(0.0f);
+
+			indices.push_back(indicator);
+			indicator++;
+
+			vertices.push_back(x * zr1);
+			vertices.push_back(y * zr1);
+			vertices.push_back(z1);
+			//normal
+			normal = glm::normalize(glm::vec3(x, y, z1) - glm::vec3(0.5f));
+			vertices.push_back(normal.x);
+			vertices.push_back(normal.y);
+			vertices.push_back(normal.z);
+			//texture
+			vertices.push_back(0.0f);
+			vertices.push_back(0.0f);
+
+			indices.push_back(indicator);
+			indicator++;
+		}
+		//indices.push_back(GL_PRIMITIVE_RESTART_FIXED_INDEX);
+	}
+	
+	std::vector<Vertex> vertices_vertex;
+
+	for (GLuint i = 0; i < vertices.size(); i += 8) {
+		Vertex vertex;
+		vertex.Position = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
+		vertex.Normal = glm::vec3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
+		vertex.TexCoords = glm::vec2(0.0f);
+		vertex.Color = color;
+		vertices_vertex.push_back(vertex);
+	}
+
+	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
+
+	std::vector<BasicMesh> meshes = { mesh };
+
+	return Model(meshes, std::vector<Texture>());
+}
+
+Model primitives::generateCone(float radius, float height, float quality, glm::vec4 color)
+{
+	if (quality < 3.0f) {
+		quality = 3.0f;
+	}
+	GLfloat x = 0.0f, y = 0.0f, z = 0.0f;
+
+	GLfloat step = 2 * glm::pi<GLfloat>() / quality;
+
+	std::vector<GLfloat> vertices;
+	std::vector<GLuint> indices;
+
+	{
+		std::vector<float> vertices_circle;
+		std::vector<GLuint> indices_circle;
+		{
+			GLfloat x_tex = 0.0f;
+			GLfloat z_tex = 0.0f;
+
+			GLfloat x = x_tex * radius;
+			GLfloat z = z_tex * radius;
+			vertices_circle.push_back(x);					//X
+			vertices_circle.push_back(0.0f);				//Y
+			vertices_circle.push_back(z);					//Z
+			vertices_circle.push_back(0.0f);				//Normal x
+			vertices_circle.push_back(-1.0f);				//Normal y
+			vertices_circle.push_back(0.0f);				//Normal z
+			vertices_circle.push_back(0.0f);//Tex x
+			vertices_circle.push_back(0.0f);//Tex y
+		}
+
+		for (GLfloat theta = 0; theta <= 2.5 * glm::pi<GLfloat>(); theta += step) {
+			GLfloat x_tex = cos(theta);
+			GLfloat z_tex = sin(theta);
+
+			GLfloat x = x_tex * radius;
+			GLfloat z = z_tex * radius;
+
+			vertices_circle.push_back(x);					//X
+			vertices_circle.push_back(0.0f);				//Y
+			vertices_circle.push_back(z);					//Z
+			vertices_circle.push_back(0.0f);				//Normal x
+			vertices_circle.push_back(-1.0f);				//Normal y
+			vertices_circle.push_back(0.0f);				//Normal z
+			vertices_circle.push_back(0.0f);//Tex x
+			vertices_circle.push_back(0.0f);//Tex y
+		}
+		size_t size_back = vertices_circle.size();
+
+		size_back = vertices_circle.size() / 8;
+
+
+		for (size_t i = 1; i < size_back - 1; i++) {
+			indices_circle.push_back(0);
+			indices_circle.push_back(i);
+			indices_circle.push_back(i + 1);
+		}
+
+		vertices.reserve(vertices_circle.size());
+		vertices.insert(vertices.end(), vertices_circle.begin(), vertices_circle.end());
+		indices.reserve(indices_circle.size());
+		indices.insert(indices.end(), indices_circle.begin(), indices_circle.end());
+	}
+
+	{
+		std::vector<float> vertices_cone;
+		std::vector<GLuint> indices_cone;
+		{
+			GLfloat x_tex = 0.0f;
+			GLfloat z_tex = 0.0f;
+
+			GLfloat x = x_tex * radius;
+			GLfloat z = z_tex * radius;
+			vertices_cone.push_back(x);					//X
+			vertices_cone.push_back(height);			//Y
+			vertices_cone.push_back(z);					//Z
+			vertices_cone.push_back(0.0f);				//Normal x
+			vertices_cone.push_back(1.0f);				//Normal y
+			vertices_cone.push_back(0.0f);				//Normal z
+			vertices_cone.push_back(0.0f);//Tex x
+			vertices_cone.push_back(0.0f);//Tex y
+		}
+
+		for (GLfloat theta = 0; theta <= 2.5 * glm::pi<GLfloat>(); theta += step) {
+			GLfloat x_tex = cos(theta);
+			GLfloat z_tex = sin(theta);
+
+			GLfloat x = x_tex * radius;
+			GLfloat z = z_tex * radius;
+
+			vertices_cone.push_back(x);					//X
+			vertices_cone.push_back(0.0f);				//Y
+			vertices_cone.push_back(z);					//Z
+			//normal
+			glm::vec3 normal = glm::normalize(glm::vec3(x, 0.0f, z) - glm::vec3(0.5f, 0.0f, 0.5f));
+			vertices_cone.push_back(normal.x);
+			vertices_cone.push_back(normal.y);
+			vertices_cone.push_back(normal.z);
+			//Texture
+			vertices_cone.push_back(0.0f);//Tex x
+			vertices_cone.push_back(0.0f);//Tex y
+		}
+		size_t size_back = vertices_cone.size();
+
+		size_back = vertices_cone.size() / 8;
+
+		GLuint offset = vertices.size() / 8;
+
+		for (size_t i = 1; i < size_back - 1; i++) {
+			indices_cone.push_back(offset);
+			indices_cone.push_back(offset + i + 1);
+			indices_cone.push_back(offset + i);
+		}
+
+		vertices.reserve(vertices_cone.size());
+		vertices.insert(vertices.end(), vertices_cone.begin(), vertices_cone.end());
+		indices.reserve(indices_cone.size());
+		indices.insert(indices.end(), indices_cone.begin(), indices_cone.end());
+	}
+
+	std::vector<Vertex> vertices_vertex;
+
+	for (GLuint i = 0; i < vertices.size(); i += 8) {
+		Vertex vertex;
+		vertex.Position = glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]);
+		vertex.Normal = glm::vec3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
+		vertex.TexCoords = glm::vec2(0.0f);
+		vertex.Color = color;
+		vertices_vertex.push_back(vertex);
+	}
+
+	BasicMesh mesh = BasicMesh(vertices_vertex, indices);
+
+	std::vector<BasicMesh> meshes = { mesh };
+
+	return Model(meshes, std::vector<Texture>());
+}
+
+Model primitives::generateCylinder(float radius, float height, float quality, glm::vec4 color)
+{
+	return Model();
 }
 
 std::vector<Point> primitives::geometryCircle(float radius, float quality, glm::vec4 color)

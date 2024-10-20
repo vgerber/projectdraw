@@ -73,5 +73,5 @@ vec4 fxaa(sampler2D tex, vec2 coords) {
     if((lumaB < lumaMin) || (lumaB > lumaMax)) 
 		return vec4(rgbA, 1.0);
 
-    return vec4(rgbB, 1.0);
+    return vec4(rgbB, texture(tex, coords).a);
 }

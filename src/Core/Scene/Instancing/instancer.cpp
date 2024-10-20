@@ -50,7 +50,7 @@ void Instancer::reload() {
  	glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
 
 	std::vector<BasicMesh> meshes = model.getMeshes();
-	for (int i = 0; i < meshes.size(); i++) {
+	for (size_t i = 0; i < meshes.size(); i++) {
 		BasicMesh mesh = meshes[i];
 		GLuint VAO = mesh.getVAO();
 		glBindVertexArray(VAO);

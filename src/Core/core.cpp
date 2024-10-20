@@ -1,6 +1,31 @@
 #include "core.h"
 
-void init_core() {
+void initCore() {
+
+	//depth
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+
+
+	glEnable(GL_CULL_FACE);
+
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//glEnable(GL_MULTISAMPLE);
+
+	glEnable(GL_FRAMEBUFFER_SRGB);
+
+
+	glEnable(GL_LINE_SMOOTH);
+
+	//glEnable(GL_LINE_STIPPLE);	
+	//glLineStipple(1, 0xAAAA);
+
+
+
 	Shader shader_geometry;
 	shader_geometry.layers = {
 		{ Loader::GetPath("/Shaders/geometry.vertex").c_str(), ShaderType::VERTEX },
@@ -9,6 +34,7 @@ void init_core() {
 	};
 	shader_geometry.load();
 	Shaders[SHADER_GEOMETRY] = shader_geometry;
+	ResourceManager::storeShader(SHADER_GEOMETRY, shader_geometry);
 
 
 	Shader shader_normal_geometry;
@@ -19,8 +45,8 @@ void init_core() {
 	};
 	shader_normal_geometry.load();
 	Shaders[SHADER_DEFFERED_NORMALS] = shader_normal_geometry;
-
-
+	ResourceManager::storeShader(SHADER_DEFFERED_NORMALS, shader_normal_geometry);
+	
 	Shader shader_depth_cube;
 	shader_depth_cube.layers = {
 		{ Loader::GetPath("/Shaders/Depth/cube_depth.vertex").c_str(), ShaderType::VERTEX },
@@ -29,7 +55,7 @@ void init_core() {
 	};
 	shader_depth_cube.load();
 	Shaders[SHADER_DEPTH_CUBE] = shader_depth_cube;
-
+	ResourceManager::storeShader(SHADER_DEPTH_CUBE, shader_depth_cube);
 
 	Shader shader_depth;
 	shader_depth.layers = {
@@ -38,7 +64,7 @@ void init_core() {
 	};
 	shader_depth.load();
 	Shaders[SHADER_DEPTH] = shader_depth;
-	
+	ResourceManager::storeShader(SHADER_DEPTH, shader_depth);
 
 	Shader shader_basic;
 	shader_basic.layers = {
@@ -47,7 +73,7 @@ void init_core() {
 	};
 	shader_basic.load();
 	Shaders[SHADER_BASIC] = shader_basic;
-
+	ResourceManager::storeShader(SHADER_BASIC, shader_basic);
 	
 	Shader shader_light;
 	shader_light.layers = {
@@ -56,7 +82,7 @@ void init_core() {
 	};
 	shader_light.load();
 	Shaders[SHADER_DEFFERED_LIGHT] = shader_light;
-
+	ResourceManager::storeShader(SHADER_DEFFERED_LIGHT, shader_light);
 
 	Shader shader_deferred;
 	shader_deferred.layers = {
@@ -66,6 +92,7 @@ void init_core() {
 	};
 	shader_deferred.load();
 	Shaders[SHADER_DEFERRED] = shader_deferred;
+	ResourceManager::storeShader(SHADER_DEFERRED, shader_deferred);
 
 	Shader shader_deferred_plight_nos;
 	shader_deferred_plight_nos.layers = {
@@ -75,6 +102,7 @@ void init_core() {
 	};
 	shader_deferred_plight_nos.load();
 	Shaders[SHADER_DEFFERED_PLIGHT_NOS] = shader_deferred_plight_nos;
+	ResourceManager::storeShader(SHADER_DEFFERED_PLIGHT_NOS, shader_deferred_plight_nos);
 
 	Shader shader_deferred_slight_nos;
 	shader_deferred_slight_nos.layers = {
@@ -84,7 +112,7 @@ void init_core() {
 	};
 	shader_deferred_slight_nos.load();
 	Shaders[SHADER_DEFFERED_SLIGHT_NOS] = shader_deferred_slight_nos;
-
+	ResourceManager::storeShader(SHADER_DEFFERED_SLIGHT_NOS, shader_deferred_slight_nos);
 
 	Shader shader_font;
 	shader_font.layers = {
@@ -93,7 +121,7 @@ void init_core() {
 	};
 	shader_font.load();
 	Shaders[SHADER_FONT] = shader_font;
-
+	ResourceManager::storeShader(SHADER_FONT, shader_font);
 
 	Shader shader_skybox;
 	shader_skybox.layers = {
@@ -102,6 +130,7 @@ void init_core() {
 	};
 	shader_skybox.load();
 	Shaders[SHADER_SKYBOX] = shader_skybox;
+	ResourceManager::storeShader(SHADER_SKYBOX, shader_skybox);
 
 	Shader shader_deferred_geometry;
 	shader_deferred_geometry.layers = {
@@ -110,6 +139,7 @@ void init_core() {
 	};
 	shader_deferred_geometry.load();
 	Shaders[SHADER_DEFFERED_GEOMETRY] = shader_deferred_geometry;
+	ResourceManager::storeShader(SHADER_DEFFERED_GEOMETRY, shader_deferred_geometry);
 
 	Shader shader_texture;
 	shader_texture.layers = {
@@ -118,8 +148,7 @@ void init_core() {
 	};
 	shader_texture.load();
 	Shaders[SHADER_TEXTURE] = shader_texture;
-
-
+	ResourceManager::storeShader(SHADER_TEXTURE, shader_texture);
 
 	Shader shader_perspective_depth;
 	shader_perspective_depth.layers = {
@@ -128,6 +157,7 @@ void init_core() {
 	};
 	shader_perspective_depth.load();
 	Shaders[SHADER_DEPTH_PERSP] = shader_perspective_depth;
+	ResourceManager::storeShader(SHADER_DEPTH_PERSP, shader_perspective_depth);
 
 	Shader shader_filter_blur;
 	shader_filter_blur.layers = {
@@ -136,6 +166,7 @@ void init_core() {
 	};
 	shader_filter_blur.load();
 	Shaders[SHADER_FILTER_BLUR] = shader_filter_blur;
+	ResourceManager::storeShader(SHADER_FILTER_BLUR, shader_filter_blur);
 
 	Shader shader_instancing_basic;
 	shader_instancing_basic.layers = {
@@ -144,13 +175,11 @@ void init_core() {
 	};
 	shader_instancing_basic.load();
 	Shaders[SHADER_INSTANCING_BASIC] = shader_instancing_basic;
+	ResourceManager::storeShader(SHADER_INSTANCING_BASIC, shader_instancing_basic);
+}
 
-
-	glUniformBlockBinding(Shaders[SHADER_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_BASIC].getId(), "Matrices"), 0);
-	glUniformBlockBinding(Shaders[SHADER_FONT].getId(), glGetUniformBlockIndex(Shaders[SHADER_FONT].getId(), "Matrices"), 0);
-	glUniformBlockBinding(Shaders[SHADER_SKYBOX].getId(), glGetUniformBlockIndex(Shaders[SHADER_SKYBOX].getId(), "Matrices"), 0);
-	glUniformBlockBinding(Shaders[SHADER_DEFFERED_LIGHT].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_LIGHT].getId(), "Matrices"), 0);
-	glUniformBlockBinding(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), glGetUniformBlockIndex(Shaders[SHADER_DEFFERED_GEOMETRY].getId(), "Matrices"), 0);
-	glUniformBlockBinding(Shaders[SHADER_INSTANCING_BASIC].getId(), glGetUniformBlockIndex(Shaders[SHADER_INSTANCING_BASIC].getId(), "Matrices"), 0);
+void clearScreen(glm::vec4 color) {
+	glClearColor(color.r, color.g, color.b, color.a);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 

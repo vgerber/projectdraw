@@ -106,9 +106,9 @@ void Moveable::scaleToSize(Size size)
 	updateModel();
 }
 
-void Moveable::scaleToWidth(GLfloat width)
+void Moveable::scaleToWidth(float width)
 {
-	GLfloat scale_size = width / size.width;
+	float scale_size = width / size.width;
 	Size new_size;
 	new_size.width = size.width * scale_size;
 	new_size.height = size.height * scale_size;
@@ -116,9 +116,9 @@ void Moveable::scaleToWidth(GLfloat width)
 	scaleToSize(new_size);
 }
 
-void Moveable::scaleToHeight(GLfloat height)
+void Moveable::scaleToHeight(float height)
 {
-	GLfloat scale_size = height / size.height;
+	float scale_size = height / size.height;
 	Size new_size;
 	new_size.width = size.width * scale_size;
 	new_size.height = size.height * scale_size;
@@ -126,9 +126,9 @@ void Moveable::scaleToHeight(GLfloat height)
 	scaleToSize(new_size);
 }
 
-void Moveable::scaleToLength(GLfloat depth)
+void Moveable::scaleToLength(float depth)
 {
-	GLfloat scale_size = depth / size.depth;
+	float scale_size = depth / size.depth;
 	Size new_size;
 	new_size.width = size.width * scale_size;
 	new_size.height = size.height * scale_size;

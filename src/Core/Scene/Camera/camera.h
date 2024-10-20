@@ -1,16 +1,18 @@
 #pragma once
 
+#include <glm/glm.hpp>
 
 #include "../sceneobject.h"
 #include "../../Model/box.h"
 
 #include <memory>
 #include <cmath>
+#include <vector>
 
 
 struct ViewFrustum {
-	GLfloat nearZ = 0.0f;
-	GLfloat farZ = 0.0f;
+	float nearZ = 0.0f;
+	float farZ = 0.0f;
 
 	glm::vec3 position;
 	glm::vec3 front;
@@ -23,10 +25,10 @@ struct ViewFrustum {
 
 
 // Default camera values
-const GLfloat YAW = 90.0f;
-const GLfloat PITCH = 0.0f;
-const GLfloat SPEED = 3.0f;
-const GLfloat SENSITIVTY = 0.07f;
+const float YAW = 90.0f;
+const float PITCH = 0.0f;
+const float SPEED = 3.0f;
+const float SENSITIVTY = 0.07f;
 
 class Camera : public SceneObject
 {
@@ -39,13 +41,13 @@ public:
 	Camera(glm::vec3 position);
 	~Camera();
 
-	void setPosition(glm::vec3 position);
+	void setPosition(glm::vec3 position) override;
 
 
 	// Constructor with vectors
-	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), GLfloat yaw = YAW, GLfloat pitch = PITCH);
+	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
 	// Constructor with scalar values
-	Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch);
+	Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
 
 	// Returns the view matrix calculated using Eular Angles and the LookAt Matrix

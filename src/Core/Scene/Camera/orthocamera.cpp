@@ -48,7 +48,7 @@ ViewFrustum OrthographicCamera::getViewFrustum(int splits) {
 
 	while (splits > 0)
 	{
-		GLfloat split;
+		float split;
 		if (splits == 3) {
 			split = (FarZ * 0.2);
 		}

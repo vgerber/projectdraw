@@ -1,11 +1,12 @@
 #pragma once
 
 //base libs
-
+#include <btBulletDynamicsCommon.h>
 
 //Resources
 #include "core.h"
 #include "Resource/loader.h"
+#include "Resource/resourcemanager.h"
 #include "Shader/shader.h"
 
 //basic imports

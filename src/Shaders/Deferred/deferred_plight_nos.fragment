@@ -38,18 +38,18 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
 void main() {
 	vec3 Normal = texture(gNormal, TexCoords).rgb;
 	vec3 FragPos = texture(gPosition, TexCoords).rgb;
-	vec3 Color = texture(gAlbedo, TexCoords).rgb;
-	vec3 prevColor = texture(prevTexture, TexCoords).rgb;
+	vec4 Color = texture(gAlbedo, TexCoords).rgba;
+	vec4 prevColor = texture(prevTexture, TexCoords).rgba;
 	vec3 viewDir = normalize(viewPos - FragPos);    
 	float UseLight = texture(gOption1, TexCoords).r;     
 	float Depth = texture(gOption1, TexCoords).g;	
 		
-	color = vec4(prevColor, 1.0);
+	color = prevColor;
 	if(UseLight == 1.0) {				
 		vec3 result = vec3(0.0);
 		if(pointLights != 0) {
 			for(int i = 0; i < pointLights; i++){ 
-				result += CalcPointLight(pointLight[i], Normal, FragPos, viewDir, Color) * pointLight[i].intensity;
+				result += CalcPointLight(pointLight[i], Normal, FragPos, viewDir, Color.rgb) * pointLight[i].intensity;
 			}
 		}
 		color += vec4(result.rgb, 1.0);

@@ -5,7 +5,7 @@
 struct SceneCameraConfig {
 	bool debugVisible = true;
 	bool dLightVisible = true;
-	bool slightVisible = true;
+	bool sLightVisible = true;
 	bool pLightVisible = true;
 	bool ParticleVisible = true;
 	bool Active = true;

@@ -21,7 +21,7 @@ void DirectionalLight::apply(Shader shader, std::string target)
 
 	glUniform3f(glGetUniformLocation(shader.getId(), (target + ".direction").c_str()), direction.x, direction.y, direction.z);
 	glUniform1f(glGetUniformLocation(shader.getId(), (target + ".farPlane").c_str()), distance);
-	for (int i = 0; i < depthMaps.size(); i++) {		
+	for (size_t i = 0; i < depthMaps.size(); i++) {		
 		glUniformMatrix4fv(
 			glGetUniformLocation(shader.getId(), (target + ".lightSpaceMatrix[" + std::to_string(i) + "]").c_str()),
 			1,
@@ -251,8 +251,6 @@ void DirectionalLight::dispose()
 
 void DirectionalLight::setup()
 {
-	
-
 	for (int i = 0; i < csmSlices; i++) {
 		DepthMap dm;
 		glGenFramebuffers(1, &dm.depthMapFBO);

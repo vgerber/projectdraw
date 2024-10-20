@@ -11,6 +11,7 @@
 #include "Particle/particlegenerator.h"
 #include "Instancing/instancer.h"
 #include "Animation/animatable.h"
+#include "../Util/Debug/bulletdebug.h"
 
 #include <map>
 #include <memory>
@@ -48,7 +49,7 @@ public:
 	~Scene();
 
 	void addDrawable(Drawable &drawable);
-	void addRigidBody(RigidBody &rigidBody);
+	void addRigidBody(RigidBody &rigidBody, int group = 1, int mask = 1);
 	void addVehicle(Vehicle &vehicle);
 	void addAnimatable(Animatable &animatable);
 	void addInstancer(Instancer &instancer);
@@ -78,9 +79,14 @@ public:
 
 	void dispose();
 
-	void reload(int width, int height);
+	virtual void reload(int width, int height);
+
 
 private:
+	static int globalSceneId;
+	int sceneID;
+	
+protected:
 	int width = 100, height = 100;
 
 	//Physics
@@ -90,7 +96,7 @@ private:
 	btBroadphaseInterface *overlappingPairCache				= nullptr;
 	btSequentialImpulseConstraintSolver *solver				= nullptr;
 	btAlignedObjectArray<btCollisionShape*> collisionShapes;
-
+	BulletDebugDrawer bulletDebugDrawer;
 
 	std::vector<RigidBody*> rigidBodys;
 	std::vector<Vehicle*> vehicles;
@@ -104,25 +110,25 @@ private:
 
 	
 
-	GLuint gBufferFBO;
-	GLuint rboGDepth;
-	GLuint gBufferPosition, gBufferNormal, gBufferAlbedo, gBufferOption1, gBloom, gDepthStencil;
+	GLuint gBufferFBO = 0;
+	GLuint rboGDepth = 0;
+	GLuint gBufferPosition = 0, gBufferNormal = 0, gBufferAlbedo = 0, gBufferOption1 = 0, gBloom = 0, gDepthStencil = 0;
 
-	GLuint bloomFBO;
-	GLuint bloomTexture;
+	GLuint bloomFBO = 0;
+	GLuint bloomTexture = 0;
 
-	GLuint plightFBO;
-	GLuint plightTexture;
+	GLuint plightFBO = 0;
+	GLuint plightTexture = 0;
 
-	GLuint lightFBO;
-	GLuint lightTexture;
+	GLuint lightFBO = 0;
+	GLuint lightTexture = 0;
 
-	GLuint uboMatrices;
-	GLuint screenRectVBO;
-	GLuint screenRectVAO;
+	GLuint uboMatrices = 0;
+	GLuint screenRectVBO = 0;
+	GLuint screenRectVAO = 0;
 
-	GLuint screenShadowVBO;
-	GLuint screenShadowVAO;
+	GLuint screenShadowVBO = 0;
+	GLuint screenShadowVAO = 0;
 
 	std::vector<SceneCamera> cameras;
 	std::vector<Drawable*> objects;
@@ -137,7 +143,9 @@ private:
 	//Instancer
 	std::vector<Instancer*> instancers;
 
-	void setup();
+	virtual void setup();
+
+	int getSceneId();
 
 
 };

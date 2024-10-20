@@ -9,7 +9,6 @@ Vehicle::Vehicle(RigidBody *chassis, btDiscreteDynamicsWorld *world)
 	this->rigidBody->visibleAABB = true;
 
 	vehicleRaycaster = new btDefaultVehicleRaycaster(world);
-	
 	btVehicle = new btRaycastVehicle(tuning, chassis->getBody(), vehicleRaycaster);
 }
 

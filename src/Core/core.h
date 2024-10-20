@@ -13,9 +13,10 @@
 #include <glm/glm.hpp>
 
 #include "Resource/loader.h"
+#include "Resource/resourcemanager.h"
 #include "Shader/shader.h"
 
 
-void init_core();
+void initCore();
 
-
+void clearScreen(glm::vec4 color);
