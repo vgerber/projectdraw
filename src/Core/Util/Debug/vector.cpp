@@ -14,7 +14,8 @@ std::string printVec(glm::vec4 vec) {
          std::to_string(vec.z) + "," + std::to_string(vec.w) + ")";
 }
 
-std::string printVec(btVector3 vec) {
-  return "(" + std::to_string(vec.getX()) + "," + std::to_string(vec.getY()) +
-         "," + std::to_string(vec.getZ()) + ")";
-}
+// std::string printVec(btVector3 vec) {
+//   return "(" + std::to_string(vec.getX()) + "," + std::to_string(vec.getY())
+//   +
+//          "," + std::to_string(vec.getZ()) + ")";
+// }

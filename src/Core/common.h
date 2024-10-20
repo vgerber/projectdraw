@@ -3,10 +3,9 @@
 #include <GL/glew.h>
 
 // base libs
-#include <btBulletDynamicsCommon.h>
+// #include <btBulletDynamicsCommon.h>
 
 // Resources
-#include "Resource/loader.h"
 #include "Resource/resourcemanager.h"
 #include "Shader/shader.h"
 #include "core.h"
@@ -36,4 +35,3 @@
 
 // util
 #include "Util/Debug/vector.h"
-#include "Util/Mouse/mouse.h"

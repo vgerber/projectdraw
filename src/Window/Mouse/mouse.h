@@ -6,9 +6,9 @@
 
 #include <glm/glm.hpp>
 
-#include "../../Scene/Camera/camera.h"
-#include "../../Scene/Primitive/geometry.h"
-#include "../../Window/window.h"
+#include "Core/Scene/Camera/camera.h"
+#include "Core/Scene/Primitive/geometry.h"
+#include "Window/window.h"
 
 Point getRelativeMousePosition(Window &window);
 

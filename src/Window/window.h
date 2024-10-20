@@ -1,0 +1,37 @@
+#pragma once
+
+#include "Core/Scene/Primitive/geometry.h"
+#include "Core/core.h"
+#include "SFML/Window/Window.hpp"
+
+struct WindowInfo {
+  int major = 3;
+  int minor = 3;
+
+  bool maximized = false;
+  bool resizable = false;
+  bool titlebar = false;
+  bool closeButton = false;
+
+  bool cursorLeave = false;
+
+  int samples = 4;
+};
+
+class Window {
+public:
+  Window(WindowInfo info, int width, int height, std::string title);
+  void activate();
+
+  sf::Window *getWindow();
+  Size getSize();
+
+  Point getCursorPosition();
+
+  void update();
+
+private:
+  WindowInfo wInfo;
+  sf::Window *window;
+  Point oldMousePosition;
+};

@@ -2,12 +2,13 @@
   "dependencies": [
     "assimp",
     "bullet3",
+    "ffmpeg",
     "freetype",
     "glew",
     "glm",
     "opengl",
     "sfml",
     "stb",
-    "ffmpeg"
+    "soil"
   ]
 }

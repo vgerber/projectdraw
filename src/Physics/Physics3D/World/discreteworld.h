@@ -10,31 +10,28 @@
 #include "../Util/debugdrawer.h"
 #include "LinearMath/btIDebugDraw.h"
 
-
 class RaycastVehicle;
 
 class DiscreteWorld : public CollisionWorld {
 public:
-    DiscreteWorld();
-    
-    virtual void addCollisionObject(CollisionObject &collisionObject) override;
-    virtual void removeCollisionObject(CollisionObject &collisionObject) override;
+  DiscreteWorld();
 
-    virtual void update(float delta);
+  virtual void addCollisionObject(CollisionObject &collisionObject, int group,
+                                  int mask) override;
+  virtual void removeCollisionObject(CollisionObject &collisionObject) override;
 
-    void setQuality(int maxSteps, float fixedTimeStep);
+  virtual void update(float delta);
 
-    
-    
+  void setQuality(int maxSteps, float fixedTimeStep);
 
 private:
-    int maxSimulationSteps = 10;
-    float fixedSimulationStep = 1.0f / 60.0f;
-    std::vector<RigidBody*> rigidBodies;
-    std::vector<TriggerVolume*> triggerVolumes;
-    std::vector<RaycastVehicle*> raycastVehicles;
+  int maxSimulationSteps = 10;
+  float fixedSimulationStep = 1.0f / 60.0f;
+  std::vector<RigidBody *> rigidBodies;
+  std::vector<TriggerVolume *> triggerVolumes;
+  std::vector<RaycastVehicle *> raycastVehicles;
 
-    btSequentialImpulseConstraintSolver * constrainSolver = nullptr;
+  btSequentialImpulseConstraintSolver *constrainSolver = nullptr;
 
-    virtual void setup() override;
+  virtual void setup() override;
 };

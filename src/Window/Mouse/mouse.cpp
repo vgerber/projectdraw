@@ -12,7 +12,7 @@ Point getRelativeMousePosition(Window &window) {
 std::pair<Point, Point> getCameraMousePosition(Window &window, Camera &camera) {
   Point relPos = getRelativeMousePosition(window);
   glm::vec3 camPos = relPos.position;
-  glm::vec4 rayEye = glm::inverse(camera.getCameraMatrix()) *
+  glm::vec4 rayEye = glm::inverse(camera.getProjectionMatrix()) *
                      glm::vec4(camPos.x, camPos.y, -1.0f, 1.0f);
   glm::vec4 rayWorld = glm::inverse(camera.getViewMatrix()) *
                        glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);

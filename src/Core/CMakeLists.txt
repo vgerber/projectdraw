@@ -12,8 +12,6 @@ set(CORE_SRC
 	Util/Debug/logging.h
 	Util/Debug/vector.h
 	Util/Debug/vector.cpp
-	Util/Mouse/mouse.cpp
-	Util/Mouse/mouse.h
 	Util/Config/configurator.h
 	Util/Config/configurator.cpp
 	core.cpp
@@ -161,17 +159,16 @@ set(CORE_SRC
 	Shader/shader.cpp
 )
 find_package(Stb REQUIRED)
-
 find_package(glm CONFIG REQUIRED)
-
 find_package(GLEW REQUIRED)
 find_package(assimp REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Freetype REQUIRED)
+find_package(soil CONFIG REQUIRED)
 
 
 add_library(core ${CORE_SRC}) 
-target_include_directories(core PRIVATE	${Stb_INCLUDE_DIR} PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(core PRIVATE	${Stb_INCLUDE_DIR} ${soil_INCLUDE_DIRS} PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
 target_link_libraries(core  
 	PRIVATE
@@ -179,6 +176,7 @@ target_link_libraries(core
 	OpenGL::GL
 	Freetype::Freetype
 	assimp::assimp
+	soil
 	PUBLIC
 	glm::glm-header-only
 )

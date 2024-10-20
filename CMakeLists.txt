@@ -3,6 +3,7 @@ project (3d-playground)
 
 add_subdirectory(src/Core)
 add_subdirectory(src/Physics)
+add_subdirectory(src/Window)
 add_subdirectory(src/Recorder)
 add_subdirectory(examples)
 

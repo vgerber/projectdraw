@@ -68,7 +68,7 @@ int main() {
   RigidBody rTestBody(rTestBodyShape, 1000.0f, RigidType::DYNAMIC);
   rTestBody.linkDrawable(testObject);
   rTestBody.setRestitution(1.0);
-  physicsWorld.addCollisionObject(rTestBody);
+  physicsWorld.addCollisionObject(rTestBody, 1, 1);
 
   collision::CollisionShape rGroundShape(
       collision::generateCube(ground.getSize()));
@@ -81,7 +81,7 @@ int main() {
       rTestBody.applyImpulse(glm::vec3(0.0, 0.0, 0.2));
     }
   };
-  physicsWorld.addCollisionObject(rGroundBody);
+  physicsWorld.addCollisionObject(rGroundBody, 1, 1);
 
   Mesh triggerIndicator;
   mainScene.addObject(triggerIndicator);
@@ -105,7 +105,7 @@ int main() {
       tTestTrigger.translate(newPosition);
     }
   };
-  physicsWorld.addCollisionObject(tTestTrigger);
+  physicsWorld.addCollisionObject(tTestTrigger, 1, 1);
 
   DemoVehicle vehicle1(physicsWorld, mainScene);
   vehicle1.getVehicleHandle()->getDrawable()->addChild(&freeCamera);
@@ -122,7 +122,7 @@ int main() {
       collision::generateHeightField(heightData, width, height));
   RigidBody rTerrain(rTerrainShape, 0.0, RigidType::STATIC);
   rTerrain.linkDrawable(terrain);
-  physicsWorld.addCollisionObject(rTerrain);
+  physicsWorld.addCollisionObject(rTerrain, 1, 1);
 
   sf::Time elapsedTime = windowClock.getElapsedTime();
   deltaTime = 0.0f;
