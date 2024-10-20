@@ -645,6 +645,135 @@ void loadExperimentalShaders() {
   shaderOpenglTestBasicTexture.load();
   ResourceManager::storeShader(ShaderName::Experimental::OpenglTest::Texture,
                                shaderOpenglTestBasicTexture);
+
+  // Shader shader_geometry;
+  // shader_geometry.layers = {
+  // 	{ Loader::GetPath("/Shaders/geometry.vertex").c_str(),
+  // ShaderType::VERTEX }, 	{
+  // Loader::GetPath("/Shaders/geometry.fragment").c_str(), ShaderType::FRAGMENT
+  // }, 	{ Loader::GetPath("/Shaders/geometry.geometry").c_str(),
+  // ShaderType::GEOMETRY }
+  // };
+  // shader_geometry.load();
+  // Shaders[SHADER_GEOMETRY] = shader_geometry;
+  // ResourceManager::storeShader(SHADER_GEOMETRY, shader_geometry);
+
+  // Shader shader_normal_geometry;
+  // shader_normal_geometry.layers = {
+  // 	{ Loader::GetPath("/Shaders/normal.vertex").c_str(), ShaderType::VERTEX
+  // }, 	{ Loader::GetPath("/Shaders/normal.fragment").c_str(),
+  // ShaderType::FRAGMENT }, 	{
+  // Loader::GetPath("/Shaders/normal.geometry").c_str(), ShaderType::GEOMETRY }
+  // };
+  // shader_normal_geometry.load();
+  // Shaders[SHADER_DEFFERED_NORMALS] = shader_normal_geometry;
+  // ResourceManager::storeShader(SHADER_DEFFERED_NORMALS,
+  // shader_normal_geometry);
+
+  // Shader shader_basic;
+  // shader_basic.layers = {
+  // 	{ Loader::GetPath("/Shaders/basic.vertex").c_str(), ShaderType::VERTEX
+  // }, 	{ Loader::GetPath("/Shaders/basic.fragment").c_str(),
+  // ShaderType::FRAGMENT }
+  // };
+  // shader_basic.load();
+  // Shaders[SHADER_BASIC] = shader_basic;
+  // ResourceManager::storeShader(SHADER_BASIC, shader_basic);
+
+  // Shader shader_light;
+  // shader_light.layers = {
+  // 	{ Loader::GetPath("/Shaders/light.vertex").c_str(), ShaderType::VERTEX
+  // }, 	{ Loader::GetPath("/Shaders/light.fragment").c_str(),
+  // ShaderType::FRAGMENT }
+  // };
+  // shader_light.load();
+  // Shaders[SHADER_DEFFERED_LIGHT] = shader_light;
+  // ResourceManager::storeShader(SHADER_DEFFERED_LIGHT, shader_light);
+
+  // DEPRECATED
+  // Shader shader_deferred;
+  // shader_deferred.layers = {
+  // 	{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX
+  // }, 	{
+  // Loader::GetPath("/Shaders/Deferred/deferred.fragment").c_str(),
+  // ShaderType::FRAGMENT }, 	{
+  // Loader::GetPath("/Shaders/Light/dlight_shadow.fragment").c_str(),
+  // ShaderType::FRAGMENT },
+  // };
+  // shader_deferred.load();
+  // Shaders[SHADER_DEFERRED] = shader_deferred;
+  // ResourceManager::storeShader(SHADER_DEFERRED, shader_deferred);
+
+  // DEPRECATED
+  // Shader shader_deferred_plight_nos;
+  // shader_deferred_plight_nos.layers = {
+  // 	{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX
+  // }, 	{
+  // Loader::GetPath("/Shaders/Deferred/deferred_plight_nos.fragment").c_str(),
+  // ShaderType::FRAGMENT }, 	{
+  // Loader::GetPath("/Shaders/Light/plight.fragment").c_str(),
+  // ShaderType::FRAGMENT },
+  // };
+  // shader_deferred_plight_nos.load();
+  // Shaders[SHADER_DEFFERED_PLIGHT_NOS] = shader_deferred_plight_nos;
+  // ResourceManager::storeShader(SHADER_DEFFERED_PLIGHT_NOS,
+  // shader_deferred_plight_nos);
+
+  // Shader shader_deferred_slight_nos;
+  // shader_deferred_slight_nos.layers = {
+  // 	{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX
+  // }, 	{
+  // Loader::GetPath("/Shaders/Deferred/deferred_slight_nos.fragment").c_str(),
+  // ShaderType::FRAGMENT }, 	{
+  // Loader::GetPath("/Shaders/Light/slight.fragment").c_str(),
+  // ShaderType::FRAGMENT },
+  // };
+  // shader_deferred_slight_nos.load();
+  // Shaders[SHADER_DEFFERED_SLIGHT_NOS] = shader_deferred_slight_nos;
+  // ResourceManager::storeShader(SHADER_DEFFERED_SLIGHT_NOS,
+  // shader_deferred_slight_nos);
+
+  // Shader shader_font;
+  // shader_font.layers = {
+  // 	{ Loader::GetPath("/Shaders/font.vertex").c_str(), ShaderType::VERTEX },
+  // 	{ Loader::GetPath("/Shaders/font.fragment").c_str(),
+  // ShaderType::FRAGMENT }
+  // };
+  // shader_font.load();
+  // Shaders[SHADER_FONT] = shader_font;
+  // ResourceManager::storeShader(SHADER_FONT, shader_font);
+
+  // Shader shader_skybox;
+  // shader_skybox.layers = {
+  // 	{ Loader::GetPath("/Shaders/skybox.vertex").c_str(), ShaderType::VERTEX
+  // }, 	{ Loader::GetPath("/Shaders/skybox.fragment").c_str(),
+  // ShaderType::FRAGMENT }
+  // };
+  // shader_skybox.load();
+  // Shaders[SHADER_SKYBOX] = shader_skybox;
+  // ResourceManager::storeShader(SHADER_SKYBOX, shader_skybox);
+
+  // Shader shader_deferred_geometry;
+  // shader_deferred_geometry.layers = {
+  // 	{ Loader::GetPath("/Shaders/Geometry/geometry.vertex").c_str(),
+  // ShaderType::VERTEX }, 	{
+  // Loader::GetPath("/Shaders/Geometry/geometry.fragment").c_str(),
+  // ShaderType::FRAGMENT }
+  // };
+  // shader_deferred_geometry.load();
+  // Shaders[SHADER_DEFFERED_GEOMETRY] = shader_deferred_geometry;
+  // ResourceManager::storeShader(SHADER_DEFFERED_GEOMETRY,
+  // shader_deferred_geometry);
+
+  // Shader shader_filter_blur;
+  // shader_filter_blur.layers = {
+  // 	{ Loader::GetPath("/Shaders/texture.vertex").c_str(), ShaderType::VERTEX
+  // }, 	{ Loader::GetPath("/Shaders/Filter/blur.fragment").c_str(),
+  // ShaderType::FRAGMENT }
+  // };
+  // shader_filter_blur.load();
+  // Shaders[SHADER_FILTER_BLUR] = shader_filter_blur;
+  // ResourceManager::storeShader(SHADER_FILTER_BLUR, shader_filter_blur);
 }
 
 void clearScreen(glm::vec4 color) {

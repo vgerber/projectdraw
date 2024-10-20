@@ -2,36 +2,32 @@
 
 #include "GL/glew.h"
 
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <iostream>
-#include <fstream>
-#include <sstream>
+
 
 #include "Core/Util/Debug/logging.h"
 
-enum ShaderType {
-	VERTEX,
-	FRAGMENT,
-	GEOMETRY
-};
+enum ShaderType { VERTEX, FRAGMENT, GEOMETRY };
 
 struct ShaderLayer {
-	std::string path;
-	ShaderType type;
+  std::string path;
+  ShaderType type;
 };
 
-class Shader
-{
-public:	
-	std::vector<ShaderLayer> layers;
+class Shader {
+public:
+  std::vector<ShaderLayer> layers;
 
-	Shader();
+  Shader();
 
-	GLuint getId();
-	void load();
-	void use();
+  GLuint getId();
+  void load();
+  void use();
 
 private:
-	GLuint programm_id;
+  GLuint programm_id;
 };

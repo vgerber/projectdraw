@@ -1,36 +1,39 @@
 #pragma once
-//#define GLEW_STATIC
+// #define GLEW_STATIC
 #include <GL/glew.h>
 
-//Resources
-#include "core.h"
+// base libs
+#include <btBulletDynamicsCommon.h>
+
+// Resources
+#include "Resource/loader.h"
 #include "Resource/resourcemanager.h"
 #include "Shader/shader.h"
+#include "core.h"
 
-//basic imports
+// basic imports
 #include "Scene/Scenes/scene.h"
 #include "Scene/Scenes/scene2d.h"
 
-
-//camera
+// camera
 #include "Scene/Camera/camera.h"
-#include "Scene/Camera/perspcamera.h"
 #include "Scene/Camera/orthocamera.h"
+#include "Scene/Camera/perspcamera.h"
 
-//primitves
+// primitves
 #include "Mesh/Primitives/primitives.h"
 
-//particles
+// particles
 #include "Core/Scene/Particle/particles.h"
 
-//lighting
+// lighting
 #include "Scene/Light/dlight.h"
 #include "Scene/Light/plight.h"
 #include "Scene/Light/slight.h"
 
-//font
+// font
 #include "Scene/Text/text.h"
 
-//util
+// util
 #include "Util/Debug/vector.h"
 #include "Util/Mouse/mouse.h"
