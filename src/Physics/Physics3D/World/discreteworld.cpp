@@ -20,7 +20,7 @@ void DiscreteWorld::addCollisionObject(CollisionObject &collisionObject,
   } else if (TriggerVolume *tVolume =
                  dynamic_cast<TriggerVolume *>(&collisionObject)) {
     triggerVolumes.push_back(tVolume);
-    world->addCollisionObject(tVolume->getCollisionObjectHandle());
+    world->addCollisionObject(tVolume->getCollisionObjectHandle(), group, mask);
   }
   collisionObjects.push_back(&collisionObject);
 }
@@ -95,7 +95,7 @@ void DiscreteWorld::setup() {
   world = new btDiscreteDynamicsWorld(collisionDispatcher, broadphase,
                                       constrainSolver, collisionConfig);
   static_cast<btDynamicsWorld *>(world)->setGravity(
-      btVector3(0.0f, 0.0f, -10.0f));
+      btVector3(0.0f, -10.0f, 0.0f));
   world->setDebugDrawer(&debugDrawer);
 
   debugDrawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe |
