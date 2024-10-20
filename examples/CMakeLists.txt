@@ -1,3 +1,4 @@
+add_subdirectory(opengl_test)
 add_subdirectory(2d_demo)
 add_subdirectory(3d_demo)
 add_subdirectory(texture_demo)
